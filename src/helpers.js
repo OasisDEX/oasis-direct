@@ -103,3 +103,7 @@ export function etherscanTx(network, text, tx) {
 export function etherscanToken(network, text, token, holder = false) {
   return <a href={ `${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ''}` } target="_blank" rel="noopener noreferrer">{ text }</a>
 }
+
+export function methodSig(method) {
+  return web3.sha3(method).substring(0, 10)
+}

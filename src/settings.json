@@ -4,28 +4,40 @@
     "private": {
       "otc": "",
       "tub": "",
-      "weth": "",
-      "mkr": "",
-      "sai": "",
+      "tokens": {
+        "weth": "",
+        "mkr": "",
+        "sai": ""
+      },
       "proxyFactory": "",
       "fromBlock": 0
     },
     "kovan": {
-      "otc": "0x375d52588c3f39ee7710290237a95C691d8432E7",
+      "otc": "0xb80fef87a9d500b4ae13b8737e653b7e6aba8c90",
       "tub": "",
-      "weth": "0x53eccc9246c1e537d79199d0c7231e425a40f896",
-      "mkr": "0x4bb514a7f83fbb13c2b41448208e89fabbcfe2fb",
-      "sai": "0x228bf3d5be3ee4b80718b89b68069b023c32131e",
-      "proxyFactory": "0xe82f08b89f5269570fea634f87a848614afca1a1",
+      "tokens": {
+        "weth": "0x53eccc9246c1e537d79199d0c7231e425a40f896",
+        "mkr": "0x4bb514a7f83fbb13c2b41448208e89fabbcfe2fb",
+        "sai": "0x228bf3d5be3ee4b80718b89b68069b023c32131e"
+      },
+      "proxyFactory": "0x8f71f4df694f0050b8727c67e584e2f1725029d6",
+      "proxyContracts": {
+        "oasisSai": "0x846fd816cbf50f1fc71274f1490739eb47e125b9"
+      },
       "fromBlock": 0
     },
     "main": {
       "otc": "",
       "tub": "",
-      "weth": "",
-      "mkr": "",
-      "sai": "",
+      "tokens": {
+        "weth": "",
+        "mkr": "",
+        "sai": ""
+      },
       "proxyFactory": "",
+      "proxyContracts": {
+        "oasisSai": ""
+      },
       "fromBlock": 0
     }
   }

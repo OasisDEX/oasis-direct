@@ -2,22 +2,18 @@ import React, { Component } from 'react';
 import NoConnection from './NoConnection';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
+import { toBytes32, addressToBytes32, etherscanTx, methodSig } from '../helpers';
 // import logo from '../makerdao.svg';
 import './App.css';
-import SetAssets from './SetAssets';
-import SetDetailsBasic from './SetDetailsBasic';
-import TradeBasic from './TradeBasic';
+import SetTrade from './SetTrade';
+import DoTrade from './DoTrade';
 
 const settings = require('../settings');
 
 const dstoken = require('../abi/dstoken');
 const dsethtoken = require('../abi/dsethtoken');
-const dsvalue = require('../abi/dsvalue');
 const dsproxyfactory = require('../abi/dsproxyfactory');
 const dsproxy = require('../abi/dsproxy');
-
-const proxyActions = require('../proxyActions');
 
 class App extends Component {
   constructor() {
@@ -40,13 +36,14 @@ class App extends Component {
       },
       otc: '',
       tub: '',
-      system: {
+      trade: {
         step: 1,
-        type: 'basic',
+        operation: '',
         from: null,
         to: null,
-        amountSell: null,
-        amountBuy: 0,
+        amountPay: web3.toBigNumber(0),
+        amountBuy: web3.toBigNumber(0),
+        txCost: web3.toBigNumber(0),
       }
     };
   }
@@ -308,10 +305,6 @@ class App extends Component {
       }
     })
   }
-
-  methodSig = (method) => {
-    return web3.sha3(method).substring(0, 10)
-  }
   //
 
   // Transactions
@@ -368,71 +361,192 @@ class App extends Component {
   //
 
   // Actions
-  changeType = (type) => {
+  getCallDataAndValue = (operation, from, to, amount, limit) => {
+    const result = {};
+    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
+    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')], false);
+    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')], false);
+    if (operation === 'sellAll') {
+      if (from === "eth") {
+        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
+                  `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`
+        result.value = web3.toWei(amount);
+      } else if (to === "eth") {
+        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+                  `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`
+      } else {
+        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
+                  `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`
+      }
+    } else {
+      if (from === "eth") {
+        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address,uint256)')}` +
+                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+        result.value = limit;
+      } else if (to === "eth") {
+        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+      } else {
+        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
+                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+      }
+    }
+    return result;
+  }
+
+  goToDoTradeStep = (from, to) => {
     this.setState((prevState, props) => {
-      const system = { ...prevState.system };
-      system.type = type;
-      return { system };
+      const trade = { ...prevState.trade };
+      trade.step = 2;
+      return { trade };
+    }, () => {
+      setTimeout(this.doTrade, 1500);
     });
   }
 
-  goToDetailsBasicStep = (from, to) => {
-    this.setState((prevState, props) => {
-      const system = { ...prevState.system };
-      system.step = 2;
-      system.from = from;
-      system.to = to;
-      return { system };
+  doTrade = () => {
+    const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
+    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95): this.state.trade.amountPay.times(1.05)).round(0);
+    const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    Promise.resolve(this.callProxyTx('sendTransaction', params.calldata, params.value)).then((tx) => {
+      this.logPendingTransaction(tx, `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`);
     });
   }
 
-  goToDetailsMarginStep = (leverage) => {
-    this.setState((prevState, props) => {
-      const system = { ...prevState.system };
-      system.step = 2;
-      system.leverage = leverage;
-      return { system };
+  getBalance = (address) => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getBalance(address, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          resolve(e);
+        }
+      })
     });
   }
 
   calculateBuyAmount = (from, to, amount) => {
-    this.proxyObj.execute.call(proxyActions.trade,
-                               `${this.methodSig('sellAll(address,address,address,uint256)')}${addressToBytes32(this.state.otc.address, false)}${addressToBytes32(this.state.tokens[to].address, false)}${addressToBytes32(this.state.tokens[from].address, false)}${toBytes32(web3.toWei(amount), false)}`,
-                               (e, r) => {
-                                 if (!e) {
-                                  this.setState((prevState, props) => {
-                                    const system = { ...prevState.system };
-                                    system.amountBuy = web3.fromWei(web3.toBigNumber(r));
-                                    return { system };
-                                  });
-                                 }
-                               });
+    this.setState((prevState, props) => {
+      const trade = { ...prevState.trade };
+      trade.from = from;
+      trade.to = to;
+      trade.amountBuy = web3.toBigNumber(0);
+      trade.amountPay = web3.toBigNumber(amount);
+      trade.operation = 'sellAll';
+      trade.txCost = web3.toBigNumber(0);
+      return { trade };
+    }, () => {
+      const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+
+      Promise.resolve(this.callProxyTx('call', params.calldata, params.value)).then((r) => {
+        this.setState((prevState, props) => {
+          const trade = { ...prevState.trade };
+          trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
+          return { trade };
+        });
+      });
+      this.calculateCost(params.calldata, params.value);
+    });
+  }
+
+  calculatePayAmount = (from, to, amount) => {
+    this.setState((prevState, props) => {
+      const trade = { ...prevState.trade };
+      trade.from = from;
+      trade.to = to;
+      trade.amountBuy = web3.toBigNumber(amount);
+      trade.amountPay = web3.toBigNumber(0);
+      trade.operation = 'buyAll';
+      trade.txCost = web3.toBigNumber(0);
+      return { trade };
+    }, async () => {
+      const limit = from === 'eth' ? await this.getBalance(this.state.network.defaultAccount) : web3.toWei(99999999);
+      const params = this.getCallDataAndValue('buyAll', from, to, amount, limit);
+      
+      Promise.resolve(this.callProxyTx('call', params.calldata, params.value)).then((r) => {
+        this.setState((prevState, props) => {
+          const trade = { ...prevState.trade };
+          trade.amountPay = web3.fromWei(web3.toBigNumber(r));
+          return { trade };
+        });
+      });
+      this.calculateCost(params.calldata, params.value);
+    });
+  }
+
+  callProxyTx = (type, calldata, value = 0) => {
+    console.log(value.valueOf());
+    return new Promise((resolve, reject) => {
+      this.proxyObj.execute['address,bytes'][type](settings.chain[this.state.network.network].proxyContracts.oasisSai,
+        calldata,
+        { value },
+        (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
+          }
+        }
+      );
+    });
+  }
+
+  calculateCost = (calldata, value = 0) => {
+    Promise.all([this.estimateGas(calldata, value), this.getGasPrice()]).then((r) => {
+      this.setState((prevState, props) => {
+        const trade = { ...prevState.trade };
+        trade.txCost = web3.fromWei(r[1].times(r[0]));
+        return { trade };
+      });
+    });
+  }
+
+  estimateGas = (calldata, value) => {
+    return new Promise((resolve, reject) => {
+      const data = this.proxyObj.execute['address,bytes'].getData(
+        settings.chain[this.state.network.network].proxyContracts.oasisSai,
+        calldata
+      );
+      web3.eth.estimateGas(
+          { to: this.proxyObj.address, data, value },
+          (e, r) => {
+            if (!e) {
+              resolve(r);
+            } else {
+              reject(e);
+            }
+          }
+      );
+    });
+  }
+
+  getGasPrice = () => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getGasPrice(
+          (e, r) => {
+            if (!e) {
+              resolve(r);
+            } else {
+              reject(e);
+            }
+          }
+      );
+    });
   }
   //
 
   renderMain = () => {
     return (
-      this.state.system.step === 1
-      ? 
-        <SetAssets type={ this.state.system.type } changeType={ this.changeType } goToDetailsBasicStep={ this.goToDetailsBasicStep } />
-      :
-        this.state.system.step === 2
-        ?
-          this.state.system.type === 'basic'
-          ?
-            <SetDetailsBasic from={ this.state.system.from } to={ this.state.system.to } calculateBuyAmount={ this.calculateBuyAmount } amountBuy = { this.state.system.amountBuy } />
+      <div>
+        {
+          this.state.trade.step === 1
+          ? 
+            <SetTrade calculateBuyAmount={ this.calculateBuyAmount } calculatePayAmount={ this.calculatePayAmount } goToDoTradeStep={ this.goToDoTradeStep } trade={ this.state.trade } />
           :
-            ''    
-        :
-          this.state.system.step === 3
-          ?
-            this.state.system.type === 'basic'
-            ?
-              <TradeBasic />
-            :
-              ''
-          :
-            ''
+            <DoTrade trade={ this.state.trade } />
+        }
+        <ReactNotify ref='notificator'/>
+      </div>
     );
   }
 
