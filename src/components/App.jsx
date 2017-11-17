@@ -14,6 +14,7 @@ const dstoken = require('../abi/dstoken');
 const dsethtoken = require('../abi/dsethtoken');
 const dsproxyfactory = require('../abi/dsproxyfactory');
 const dsproxy = require('../abi/dsproxy');
+const matchingmarket = require('../abi/matchingmarket');
 
 class App extends Component {
   constructor() {
@@ -173,19 +174,17 @@ class App extends Component {
 
       const setUpPromises = [this.getProxyAddress()];
       Promise.all(setUpPromises).then((r) => {
-        if (r[0].length > 0) {
-          const proxy = r[0][r[0].length - 1].args.proxy;
-          window.proxyObj = this.proxyObj = this.loadObject(dsproxy.abi, proxy);
-        } else {
-          
-        }
-        this.setUpAddress('otc');
-        this.setUpAddress('tub');
-        this.setUpToken('weth');
-        this.setUpToken('mkr');
-        this.setUpToken('sai');
-        // This is necessary to finish transactions that failed after signing
-        this.setPendingTxInterval();
+        this.setState((prevState, props) => {
+          return { proxy: r[0].length > 0 ? r[0][r[0].length - 1].args.proxy : null };
+        }, () => {
+          this.setUpAddress('otc');
+          this.setUpAddress('tub');
+          this.setUpToken('weth');
+          this.setUpToken('mkr');
+          this.setUpToken('sai');
+          // This is necessary to finish transactions that failed after signing
+          this.setPendingTxInterval();
+        });
       });
     });
   }
@@ -234,7 +233,7 @@ class App extends Component {
     this.setState((prevState, props) => {
       const tokens = {...prevState.tokens};
       const tok = {...tokens[token]};
-      tok.address = addrs[token];
+      tok.address = addrs.tokens[token];
       tokens[token] = tok;
       return { tokens };
     }, () => {
@@ -369,26 +368,26 @@ class App extends Component {
     if (operation === 'sellAll') {
       if (from === "eth") {
         result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-                  `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`
+                          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
         result.value = web3.toWei(amount);
       } else if (to === "eth") {
         result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-                  `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`
+                          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
       } else {
         result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-                  `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`
+                          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
       }
     } else {
       if (from === "eth") {
-        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address,uint256)')}` +
-                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
+                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
         result.value = limit;
       } else if (to === "eth") {
         result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
       } else {
         result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-                  `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`
+                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
       }
     }
     return result;
@@ -408,7 +407,7 @@ class App extends Component {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
     const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95): this.state.trade.amountPay.times(1.05)).round(0);
     const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    Promise.resolve(this.callProxyTx('sendTransaction', params.calldata, params.value)).then((tx) => {
+    Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then((tx) => {
       this.logPendingTransaction(tx, `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`);
     });
   }
@@ -416,6 +415,42 @@ class App extends Component {
   getBalance = (address) => {
     return new Promise((resolve, reject) => {
       web3.eth.getBalance(address, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          resolve(e);
+        }
+      })
+    });
+  }
+
+  getTokenBalance = (token, address) => {
+    return new Promise((resolve, reject) => {
+      this[`${token}Obj`].balanceOf.call(address, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          resolve(e);
+        }
+      })
+    });
+  }
+
+  getTokenTrusted = (token, from, to) => {
+    return new Promise((resolve, reject) => {
+      this[`${token}Obj`].trusted.call(from, to, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          resolve(e);
+        }
+      })
+    });
+  }
+
+  getTokenAllowance = (token, from, to) => {
+    return new Promise((resolve, reject) => {
+      this[`${token}Obj`].allowance.call(from, to, (e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -436,16 +471,36 @@ class App extends Component {
       trade.txCost = web3.toBigNumber(0);
       return { trade };
     }, () => {
-      const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+      this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getBuyAmount(
+                                                                                            this.state.tokens[to.replace('eth', 'weth')].address,
+                                                                                            this.state.tokens[from.replace('eth', 'weth')].address,
+                                                                                            web3.toWei(amount),
+      (e, r) => {
+        if (!e) {
+          this.setState((prevState, props) => {
+            const trade = { ...prevState.trade };
+            trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
+            return { trade };
+          }, async () => {
+            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+            const canUseAddress = this.state.proxy
+                                  ?
+                                    from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
+                                  :
+                                    false;
+            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
 
-      Promise.resolve(this.callProxyTx('call', params.calldata, params.value)).then((r) => {
-        this.setState((prevState, props) => {
-          const trade = { ...prevState.trade };
-          trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
-          return { trade };
-        });
+            const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+
+            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+          });
+        } else {
+          console.log(e);
+        }
       });
-      this.calculateCost(params.calldata, params.value);
     });
   }
 
@@ -459,27 +514,47 @@ class App extends Component {
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
       return { trade };
-    }, async () => {
-      const limit = from === 'eth' ? await this.getBalance(this.state.network.defaultAccount) : web3.toWei(99999999);
-      const params = this.getCallDataAndValue('buyAll', from, to, amount, limit);
-      
-      Promise.resolve(this.callProxyTx('call', params.calldata, params.value)).then((r) => {
-        this.setState((prevState, props) => {
-          const trade = { ...prevState.trade };
-          trade.amountPay = web3.fromWei(web3.toBigNumber(r));
-          return { trade };
-        });
+    }, () => {
+      this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getPayAmount(
+        this.state.tokens[from.replace('eth', 'weth')].address,
+        this.state.tokens[to.replace('eth', 'weth')].address,
+        web3.toWei(amount),
+      (e, r) => {
+        if (!e) {
+          this.setState((prevState, props) => {
+            const trade = { ...prevState.trade };
+            trade.amountPay = web3.fromWei(web3.toBigNumber(r));
+            return { trade };
+          }, async () => {
+            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+            const canUseAddress = this.state.proxy
+                                  ?
+                                    from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
+                                    ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
+                                  :
+                                    false;
+            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+            const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
+            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+
+            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+          });
+        } else {
+          console.log(e);
+        }
       });
-      this.calculateCost(params.calldata, params.value);
     });
   }
 
-  callProxyTx = (type, calldata, value = 0) => {
-    console.log(value.valueOf());
+  callProxyTx = (proxyAddr, type, calldata, value = 0, from) => {
+    console.log(value);
+    console.log(proxyAddr, type, calldata, value, from);
     return new Promise((resolve, reject) => {
-      this.proxyObj.execute['address,bytes'][type](settings.chain[this.state.network.network].proxyContracts.oasisSai,
+      this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisSai,
         calldata,
-        { value },
+        { value, from },
         (e, r) => {
           if (!e) {
             resolve(r);
@@ -491,8 +566,9 @@ class App extends Component {
     });
   }
 
-  calculateCost = (calldata, value = 0) => {
-    Promise.all([this.estimateGas(calldata, value), this.getGasPrice()]).then((r) => {
+  calculateCost = (proxyAddr, calldata, value = 0, from) => {
+    console.log(proxyAddr, calldata, value, from);
+    Promise.all([this.estimateGas(proxyAddr, calldata, value, from), this.getGasPrice()]).then((r) => {
       this.setState((prevState, props) => {
         const trade = { ...prevState.trade };
         trade.txCost = web3.fromWei(r[1].times(r[0]));
@@ -501,14 +577,14 @@ class App extends Component {
     });
   }
 
-  estimateGas = (calldata, value) => {
+  estimateGas = (proxyAddr, calldata, value, from) => {
     return new Promise((resolve, reject) => {
-      const data = this.proxyObj.execute['address,bytes'].getData(
+      const data = this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes'].getData(
         settings.chain[this.state.network.network].proxyContracts.oasisSai,
         calldata
       );
       web3.eth.estimateGas(
-          { to: this.proxyObj.address, data, value },
+          { to: proxyAddr, data, value, from },
           (e, r) => {
             if (!e) {
               resolve(r);
