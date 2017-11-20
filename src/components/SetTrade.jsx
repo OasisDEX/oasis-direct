@@ -2,9 +2,13 @@ import React, { Component } from 'react';
 
 class SetTrade extends Component {
 
+  cleanInputs = () => {
+    this.props.cleanInputs();
+  }
+
   tokenPicker = (name) => {
     return(
-      <select ref={ (input) => this[name] = input }>
+      <select ref={ (input) => this[name] = input } onChange={ this.cleanInputs } defaultValue={ this.props.trade[name] }>
         <option value="eth">Ether</option>
         <option value="mkr">Maker</option>
         <option value="sai">Sai</option>

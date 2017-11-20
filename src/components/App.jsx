@@ -40,8 +40,8 @@ class App extends Component {
       trade: {
         step: 1,
         operation: '',
-        from: null,
-        to: null,
+        from: 'eth',
+        to: 'sai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
         txCost: web3.toBigNumber(0),
@@ -564,6 +564,16 @@ class App extends Component {
     });
   }
 
+  cleanInputs = () => {
+    this.setState((prevState, props) => {
+      const trade = { ...prevState.trade };
+      trade.amountBuy = web3.toBigNumber(0);
+      trade.amountPay = web3.toBigNumber(0);
+      trade.txCost = web3.toBigNumber(0);
+      return { trade };
+    });
+  }
+
   calculateBuyAmount = (from, to, amount) => {
     this.setState((prevState, props) => {
       const trade = { ...prevState.trade };
@@ -718,7 +728,7 @@ class App extends Component {
         {
           this.state.trade.step === 1
           ? 
-            <SetTrade calculateBuyAmount={ this.calculateBuyAmount } calculatePayAmount={ this.calculatePayAmount } goToDoTradeStep={ this.goToDoTradeStep } trade={ this.state.trade } />
+            <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount } calculatePayAmount={ this.calculatePayAmount } goToDoTradeStep={ this.goToDoTradeStep } trade={ this.state.trade } />
           :
             <DoTrade trade={ this.state.trade } />
         }
