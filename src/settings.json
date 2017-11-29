@@ -24,7 +24,7 @@
         "sai": "0x228bf3d5be3ee4b80718b89b68069b023c32131e"
       },
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
-      "proxyCreationAndExecute": "0x2c9da845b23d964e7f08b2a155b16f57b502dcf0",      
+      "proxyCreationAndExecute": "0x2c9da845b23d964e7f08b2a155b16f57b502dcf0",
       "proxyContracts": {
         "oasisDirect": "0x59360bbdb6382118815885a18b1b0448d37260ab"
       },
