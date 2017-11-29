@@ -3,7 +3,6 @@
   "chain": {
     "private": {
       "otc": "",
-      "tub": "",
       "tokens": {
         "weth": "",
         "mkr": "",
@@ -11,7 +10,7 @@
       },
       "proxyFactory": "",
       "proxyContracts": {
-        "oasisSai": ""
+        "oasisDirect": ""
       },
       "addrEstimation": "",
       "proxyEstimation": "",
@@ -19,15 +18,15 @@
     },
     "kovan": {
       "otc": "0x9b169233d6b81a3cacc68d0bc7efe4ab73605150",
-      "tub": "",
       "tokens": {
         "weth": "0x53eccc9246c1e537d79199d0c7231e425a40f896",
         "mkr": "0x4bb514a7f83fbb13c2b41448208e89fabbcfe2fb",
         "sai": "0x228bf3d5be3ee4b80718b89b68069b023c32131e"
       },
-      "proxyFactory": "0x69f6b4a4bB058DE233F2C1c6eF3D79830a7Ba9e6",
+      "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
+      "proxyCreationAndExecute": "0x2c9da845b23d964e7f08b2a155b16f57b502dcf0",      
       "proxyContracts": {
-        "oasisSai": "0xdb3ca2a0ab4a3c610d1bb8283dbc5617f8b796b4"
+        "oasisDirect": "0x59360bbdb6382118815885a18b1b0448d37260ab"
       },
       "addrEstimation": "0xdb33dfd3d61308c33c63209845dad3e6bfb2c674",
       "proxyEstimation": "0x4057d5726d52cce37c060e87270fbf09998cddaf",
@@ -35,7 +34,6 @@
     },
     "main": {
       "otc": "",
-      "tub": "",
       "tokens": {
         "weth": "",
         "mkr": "",
@@ -43,7 +41,7 @@
       },
       "proxyFactory": "",
       "proxyContracts": {
-        "oasisSai": ""
+        "oasisDirect": ""
       },
       "addrEstimation": "",
       "proxyEstimation": "",

@@ -15,6 +15,7 @@ const dsethtoken = require('../abi/dsethtoken');
 const dsproxyfactory = require('../abi/dsproxyfactory');
 const dsproxy = require('../abi/dsproxy');
 const matchingmarket = require('../abi/matchingmarket');
+const proxycreateandexecute = require('../abi/proxycreateandexecute');
 
 class App extends Component {
   constructor() {
@@ -175,7 +176,7 @@ class App extends Component {
       const setUpPromises = [this.getProxyAddress()];
       Promise.all(setUpPromises).then((r) => {
         this.setState((prevState, props) => {
-          return { proxy: r[0].length > 0 ? r[0][r[0].length - 1].args.proxy : null };
+          return { proxy: r[0] };
         }, () => {
           this.setUpAddress('otc');
           this.setUpAddress('tub');
@@ -205,10 +206,9 @@ class App extends Component {
     }
   }
 
-  getProxyAddress = () => {
-    const p = new Promise((resolve, reject) => {
-      const addrs = settings.chain[this.state.network.network];
-      this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: addrs.fromBlock }).get((e, r) => {
+  getProxyOwner = (proxy) => {
+    return new Promise((resolve, reject) => {
+      this.loadObject(dsproxy.abi, proxy).owner((e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -216,7 +216,30 @@ class App extends Component {
         }
       });
     });
-    return p;
+  }
+
+  getProxyAddress = () => {
+    const network = this.state.network;
+    return new Promise((resolve, reject) => {
+      const addrs = settings.chain[network.network];
+      this.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: addrs.fromBlock }).get(async (e, r) => {
+        if (!e) {
+          if (r.length > 0) {
+            for (let i = r.length - 1; i >= 0; i--) {
+              if (await this.getProxyOwner(r[i].args.proxy) === network.defaultAccount) {
+                resolve(r[i].args.proxy);
+                break;
+              }
+            }
+            resolve(null);
+          } else {
+            resolve(null);
+          }
+        } else {
+          reject(e);
+        }
+      });
+    });
   }
 
   setUpAddress = (contract) => {
@@ -349,23 +372,15 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         this.refs.notificator.hideNotification(tx);
         this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
-        if (transactions[tx].callback.length > 0) {
-          if (transactions[tx].isProxyTx) {
-            Promise.resolve(this.getProxyAddress()).then(r => {
-              console.log(r);
-              this.setState((prevState, props) => {
-                return { proxy: r.length > 0 ? r[r.length - 1].args.proxy : null };
-              }, () => {
-                if (this.state.proxy) {
-                  this.executeCallback(transactions[tx].callback);
-                } else {
-                  console.log('Error occurred getting proxy address')
-                }
-              });
+        if (transactions[tx].callback && transactions[tx].callback.length > 0) {
+          this.executeCallback(transactions[tx].callback);
+        }
+        if (transactions[tx].isProxyTx) {
+          Promise.resolve(this.getProxyAddress()).then(proxy => {
+            this.setState((prevState, props) => {
+              return { proxy };
             });
-          } else {
-            this.executeCallback(transactions[tx].callback);
-          }
+          });
         }
       });
     }
@@ -474,23 +489,23 @@ class App extends Component {
     }
   }
 
-  checkProxy = (callback) => {
-    if (this.state.proxy) {
-      this.executeCallback(callback);
-    } else {
-      const id = Math.random();
-      const title = `Create profile`;
-      this.logRequestTransaction(id, title);
-      this.proxyFactoryObj.build((e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(id, tx, title, callback, true);
-        } else {
-          console.log(e);
-          this.logTransactionRejected(id, title);
-        }
-      });
-    }
-  }
+  // checkProxy = (callback) => {
+  //   if (this.state.proxy) {
+  //     this.executeCallback(callback);
+  //   } else {
+  //     const id = Math.random();
+  //     const title = `Create profile`;
+  //     this.logRequestTransaction(id, title);
+  //     this.proxyFactoryObj.build((e, tx) => {
+  //       if (!e) {
+  //         this.logPendingTransaction(id, tx, title, callback, true);
+  //       } else {
+  //         console.log(e);
+  //         this.logTransactionRejected(id, title);
+  //       }
+  //     });
+  //   }
+  // }
 
   executeProxyTx = (amount, limit) => {
     const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
@@ -505,15 +520,74 @@ class App extends Component {
     });
   }
 
+  executeProxyCreateAndExecute = (amount, limit) => {
+    let method = "";
+    let params = [];
+    let value = 0;
+    const addrFrom = this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address;
+    const addrTo = this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address;
+    if (this.state.trade.operation === 'sellAll') {
+      if (this.state.trade.from === "eth") {
+        method = 'createAndSellAllAmountPayEth';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
+        value = web3.toWei(amount);
+      } else if (this.state.trade.to === "eth") {
+        method = 'createAndSellAllAmountBuyEth';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+      } else {
+        method = 'createAndSellAllAmount';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+      }
+    } else {
+      if (this.state.trade.from === "eth") {
+        method = 'createAndBuyAllAmountPayEth';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
+        value = limit;
+      } else if (this.state.trade.to === "eth") {
+        method = 'createAndBuyAllAmountBuyEth';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+      } else {
+        method = 'createAndBuyAllAmount';
+        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+      }
+    }
+
+    const id = Math.random();
+    const title = `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`;
+    this.logRequestTransaction(id, title);
+    const promise = new Promise((resolve, reject) => {
+      this.loadObject(proxycreateandexecute.abi,
+                      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, { value }, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          resolve(e);
+        }
+      })
+    });
+    Promise.resolve(promise).then(tx => {
+      this.logPendingTransaction(id, tx, title, null, true);
+    }, (e) =>  {
+      console.log(e);
+      this.logTransactionRejected(id, title);
+    });
+  }
+
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
     const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95): this.state.trade.amountPay.times(1.05)).round(0);
-    this.checkProxy(['checkAllowance',
-                      this.state.trade.from,
-                      this.state.proxy,
-                      this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
-                      ['executeProxyTx', amount, limit]
-                    ])
+    if (this.state.proxy) {
+      this.checkAllowance(this.state.trade.from,
+                          this.state.proxy,
+                          this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+                          ['executeProxyTx', amount, limit]);
+    } else {
+      // No Proxy created, we need to use the support contract
+      this.checkAllowance(this.state.trade.from,
+                          settings.chain[this.state.network.network].proxyCreationAndExecute,
+                          this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+                          ['executeProxyCreateAndExecute', amount, limit]);
+    }
   }
 
   getBalance = (address) => {
@@ -664,7 +738,7 @@ class App extends Component {
 
   callProxyTx = (proxyAddr, type, calldata, value = 0, from) => {
     return new Promise((resolve, reject) => {
-      this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisSai,
+      this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisDirect,
         calldata,
         { value, from },
         (e, r) => {
@@ -691,7 +765,7 @@ class App extends Component {
   estimateGas = (proxyAddr, calldata, value, from) => {
     return new Promise((resolve, reject) => {
       const data = this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes'].getData(
-        settings.chain[this.state.network.network].proxyContracts.oasisSai,
+        settings.chain[this.state.network.network].proxyContracts.oasisDirect,
         calldata
       );
       web3.eth.estimateGas(
