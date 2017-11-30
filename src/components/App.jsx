@@ -45,6 +45,8 @@ class App extends Component {
         to: 'sai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
+        amountPayInput: 0,
+        amountBuyInput: 0,
         txCost: web3.toBigNumber(0),
       }
     };
@@ -643,6 +645,8 @@ class App extends Component {
       const trade = { ...prevState.trade };
       trade.amountBuy = web3.toBigNumber(0);
       trade.amountPay = web3.toBigNumber(0);
+      trade.amountBuyInput = 0;
+      trade.amountPayInput = 0;
       trade.txCost = web3.toBigNumber(0);
       return { trade };
     });
@@ -655,6 +659,8 @@ class App extends Component {
       trade.to = to;
       trade.amountBuy = web3.toBigNumber(0);
       trade.amountPay = web3.toBigNumber(amount);
+      trade.amountBuyInput = 0;
+      trade.amountPayInput = amount;
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
       return { trade };
@@ -668,22 +674,25 @@ class App extends Component {
           this.setState((prevState, props) => {
             const trade = { ...prevState.trade };
             trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
+            trade.amountBuyInput = trade.amountBuy.valueOf();
             return { trade };
           }, async () => {
-            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-            const canUseAddress = this.state.proxy
-                                  ?
-                                    from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
-                                  :
-                                    false;
-            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+            if(this.state.trade.amountBuy.gt(0)) {
+              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+              const canUseAddress = this.state.proxy
+                                    ?
+                                      from === 'eth' ||
+                                      await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                                      (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
+                                    :
+                                      false;
+              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
 
-            const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
-            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+              const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
 
-            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+            }
           });
         } else {
           console.log(e);
@@ -699,6 +708,8 @@ class App extends Component {
       trade.to = to;
       trade.amountBuy = web3.toBigNumber(amount);
       trade.amountPay = web3.toBigNumber(0);
+      trade.amountBuyInput = amount;
+      trade.amountPayInput = 0;
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
       return { trade };
@@ -712,22 +723,25 @@ class App extends Component {
           this.setState((prevState, props) => {
             const trade = { ...prevState.trade };
             trade.amountPay = web3.fromWei(web3.toBigNumber(r));
+            trade.amountPayInput = trade.amountPayInput;
             return { trade };
           }, async () => {
-            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-            const canUseAddress = this.state.proxy
-                                  ?
-                                    from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
-                                    ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
-                                  :
-                                    false;
-            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-            const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
-            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+            if(this.state.trade.amountPay.gt(0)) {
+              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+              const canUseAddress = this.state.proxy
+              ?
+                from === 'eth' ||
+                await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
+                ||
+                (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
+              :
+                false;
+              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+              const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
+              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
 
-            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+            }
           });
         } else {
           console.log(e);

@@ -40,8 +40,8 @@ class SetTrade extends Component {
               { this.tokenPicker('from') }
               { this.tokenPicker('to') }
             </div>
-            <input type="number" ref={ (input) => this.amountPay = input } value={ this.props.trade.amountPay } onChange={ this.calculateBuyAmount } />
-            <input type="number" ref={ (input) => this.amountBuy = input } value={ this.props.trade.amountBuy } onChange={ this.calculatePayAmount } />
+            <input type="number" ref={ (input) => this.amountPay = input } value={ this.props.trade.amountPayInput } onChange={ this.calculateBuyAmount } />
+            <input type="number" ref={ (input) => this.amountBuy = input } value={ this.props.trade.amountBuyInput } onChange={ this.calculatePayAmount } />
           </div>
           <div>
             {
