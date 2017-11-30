@@ -723,7 +723,7 @@ class App extends Component {
           this.setState((prevState, props) => {
             const trade = { ...prevState.trade };
             trade.amountPay = web3.fromWei(web3.toBigNumber(r));
-            trade.amountPayInput = trade.amountPayInput;
+            trade.amountPayInput = trade.amountPay.valueOf();
             return { trade };
           }, async () => {
             if(this.state.trade.amountPay.gt(0)) {
