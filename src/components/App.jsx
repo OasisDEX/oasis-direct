@@ -3,8 +3,6 @@ import NoConnection from './NoConnection';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { toBytes32, addressToBytes32, etherscanTx, methodSig } from '../helpers';
-// import logo from '../makerdao.svg';
-import './App.css';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 

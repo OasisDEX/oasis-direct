@@ -1,0 +1,178 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.notify-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: flex-start;
+  align-content: flex-start;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9998;
+}
+
+.ReactModal__Overlay {
+  z-index: 9999;
+}
+
+.notify-item {
+  width: 250px;
+  margin: 5px 10px;
+  color: #FFF;
+  border-radius: 5px;
+}
+
+.notify-item a {
+  color: #FFF;
+}
+
+.notify-item:hover {
+  opacity: 0.8;
+  box-shadow: 0 0 10px 0 rgb(15, 15, 15);
+}
+
+.notify-item > p {
+  font-family: 'Lora', serif;
+  margin: 10px;
+  opacity: .8;
+}
+
+.notify-item.success {
+  background-color: rgba(81, 163, 81, 0.9);
+}
+
+.notify-item.error {
+  background-color: rgba(203, 100, 94, 0.9);
+}
+
+.notify-item.info {
+  background-color: rgba(33, 150, 243, 0.9);
+}
+
+.notify-title {
+  font-weight: 700;
+}
+
+.frame{
+  position: relative;
+
+  box-sizing: border-box;
+  width: 364px;
+  height: 324px;
+  padding: 18px 16px;
+
+  border: 1px solid rgba(182, 182, 183, 0.05);
+  border-radius: 4px;
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.08);
+
+  background: white;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 24px;
+  color: rgba(73, 73, 74, 0.90);
+}
+
+.heading h1,.heading h2,.heading h3,.heading h4,.heading h5,.heading h6 {
+  -webkit-margin-before: 0;
+  margin: 0;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+
+  line-height: 1.25;
+}
+
+.heading h1 {
+  font-size: 18px;
+}
+.heading h2 {
+  font-size: 16px;
+}
+.heading h3 {
+  font-size: 14px;
+}
+.heading h4 {
+  font-size: 12px;
+}
+.heading h5 {
+  font-size: 10px;
+}
+.heading h6 {
+  font-size: 8px;
+}
+
+.label {
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.92px;
+
+  color: rgba(73, 73, 74, 0.90);
+  opacity: 0.6;
+}
+
+.value {
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(73, 73, 74, 0.90);
+  letter-spacing: 1px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 24px;
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+
+  margin-bottom: 14px;
+  padding: 0 14px;
+
+  height: 24px;
+}
+
+.pictogram {
+  width: 14px;
+  height: 14px;
+  margin-right: 14px;
+}
+
