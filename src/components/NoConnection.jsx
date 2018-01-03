@@ -1,13 +1,59 @@
 import React from 'react';
+import '../styles/NoConnection.css'
+
 
 const NoConnection = () => {
   return (
-    <div className="row">
-      <div className="col-md-12">
-        <div className="callout callout-warning">
-          <h4>No connection to Ethereum</h4>
-          <p>Please use Parity, Metamask or a local node at <strong>http://localhost:8545</strong></p>
+    <div className="frame">
+      <div className="connectionless">
+        <div className="heading">
+          <h2>Not Connected to Ethereum</h2>
         </div>
+        <section className="content">
+          <div className="heading">
+            <h3>Available clients</h3>
+          </div>
+          <div className="list">
+            <ul>
+              <li>
+                <div>
+                  <img type="svg" width="42" height="42" src="/assets/od_metamask.svg"/>
+                </div>
+                <div>
+                  <h4 className="heading"> Metamask </h4>
+                  <span> Browser Extension</span>
+                </div>
+                <div>
+                  <a href="https://metamask.io">INSTALL</a>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <img type="svg" width="42" height="42" src="/assets/od_mist.svg"/>
+                </div>
+                <div>
+                  <h4 className="heading"> Mist </h4>
+                  <span> Ethereum Client</span>
+                </div>
+                <div>
+                  <a href="https://github.com/ethereum/mist">INSTALL</a>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <img type="svg" width="42" height="42" src="/assets/od_parity.svg"/>
+                </div>
+                <div>
+                  <h4 className="heading"> Parity </h4>
+                  <span>Ethereum client + Browser Extension</span>
+                </div>
+                <div>
+                  <a href="https://parity.io/">INSTALL</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </section>
       </div>
     </div>
   )
