@@ -45,8 +45,8 @@ class App extends Component {
         to: 'dai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
-        amountPayInput: 0,
-        amountBuyInput: 0,
+        amountPayInput: '',
+        amountBuyInput: '',
         txCost: web3.toBigNumber(0),
       }
     };
