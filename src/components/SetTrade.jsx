@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 
 class SetTrade extends Component {
 
-  cleanInputs = () => {
+  changeToken = e => {
+    localStorage.setItem(e.target.getAttribute('data-name'), e.target.value);
     this.props.cleanInputs();
   }
 
-  tokenPicker = (name) => {
+  tokenPicker = name => {
     return(
-      <select ref={ (input) => this[name] = input } onChange={ this.cleanInputs } defaultValue={ this.props.trade[name] }>
+      <select ref={ (input) => this[name] = input } data-name={ name } onChange={ this.changeToken } defaultValue={ this.props.trade[name] }>
         <option value="eth">Ether</option>
         <option value="mkr">Maker</option>
         <option value="dai">Dai</option>
@@ -16,7 +17,7 @@ class SetTrade extends Component {
     )
   }
 
-  nextStep = (e) => {
+  nextStep = e => {
     e.preventDefault();
     this.props.goToDoTradeStep();
     return false;

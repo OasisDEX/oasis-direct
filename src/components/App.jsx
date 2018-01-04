@@ -41,8 +41,8 @@ class App extends Component {
       trade: {
         step: 1,
         operation: '',
-        from: 'eth',
-        to: 'dai',
+        from: localStorage.getItem('from') ? localStorage.getItem('from') : 'eth',
+        to: localStorage.getItem('to') ? localStorage.getItem('to') : 'dai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
         amountPayInput: '',
@@ -53,7 +53,7 @@ class App extends Component {
   }
 
   checkNetwork = () => {
-    web3.version.getNode((error) => {
+    web3.version.getNode(error => {
       const isConnected = !error;
 
       // Check if we are synced
@@ -110,7 +110,7 @@ class App extends Component {
     });
   }
 
-  initNetwork = (newNetwork) => {
+  initNetwork = newNetwork => {
     const networkState = { ...this.state.network };
     networkState.network = newNetwork;
     networkState.isConnected = true;
@@ -176,7 +176,7 @@ class App extends Component {
       window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
 
       const setUpPromises = [this.getProxyAddress()];
-      Promise.all(setUpPromises).then((r) => {
+      Promise.all(setUpPromises).then(r => {
         this.setState((prevState, props) => {
           return { proxy: r[0] };
         }, () => {
@@ -254,7 +254,7 @@ class App extends Component {
     });
   }
 
-  setUpAddress = (contract) => {
+  setUpAddress = contract => {
     const addr = settings.chain[this.state.network.network][contract];
     this.setState((prevState, props) => {
       const returnObj = {};
@@ -263,7 +263,7 @@ class App extends Component {
     });
   }
 
-  setUpToken = (token) => {
+  setUpToken = token => {
     const addrs = settings.chain[this.state.network.network];
     this.setState((prevState, props) => {
       const tokens = {...prevState.tokens};
@@ -278,7 +278,7 @@ class App extends Component {
     });
   }
 
-  setFilterToken = (token) => {
+  setFilterToken = token => {
     const filters = ['Transfer'];
 
     if (token === 'gem') {
@@ -303,12 +303,12 @@ class App extends Component {
     }
   }
 
-  getDataFromToken = (token) => {
+  getDataFromToken = token => {
     // this.getTotalSupply(token);
     // this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
   }
 
-  getTotalSupply = (name) => {
+  getTotalSupply = name => {
     this[`${name}Obj`].totalSupply.call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
@@ -375,7 +375,7 @@ class App extends Component {
     this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
   }
 
-  logTransactionConfirmed = (tx) => {
+  logTransactionConfirmed = tx => {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = { ...this.state.transactions };
     if (transactions[tx] && transactions[tx].pending) {
@@ -391,7 +391,7 @@ class App extends Component {
     }
   }
 
-  logTransactionFailed = (tx) => {
+  logTransactionFailed = tx => {
     const msgTemp = 'Transaction TX failed.';
     const transactions = { ...this.state.transactions };
     if (transactions[tx]) {
@@ -506,7 +506,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then(tx => {
       this.logPendingTransaction(id, tx, title);
-    }, (e) =>  {
+    }, e =>  {
       console.log(e);
       this.logTransactionRejected(id, title);
     });
@@ -575,7 +575,7 @@ class App extends Component {
     }
   }
 
-  getBalance = (address) => {
+  getBalance = address => {
     return new Promise((resolve, reject) => {
       web3.eth.getBalance(address, (e, r) => {
         if (!e) {
@@ -628,10 +628,34 @@ class App extends Component {
       const trade = { ...prevState.trade };
       trade.amountBuy = web3.toBigNumber(0);
       trade.amountPay = web3.toBigNumber(0);
-      trade.amountBuyInput = 0;
-      trade.amountPayInput = 0;
+      trade.amountBuyInput = '';
+      trade.amountPayInput = '';
       trade.txCost = web3.toBigNumber(0);
       return { trade };
+    });
+  }
+
+  ethBalanceOf = addr => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getBalance(web3.eth.coinbase, addr, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  tokenBalanceOf = (token, addr) => {
+    return new Promise((resolve, reject) => {
+      this[`${token}Obj`].balanceOf(addr, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
     });
   }
 
@@ -647,7 +671,7 @@ class App extends Component {
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
       return { trade };
-    }, () => {
+    }, async () => {
       this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getBuyAmount(
                                                                                             this.state.tokens[to.replace('eth', 'weth')].address,
                                                                                             this.state.tokens[from.replace('eth', 'weth')].address,
@@ -660,6 +684,11 @@ class App extends Component {
             trade.amountBuyInput = trade.amountBuy.valueOf();
             return { trade };
           }, async () => {
+            const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
+            if (balance.lt(web3.toWei(amount))) {
+              alert(`Not enough balance to sell ${amount} ${from.toUpperCase()}`);
+              return;
+            }
             if(this.state.trade.amountBuy.gt(0)) {
               // if user has proxy and allowance, use this address as from, otherwise a known and funded account
               const canUseAddress = this.state.proxy
@@ -709,6 +738,11 @@ class App extends Component {
             trade.amountPayInput = trade.amountPay.valueOf();
             return { trade };
           }, async () => {
+            const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
+            if (balance.lt(web3.toWei(this.state.trade.amountPay))) {
+              alert(`Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`);
+              return;
+            }
             if(this.state.trade.amountPay.gt(0)) {
               // if user has proxy and allowance, use this address as from, otherwise a known and funded account
               const canUseAddress = this.state.proxy
@@ -750,7 +784,7 @@ class App extends Component {
   }
 
   calculateCost = (proxyAddr, calldata, value = 0, from) => {
-    Promise.all([this.estimateGas(proxyAddr, calldata, value, from), this.getGasPrice()]).then((r) => {
+    Promise.all([this.estimateGas(proxyAddr, calldata, value, from), this.getGasPrice()]).then(r => {
       this.setState((prevState, props) => {
         const trade = { ...prevState.trade };
         trade.txCost = web3.fromWei(r[1].times(r[0]));
