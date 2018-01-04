@@ -11,7 +11,7 @@ class SetTrade extends Component {
       <select ref={ (input) => this[name] = input } onChange={ this.cleanInputs } defaultValue={ this.props.trade[name] }>
         <option value="eth">Ether</option>
         <option value="mkr">Maker</option>
-        <option value="sai">Sai</option>
+        <option value="dai">Dai</option>
       </select>
     )
   }

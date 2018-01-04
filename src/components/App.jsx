@@ -15,6 +15,8 @@ const dsproxy = require('../abi/dsproxy');
 const matchingmarket = require('../abi/matchingmarket');
 const proxycreateandexecute = require('../abi/proxycreateandexecute');
 
+window.dsproxy = dsproxy;
+
 class App extends Component {
   constructor() {
     super();
@@ -32,7 +34,7 @@ class App extends Component {
       tokens: {
         weth: '',
         mkr: '',
-        sai: ''
+        dai: ''
       },
       otc: '',
       tub: '',
@@ -40,7 +42,7 @@ class App extends Component {
         step: 1,
         operation: '',
         from: 'eth',
-        to: 'sai',
+        to: 'dai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
         amountPayInput: 0,
@@ -182,7 +184,7 @@ class App extends Component {
           this.setUpAddress('tub');
           this.setUpToken('weth');
           this.setUpToken('mkr');
-          this.setUpToken('sai');
+          this.setUpToken('dai');
           // This is necessary to finish transactions that failed after signing
           this.setPendingTxInterval();
         });
@@ -238,6 +240,16 @@ class App extends Component {
         } else {
           reject(e);
         }
+      });
+    });
+  }
+
+  setProxyAddress = () => {
+    console.log('setProxy');
+    Promise.resolve(this.getProxyAddress()).then(proxy => {
+      console.log(proxy);
+      this.setState((prevState, props) => {
+        return { proxy };
       });
     });
   }
@@ -353,10 +365,10 @@ class App extends Component {
     this.refs.notificator.info(id, title, msgTemp, false);
   }
 
-  logPendingTransaction = (id, tx, title, callback = [], isProxyTx = false) => {
+  logPendingTransaction = (id, tx, title, callbacks = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = { ...this.state.transactions };
-    transactions[tx] = { pending: true, title, callback, isProxyTx }
+    transactions[tx] = { pending: true, title, callbacks }
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx));
     this.refs.notificator.hideNotification(id);
@@ -372,15 +384,8 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         this.refs.notificator.hideNotification(tx);
         this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
-        if (transactions[tx].callback && transactions[tx].callback.length > 0) {
-          this.executeCallback(transactions[tx].callback);
-        }
-        if (transactions[tx].isProxyTx) {
-          Promise.resolve(this.getProxyAddress()).then(proxy => {
-            this.setState((prevState, props) => {
-              return { proxy };
-            });
-          });
+        if (typeof transactions[tx].callbacks !== 'undefined' && transactions[tx].callbacks.length > 0) {
+          transactions[tx].callbacks.forEach(callback => this.executeCallback(callback));
         }
       });
     }
@@ -399,6 +404,16 @@ class App extends Component {
   logTransactionRejected = (tx, title) => {
     const msgTemp = 'User denied transaction signature.';
     this.refs.notificator.error(tx, title, msgTemp, 4000);
+  }
+
+  executeCallback = args => {
+    const method = args.shift();
+    // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
+    const timeout = ['executeProxyTx', 'executeProxyCreateAndExecute', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
+    // console.log(method, args, timeout);
+    setTimeout(() => {
+      this[method](...args);
+    }, timeout);
   }
   //
 
@@ -446,14 +461,9 @@ class App extends Component {
     });
   }
 
-  executeCallback = (args) => {
-    const method = args.shift();
-    this[method](...args);
-  }
-
-  checkAllowance = (token, dst, value, callback) => {
+  checkAllowance = (token, dst, value, callbacks) => {
     if (token === 'eth') {
-      this.executeCallback(callback);
+      callbacks.forEach(callback => this.executeCallback(callback));
     } else {
       let promise;
       let valueObj;
@@ -467,7 +477,7 @@ class App extends Component {
       Promise.resolve(promise).then(r => {
         // if ((token === 'gem' && r.gte(valueObj)) || (token !== 'gem' && r)) {
         if (r.gte(valueObj)) {
-          this.executeCallback(callback);
+          callbacks.forEach(callback => this.executeCallback(callback));
         } else {
           const tokenName = token.toUpperCase();
           // const operation = token === '' ? 'approve' : 'trust';
@@ -477,7 +487,7 @@ class App extends Component {
           this.logRequestTransaction(id, title);
           const log = (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(id, tx, title, callback);
+              this.logPendingTransaction(id, tx, title, callbacks);
             } else {
               console.log(e);
               this.logTransactionRejected(id, title);
@@ -488,24 +498,6 @@ class App extends Component {
       });
     }
   }
-
-  // checkProxy = (callback) => {
-  //   if (this.state.proxy) {
-  //     this.executeCallback(callback);
-  //   } else {
-  //     const id = Math.random();
-  //     const title = `Create profile`;
-  //     this.logRequestTransaction(id, title);
-  //     this.proxyFactoryObj.build((e, tx) => {
-  //       if (!e) {
-  //         this.logPendingTransaction(id, tx, title, callback, true);
-  //       } else {
-  //         console.log(e);
-  //         this.logTransactionRejected(id, title);
-  //       }
-  //     });
-  //   }
-  // }
 
   executeProxyTx = (amount, limit) => {
     const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
@@ -555,22 +547,15 @@ class App extends Component {
     const id = Math.random();
     const title = `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`;
     this.logRequestTransaction(id, title);
-    const promise = new Promise((resolve, reject) => {
-      this.loadObject(proxycreateandexecute.abi,
-                      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, { value }, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          resolve(e);
-        }
-      })
-    });
-    Promise.resolve(promise).then(tx => {
-      this.logPendingTransaction(id, tx, title, null, true);
-    }, (e) =>  {
-      console.log(e);
-      this.logTransactionRejected(id, title);
-    });
+    this.loadObject(proxycreateandexecute.abi,
+      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, { value }, (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(id, tx, title, [['setProxyAddress']]);
+      } else {
+        console.log(e);
+        this.logTransactionRejected(id, title);
+      }
+    })
   }
 
   doTrade = () => {
@@ -580,13 +565,13 @@ class App extends Component {
       this.checkAllowance(this.state.trade.from,
                           this.state.proxy,
                           this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
-                          ['executeProxyTx', amount, limit]);
+                          [['executeProxyTx', amount, limit]]);
     } else {
       // No Proxy created, we need to use the support contract
       this.checkAllowance(this.state.trade.from,
                           settings.chain[this.state.network.network].proxyCreationAndExecute,
                           this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
-                          ['executeProxyCreateAndExecute', amount, limit]);
+                          [['executeProxyCreateAndExecute', amount, limit]]);
     }
   }
 

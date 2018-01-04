@@ -17,7 +17,7 @@ const NoConnection = () => {
             <ul>
               <li>
                 <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_metamask.svg"/>
+                  <img type="svg" width="42" height="42" src="/assets/od_metamask.svg" alt="Metamask" />
                 </div>
                 <div>
                   <h4 className="heading"> Metamask </h4>
@@ -29,7 +29,7 @@ const NoConnection = () => {
               </li>
               <li>
                 <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_mist.svg"/>
+                  <img type="svg" width="42" height="42" src="/assets/od_mist.svg" alt="Mist"/>
                 </div>
                 <div>
                   <h4 className="heading"> Mist </h4>
@@ -41,7 +41,7 @@ const NoConnection = () => {
               </li>
               <li>
                 <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_parity.svg"/>
+                  <img type="svg" width="42" height="42" src="/assets/od_parity.svg" alt="Parity"/>
                 </div>
                 <div>
                   <h4 className="heading"> Parity </h4>

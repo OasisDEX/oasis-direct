@@ -6,7 +6,7 @@ class DoTrade extends Component {
     const tokens = {
       'eth': 'Ether',
       'mkr': 'Maker',
-      'sai': 'Sai'
+      'dai': 'Dai'
     };
     return tokens[key];
   }

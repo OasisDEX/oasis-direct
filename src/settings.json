@@ -1,12 +1,12 @@
 {
-  "nodeURL" : "https://sai-service.makerdao.com/parity",
+  "nodeURL" : "https://dai-service.makerdao.com/node",
   "chain": {
     "private": {
       "otc": "",
       "tokens": {
         "weth": "",
         "mkr": "",
-        "sai": ""
+        "dai": ""
       },
       "proxyFactory": "",
       "proxyContracts": {
@@ -17,11 +17,11 @@
       "fromBlock": 0
     },
     "kovan": {
-      "otc": "0x9b169233d6b81a3cacc68d0bc7efe4ab73605150",
+      "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
       "tokens": {
-        "weth": "0x53eccc9246c1e537d79199d0c7231e425a40f896",
-        "mkr": "0x4bb514a7f83fbb13c2b41448208e89fabbcfe2fb",
-        "sai": "0x228bf3d5be3ee4b80718b89b68069b023c32131e"
+        "weth": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+        "mkr": "0xaaf64bfcc32d0f15873a02163e7e500671a4ffcd",
+        "dai": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
       },
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
       "proxyCreationAndExecute": "0x2c9da845b23d964e7f08b2a155b16f57b502dcf0",
@@ -37,7 +37,7 @@
       "tokens": {
         "weth": "",
         "mkr": "",
-        "sai": ""
+        "dai": ""
       },
       "proxyFactory": "",
       "proxyContracts": {
