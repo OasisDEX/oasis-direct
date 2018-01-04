@@ -601,9 +601,9 @@ class App extends Component {
 
   getTokenTrusted = (token, from, to) => {
     return new Promise((resolve, reject) => {
-      this[`${token}Obj`].trusted.call(from, to, (e, r) => {
+      this[`${token}Obj`].allowance.call(from, to, (e, r) => {
         if (!e) {
-          resolve(r);
+          resolve(r.eq(web3.toBigNumber(2).pow(256).minus(1))); // uint(-1)
         } else {
           resolve(e);
         }
