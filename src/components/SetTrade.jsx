@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { numberFormat } from "../utils/functions";
-import { Ether, MKR, DAI } from "./Tokens";
+import web3 from '../web3';
+import { Ether, MKR, DAI } from './Tokens';
+import { printNumber } from '../helpers';
 
 //TODO: make this bound to the token selector.
 const tokens = {
@@ -17,7 +18,6 @@ const tokens = {
     name: "DAI"
   },
 }
-
 
 class SetTrade extends Component {
   constructor(props) {
@@ -56,7 +56,6 @@ class SetTrade extends Component {
   }
 
   calculateBuyAmount = () => {
-    // console.log(this.state.from, this.state.to);
     this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
   }
 
@@ -65,7 +64,7 @@ class SetTrade extends Component {
   }
 
   hasDetails = () => {
-    return this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && this.props.trade.txCost.gt(0)
+    return this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && this.props.trade.txCost.gt(0) && !this.props.trade.errorSell && !this.props.trade.errorBuy
   }
 
   render() {
@@ -87,7 +86,7 @@ class SetTrade extends Component {
           this.state.shouldDisplayTokenSelector
             ? (<div className="token-selector">
               <div className="frame">
-                <button className="close" onClick={() => this.setState({shouldDisplayTokenSelector: false})}/>
+                <button className="close" onClick={ () => this.setState({shouldDisplayTokenSelector: false}) }/>
                 <div className="tokens">
                   {
                     ['eth', 'mkr', 'dai'].map((token, index) => {
@@ -109,16 +108,15 @@ class SetTrade extends Component {
 
         <form onSubmit={this.nextStep}>
           <div>
-            <div className='selected-token '>
+            <div className="selected-token">
               <div className="token" onClick={() => {
                 this.pickToken('from')
               }}>
                 {tokens[this.state.from].icon}
               </div>
               <div>
-                {/*TODO: Find a way to delegate / handle errors*/}
-                <div className="trade-errors">
-                  Insufficient funds
+                <div className={ `trade-errors${this.props.trade.errorSell ? ' show' : ''}` }>
+                  { this.props.trade.errorSell }
                 </div>
                 <input type="number" ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
@@ -128,15 +126,15 @@ class SetTrade extends Component {
             <div className='separator'>
               <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg' className="swap-tokens" onClick={ this.swapTokens } />
             </div>
-            <div className='selected-token '>
+            <div className="selected-token">
               <div className="token" onClick={() => {
                 this.pickToken('to');
               }}>
                 {tokens[this.state.to].icon}
               </div>
               <div>
-                <div className="trade-errors">
-                  Insufficient funds
+                <div className={ `trade-errors${this.props.trade.errorBuy ? ' show' : ''}` }>
+                  { this.props.trade.errorBuy }
                 </div>
                 <input type="number" ref={(input) => this.amountBuy = input}
                        value={this.props.trade.amountBuyInput || ''}
@@ -144,30 +142,24 @@ class SetTrade extends Component {
               </div>
             </div>
           </div>
-          {
-            this.props.trade.error &&
-            <div className="trade-error">
-              { this.props.trade.error }
-            </div>
-          }
-          <div className={`trade-details ${this.hasDetails() ? '' : 'trade-details--hidden'}`}>
+          <div className={ `trade-details${this.hasDetails() ? '' : ' trade-details--hidden'}` }>
             <span>
               <span className='value'>OasisDex</span>
             </span>
             <span>
               <span className="label">Price </span>
               <span className='value'>
-                ~ {numberFormat(this.props.trade.amountPay.div(this.props.trade.amountBuy).valueOf())} ETH
+                ~ { printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))) } ETH
               </span>
             </span>
             <span>
               <span className="label">Fee </span>
               <span className='value'>
-                ~ {numberFormat(this.props.trade.txCost.valueOf())} ETH
+                ~ { printNumber(web3.toWei(this.props.trade.txCost)) } ETH
               </span>
             </span>
           </div>
-          <button type="submit" value="Start transaction">START TRANSACTION</button>
+          <button type="submit" value="Start transaction" disabled={ this.props.trade.errorSell || this.props.trade.errorBuy || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) }>START TRANSACTION</button>
         </form>
       </section>
     )

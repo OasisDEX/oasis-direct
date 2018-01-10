@@ -306,6 +306,10 @@ input[type=number]::-webkit-outer-spin-button {
   background: rgba(248, 147, 140, 0.10);
 }
 
+.trade-errors.show {
+  visibility: visible;
+}
+
 .trade-details {
   margin: 12px 0;
   border: 1px solid rgba(156, 156, 157, 0.08);
@@ -319,12 +323,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .trade-details--hidden {
-  display: hidden;
-}
-
-.trade-error {
-  color: red;
-  font-size: 12px;
+  visibility: hidden;
 }
 
 .token-selector {

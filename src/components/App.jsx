@@ -48,7 +48,8 @@ class App extends Component {
         amountPayInput: '',
         amountBuyInput: '',
         txCost: web3.toBigNumber(0),
-        error: null
+        errorSell: null,
+        errorBuy: null,
       }
     };
   }
@@ -671,7 +672,8 @@ class App extends Component {
       trade.amountPayInput = amount;
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.error = null;
+      trade.errorSell = null;
+      trade.errorBuy = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -707,7 +709,7 @@ class App extends Component {
             if (error) {
               this.setState((prevState, props) => {
                 const trade = { ...prevState.trade };
-                trade.error = error;
+                trade.errorSell = error;
                 return { trade };
               });
               return;
@@ -743,7 +745,8 @@ class App extends Component {
       trade.amountPayInput = '';
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.error = null;
+      trade.errorSell = null;
+      trade.errorBuy = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -779,7 +782,7 @@ class App extends Component {
             if (error) {
               this.setState((prevState, props) => {
                 const trade = { ...prevState.trade };
-                trade.error = error;
+                trade.errorBuy = error;
                 return { trade };
               });
               return;
