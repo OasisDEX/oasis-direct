@@ -42,8 +42,11 @@ class SetTrade extends Component {
   }
 
   swapTokens = () => {
-    this.setState({ from: this.state.to, to: this.state.from });
-    this.props.cleanInputs();
+    this.setState({ from: this.state.to, to: this.state.from }, () => {
+      localStorage.setItem('from', this.state.from);
+      localStorage.setItem('to', this.state.to);
+      this.props.cleanInputs();
+    });
   }
 
   nextStep = e => {
