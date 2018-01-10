@@ -37,8 +37,13 @@ class SetTrade extends Component {
   }
 
   select = (token) => {
-    this.setState({[this.state.selectedToken]: token, shouldDisplayTokenSelector: false});
+    this.setState({ [this.state.selectedToken]: token, shouldDisplayTokenSelector: false });
     localStorage.setItem(this.state.selectedToken, token);
+  }
+
+  swapTokens = () => {
+    this.setState({ from: this.state.to, to: this.state.from });
+    this.props.cleanInputs();
   }
 
   nextStep = e => {
@@ -118,7 +123,7 @@ class SetTrade extends Component {
               </div>
             </div>
             <div className='separator'>
-              <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg'/>
+              <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg' className="swap-tokens" onClick={ this.swapTokens } />
             </div>
             <div className='selected-token '>
               <div className="token" onClick={() => {
