@@ -30,13 +30,10 @@ class SetTrade extends Component {
     }
   }
 
-  cleanInputs = () => {
-    this.props.cleanInputs();
-  }
-
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
     this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
+    this.props.cleanInputs();
   }
 
   select = (token) => {
@@ -51,7 +48,7 @@ class SetTrade extends Component {
   }
 
   calculateBuyAmount = () => {
-    console.log(this.state.from, this.state.to);
+    // console.log(this.state.from, this.state.to);
     this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
   }
 
