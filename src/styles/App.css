@@ -319,7 +319,12 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .trade-details--hidden {
-  visibility: hidden;
+  display: hidden;
+}
+
+.trade-error {
+  color: red;
+  font-size: 12px;
 }
 
 .token-selector {

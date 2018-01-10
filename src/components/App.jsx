@@ -48,6 +48,7 @@ class App extends Component {
         amountPayInput: '',
         amountBuyInput: '',
         txCost: web3.toBigNumber(0),
+        error: null
       }
     };
   }
@@ -670,6 +671,7 @@ class App extends Component {
       trade.amountPayInput = amount;
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
+      trade.error = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -693,12 +695,21 @@ class App extends Component {
             return { trade };
           }, async () => {
             const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            if (balance.lt(web3.toWei(amount))) {
-              alert(`Not enough balance to sell ${amount} ${from.toUpperCase()}`);
-              return;
-            }
-            if(this.state.trade.amountBuy.eq(0)) {
-              alert(`Not enough orders to sell ${amount} ${from.toUpperCase()}`);
+            const error = balance.lt(web3.toWei(amount))
+                          ?
+                            `Not enough balance to sell ${amount} ${from.toUpperCase()}`
+                          :
+                            this.state.trade.amountBuy.eq(0)
+                            ?
+                              `Not enough orders to sell ${amount} ${from.toUpperCase()}`
+                            :
+                              null;
+            if (error) {
+              this.setState((prevState, props) => {
+                const trade = { ...prevState.trade };
+                trade.error = error;
+                return { trade };
+              });
               return;
             }
             // if user has proxy and allowance, use this address as from, otherwise a known and funded account
@@ -732,6 +743,7 @@ class App extends Component {
       trade.amountPayInput = '';
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
+      trade.error = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -755,12 +767,21 @@ class App extends Component {
             return { trade };
           }, async () => {
             const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            if(this.state.trade.amountPay.eq(0)) {
-              alert(`Not enough orders to buy ${amount} ${to.toUpperCase()}`);
-              return;
-            }
-            if (balance.lt(web3.toWei(this.state.trade.amountPay))) {
-              alert(`Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`);
+            const error = this.state.trade.amountPay.eq(0)
+                          ?
+                            `Not enough orders to buy ${amount} ${to.toUpperCase()}`
+                          :
+                            balance.lt(web3.toWei(this.state.trade.amountPay))
+                            ?
+                              `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
+                            :
+                              null;
+            if (error) {
+              this.setState((prevState, props) => {
+                const trade = { ...prevState.trade };
+                trade.error = error;
+                return { trade };
+              });
               return;
             }
             // if user has proxy and allowance, use this address as from, otherwise a known and funded account

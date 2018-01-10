@@ -144,6 +144,12 @@ class SetTrade extends Component {
               </div>
             </div>
           </div>
+          {
+            this.props.trade.error &&
+            <div className="trade-error">
+              { this.props.trade.error }
+            </div>
+          }
           <div className={`trade-details ${this.hasDetails() ? '' : 'trade-details--hidden'}`}>
             <span>
               <span className='value'>OasisDex</span>
