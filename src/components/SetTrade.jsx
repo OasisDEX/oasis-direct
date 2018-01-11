@@ -64,7 +64,7 @@ class SetTrade extends Component {
   }
 
   hasDetails = () => {
-    return this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && this.props.trade.txCost.gt(0) && !this.props.trade.errorSell && !this.props.trade.errorBuy
+    return this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && this.props.trade.txCost.gt(0) && !this.props.trade.errorFunds && !this.props.trade.errorOrders
   }
 
   render() {
@@ -115,8 +115,8 @@ class SetTrade extends Component {
                 {tokens[this.state.from].icon}
               </div>
               <div>
-                <div className={ `trade-errors${this.props.trade.errorSell ? ' show' : ''}` }>
-                  { this.props.trade.errorSell }
+                <div className={ `trade-errors${this.props.trade.errorFunds ? ' show' : ''}` }>
+                  { this.props.trade.errorFunds }
                 </div>
                 <input type="number" ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
@@ -133,14 +133,14 @@ class SetTrade extends Component {
                 {tokens[this.state.to].icon}
               </div>
               <div>
-                <div className={ `trade-errors${this.props.trade.errorBuy ? ' show' : ''}` }>
-                  { this.props.trade.errorBuy }
-                </div>
                 <input type="number" ref={(input) => this.amountBuy = input}
                        value={this.props.trade.amountBuyInput || ''}
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
               </div>
             </div>
+          </div>
+          <div className={ `trade-errors${this.props.trade.errorOrders ? ' show' : ''}` }>
+            { this.props.trade.errorOrders }
           </div>
           <div className={ `trade-details${this.hasDetails() ? '' : ' trade-details--hidden'}` }>
             <span>
@@ -159,7 +159,7 @@ class SetTrade extends Component {
               </span>
             </span>
           </div>
-          <button type="submit" value="Start transaction" disabled={ this.props.trade.errorSell || this.props.trade.errorBuy || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) }>START TRANSACTION</button>
+          <button type="submit" value="Start transaction" disabled={ this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) }>START TRANSACTION</button>
         </form>
       </section>
     )

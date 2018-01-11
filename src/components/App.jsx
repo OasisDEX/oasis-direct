@@ -48,8 +48,8 @@ class App extends Component {
         amountPayInput: '',
         amountBuyInput: '',
         txCost: web3.toBigNumber(0),
-        errorSell: null,
-        errorBuy: null,
+        errorFunds: null,
+        errorOrders: null,
       }
     };
   }
@@ -244,7 +244,6 @@ class App extends Component {
   }
 
   getProxyAddressFromChain = (blockNumber = 0, proxies = []) => {
-    console.log(blockNumber);
     const network = this.state.network;
     const me = this;
     return new Promise((resolve, reject) => {
@@ -685,8 +684,8 @@ class App extends Component {
       trade.amountBuyInput = '';
       trade.amountPayInput = '';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorSell = null;
-      trade.errorBuy = null;
+      trade.errorFunds = null;
+      trade.errorOrders = null;
       return { trade };
     });
   }
@@ -726,8 +725,8 @@ class App extends Component {
       trade.amountPayInput = amount;
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorSell = null;
-      trade.errorBuy = null;
+      trade.errorFunds = null;
+      trade.errorOrders = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -751,19 +750,22 @@ class App extends Component {
             return { trade };
           }, async () => {
             const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            const error = balance.lt(web3.toWei(amount))
-                          ?
-                            `Not enough balance to sell ${amount} ${from.toUpperCase()}`
-                          :
-                            this.state.trade.amountBuy.eq(0)
-                            ?
-                              `Not enough orders to sell ${amount} ${from.toUpperCase()}`
-                            :
-                              null;
-            if (error) {
+            const errorFunds = balance.lt(web3.toWei(amount))
+                               ?
+                                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
+                                 'Insufficient funds'
+                               :
+                                 '';
+            const errorOrders = this.state.trade.amountBuy.eq(0)
+                                ?
+                                  `Not enough orders to sell ${amount} ${from.toUpperCase()}`
+                                :
+                                  null;
+            if (errorFunds || errorOrders) {
               this.setState((prevState, props) => {
                 const trade = { ...prevState.trade };
-                trade.errorSell = error;
+                trade.errorFunds = errorFunds;
+                trade.errorOrders = errorOrders;
                 return { trade };
               });
               return;
@@ -799,8 +801,8 @@ class App extends Component {
       trade.amountPayInput = '';
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorSell = null;
-      trade.errorBuy = null;
+      trade.errorFunds = null;
+      trade.errorOrders = null;
       return { trade };
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
@@ -824,19 +826,22 @@ class App extends Component {
             return { trade };
           }, async () => {
             const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            const error = this.state.trade.amountPay.eq(0)
-                          ?
-                            `Not enough orders to buy ${amount} ${to.toUpperCase()}`
-                          :
-                            balance.lt(web3.toWei(this.state.trade.amountPay))
-                            ?
-                              `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
-                            :
-                              null;
-            if (error) {
+            const errorFunds = balance.lt(web3.toWei(this.state.trade.amountPay))
+                               ?
+                                 // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
+                                 'Insufficient funds'
+                               :
+                                 null;
+            const errorOrders = this.state.trade.amountPay.eq(0)
+                                ?
+                                  `Not enough orders to buy ${amount} ${to.toUpperCase()}`
+                                :
+                                  null;
+            if (errorFunds || errorOrders) {
               this.setState((prevState, props) => {
                 const trade = { ...prevState.trade };
-                trade.errorBuy = error;
+                trade.errorFunds = errorFunds;
+                trade.errorOrders = errorOrders;
                 return { trade };
               });
               return;
