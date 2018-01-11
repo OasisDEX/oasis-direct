@@ -685,6 +685,8 @@ class App extends Component {
       trade.amountBuyInput = '';
       trade.amountPayInput = '';
       trade.txCost = web3.toBigNumber(0);
+      trade.errorSell = null;
+      trade.errorBuy = null;
       return { trade };
     });
   }
