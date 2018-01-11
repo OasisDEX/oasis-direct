@@ -143,25 +143,46 @@ class App extends Component {
     setTimeout(this.init, 500);
   }
 
+  getFromDirectoryService = (conditions = {}, sort = {}) => {
+    const p = new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      let conditionsString = '';
+      let sortString = '';
+      Object.keys(conditions).map(key => {
+        conditionsString += `${key}:${conditions[key]}`;
+        conditionsString += Object.keys(conditions).pop() !== key ? '&' : '';
+        return false;
+      });
+      conditionsString = conditionsString !== '' ? `/conditions=${conditionsString}` : '';
+      Object.keys(sort).map(key => {
+        sortString += `${key}:${sort[key]}`;
+        sortString += Object.keys(sort).pop() !== key ? '&' : '';
+        return false;
+      });
+      sortString = sortString !== '' ? `/sort=${sortString}` : '';
+      let serviceURL = settings.chain[this.state.network.network].proxyDirectoryService;
+      serviceURL = serviceURL.slice(-1) === '/' ? serviceURL.substring(0, serviceURL.length - 1) : serviceURL;
+      const url = `${serviceURL}${conditionsString}${sortString}`;
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
+        }
+      }
+      xhr.send();
+    });
+    return p;
+  }
+
   init = () => {
     initWeb3(web3);
-
     this.checkNetwork();
-
-    // this.setHashParams();
-    // window.onhashchange = () => {
-    //   this.setHashParams();
-    //   this.initContracts();
-    // }
-
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
-
-  // setHashParams = () => {
-  //   const params = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
-  //   this.setState({ params });
-  // }
 
   loadObject = (abi, address) => {
     return web3.eth.contract(abi).at(address);
@@ -222,16 +243,18 @@ class App extends Component {
     });
   }
 
-  getProxyAddress = () => {
+  getProxyAddressFromChain = (blockNumber = 0, proxies = []) => {
+    console.log(blockNumber);
     const network = this.state.network;
+    const me = this;
     return new Promise((resolve, reject) => {
-      const addrs = settings.chain[network.network];
-      this.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: addrs.fromBlock }).get(async (e, r) => {
+      me.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: blockNumber }).get(async (e, r) => {
         if (!e) {
-          if (r.length > 0) {
-            for (let i = r.length - 1; i >= 0; i--) {
-              if (await this.getProxyOwner(r[i].args.proxy) === network.defaultAccount) {
-                resolve(r[i].args.proxy);
+          const allProxies = proxies.concat(r.map(val => val.args));
+          if (allProxies.length > 0) {
+            for (let i = allProxies.length - 1; i >= 0; i--) {
+              if (await me.getProxyOwner(allProxies[i].proxy) === network.defaultAccount) {
+                resolve(allProxies[i].proxy);
                 break;
               }
             }
@@ -243,6 +266,35 @@ class App extends Component {
           reject(e);
         }
       });
+    });
+  }
+
+  getProxyAddress = () => {
+    const network = this.state.network;
+    const addrs = settings.chain[network.network];
+    const me = this;
+    return new Promise((resolve, reject) => {
+      if (settings.chain[network.network].proxyDirectoryService) {
+        Promise.resolve(me.getFromDirectoryService({ owner: network.defaultAccount }, { blockNumber: 'asc' })).then(r => {
+          Promise.resolve(me.getProxyAddressFromChain(r.lastBlockNumber + 1, r.results)).then(r2 => {
+            resolve(r2);
+          }).catch(e2 => {
+            reject(e2);
+          });
+        }).catch(e => {
+          Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
+            resolve(r2);
+          }).catch(e2 => {
+            reject(e2);
+          });;
+        });
+      } else {
+        Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
+          resolve(r2);
+        }).catch(e2 => {
+          reject(e2);
+        });
+      }
     });
   }
 

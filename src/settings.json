@@ -14,6 +14,7 @@
       },
       "addrEstimation": "",
       "proxyEstimation": "",
+      "proxyDirectoryService": "",
       "fromBlock": 0
     },
     "kovan": {
@@ -30,6 +31,7 @@
       },
       "addrEstimation": "0xdb33dfd3d61308c33c63209845dad3e6bfb2c674",
       "proxyEstimation": "0xa4ca4118709bc2bfe219b34c407ef35314789192",
+      "proxyDirectoryService": "",
       "fromBlock": 0
     },
     "main": {
@@ -45,6 +47,7 @@
       },
       "addrEstimation": "",
       "proxyEstimation": "",
+      "proxyDirectoryService": "",
       "fromBlock": 0
     }
   }
