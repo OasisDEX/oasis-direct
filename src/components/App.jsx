@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import NoConnection from './NoConnection';
 import web3, { initWeb3 } from  '../web3';
+import NoConnection from './NoConnection';
+import NoAccount from './NoAccount';
 import ReactNotify from '../notify';
 import { toBytes32, addressToBytes32, etherscanTx, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
@@ -14,8 +15,6 @@ const dsproxyfactory = require('../abi/dsproxyfactory');
 const dsproxy = require('../abi/dsproxy');
 const matchingmarket = require('../abi/matchingmarket');
 const proxycreateandexecute = require('../abi/proxycreateandexecute');
-
-window.dsproxy = dsproxy;
 
 class App extends Component {
   constructor() {
@@ -37,7 +36,6 @@ class App extends Component {
         dai: ''
       },
       otc: '',
-      tub: '',
       trade: {
         step: 1,
         operation: '',
@@ -204,7 +202,6 @@ class App extends Component {
           return { proxy: r[0] };
         }, () => {
           this.setUpAddress('otc');
-          this.setUpAddress('tub');
           this.setUpToken('weth');
           this.setUpToken('mkr');
           this.setUpToken('dai');
@@ -758,7 +755,7 @@ class App extends Component {
                                  '';
             const errorOrders = this.state.trade.amountBuy.eq(0)
                                 ?
-                                  `Not enough orders to sell ${amount} ${from.toUpperCase()}`
+                                  `Not enough ${to.toUpperCase()} funds to sell ${amount} ${from.toUpperCase()}`
                                 :
                                   null;
             if (errorFunds || errorOrders) {
@@ -834,7 +831,7 @@ class App extends Component {
                                  null;
             const errorOrders = this.state.trade.amountPay.eq(0)
                                 ?
-                                  `Not enough orders to buy ${amount} ${to.toUpperCase()}`
+                                  `Not enough funds to buy ${amount} ${to.toUpperCase()}`
                                 :
                                   null;
             if (errorFunds || errorOrders) {
@@ -944,7 +941,15 @@ class App extends Component {
 
   render() {
     return (
-      this.state.network.isConnected ? this.renderMain() : <NoConnection />
+      this.state.network.isConnected
+      ?
+        this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+        ?
+          this.renderMain()
+        :
+          <NoAccount />
+      :
+        <NoConnection />
     );
   }
 }
