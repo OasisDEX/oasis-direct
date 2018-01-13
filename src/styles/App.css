@@ -119,6 +119,8 @@
   font-weight: 500;
 
   line-height: 1.25;
+
+  letter-spacing: 1.29px;
 }
 
 .heading h1 {
@@ -172,7 +174,7 @@
 .info-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
 
   border: 1px solid #F0F0F0;
   border-radius: 4px;
@@ -414,4 +416,86 @@ button[disabled] {
 
 .swap-tokens {
   cursor: pointer;
+}
+
+.transaction-info-box {
+  display: inline-block;
+
+  width: 140px;
+  height: 66px;
+
+  background: #FFFFFF;
+  border: 1px solid rgba(230, 230, 230, 0.60);
+  border-radius: 4px;
+}
+
+.transaction-info-box .operation {
+  height: 40px;
+
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+
+  border-bottom: 1px solid rgba(230, 230, 230, 0.60);
+}
+
+.arrow-separator {
+  display: inline-flex;
+  justify-content: center;
+  width: 50px;
+  height: 66px;
+  vertical-align: top;
+}
+
+.transaction-info-box .status {
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.transaction-info-box .operation .details {
+  height: 28px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.transaction-info-box .label {
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.83px;
+
+  color: rgba(73, 73, 74, 0.90);
+  opacity: 1;
+}
+
+.transaction-info-box .value {
+  font-family: Montserrat, sans-serif;
+  font-size: 8px;
+  font-weight: 500;
+
+  letter-spacing: 0.67px;
+  color: #9C9C9D;
+}
+
+.transaction-info-box .status .label {
+  font-size: 8px;
+}
+
+.contact {
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.80);
+  letter-spacing: 1px;
+  line-height: 13px;
+}
+
+.contact a {
+  color: #448AFF;
+  text-decoration: none;
 }

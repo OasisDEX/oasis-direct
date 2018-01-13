@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import web3, { initWeb3 } from  '../web3';
+import web3, { initWeb3 } from '../web3';
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
 import ReactNotify from '../notify';
@@ -63,10 +63,10 @@ class App extends Component {
             console.debug('YIKES! getBlock returned undefined!');
           }
           if (res.number >= this.state.network.latestBlock) {
-            const networkState = { ...this.state.network };
+            const networkState = {...this.state.network};
             networkState.latestBlock = res.number;
             networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
-            this.setState({ network: networkState });
+            this.setState({network: networkState});
           } else {
             // XXX MetaMask frequently returns old blocks
             // https://github.com/MetaMask/metamask-plugin/issues/504
@@ -100,22 +100,22 @@ class App extends Component {
             }
           });
         } else {
-          const networkState = { ...this.state.network };
+          const networkState = {...this.state.network};
           networkState.isConnected = isConnected;
           networkState.network = false;
           networkState.latestBlock = 0;
-          this.setState({ network: networkState });
+          this.setState({network: networkState});
         }
       }
     });
   }
 
   initNetwork = newNetwork => {
-    const networkState = { ...this.state.network };
+    const networkState = {...this.state.network};
     networkState.network = newNetwork;
     networkState.isConnected = true;
     networkState.latestBlock = 0;
-    this.setState({ network: networkState }, () => {
+    this.setState({network: networkState}, () => {
       this.checkAccounts();
     });
   }
@@ -123,12 +123,12 @@ class App extends Component {
   checkAccounts = () => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
-        const networkState = { ...this.state.network };
+        const networkState = {...this.state.network};
         networkState.accounts = accounts;
         const oldDefaultAccount = networkState.defaultAccount;
         networkState.defaultAccount = accounts[0];
         web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({ network: networkState }, () => {
+        this.setState({network: networkState}, () => {
           if (oldDefaultAccount !== networkState.defaultAccount) {
             this.initContracts();
           }
@@ -199,7 +199,7 @@ class App extends Component {
       const setUpPromises = [this.getProxyAddress()];
       Promise.all(setUpPromises).then(r => {
         this.setState((prevState, props) => {
-          return { proxy: r[0] };
+          return {proxy: r[0]};
         }, () => {
           this.setUpAddress('otc');
           this.setUpToken('weth');
@@ -221,9 +221,9 @@ class App extends Component {
   getAccountBalance = () => {
     if (web3.isAddress(this.state.profile.activeProfile)) {
       web3.eth.getBalance(this.state.profile.activeProfile, (e, r) => {
-        const profile = { ...this.state.profile };
+        const profile = {...this.state.profile};
         profile.accountBalance = r;
-        this.setState({ profile });
+        this.setState({profile});
       });
     }
   }
@@ -244,7 +244,7 @@ class App extends Component {
     const network = this.state.network;
     const me = this;
     return new Promise((resolve, reject) => {
-      me.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: blockNumber }).get(async (e, r) => {
+      me.proxyFactoryObj.Created({sender: network.defaultAccount}, {fromBlock: blockNumber}).get(async (e, r) => {
         if (!e) {
           const allProxies = proxies.concat(r.map(val => val.args));
           if (allProxies.length > 0) {
@@ -271,7 +271,7 @@ class App extends Component {
     const me = this;
     return new Promise((resolve, reject) => {
       if (settings.chain[network.network].proxyDirectoryService) {
-        Promise.resolve(me.getFromDirectoryService({ owner: network.defaultAccount }, { blockNumber: 'asc' })).then(r => {
+        Promise.resolve(me.getFromDirectoryService({owner: network.defaultAccount}, {blockNumber: 'asc'})).then(r => {
           Promise.resolve(me.getProxyAddressFromChain(r.lastBlockNumber + 1, r.results)).then(r2 => {
             resolve(r2);
           }).catch(e2 => {
@@ -282,7 +282,8 @@ class App extends Component {
             resolve(r2);
           }).catch(e2 => {
             reject(e2);
-          });;
+          });
+          ;
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
@@ -299,7 +300,7 @@ class App extends Component {
     Promise.resolve(this.getProxyAddress()).then(proxy => {
       console.log(proxy);
       this.setState((prevState, props) => {
-        return { proxy };
+        return {proxy};
       });
     });
   }
@@ -308,7 +309,7 @@ class App extends Component {
     const addr = settings.chain[this.state.network.network][contract];
     this.setState((prevState, props) => {
       const returnObj = {};
-      returnObj[contract] = { address: addr };
+      returnObj[contract] = {address: addr};
       return returnObj;
     });
   }
@@ -320,7 +321,7 @@ class App extends Component {
       const tok = {...tokens[token]};
       tok.address = addrs.tokens[token];
       tokens[token] = tok;
-      return { tokens };
+      return {tokens};
     }, () => {
       window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, this.state.tokens[token].address);
       this.getDataFromToken(token);
@@ -366,7 +367,7 @@ class App extends Component {
           const tok = {...tokens[name]};
           tok.totalSupply = r;
           tokens[name] = tok;
-          return { tokens };
+          return {tokens};
         }, () => {
           if (name === 'sin') {
             this.calculateSafetyAndDeficit();
@@ -384,7 +385,7 @@ class App extends Component {
           const tok = {...tokens[name]};
           tok[field] = r;
           tokens[name] = tok;
-          return { tokens };
+          return {tokens};
         });
       }
     })
@@ -393,14 +394,14 @@ class App extends Component {
 
   // Transactions
   checkPendingTransactions = () => {
-    const transactions = { ...this.state.transactions };
+    const transactions = {...this.state.transactions};
     Object.keys(transactions).map(tx => {
       if (transactions[tx].pending) {
         web3.eth.getTransactionReceipt(tx, (e, r) => {
           if (!e && r !== null) {
             if (r.logs.length === 0) {
               this.logTransactionFailed(tx);
-            } else if (r.blockNumber)  {
+            } else if (r.blockNumber) {
               this.logTransactionConfirmed(tx);
             }
           }
@@ -417,23 +418,23 @@ class App extends Component {
 
   logPendingTransaction = (id, tx, title, callbacks = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
-    const transactions = { ...this.state.transactions };
-    transactions[tx] = { pending: true, title, callbacks }
-    this.setState({ transactions });
+    const transactions = {...this.state.transactions};
+    transactions[tx] = {pending: true, title, callbacks}
+    this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
     this.refs.notificator.hideNotification(id);
-    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
+    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), false);
   }
 
   logTransactionConfirmed = tx => {
     const msgTemp = 'Transaction TX was confirmed.';
-    const transactions = { ...this.state.transactions };
+    const transactions = {...this.state.transactions};
     if (transactions[tx] && transactions[tx].pending) {
       transactions[tx].pending = false;
-      this.setState({ transactions }, () => {
+      this.setState({transactions}, () => {
         console.log(msgTemp.replace('TX', tx));
         this.refs.notificator.hideNotification(tx);
-        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
+        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), 4000);
         if (typeof transactions[tx].callbacks !== 'undefined' && transactions[tx].callbacks.length > 0) {
           transactions[tx].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -443,11 +444,11 @@ class App extends Component {
 
   logTransactionFailed = tx => {
     const msgTemp = 'Transaction TX failed.';
-    const transactions = { ...this.state.transactions };
+    const transactions = {...this.state.transactions};
     if (transactions[tx]) {
       transactions[tx].pending = false;
-      this.setState({ transactions });
-      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+      this.setState({transactions});
+      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), 4000);
     }
   }
 
@@ -476,26 +477,26 @@ class App extends Component {
     if (operation === 'sellAll') {
       if (from === "eth") {
         result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-                          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
+          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
         result.value = web3.toWei(amount);
       } else if (to === "eth") {
         result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-                          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
       } else {
         result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-                          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
       }
     } else {
       if (from === "eth") {
         result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
-                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
         result.value = limit;
       } else if (to === "eth") {
         result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
       } else {
         result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-                          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
       }
     }
     return result;
@@ -503,9 +504,9 @@ class App extends Component {
 
   goToDoTradeStep = (from, to) => {
     this.setState((prevState, props) => {
-      const trade = { ...prevState.trade };
+      const trade = {...prevState.trade};
       trade.step = 2;
-      return { trade };
+      return {trade};
     }, () => {
       setTimeout(this.doTrade, 1500);
     });
@@ -556,7 +557,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then(tx => {
       this.logPendingTransaction(id, tx, title);
-    }, e =>  {
+    }, e => {
       console.log(e);
       this.logTransactionRejected(id, title);
     });
@@ -598,10 +599,15 @@ class App extends Component {
     const title = `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`;
     this.logRequestTransaction(id, title);
     this.loadObject(proxycreateandexecute.abi,
-      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, { value }, (e, tx) => {
+      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, {value}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(id, tx, title, [['setProxyAddress']]);
       } else {
+        this.setState((prevState) => {
+          const trade = {...prevState.trade};
+          trade.step = 1;
+          return {trade}
+        })
         console.log(e);
         this.logTransactionRejected(id, title);
       }
@@ -610,18 +616,18 @@ class App extends Component {
 
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
-    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95): this.state.trade.amountPay.times(1.05)).round(0);
+    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95) : this.state.trade.amountPay.times(1.05)).round(0);
     if (this.state.proxy) {
       this.checkAllowance(this.state.trade.from,
-                          this.state.proxy,
-                          this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
-                          [['executeProxyTx', amount, limit]]);
+        this.state.proxy,
+        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+        [['executeProxyTx', amount, limit]]);
     } else {
       // No Proxy created, we need to use the support contract
       this.checkAllowance(this.state.trade.from,
-                          settings.chain[this.state.network.network].proxyCreationAndExecute,
-                          this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
-                          [['executeProxyCreateAndExecute', amount, limit]]);
+        settings.chain[this.state.network.network].proxyCreationAndExecute,
+        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+        [['executeProxyCreateAndExecute', amount, limit]]);
     }
   }
 
@@ -675,7 +681,7 @@ class App extends Component {
 
   cleanInputs = () => {
     this.setState((prevState, props) => {
-      const trade = { ...prevState.trade };
+      const trade = {...prevState.trade};
       trade.amountBuy = web3.toBigNumber(0);
       trade.amountPay = web3.toBigNumber(0);
       trade.amountBuyInput = '';
@@ -683,7 +689,7 @@ class App extends Component {
       trade.txCost = web3.toBigNumber(0);
       trade.errorFunds = null;
       trade.errorOrders = null;
-      return { trade };
+      return {trade};
     });
   }
 
@@ -713,7 +719,7 @@ class App extends Component {
 
   calculateBuyAmount = (from, to, amount) => {
     this.setState((prevState, props) => {
-      const trade = { ...prevState.trade };
+      const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
       trade.amountBuy = web3.toBigNumber(0);
@@ -724,72 +730,72 @@ class App extends Component {
       trade.txCost = web3.toBigNumber(0);
       trade.errorFunds = null;
       trade.errorOrders = null;
-      return { trade };
+      return {trade};
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
         this.setState((prevState, props) => {
-          const trade = { ...prevState.trade };
+          const trade = {...prevState.trade};
           trade.amountBuy = web3.fromWei(web3.toBigNumber(0));
           trade.amountBuyInput = '';
         });
         return;
       }
       this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getBuyAmount(
-                                                                                            this.state.tokens[to.replace('eth', 'weth')].address,
-                                                                                            this.state.tokens[from.replace('eth', 'weth')].address,
-                                                                                            web3.toWei(amount),
-      (e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const trade = { ...prevState.trade };
-            trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
-            trade.amountBuyInput = trade.amountBuy.valueOf();
-            return { trade };
-          }, async () => {
-            const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            const errorFunds = balance.lt(web3.toWei(amount))
-                               ?
-                                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
-                                 'Insufficient funds'
-                               :
-                                 '';
-            const errorOrders = this.state.trade.amountBuy.eq(0)
-                                ?
-                                  `Not enough ${to.toUpperCase()} funds to sell ${amount} ${from.toUpperCase()}`
-                                :
-                                  null;
-            if (errorFunds || errorOrders) {
-              this.setState((prevState, props) => {
-                const trade = { ...prevState.trade };
-                trade.errorFunds = errorFunds;
-                trade.errorOrders = errorOrders;
-                return { trade };
-              });
-              return;
-            }
-            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-            const canUseAddress = this.state.proxy
-                                  ?
-                                    from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
-                                  :
-                                    false;
-            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-            const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
-            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
-          });
-        } else {
-          console.log(e);
-        }
-      });
+        this.state.tokens[to.replace('eth', 'weth')].address,
+        this.state.tokens[from.replace('eth', 'weth')].address,
+        web3.toWei(amount),
+        (e, r) => {
+          if (!e) {
+            this.setState((prevState, props) => {
+              const trade = {...prevState.trade};
+              trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
+              trade.amountBuyInput = trade.amountBuy.valueOf();
+              return {trade};
+            }, async () => {
+              const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
+              const errorFunds = balance.lt(web3.toWei(amount))
+                ?
+                // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
+                'Insufficient funds'
+                :
+                '';
+              const errorOrders = this.state.trade.amountBuy.eq(0)
+                ?
+                `Not enough ${to.toUpperCase()} funds to sell ${amount} ${from.toUpperCase()}`
+                :
+                null;
+              if (errorFunds || errorOrders) {
+                this.setState((prevState, props) => {
+                  const trade = {...prevState.trade};
+                  trade.errorFunds = errorFunds;
+                  trade.errorOrders = errorOrders;
+                  return {trade};
+                });
+                return;
+              }
+              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+              const canUseAddress = this.state.proxy
+                ?
+                from === 'eth' ||
+                await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
+                :
+                false;
+              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+              const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+            });
+          } else {
+            console.log(e);
+          }
+        });
     });
   }
 
   calculatePayAmount = (from, to, amount) => {
     this.setState((prevState, props) => {
-      const trade = { ...prevState.trade };
+      const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
       trade.amountBuy = web3.toBigNumber(amount);
@@ -800,11 +806,11 @@ class App extends Component {
       trade.txCost = web3.toBigNumber(0);
       trade.errorFunds = null;
       trade.errorOrders = null;
-      return { trade };
+      return {trade};
     }, () => {
       if (web3.toBigNumber(amount).eq(0)) {
         this.setState((prevState, props) => {
-          const trade = { ...prevState.trade };
+          const trade = {...prevState.trade};
           trade.amountPay = web3.fromWei(web3.toBigNumber(0));
           trade.amountPayInput = '';
         });
@@ -814,53 +820,53 @@ class App extends Component {
         this.state.tokens[from.replace('eth', 'weth')].address,
         this.state.tokens[to.replace('eth', 'weth')].address,
         web3.toWei(amount),
-      (e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const trade = { ...prevState.trade };
-            trade.amountPay = web3.fromWei(web3.toBigNumber(r));
-            trade.amountPayInput = trade.amountPay.valueOf();
-            return { trade };
-          }, async () => {
-            const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-            const errorFunds = balance.lt(web3.toWei(this.state.trade.amountPay))
-                               ?
-                                 // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
-                                 'Insufficient funds'
-                               :
-                                 null;
-            const errorOrders = this.state.trade.amountPay.eq(0)
-                                ?
-                                  `Not enough funds to buy ${amount} ${to.toUpperCase()}`
-                                :
-                                  null;
-            if (errorFunds || errorOrders) {
-              this.setState((prevState, props) => {
-                const trade = { ...prevState.trade };
-                trade.errorFunds = errorFunds;
-                trade.errorOrders = errorOrders;
-                return { trade };
-              });
-              return;
-            }
-            // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-            const canUseAddress = this.state.proxy
-            ?
-              from === 'eth' ||
-              await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
-              ||
-              (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
-            :
-              false;
-            const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-            const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-            const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
-            this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
-          });
-        } else {
-          console.log(e);
-        }
-      });
+        (e, r) => {
+          if (!e) {
+            this.setState((prevState, props) => {
+              const trade = {...prevState.trade};
+              trade.amountPay = web3.fromWei(web3.toBigNumber(r));
+              trade.amountPayInput = trade.amountPay.valueOf();
+              return {trade};
+            }, async () => {
+              const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
+              const errorFunds = balance.lt(web3.toWei(this.state.trade.amountPay))
+                ?
+                // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
+                'Insufficient funds'
+                :
+                null;
+              const errorOrders = this.state.trade.amountPay.eq(0)
+                ?
+                `Not enough funds to buy ${amount} ${to.toUpperCase()}`
+                :
+                null;
+              if (errorFunds || errorOrders) {
+                this.setState((prevState, props) => {
+                  const trade = {...prevState.trade};
+                  trade.errorFunds = errorFunds;
+                  trade.errorOrders = errorOrders;
+                  return {trade};
+                });
+                return;
+              }
+              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
+              const canUseAddress = this.state.proxy
+                ?
+                from === 'eth' ||
+                await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
+                ||
+                (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
+                :
+                false;
+              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+              const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
+              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+            });
+          } else {
+            console.log(e);
+          }
+        });
     });
   }
 
@@ -868,7 +874,7 @@ class App extends Component {
     return new Promise((resolve, reject) => {
       this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisDirect,
         calldata,
-        { value, from },
+        {value, from},
         (e, r) => {
           if (!e) {
             resolve(r);
@@ -883,9 +889,9 @@ class App extends Component {
   calculateCost = (proxyAddr, calldata, value = 0, from) => {
     Promise.all([this.estimateGas(proxyAddr, calldata, value, from), this.getGasPrice()]).then(r => {
       this.setState((prevState, props) => {
-        const trade = { ...prevState.trade };
+        const trade = {...prevState.trade};
         trade.txCost = web3.fromWei(r[1].times(r[0]));
-        return { trade };
+        return {trade};
       });
     });
   }
@@ -897,14 +903,14 @@ class App extends Component {
         calldata
       );
       web3.eth.estimateGas(
-          { to: proxyAddr, data, value, from },
-          (e, r) => {
-            if (!e) {
-              resolve(r);
-            } else {
-              reject(e);
-            }
+        {to: proxyAddr, data, value, from},
+        (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
           }
+        }
       );
     });
   }
@@ -912,13 +918,13 @@ class App extends Component {
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
       web3.eth.getGasPrice(
-          (e, r) => {
-            if (!e) {
-              resolve(r);
-            } else {
-              reject(e);
-            }
+        (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
           }
+        }
       );
     });
   }
@@ -929,10 +935,12 @@ class App extends Component {
       <div>
         {
           this.state.trade.step === 1
-          ? 
-            <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount } calculatePayAmount={ this.calculatePayAmount } goToDoTradeStep={ this.goToDoTradeStep } trade={ this.state.trade } />
-          :
-            <DoTrade trade={ this.state.trade } />
+            ?
+            <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
+                      calculatePayAmount={this.calculatePayAmount} goToDoTradeStep={this.goToDoTradeStep}
+                      trade={this.state.trade}/>
+            :
+            <DoTrade trade={this.state.trade}/>
         }
         <ReactNotify ref='notificator'/>
       </div>
@@ -942,14 +950,14 @@ class App extends Component {
   render() {
     return (
       this.state.network.isConnected
-      ?
-        this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
         ?
+        this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+          ?
           this.renderMain()
+          :
+          <NoAccount/>
         :
-          <NoAccount />
-      :
-        <NoConnection />
+        <NoConnection/>
     );
   }
 }
