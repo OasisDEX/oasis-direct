@@ -51,7 +51,7 @@ class SetTrade extends Component {
 
   nextStep = e => {
     e.preventDefault();
-    this.props.goToDoTradeStep();
+    this.props.doTrade();
     return false;
   }
 

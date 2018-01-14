@@ -58,23 +58,44 @@ class DoTrade extends Component {
             <span>{tokens[this.props.trade.from].symbol}/{tokens[this.props.trade.to].symbol}</span>
           </span>
         </div>
-        <div className="transaction-info-box">
-          <div className="operation">
-            {tokens[this.props.trade.from].icon}
-            <div className="details">
-              <span className="label"> Approving</span>
-              <span
-                className="value"> {printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
+        {
+          this.props.trade.txs === 2 &&
+          <div className="transaction-info-box">
+            <div className="operation">
+              {tokens[this.props.trade.from].icon}
+              <div className="details">
+                <span className="label"> Approving</span>
+                <span
+                  className="value"> {printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
+              </div>
             </div>
+            {
+              typeof this.props.transactions.approval === 'undefined'
+              ?
+                <div className="status"><span className="label">initiating transaction...</span></div>
+              :
+                this.props.transactions.approval.requested
+                ?
+                  <div className="status">{spinner}<span className="label">sign transaction</span></div>
+                :
+                  this.props.transactions.approval.pending
+                  ?
+                    <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
+                  :
+                    this.props.transactions.approval.error
+                    ?
+                      <div className="status"><span className="label">error ocurred</span></div>
+                    :
+                      <div className="status"><span className="label">confirmed</span></div>
+            }
           </div>
-          <div className="status">
-            {spinner}
-            <span className="label">sign transaction</span>
+        }
+        {
+          this.props.trade.txs === 2 &&
+          <div className="arrow-separator">
+            <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
           </div>
-        </div>
-        <div className="arrow-separator">
-          <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
-        </div>
+        }
         {/*Depositing&nbsp;w*/}
         {/*{this.props.trade.operation === 'sellAll' ? '=' : '=~'}&nbsp;*/}
         {/*{this.props.trade.amountPay.valueOf()} {tokens[this.props.trade.from].symbol} -&nbsp;*/}
@@ -83,6 +104,14 @@ class DoTrade extends Component {
         {/*{this.props.trade.amountBuy.valueOf()} {tokens[this.props.trade.to].symbol}*/}
         <div className="transaction-info-box">
           <div className="operation">
+            {tokens[this.props.trade.from].icon}
+            <div className="details">
+              <span className="label"> Selling</span>
+              <span
+                className="value"> {printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
+            </div>
+          </div>
+          <div className="operation">
             {tokens[this.props.trade.to].icon}
             <div className="details">
               <span className="label"> Buying</span>
@@ -90,10 +119,29 @@ class DoTrade extends Component {
                 className="value"> {printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol}</span>
             </div>
           </div>
-          <div className="status">
-            {spinner}
-            <span className="label">sign transaction</span>
-          </div>
+          {
+            typeof this.props.transactions.trade === 'undefined'
+            ?
+              this.props.trade.txs === 1
+              ?
+                <div className="status"><span className="label">initiating transaction</span></div>
+              :
+                <div className="status"><span className="label">waiting for previous tx to complete</span></div>
+            :
+              this.props.transactions.trade.requested
+              ?
+                <div className="status">{spinner}<span className="label">sign transaction</span></div>
+              :
+                this.props.transactions.trade.pending
+                ?
+                  <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
+                :
+                  this.props.transactions.trade.error
+                  ?
+                    <div className="status"><span className="label">error ocurred</span></div>
+                  :
+                    <div className="status"><span className="label">confirmed</span></div>
+          }
         </div>
         <div className="footer contact">
           Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>

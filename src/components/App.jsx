@@ -3,7 +3,7 @@ import web3, { initWeb3 } from '../web3';
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
 import ReactNotify from '../notify';
-import { toBytes32, addressToBytes32, etherscanTx, methodSig } from '../helpers';
+import { toBytes32, addressToBytes32, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 
@@ -48,6 +48,7 @@ class App extends Component {
         txCost: web3.toBigNumber(0),
         errorFunds: null,
         errorOrders: null,
+        txs: null,
       }
     };
   }
@@ -215,7 +216,7 @@ class App extends Component {
   setPendingTxInterval = () => {
     this.pendingTxInterval = setInterval(() => {
       this.checkPendingTransactions()
-    }, 10000);
+    }, 5000);
   }
 
   getAccountBalance = () => {
@@ -395,14 +396,14 @@ class App extends Component {
   // Transactions
   checkPendingTransactions = () => {
     const transactions = {...this.state.transactions};
-    Object.keys(transactions).map(tx => {
-      if (transactions[tx].pending) {
-        web3.eth.getTransactionReceipt(tx, (e, r) => {
+    Object.keys(transactions).map(type => {
+      if (transactions[type].pending) {
+        web3.eth.getTransactionReceipt(transactions[type].tx, (e, r) => {
           if (!e && r !== null) {
             if (r.logs.length === 0) {
-              this.logTransactionFailed(tx);
+              this.logTransactionFailed(transactions[type].tx);
             } else if (r.blockNumber) {
-              this.logTransactionConfirmed(tx);
+              this.logTransactionConfirmed(transactions[type].tx);
             }
           }
         });
@@ -411,51 +412,70 @@ class App extends Component {
     });
   }
 
-  logRequestTransaction = (id, title) => {
-    const msgTemp = 'Waiting for transaction signature...';
-    this.refs.notificator.info(id, title, msgTemp, false);
+  logRequestTransaction = type => {
+    return new Promise(resolve => {
+      const transactions = {...this.state.transactions};
+      transactions[type] = { requested: true }
+      this.setState({ transactions }, () => {
+        resolve();
+      });
+    });
   }
 
-  logPendingTransaction = (id, tx, title, callbacks = []) => {
+  logPendingTransaction = (tx, type, callbacks = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[tx] = {pending: true, title, callbacks}
+    transactions[type] = { tx, pending: true, error: false, callbacks }
     this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
-    this.refs.notificator.hideNotification(id);
-    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), false);
   }
 
   logTransactionConfirmed = tx => {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = {...this.state.transactions};
-    if (transactions[tx] && transactions[tx].pending) {
-      transactions[tx].pending = false;
-      this.setState({transactions}, () => {
+
+    const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
+                 ?
+                   'approval'
+                 :
+                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+                   ?
+                     'trade'
+                   :
+                     false;
+    if (type) {
+      transactions[type].pending = false;
+      this.setState({ transactions }, () => {
         console.log(msgTemp.replace('TX', tx));
-        this.refs.notificator.hideNotification(tx);
-        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), 4000);
-        if (typeof transactions[tx].callbacks !== 'undefined' && transactions[tx].callbacks.length > 0) {
-          transactions[tx].callbacks.forEach(callback => this.executeCallback(callback));
+        if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
+          transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
       });
     }
   }
 
   logTransactionFailed = tx => {
-    const msgTemp = 'Transaction TX failed.';
     const transactions = {...this.state.transactions};
-    if (transactions[tx]) {
-      transactions[tx].pending = false;
-      this.setState({transactions});
-      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), 4000);
+    const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
+                 ?
+                   'approval'
+                 :
+                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+                   ?
+                     'trade'
+                   :
+                     false;
+    if (type) {
+      transactions[type].pending = false;
+      transactions[type].error = true;
+      this.setState({ transactions });
     }
   }
 
-  logTransactionRejected = (tx, title) => {
-    const msgTemp = 'User denied transaction signature.';
-    this.refs.notificator.error(tx, title, msgTemp, 4000);
-  }
+  // logTransactionRejected = (tx, title) => {
+  //   const msgTemp = 'User denied transaction signature.';
+  //   this.refs.notificator.error(tx, title, msgTemp, 4000);
+  // }
 
   executeCallback = args => {
     const method = args.shift();
@@ -502,49 +522,53 @@ class App extends Component {
     return result;
   }
 
-  goToDoTradeStep = (from, to) => {
-    this.setState((prevState, props) => {
-      const trade = {...prevState.trade};
-      trade.step = 2;
-      return {trade};
-    }, () => {
-      setTimeout(this.doTrade, 1500);
-    });
-  }
-
   checkAllowance = (token, dst, value, callbacks) => {
     if (token === 'eth') {
-      callbacks.forEach(callback => this.executeCallback(callback));
-    } else {
-      let promise;
-      let valueObj;
-      if (token !== '') {
-        valueObj = web3.toBigNumber(web3.toWei(value));
-        promise = this.getTokenAllowance(token, this.state.network.defaultAccount, dst);
-      } else {
-        promise = this.getTokenTrust(token, this.state.network.defaultAccount, dst);
-      }
-
-      Promise.resolve(promise).then(r => {
-        // if ((token === 'gem' && r.gte(valueObj)) || (token !== 'gem' && r)) {
-        if (r.gte(valueObj)) {
+      this.setState((prevState, props) => {
+        const trade = {...prevState.trade};
+        trade.step = 2;
+        trade.txs = 1;
+        return {trade};
+      }, () => {
+        setTimeout(() => {
           callbacks.forEach(callback => this.executeCallback(callback));
+        }, 2000);
+      });
+    } else {
+      const valueObj = web3.toBigNumber(web3.toWei(value));
+
+      Promise.resolve(this.getTokenAllowance(token, this.state.network.defaultAccount, dst)).then(r => {
+        if (r.gte(valueObj)) {
+          this.setState((prevState, props) => {
+            const trade = {...prevState.trade};
+            trade.step = 2;
+            trade.txs = 1;
+            return {trade};
+          }, () => {
+            setTimeout(() => {
+              callbacks.forEach(callback => this.executeCallback(callback));
+            }, 2000);
+          });
         } else {
-          const tokenName = token.toUpperCase();
-          // const operation = token === '' ? 'approve' : 'trust';
-          const operation = 'approve';
-          const id = Math.random();
-          const title = `${tokenName}: trust system`;
-          this.logRequestTransaction(id, title);
-          const log = (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(id, tx, title, callbacks);
-            } else {
-              console.log(e);
-              this.logTransactionRejected(id, title);
-            }
-          }
-          this[`${token}Obj`][operation](dst, token !== '' ? -1 : true, {}, log);
+          this.setState((prevState, props) => {
+            const trade = {...prevState.trade};
+            trade.step = 2;
+            trade.txs = 2;
+            return {trade};
+          }, () => {
+            setTimeout(() => {
+              Promise.resolve(this.logRequestTransaction('approval')).then(() => {
+                this[`${token}Obj`].approve(dst, -1, {}, (e, tx) => {
+                  if (!e) {
+                    this.logPendingTransaction(tx, 'approval', callbacks);
+                  } else {
+                    console.log(e);
+                    // this.logTransactionRejected(title);
+                  }
+                });
+              });
+            }, 2000);
+          });
         }
       });
     }
@@ -552,14 +576,13 @@ class App extends Component {
 
   executeProxyTx = (amount, limit) => {
     const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    const id = Math.random();
-    const title = `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`;
-    this.logRequestTransaction(id, title);
-    Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then(tx => {
-      this.logPendingTransaction(id, tx, title);
-    }, e => {
-      console.log(e);
-      this.logTransactionRejected(id, title);
+    Promise.resolve(this.logRequestTransaction('trade')).then(() => {
+      Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then(tx => {
+        this.logPendingTransaction(tx, 'trade');
+      }, e => {
+        console.log(e);
+        // this.logTransactionRejected(title);
+      });
     });
   }
 
@@ -595,23 +618,22 @@ class App extends Component {
       }
     }
 
-    const id = Math.random();
-    const title = `${this.state.trade.operation}: ${amount} ${this.state.trade.operation === 'sellAll' ? this.state.trade.from : this.state.trade.to }`;
-    this.logRequestTransaction(id, title);
-    this.loadObject(proxycreateandexecute.abi,
-      settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, {value}, (e, tx) => {
-      if (!e) {
-        this.logPendingTransaction(id, tx, title, [['setProxyAddress']]);
-      } else {
-        this.setState((prevState) => {
-          const trade = {...prevState.trade};
-          trade.step = 1;
-          return {trade}
-        })
-        console.log(e);
-        this.logTransactionRejected(id, title);
-      }
-    })
+    Promise.resolve(this.logRequestTransaction('trade')).then(() => {
+      this.loadObject(proxycreateandexecute.abi,
+        settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, {value}, (e, tx) => {
+        if (!e) {
+          this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+        } else {
+          this.setState((prevState) => {
+            const trade = {...prevState.trade};
+            trade.step = 1;
+            return {trade}
+          })
+          console.log(e);
+          // this.logTransactionRejected(title);
+        }
+      });
+    });
   }
 
   doTrade = () => {
@@ -937,10 +959,10 @@ class App extends Component {
           this.state.trade.step === 1
             ?
             <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
-                      calculatePayAmount={this.calculatePayAmount} goToDoTradeStep={this.goToDoTradeStep}
+                      calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
                       trade={this.state.trade}/>
             :
-            <DoTrade trade={this.state.trade}/>
+            <DoTrade trade={this.state.trade} transactions={this.state.transactions}/>
         }
         <ReactNotify ref='notificator'/>
       </div>
