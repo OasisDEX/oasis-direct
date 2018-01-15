@@ -288,6 +288,7 @@ class App extends Component {
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
+          // console.log('getProxyAddressFromChain', r2);
           resolve(r2);
         }).catch(e2 => {
           reject(e2);
@@ -297,9 +298,7 @@ class App extends Component {
   }
 
   setProxyAddress = () => {
-    console.log('setProxy');
     Promise.resolve(this.getProxyAddress()).then(proxy => {
-      console.log(proxy);
       this.setState((prevState, props) => {
         return {proxy};
       });
@@ -443,7 +442,7 @@ class App extends Component {
                      'trade'
                    :
                      false;
-    if (type) {
+    if (type && transactions[type].pending) {
       transactions[type].pending = false;
       this.setState({ transactions }, () => {
         console.log(msgTemp.replace('TX', tx));
@@ -492,7 +491,7 @@ class App extends Component {
     const method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
     const timeout = ['executeProxyTx', 'executeProxyCreateAndExecute', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
-    // console.log(method, args, timeout);
+    console.log(method, args, timeout);
     setTimeout(() => {
       this[method](...args);
     }, timeout);
@@ -635,11 +634,6 @@ class App extends Component {
         if (!e) {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
         } else {
-          this.setState((prevState) => {
-            const trade = {...prevState.trade};
-            trade.step = 1;
-            return {trade}
-          })
           console.log(e);
           this.logTransactionRejected('trade');
         }
