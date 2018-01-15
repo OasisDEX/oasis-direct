@@ -64,7 +64,7 @@ class SetTrade extends Component {
   }
 
   hasDetails = () => {
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && this.props.trade.txCost.gt(0) && !this.props.trade.errorFunds) || this.props.trade.errorOrders
+    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorFunds) || this.props.trade.errorOrders
   }
 
   render() {
@@ -168,7 +168,7 @@ class SetTrade extends Component {
               <span>
                 <span className="label">Fee </span>
                 <span className='value'>
-                  ~ { printNumber(web3.toWei(this.props.trade.txCost)) } ETH
+                  { this.props.trade.txCost.gt(0) ? `~ ${printNumber(web3.toWei(this.props.trade.txCost))} ETH` : 'Error' }
                 </span>
               </span>
             }

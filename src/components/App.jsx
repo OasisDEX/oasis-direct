@@ -468,14 +468,25 @@ class App extends Component {
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
-      this.setState({ transactions });
+      this.setState({ transactions }, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
     }
   }
 
-  // logTransactionRejected = (tx, title) => {
-  //   const msgTemp = 'User denied transaction signature.';
-  //   this.refs.notificator.error(tx, title, msgTemp, 4000);
-  // }
+  logTransactionRejected = type => {
+    const transactions = {...this.state.transactions};
+    transactions[type] = { rejected: true }
+    this.setState({ transactions }, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+  }
+
+  returnToSetTrade = () => {
+    this.setState((prevState, props) => {
+      const trade = {...prevState.trade};
+      const transactions = {};
+      trade.step = 1;
+      trade.txs = null;
+      return { trade, transactions };
+    });
+  }
 
   executeCallback = args => {
     const method = args.shift();
@@ -563,7 +574,7 @@ class App extends Component {
                     this.logPendingTransaction(tx, 'approval', callbacks);
                   } else {
                     console.log(e);
-                    // this.logTransactionRejected(title);
+                    this.logTransactionRejected('approval');
                   }
                 });
               });
@@ -581,7 +592,7 @@ class App extends Component {
         this.logPendingTransaction(tx, 'trade');
       }, e => {
         console.log(e);
-        // this.logTransactionRejected(title);
+        this.logTransactionRejected('trade');
       });
     });
   }
@@ -630,7 +641,7 @@ class App extends Component {
             return {trade}
           })
           console.log(e);
-          // this.logTransactionRejected(title);
+          this.logTransactionRejected('trade');
         }
       });
     });

@@ -72,21 +72,25 @@ class DoTrade extends Component {
             {
               typeof this.props.transactions.approval === 'undefined'
               ?
-                <div className="status"><span className="label">initiating transaction...</span></div>
+                <div className="status">{spinner}<span className="label">initiating transaction...</span></div>
               :
-                this.props.transactions.approval.requested
+                this.props.transactions.approval.rejected
                 ?
-                  <div className="status">{spinner}<span className="label">sign transaction</span></div>
+                  <div className="status"><span className="label">rejected, redirecting...</span></div>
                 :
-                  this.props.transactions.approval.pending
+                  this.props.transactions.approval.requested
                   ?
-                    <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
+                    <div className="status">{spinner}<span className="label">sign transaction</span></div>
                   :
-                    this.props.transactions.approval.error
+                    this.props.transactions.approval.pending
                     ?
-                      <div className="status"><span className="label">error ocurred</span></div>
+                      <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
                     :
-                      <div className="status"><span className="label">confirmed</span></div>
+                      this.props.transactions.approval.error
+                      ?
+                        <div className="status"><span className="label">error ocurred</span></div>
+                      :
+                        <div className="status"><span className="label">confirmed</span></div>
             }
           </div>
         }
@@ -124,23 +128,27 @@ class DoTrade extends Component {
             ?
               this.props.trade.txs === 1
               ?
-                <div className="status"><span className="label">initiating transaction</span></div>
+                <div className="status">{spinner}<span className="label">initiating transaction</span></div>
               :
-                <div className="status"><span className="label">waiting for previous tx to complete</span></div>
+                <div className="status">{spinner}<span className="label">waiting for previous tx to complete</span></div>
             :
-              this.props.transactions.trade.requested
+              this.props.transactions.trade.rejected
               ?
-                <div className="status">{spinner}<span className="label">sign transaction</span></div>
+                <div className="status"><span className="label">rejected, redirecting...</span></div>
               :
-                this.props.transactions.trade.pending
+                this.props.transactions.trade.requested
                 ?
-                  <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
+                  <div className="status">{spinner}<span className="label">sign transaction</span></div>
                 :
-                  this.props.transactions.trade.error
+                  this.props.transactions.trade.pending
                   ?
-                    <div className="status"><span className="label">error ocurred</span></div>
+                    <div className="status">{spinner}<span className="label">waiting for confirmation</span></div>
                   :
-                    <div className="status"><span className="label">confirmed</span></div>
+                    this.props.transactions.trade.error
+                    ?
+                      <div className="status"><span className="label">error ocurred, redirecting...</span></div>
+                    :
+                      <div className="status"><span className="label">confirmed</span></div>
           }
         </div>
         <div className="footer contact">
