@@ -164,11 +164,11 @@ class SetTrade extends Component {
               </span>
             }
             {
-              !this.props.trade.errorOrders &&
+              !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
               <span>
                 <span className="label">Fee </span>
                 <span className='value'>
-                  { this.props.trade.txCost.gt(0) ? `~ ${printNumber(web3.toWei(this.props.trade.txCost))} ETH` : 'Error' }
+                  ~ { printNumber(web3.toWei(this.props.trade.txCost)) } ETH
                 </span>
               </span>
             }
