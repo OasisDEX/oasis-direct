@@ -65,8 +65,6 @@ class DoTrade extends Component {
               {tokens[this.props.trade.from].icon}
               <div className="details">
                 <span className="label"> Approving</span>
-                <span
-                  className="value"> {printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
               </div>
             </div>
             {
