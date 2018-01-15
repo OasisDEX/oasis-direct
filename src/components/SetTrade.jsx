@@ -118,7 +118,7 @@ class SetTrade extends Component {
                 <div className={ `trade-errors${this.props.trade.errorFunds ? ' show' : ''}` }>
                   { this.props.trade.errorFunds }
                 </div>
-                <input type="number" ref={(input) => this.amountPay = input}
+                <input className={`${this.props.trade.errorFunds ? 'has-errors' : ''}`} type="number" ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
               </div>
