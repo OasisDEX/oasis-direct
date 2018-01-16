@@ -11,10 +11,12 @@ const settings = require('../settings');
 
 const dstoken = require('../abi/dstoken');
 const dsethtoken = require('../abi/dsethtoken');
-const dsproxyfactory = require('../abi/dsproxyfactory');
+const proxyregistry = require('../abi/proxyregistry');
+// const dsproxyfactory = require('../abi/dsproxyfactory');
 const dsproxy = require('../abi/dsproxy');
 const matchingmarket = require('../abi/matchingmarket');
 const proxycreateandexecute = require('../abi/proxycreateandexecute');
+window.dsproxy = dsproxy;
 
 class App extends Component {
   constructor() {
@@ -195,7 +197,8 @@ class App extends Component {
       ...initialState
     }, () => {
       const addrs = settings.chain[this.state.network.network];
-      window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
+      // window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
+      window.proxyRegistryObj = this.proxyRegistryObj = this.loadObject(proxyregistry.abi, addrs.proxyRegistry);
 
       const setUpPromises = [this.getProxyAddress()];
       Promise.all(setUpPromises).then(r => {
@@ -241,17 +244,47 @@ class App extends Component {
     });
   }
 
+  getProxy = (i) => {
+    return new Promise((resolve, reject) => {
+      this.proxyRegistryObj.proxies(this.state.network.defaultAccount, i, (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
   getProxyAddressFromChain = (blockNumber = 0, proxies = []) => {
     const network = this.state.network;
     const me = this;
     return new Promise((resolve, reject) => {
-      me.proxyFactoryObj.Created({sender: network.defaultAccount}, {fromBlock: blockNumber}).get(async (e, r) => {
+      // me.proxyFactoryObj.Created({sender: network.defaultAccount}, {fromBlock: blockNumber}).get(async (e, r) => {
+      //   if (!e) {
+      //     const allProxies = proxies.concat(r.map(val => val.args));
+      //     if (allProxies.length > 0) {
+      //       for (let i = allProxies.length - 1; i >= 0; i--) {
+      //         if (await me.getProxyOwner(allProxies[i].proxy) === network.defaultAccount) {
+      //           resolve(allProxies[i].proxy);
+      //           break;
+      //         }
+      //       }
+      //       resolve(null);
+      //     } else {
+      //       resolve(null);
+      //     }
+      //   } else {
+      //     reject(e);
+      //   }
+      // });
+      me.proxyRegistryObj.proxiesCount(network.defaultAccount, async (e, r) => {
         if (!e) {
-          const allProxies = proxies.concat(r.map(val => val.args));
-          if (allProxies.length > 0) {
-            for (let i = allProxies.length - 1; i >= 0; i--) {
-              if (await me.getProxyOwner(allProxies[i].proxy) === network.defaultAccount) {
-                resolve(allProxies[i].proxy);
+          if (r.gt(0)) {
+            for (let i = r.toNumber() - 1; i >= 0; i--) {
+              const proxyAddr = await this.getProxy(i);
+              if (await me.getProxyOwner(proxyAddr) === network.defaultAccount) {
+                resolve(proxyAddr);
                 break;
               }
             }
@@ -288,7 +321,7 @@ class App extends Component {
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
-          // console.log('getProxyAddressFromChain', r2);
+          console.log('getProxyAddressFromChain', r2);
           resolve(r2);
         }).catch(e2 => {
           reject(e2);
@@ -491,7 +524,7 @@ class App extends Component {
     const method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
     const timeout = ['executeProxyTx', 'executeProxyCreateAndExecute', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
-    console.log(method, args, timeout);
+    // console.log(method, args, timeout);
     setTimeout(() => {
       this[method](...args);
     }, timeout);
@@ -605,26 +638,26 @@ class App extends Component {
     if (this.state.trade.operation === 'sellAll') {
       if (this.state.trade.from === "eth") {
         method = 'createAndSellAllAmountPayEth';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
         value = web3.toWei(amount);
       } else if (this.state.trade.to === "eth") {
         method = 'createAndSellAllAmountBuyEth';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
       } else {
         method = 'createAndSellAllAmount';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
       }
     } else {
       if (this.state.trade.from === "eth") {
         method = 'createAndBuyAllAmountPayEth';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
         value = limit;
       } else if (this.state.trade.to === "eth") {
         method = 'createAndBuyAllAmountBuyEth';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
       } else {
         method = 'createAndBuyAllAmount';
-        params = [this.proxyFactoryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
       }
     }
 
