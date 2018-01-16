@@ -48,7 +48,7 @@ class DoTrade extends Component {
   }
 
   hasTxCompleted() {
-    console.log(this.props.transactions);
+    // console.log(this.props.transactions);
     return this.props.transactions.trade
         && this.props.transactions.trade.tx
         && !this.props.transactions.trade.pending
@@ -120,17 +120,15 @@ class DoTrade extends Component {
             <div className="operation">
               <span className="icon">{tokens[this.props.trade.from].icon}</span>
               <div className="details">
-                <span className="label"> Selling</span>
-                <span
-                  className="value"> {printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
+                <span className="label">Selling</span>
+                <span className="value">{ this.props.trade.operation === 'sellAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol }</span>
               </div>
             </div>
             <div className="operation">
               <span className="icon">{tokens[this.props.trade.to].icon}</span>
               <div className="details">
-                <span className="label"> Buying</span>
-                <span
-                  className="value"> {printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol}</span>
+                <span className="label">Buying</span>
+                <span className="value">{ this.props.trade.operation === 'buyAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol }</span>
               </div>
             </div>
           </div>
