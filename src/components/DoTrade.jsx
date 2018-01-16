@@ -47,16 +47,14 @@ class DoTrade extends Component {
     return tokens[key];
   }
 
-  hasTxCompleted() {
-    return this.props.transactions.trade
-        && this.props.transactions.trade.tx
-        && !this.props.transactions.trade.pending
-        && !this.props.transactions.trade.error;
+  hasTxCompleted(type) {
+    return this.props.transactions[type]
+        && this.props.transactions[type].tx
+        && !this.props.transactions[type].pending
+        && !this.props.transactions[type].error;
   }
 
   hasTwoTransactions() {
-
-    console.log("here " , this.props.trade.txs );
     return this.props.trade.txs === 2;
   }
 
@@ -77,7 +75,12 @@ class DoTrade extends Component {
         </div>
         {
           this.hasTwoTransactions() &&
-          <div className={`transaction-info-box half ${this.hasTxCompleted() ? 'success' : ''}`}>
+          <div className={`transaction-info-box half ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
+            <span className={`done-placeholder ${this.hasTxCompleted('approval') ? 'show' : ''}`}>
+              <span className="done">
+                <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+              </span>
+            </span>
             <div className="operation">
               <span className="icon">{tokens[this.props.trade.from].icon}</span>
               <div className="details">
@@ -116,8 +119,8 @@ class DoTrade extends Component {
             <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
           </div>
         }
-        <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted() ? 'success' : ''}`}>
-          <span className={`done-placeholder ${this.hasTxCompleted() ? 'show' : ''}`}>
+        <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
+          <span className={`done-placeholder ${this.hasTxCompleted('trade') ? 'show' : ''}`}>
             <span className="done">
               <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
             </span>

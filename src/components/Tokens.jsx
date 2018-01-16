@@ -30,10 +30,10 @@ export class DAI extends PureComponent {
         <defs>
           <path d="M7.70388864,6.0143682 L5.98718808,4.29766764 L4.28966911,5.9951866 L1.72900447,5.98080041 L5.97280189,1.73700299 L10.2645533,6.02875439 L7.70388864,6.0143682 Z"
                 id="path-1" />
-          <filter x="-17.5%" y="-35.3%" width="135%" height="170.7%" filterunits="objectBoundingBox"
+          <filter x="-17.5%" y="-35.3%" width="135%" height="170.7%" filterUnits="objectBoundingBox"
                   id="filter-2">
             <feoffset in="SourceAlpha" result="shadowOffsetOuter1">
-              <fegaussianblur stddeviation=".5" in="shadowOffsetOuter1" result="shadowBlurOuter1">
+              <fegaussianblur stdDeviation=".5" in="shadowOffsetOuter1" result="shadowBlurOuter1">
                 <fecolormatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0" in="shadowBlurOuter1"
                 />
               </fegaussianblur>
