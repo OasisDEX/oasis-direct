@@ -82,8 +82,8 @@
   position: relative;
 
   box-sizing: border-box;
-  width: 364px;
-  height: 324px;
+  width: 420px;
+  height: 380px;
   padding: 18px 16px;
 
   border: 1px solid rgba(182, 182, 183, 0.05);
@@ -95,7 +95,7 @@
 
 .heading {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
   color: rgba(73, 73, 74, 0.90);
 }
 
@@ -141,6 +141,8 @@
   font-weight: 400;
   letter-spacing: 0.92px;
 
+  margin-right: 4px;
+
   color: rgba(73, 73, 74, 0.90);
   opacity: 0.6;
 }
@@ -164,15 +166,20 @@
 .info-box {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
 
   border: 1px solid #F0F0F0;
   border-radius: 4px;
 
-  margin-bottom: 14px;
+  margin-bottom: 24px;
   padding: 0 14px;
 
-  height: 24px;
+  height: 30px;
+}
+
+.info-box .icon {
+  height: 14px;
+  margin-right: 16px
 }
 
 .pictogram {
@@ -185,8 +192,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 82px;
-  height: 72px;
+  width: 102px;
+  height: 92px;
   margin: 0 auto;
   border: 1px solid #DEE4F4;
   border-radius: 8px;
@@ -225,7 +232,7 @@
 
 .selected-token {
   display: inline-block;
-  width: 152px;
+  width: 168px;
 }
 
 .selected-token input {
@@ -264,11 +271,12 @@ input.has-errors {
 }
 
 .separator {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
   box-sizing: content-box;
   position: relative;
-  bottom: 66px;
-  width: 24px;
+  bottom: 77px;
+  width: 48px;
   border: 1px solid transparent;
 }
 
@@ -293,7 +301,7 @@ input.has-errors {
   margin-top: 4px;
 
   height: 18px;
-  padding: 4px 0;
+  padding: 6px 0;
 
   font-family: Montserrat, sans-serif;
   font-weight: 500;
@@ -305,7 +313,7 @@ input.has-errors {
 }
 
 .trade-details {
-  margin: 12px 0;
+  margin: 18px 0;
   border: 1px solid rgba(156, 156, 157, 0.08);
   height: 30px;
 
@@ -411,7 +419,7 @@ button[disabled] {
 }
 
 .transaction-info-box {
-  position:relative;
+  position: relative;
 
   display: inline-block;
 
@@ -427,6 +435,12 @@ button[disabled] {
   border-color: #66bb6a;
 }
 
+.transaction-info-box.half {
+  width: 168px;
+  height: auto;
+  vertical-align:top;
+}
+
 .transaction-info-box .operation {
   height: 40px;
   width: 50%;
@@ -439,13 +453,18 @@ button[disabled] {
   border-right: 1px solid rgba(230, 230, 230, 0.60);
 }
 
+.transaction-info-box.half .operation {
+  width: 100%;
+  border-right: none;
+}
+
 .operation:last-of-type {
   border-right: none;
 }
 
 .transaction-info-box .operation .icon {
-  height: 28px;
-  width: 28px;
+  height: 24px;
+  width: 24px;
   margin: 0 12px 0 24px;
 }
 
@@ -469,12 +488,21 @@ button[disabled] {
   margin-right: 24px;
 }
 
+.transaction-info-box.half .status .spinner{
+  margin-right: 12px;
+}
+
 .transaction-info-box .operation .details {
   height: 28px;
 
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+}
+
+.transaction-info-box .operation .icon svg {
+  height: 24px;
+  width: 24px;
 }
 
 .transaction-info-box .label {
@@ -494,7 +522,6 @@ button[disabled] {
 .transaction-info-box .label.error {
   color: rgba(203, 100, 94, 0.9);
 }
-
 
 .transaction-info-box .value {
   font-family: Montserrat, sans-serif;

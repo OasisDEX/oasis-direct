@@ -74,7 +74,7 @@ class SetTrade extends Component {
           <h3>Choose which Assets to trade</h3>
         </div>
         <div className="info-box">
-          <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+          <span className="icon"> <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/> </span>
           <span className="label">
             Order details are estimations and may vary
           </span>
@@ -141,12 +141,12 @@ class SetTrade extends Component {
               </div>
             </div>
           </div>
-          <div className={ `trade-details${this.hasDetails() ? '' : ' trade-details--hidden'}` }>
+          <div className={ `trade-details${this.hasDetails() ? '' : ' trade-details--hidden'} ${this.props.trade.errorOrders ? 'trade-errors show' : ''}` }>
             {
               this.props.trade.errorOrders &&
-              <div className="trade-errors show">
+              <span>
                 { this.props.trade.errorOrders }
-              </div>
+              </span>
             }
             {
               !this.props.trade.errorOrders &&

@@ -48,11 +48,16 @@ class DoTrade extends Component {
   }
 
   hasTxCompleted() {
-    // console.log(this.props.transactions);
     return this.props.transactions.trade
         && this.props.transactions.trade.tx
         && !this.props.transactions.trade.pending
         && !this.props.transactions.trade.error;
+  }
+
+  hasTwoTransactions() {
+
+    console.log("here " , this.props.trade.txs );
+    return this.props.trade.txs === 2;
   }
 
   render() {
@@ -71,12 +76,13 @@ class DoTrade extends Component {
           </span>
         </div>
         {
-          this.props.trade.txs === 2 &&
-          <div className="transaction-info-box">
+          this.hasTwoTransactions() &&
+          <div className={`transaction-info-box half ${this.hasTxCompleted() ? 'success' : ''}`}>
             <div className="operation">
-              {tokens[this.props.trade.from].icon}
+              <span className="icon">{tokens[this.props.trade.from].icon}</span>
               <div className="details">
-                <span className="label"> Approving</span>
+                <span className="label"> Enable</span>
+                <span className="value"> Trading of {tokens[this.props.trade.from].symbol}</span>
               </div>
             </div>
             {
@@ -86,11 +92,11 @@ class DoTrade extends Component {
               :
                 this.props.transactions.approval.rejected
                 ?
-                  <div className="status"><span className="label">Rejected, redirecting...</span></div>
+                  <div className="status"><span className="label error">Rejected, redirecting...</span></div>
                 :
                   this.props.transactions.approval.requested
                   ?
-                    <div className="status">{spinner}<span className="label">Signing transaction</span></div>
+                    <div className="status">{spinner}<span className="label info">Signing transaction</span></div>
                   :
                     this.props.transactions.approval.pending
                     ?
@@ -98,19 +104,19 @@ class DoTrade extends Component {
                     :
                       this.props.transactions.approval.error
                       ?
-                        <div className="status"><span className="label">error ocurred</span></div>
+                        <div className="status"><span className="label error">Error occurred</span></div>
                       :
                         <div className="status"><span className="label info">Confirmed</span></div>
             }
           </div>
         }
         {
-          this.props.trade.txs === 2 &&
+          this.hasTwoTransactions() &&
           <div className="arrow-separator">
             <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
           </div>
         }
-        <div className={`transaction-info-box ${this.hasTxCompleted() ? 'success' : ''}`}>
+        <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted() ? 'success' : ''}`}>
           <span className={`done-placeholder ${this.hasTxCompleted() ? 'show' : ''}`}>
             <span className="done">
               <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
@@ -139,7 +145,7 @@ class DoTrade extends Component {
               ?
                 <div className="status">{spinner}<span className="label">initiating transaction</span></div>
               :
-                <div className="status">{spinner}<span className="label">waiting for previous tx to complete</span></div>
+                <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
             :
               this.props.transactions.trade.rejected
               ?
