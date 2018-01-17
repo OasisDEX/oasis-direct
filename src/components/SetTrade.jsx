@@ -38,13 +38,10 @@ class SetTrade extends Component {
 
   select = (token) => {
     this.setState({ [this.state.selectedToken]: token, shouldDisplayTokenSelector: false });
-    localStorage.setItem(this.state.selectedToken, token);
   }
 
   swapTokens = () => {
     this.setState({ from: this.state.to, to: this.state.from }, () => {
-      localStorage.setItem('from', this.state.from);
-      localStorage.setItem('to', this.state.to);
       this.props.cleanInputs();
     });
   }
@@ -90,8 +87,12 @@ class SetTrade extends Component {
                 <div className="tokens">
                   {
                     ['eth', 'mkr', 'dai'].map((token, index) => {
+                      const hasAlreadyBeenSelected = this.state.selectedToken === 'from'
+                        ?  this.state.to === token
+                        :  this.state.from === token;
+
                       return (
-                        <div key={index} className="token" onClick={() => {
+                        <div key={index} className={`token ${hasAlreadyBeenSelected ? 'token--disabled' : ''}`} onClick={() => {
                           this.select(token)
                         }}>
                           <span>{tokens[token].icon}</span>

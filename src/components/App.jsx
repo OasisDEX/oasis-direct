@@ -40,8 +40,8 @@ class App extends Component {
       trade: {
         step: 1,
         operation: '',
-        from: localStorage.getItem('from') ? localStorage.getItem('from') : 'eth',
-        to: localStorage.getItem('to') ? localStorage.getItem('to') : 'dai',
+        from: 'eth',
+        to: 'dai',
         amountPay: web3.toBigNumber(0),
         amountBuy: web3.toBigNumber(0),
         amountPayInput: '',

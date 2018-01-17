@@ -226,8 +226,20 @@
   pointer-events: none;
 }
 
-.token--disabled .ether, .token--disabled .maker, .token--disabled .dai {
+.token--disabled .ether,
+.token--disabled .maker,
+.token--disabled .dai,
+.token--disabled .dai #Rectangle,
+.token--disabled .dai #Rectangle-Copy {
   fill: #DEE4F4;
+}
+
+.token--disabled .dai #Shape, .token--disabled .dai #Rectangle, .token--disabled .dai #Rectangle-Copy{
+  stroke: #DEE4F4 !important;
+}
+
+.token--disabled .token-name {
+  color: #DEE4F4;
 }
 
 .selected-token {
