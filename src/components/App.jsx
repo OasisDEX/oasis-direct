@@ -992,7 +992,7 @@ class App extends Component {
                       calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
                       trade={this.state.trade}/>
             :
-            <DoTrade trade={this.state.trade} transactions={this.state.transactions}/>
+            <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network}/>
         }
       </div>
     );

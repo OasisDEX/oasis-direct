@@ -89,7 +89,7 @@ export function wdiv(a, b) {
   return a.times(WAD).div(b);
 }
 
-function etherscanUrl(network) {
+export function etherscanUrl(network) {
   return `https://${ network !== 'main' ? `${network}.` : '' }etherscan.io`;
 }
 

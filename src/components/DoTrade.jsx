@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 import { Ether, MKR, DAI } from './Tokens';
-import { printNumber } from '../helpers';
+import { printNumber, etherscanUrl } from '../helpers';
 
 const spinner = (
   <span className="spinner">
@@ -47,14 +47,14 @@ class DoTrade extends Component {
     return tokens[key];
   }
 
-  hasTxCompleted(type) {
+  hasTxCompleted = type => {
     return this.props.transactions[type]
         && this.props.transactions[type].tx
         && !this.props.transactions[type].pending
         && !this.props.transactions[type].error;
   }
 
-  hasTwoTransactions() {
+  hasTwoTransactions = () => {
     return this.props.trade.txs === 2;
   }
 
@@ -75,43 +75,49 @@ class DoTrade extends Component {
         </div>
         {
           this.hasTwoTransactions() &&
-          <div className={`transaction-info-box half ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
-            <span className={`done-placeholder ${this.hasTxCompleted('approval') ? 'show' : ''}`}>
-              <span className="done">
-                <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+          <a
+          href={ typeof this.props.transactions.approval !== 'undefined' && this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.approval.tx}` : '#' }
+          onClick={ (e) => { if (typeof this.props.transactions.approval === 'undefined' || !this.props.transactions.approval.tx) { e.preventDefault(); return false; } } }
+          className={ typeof this.props.transactions.approval === 'undefined' || !this.props.transactions.approval.tx ? 'no-pointer' : '' }
+          target="_blank" rel="noopener noreferrer">
+            <div className={`transaction-info-box half ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
+              <span className={`done-placeholder ${this.hasTxCompleted('approval') ? 'show' : ''}`}>
+                <span className="done">
+                  <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+                </span>
               </span>
-            </span>
-            <div className="operation">
-              <span className="icon">{tokens[this.props.trade.from].icon}</span>
-              <div className="details">
-                <span className="label"> Enable</span>
-                <span className="value"> Trading of {tokens[this.props.trade.from].symbol}</span>
+              <div className="operation">
+                <span className="icon">{tokens[this.props.trade.from].icon}</span>
+                <div className="details">
+                  <span className="label"> Enable</span>
+                  <span className="value"> Trading of {tokens[this.props.trade.from].symbol}</span>
+                </div>
               </div>
-            </div>
-            {
-              typeof this.props.transactions.approval === 'undefined'
-              ?
-                <div className="status">{spinner}<span className="label">Initiating transaction...</span></div>
-              :
-                this.props.transactions.approval.rejected
+              {
+                typeof this.props.transactions.approval === 'undefined'
                 ?
-                  <div className="status"><span className="label error">Rejected, redirecting...</span></div>
+                  <div className="status">{spinner}<span className="label">Initiating transaction...</span></div>
                 :
-                  this.props.transactions.approval.requested
+                  this.props.transactions.approval.rejected
                   ?
-                    <div className="status">{spinner}<span className="label info">Signing transaction</span></div>
+                    <div className="status"><span className="label error">Rejected, redirecting...</span></div>
                   :
-                    this.props.transactions.approval.pending
+                    this.props.transactions.approval.requested
                     ?
-                      <div className="status">{spinner}<span className="label info">Pending...</span></div>
+                      <div className="status">{spinner}<span className="label info">Signing transaction</span></div>
                     :
-                      this.props.transactions.approval.error
+                      this.props.transactions.approval.pending
                       ?
-                        <div className="status"><span className="label error">Error occurred</span></div>
+                        <div className="status">{spinner}<span className="label info">Pending...</span></div>
                       :
-                        <div className="status"><span className="label info">Confirmed</span></div>
-            }
-          </div>
+                        this.props.transactions.approval.error
+                        ?
+                          <div className="status"><span className="label error">Error occurred</span></div>
+                        :
+                          <div className="status"><span className="label info">Confirmed</span></div>
+              }
+            </div>
+          </a>
         }
         {
           this.hasTwoTransactions() &&
@@ -119,56 +125,62 @@ class DoTrade extends Component {
             <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
           </div>
         }
-        <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
-          <span className={`done-placeholder ${this.hasTxCompleted('trade') ? 'show' : ''}`}>
-            <span className="done">
-              <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+        <a
+          href={ typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#' }
+          onClick={ (e) => { if (typeof this.props.transactions.trade === 'undefined' || !this.props.transactions.trade.tx) { e.preventDefault(); return false; } } }
+          className={ typeof this.props.transactions.trade === 'undefined' || !this.props.transactions.trade.tx ? 'no-pointer' : '' }
+          target="_blank" rel="noopener noreferrer">
+          <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
+            <span className={`done-placeholder ${this.hasTxCompleted('trade') ? 'show' : ''}`}>
+              <span className="done">
+                <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+              </span>
             </span>
-          </span>
-          <div>
-            <div className="operation">
-              <span className="icon">{tokens[this.props.trade.from].icon}</span>
-              <div className="details">
-                <span className="label">Selling</span>
-                <span className="value">{ this.props.trade.operation === 'sellAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol }</span>
+            <div>
+              <div className="operation">
+                <span className="icon">{tokens[this.props.trade.from].icon}</span>
+                <div className="details">
+                  <span className="label">Selling</span>
+                  <span className="value">{ this.props.trade.operation === 'sellAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol }</span>
+                </div>
+              </div>
+              <div className="operation">
+                <span className="icon">{tokens[this.props.trade.to].icon}</span>
+                <div className="details">
+                  <span className="label">Buying</span>
+                  <span className="value">{ this.props.trade.operation === 'buyAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol }</span>
+                </div>
               </div>
             </div>
-            <div className="operation">
-              <span className="icon">{tokens[this.props.trade.to].icon}</span>
-              <div className="details">
-                <span className="label">Buying</span>
-                <span className="value">{ this.props.trade.operation === 'buyAll' ? '' : '~ '}{ printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol }</span>
-              </div>
-            </div>
-          </div>
-          {
-            typeof this.props.transactions.trade === 'undefined'
-              ?
-              this.props.trade.txs === 1
-              ?
-                <div className="status">{spinner}<span className="label">initiating transaction</span></div>
-              :
-                <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
-            :
-              this.props.transactions.trade.rejected
-              ?
-                <div className="status"><span className="label error">Rejected, redirecting...</span></div>
-              :
-                this.props.transactions.trade.requested
+            {
+              typeof this.props.transactions.trade === 'undefined'
                 ?
-                  <div className="status">{spinner}<span className="label">Signing transaction</span></div>
+                this.props.trade.txs === 1
+                ?
+                  <div className="status">{spinner}<span className="label">initiating transaction</span></div>
                 :
-                  this.props.transactions.trade.pending
+                  <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
+              :
+                this.props.transactions.trade.rejected
+                ?
+                  <div className="status"><span className="label error">Rejected, redirecting...</span></div>
+                :
+                  this.props.transactions.trade.requested
                   ?
-                    <div className="status">{spinner}<span className="label info">Pending...</span></div>
+                    <div className="status">{spinner}<span className="label">Signing transaction</span></div>
                   :
-                    this.props.transactions.trade.error
+                    this.props.transactions.trade.pending
                     ?
-                      <div className="status"><span className="label error">Error occurred, redirecting...</span></div>
+                      <div className="status">{spinner}<span className="label info">Pending...</span></div>
                     :
-                      <div className="status"><span className="label info">Confirmed</span></div>
-          }
-        </div>
+                      this.props.transactions.trade.error
+                      ?
+                        <div className="status"><span className="label error">Error occurred, redirecting...</span></div>
+                      :
+                        <div className="status"><span className="label info">Confirmed</span></div>
+            }
+          </div>
+        </a>
         <div className="footer contact">
           Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
         </div>
