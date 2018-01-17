@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import web3, { initWeb3 } from '../web3';
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
-import ReactNotify from '../notify';
 import { toBytes32, addressToBytes32, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
@@ -1002,7 +1001,6 @@ class App extends Component {
             :
             <DoTrade trade={this.state.trade} transactions={this.state.transactions}/>
         }
-        <ReactNotify ref='notificator'/>
       </div>
     );
   }
