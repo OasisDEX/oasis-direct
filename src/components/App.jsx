@@ -821,7 +821,7 @@ class App extends Component {
                 '';
               const errorOrders = this.state.trade.amountBuy.eq(0)
                 ?
-                `Not enough ${to.toUpperCase()} funds to sell ${amount} ${from.toUpperCase()}`
+                `No ${to.toUpperCase()} orders available to sell ${amount} ${from.toUpperCase()}`
                 :
                 null;
               if (errorFunds || errorOrders) {
@@ -897,7 +897,7 @@ class App extends Component {
                 null;
               const errorOrders = this.state.trade.amountPay.eq(0)
                 ?
-                `Not enough funds to buy ${amount} ${to.toUpperCase()}`
+                `No orders available to buy ${amount} ${to.toUpperCase()}`
                 :
                 null;
               if (errorFunds || errorOrders) {
