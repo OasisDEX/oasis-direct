@@ -356,7 +356,6 @@ class App extends Component {
       return {tokens};
     }, () => {
       window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, this.state.tokens[token].address);
-      this.getDataFromToken(token);
       this.setFilterToken(token);
     });
   }
@@ -379,16 +378,10 @@ class App extends Component {
         this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
           if (!e) {
             this.logTransactionConfirmed(r.transactionHash);
-            this.getDataFromToken(token);
           }
         });
       }
     }
-  }
-
-  getDataFromToken = token => {
-    // this.getTotalSupply(token);
-    // this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
   }
 
   getTotalSupply = name => {
