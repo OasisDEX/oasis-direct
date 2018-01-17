@@ -38,13 +38,10 @@ class SetTrade extends Component {
 
   select = (token) => {
     this.setState({ [this.state.selectedToken]: token, shouldDisplayTokenSelector: false });
-    localStorage.setItem(this.state.selectedToken, token);
   }
 
   swapTokens = () => {
     this.setState({ from: this.state.to, to: this.state.from }, () => {
-      localStorage.setItem('from', this.state.from);
-      localStorage.setItem('to', this.state.to);
       this.props.cleanInputs();
     });
   }
