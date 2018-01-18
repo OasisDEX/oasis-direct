@@ -10,7 +10,7 @@ const NoConnection = () => {
       <div className="connectionless">
         <div className="heading">
           <h2>
-            { metamask ? 'Metamask Account Locked' : 'Not Account found' }</h2>
+            { metamask ? 'Metamask Account Locked' : 'No Account found' }</h2>
         </div>
         <section className="content">
           {
