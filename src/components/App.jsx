@@ -25,7 +25,11 @@ class App extends Component {
       ...initialState,
       network: {},
       transactions: {},
-      params: ''
+      params: '',
+      account:'',
+      ui: {
+        isDropdownCollapsed: false
+      }
     }
   }
 
@@ -130,7 +134,7 @@ class App extends Component {
         const oldDefaultAccount = networkState.defaultAccount;
         networkState.defaultAccount = accounts[0];
         web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({network: networkState}, () => {
+        this.setState({account: networkState.defaultAccount, network: networkState}, () => {
           if (oldDefaultAccount !== networkState.defaultAccount) {
             this.initContracts();
           }
@@ -320,7 +324,6 @@ class App extends Component {
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
-          console.log('getProxyAddressFromChain', r2);
           resolve(r2);
         }).catch(e2 => {
           reject(e2);
@@ -439,8 +442,8 @@ class App extends Component {
   logRequestTransaction = type => {
     return new Promise(resolve => {
       const transactions = {...this.state.transactions};
-      transactions[type] = { requested: true }
-      this.setState({ transactions }, () => {
+      transactions[type] = {requested: true}
+      this.setState({transactions}, () => {
         resolve();
       });
     });
@@ -449,7 +452,7 @@ class App extends Component {
   logPendingTransaction = (tx, type, callbacks = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = { tx, pending: true, error: false, callbacks }
+    transactions[type] = {tx, pending: true, error: false, callbacks}
     this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
   }
@@ -459,17 +462,17 @@ class App extends Component {
     const transactions = {...this.state.transactions};
 
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-                 ?
-                   'approval'
-                 :
-                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-                   ?
-                     'trade'
-                   :
-                     false;
+      ?
+      'approval'
+      :
+      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+        ?
+        'trade'
+        :
+        false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
-      this.setState({ transactions }, () => {
+      this.setState({transactions}, () => {
         console.log(msgTemp.replace('TX', tx));
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
@@ -481,25 +484,25 @@ class App extends Component {
   logTransactionFailed = tx => {
     const transactions = {...this.state.transactions};
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-                 ?
-                   'approval'
-                 :
-                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-                   ?
-                     'trade'
-                   :
-                     false;
+      ?
+      'approval'
+      :
+      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+        ?
+        'trade'
+        :
+        false;
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
-      this.setState({ transactions }, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+      this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
     }
   }
 
   logTransactionRejected = type => {
     const transactions = {...this.state.transactions};
-    transactions[type] = { rejected: true }
-    this.setState({ transactions }, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+    transactions[type] = {rejected: true}
+    this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
   }
 
   returnToSetTrade = () => {
@@ -508,7 +511,7 @@ class App extends Component {
       const transactions = {};
       trade.step = 1;
       trade.txs = null;
-      return { trade, transactions };
+      return {trade, transactions};
     });
   }
 
@@ -980,7 +983,15 @@ class App extends Component {
       );
     });
   }
-  //
+
+  toggle = () => {
+    const isDropdownCollapsed = this.state.ui.isDropdownCollapsed;
+    this.setState({ui: {isDropdownCollapsed: !isDropdownCollapsed}})
+  }
+
+  contractDropdownList = () => {
+    this.setState({ui: {isDropdownCollapsed: false}})
+  }
 
   renderMain = () => {
     return (
@@ -995,20 +1006,70 @@ class App extends Component {
             <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network}/>
         }
       </div>
-    );
+    )
   }
 
-  render() {
+  render = () => {
     return (
-      this.state.network.isConnected
-        ?
-        this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
-          ?
-          this.renderMain()
-          :
-          <NoAccount/>
-        :
-        <NoConnection/>
+      <main>
+        <section>
+          <header>
+            <div>
+              <img width="216px" height="48px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/>
+            </div>
+            {
+              this.state.account && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+                <div className="DropdownToggle" onClick={this.toggle}>
+                <span data-selected className="DropdownSelected">
+                  {
+                    this.state.account
+                  }
+                </span>
+                  <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
+                </span>
+                </div>
+                <div className={`DropdownList ${this.state.ui.isDropdownCollapsed ? 'DropdownList--visible' : ''}`}>
+                  <div className="DropdownListWrapper">
+                    <ul>
+                      {
+                        this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
+                          onClick={(event) => this.setState({ui:{isDropdownCollapsed: false},account: event.target.innerText})}
+                          key={index}>{account}</li>)
+                      }
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            }
+          </header>
+        </section>
+        <section className="Content">
+          <div>
+            <div style={{maxWidth: 424}}>
+              <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+            </div>
+            <div>
+              <h2>No registration. No Depositing.</h2>
+            </div>
+          </div>
+          <div className="Widget">
+            {
+              this.state.network.isConnected
+                ?
+                this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                  ?
+                  this.renderMain()
+                  :
+                  <NoAccount/>
+                :
+                <NoConnection/>
+            }
+          </div>
+        </section>
+        <section>
+          <footer/>
+        </section>
+      </main>
     );
   }
 }

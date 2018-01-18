@@ -1,6 +1,4 @@
 import React from 'react';
-import '../styles/NoConnection.css'
-
 
 const NoConnection = () => {
   return (

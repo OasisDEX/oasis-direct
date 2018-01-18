@@ -1,8 +1,21 @@
+.connectionless {
+  height: 100%;
+}
+
+
+.connectionless .heading h2{
+  color: rgba(73,73,74,0.90);
+}
+
 .connectionless .content .heading {
   font-family: Montserrat, sans-serif;
   font-weight: 500;
   color: #969697;
   letter-spacing: 1.3px;
+}
+
+.connectionless .content .heading img {
+  margin-bottom: 32px;
 }
 
 .connectionless .content .list ul {
