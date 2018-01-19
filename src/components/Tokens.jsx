@@ -40,26 +40,14 @@ export class DAI extends PureComponent {
             </feoffset>
           </filter>
         </defs>
-        <g id="Artboard" fill="none" fillRule="evenodd">
-          <g id="Group">
-            <path d="M11,0.5 C5.2,0.5 0.5,5.2 0.5,11 C0.5,16.8 5.2,21.5 11,21.5 C16.8,21.5 21.5,16.8 21.5,11 C21.5,5.2 16.8,0.5 11,0.5 Z"
-                  id="Shape" strokeOpacity=".75" stroke="#F7A600" strokeWidth=".917" />
-            <g id="icon" transform="translate(5 5)">
-              <rect id="Rectangle" fill="#FFCC80" transform="rotate(45 5.997 6.005)"
-                    x="1.748" y="1.804" width="8.497" height="8.402" />
-              <polygon id="Rectangle-Copy" fill="#F7A600" transform="rotate(45 5.997 6.005)"
-                       points="1.74816175 1.8036323 10.245396 1.8036323 7.49889187 7.4901065 1.74816175 10.2059225"
-              />
-              <g id="Combined-Shape">
-                <use fill="#000" filter="url(#filter-2)" xlinkHref="#path-1" />
-                <use fill="#FCFCFC" xlinkHref="#path-1" />
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+              <g id="Artboard">
+                  <path d="M11,0 C4.92380952,0 0,4.92380952 0,11 C0,17.0761905 4.92380952,22 11,22 C17.0761905,22 22,17.0761905 22,11 C22,4.92380952 17.0761905,0 11,0 Z" id="Shape" fill="#F7A600"></path>
+                  <g id="icon" transform="translate(5.000000, 5.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                      <path d="M5.96321084,0.0298930257 L11.9716628,6.03834499 L6.03034642,11.9796614 L0.021894453,5.97120941 L5.96321084,0.0298930257 Z M7.70388864,6.0143682 L10.2645533,6.02875439 L5.97280189,1.73700299 L1.72900447,5.98080041 L4.28966911,5.9951866 L5.98718808,4.29766764 L7.70388864,6.0143682 Z" id="Combined-Shape"></path>
+                  </g>
               </g>
-              <polygon id="Rectangle-Copy-4" fillOpacity=".03" fill="#000" transform="rotate(45 5.997 6.005)"
-                       points="1.74816175 1.8036323 10.245396 1.8036323 10.245396 10.2059225"
-              />
-            </g>
           </g>
-        </g>
       </svg>
     )
   }
