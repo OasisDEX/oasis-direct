@@ -38,7 +38,8 @@ footer {
 
 @media all and (max-width: 1400px) {
   footer {
-    height: 104px;
+    height: auto;
+    max-height: 104px;
   }
 }
 
@@ -49,7 +50,6 @@ footer {
 .Content {
   display: flex;
   justify-content: space-between;
-  flex-grow: 1;
 
   padding: 48px 152px;
 
@@ -84,14 +84,14 @@ footer {
   position: relative;
 
   width: 192px;
-  height: 48px;
+  height: 38px;
 
   border: 2px solid white;
-  border-radius: 12px;
+  border-radius: 8px;
 
   font-family: Montserrat, sans-serif;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
   letter-spacing: 0.5px;
   text-align: center;
 
@@ -120,7 +120,7 @@ footer {
 }
 
 .DropdownArrow {
-  width: 20px;
+  width: 15px;
 
   color: white;
 
@@ -146,7 +146,7 @@ footer {
   width: 640px;
 
   border: 1px solid #D9DCF0;
-  border-radius: 12px;
+  border-radius: 8px;
   margin: 0;
   background: white;
 }
@@ -154,7 +154,7 @@ footer {
 .DropdownListWrapper {
   overflow: hidden;
 
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .DropdownList ul {
@@ -178,7 +178,7 @@ footer {
 
   border-bottom: 1px solid #D9DCF0;
 
-  height: 48px;
+  height: 38px;
 
   padding: 16px;
 
@@ -218,7 +218,7 @@ footer {
 
 .DropdownList ul::-webkit-scrollbar-thumb {
   background-color: #EEEEEE;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .DropdownList ul li:hover {
