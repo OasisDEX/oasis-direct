@@ -1049,7 +1049,7 @@ class App extends Component {
               <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
             </div>
             <div>
-              <h2>No registration. No Depositing.</h2>
+              <h2>No registration. No Fees.</h2>
             </div>
           </div>
           <div className="Widget">
