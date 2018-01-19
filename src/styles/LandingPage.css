@@ -42,6 +42,10 @@ footer {
   }
 }
 
+.Logo {
+  cursor: pointer;
+}
+
 .Content {
   display: flex;
   justify-content: space-between;
