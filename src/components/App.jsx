@@ -423,7 +423,7 @@ class App extends Component {
 
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
-      const url = `http://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc`
+      const url = `https://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc`
       const xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onreadystatechange = () => {
