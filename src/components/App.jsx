@@ -134,7 +134,7 @@ class App extends Component {
         const oldDefaultAccount = networkState.defaultAccount;
         networkState.defaultAccount = accounts[0];
         web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({account: networkState.defaultAccount, network: networkState}, () => {
+        this.setState({network: networkState}, () => {
           if (oldDefaultAccount !== networkState.defaultAccount) {
             this.initContracts();
           }
@@ -546,14 +546,14 @@ class App extends Component {
     const transactions = {...this.state.transactions};
 
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-      ?
-      'approval'
-      :
-      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-        ?
-        'trade'
-        :
-        false;
+                 ?
+                   'approval'
+                 :
+                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+                     ?
+                       'trade'
+                     :
+                       false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
       this.setState({ transactions }, () => {
@@ -568,14 +568,14 @@ class App extends Component {
   logTransactionFailed = tx => {
     const transactions = {...this.state.transactions};
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-      ?
-      'approval'
-      :
-      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-        ?
-        'trade'
-        :
-        false;
+                 ?
+                   'approval'
+                 :
+                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+                     ?
+                       'trade'
+                     :
+                       false;
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
@@ -1102,11 +1102,11 @@ class App extends Component {
               <a href="/"> <img width="216px" height="38px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
             </div>
             {
-              this.state.account && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+              this.state.network.defaultAccount && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
                 <div className="DropdownToggle" onClick={this.toggle}>
                 <span data-selected className="DropdownSelected">
                   {
-                    this.state.account
+                    this.state.network.defaultAccount
                   }
                 </span>
                   <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
