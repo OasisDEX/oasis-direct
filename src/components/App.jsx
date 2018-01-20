@@ -324,6 +324,7 @@ class App extends Component {
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
+          console.log('getProxyAddressFromChain', r2);
           resolve(r2);
         }).catch(e2 => {
           reject(e2);
@@ -420,6 +421,23 @@ class App extends Component {
   }
   //
 
+  getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
+    return new Promise((resolve, reject) => {
+      const url = `http://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc`
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
+        }
+      }
+      xhr.send();
+    })
+  }
+
   // Transactions
   checkPendingTransactions = () => {
     const transactions = {...this.state.transactions};
@@ -432,6 +450,46 @@ class App extends Component {
             } else if (r.blockNumber) {
               this.logTransactionConfirmed(transactions[type].tx);
             }
+          } else {
+            Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
+              if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
+                r.result.forEach(v => {
+                  if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
+                    if (transactions[type].tx !== v.hash) {
+                      console.log(`Transaction ${transactions[type].tx} was replaced by ${v.hash}.`);
+                    }
+                    this.setState((prevState, props) => {
+                      const transactions = {...prevState.transactions};
+                      transactions[type].tx = v.hash;
+                      return { transactions };
+                    }, () => {
+                      this.checkPendingTransactions();
+                    });
+                  }
+                });
+              }
+            });
+            // Solution using logs:
+            // web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
+            //   r.forEach(v => {
+            //     web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
+            //       if (!e &&
+            //           r2.from === this.state.network.defaultAccount &&
+            //           r2.nonce === transactions[type].nonce) {
+            //         if (transactions[type].tx !== v.transactionHash) {
+            //           console.log(`Transaction ${transactions[type].tx} was replaced by ${v.transactionHash}.`);
+            //         }
+            //         this.setState((prevState, props) => {
+            //           const transactions = {...prevState.transactions};
+            //           transactions[type].tx = v.transactionHash;
+            //           return { transactions };
+            //         }, () => {
+            //           this.checkPendingTransactions();
+            //         });
+            //       }
+            //     });
+            //   });
+            // });
           }
         });
       }
@@ -449,10 +507,36 @@ class App extends Component {
     });
   }
 
-  logPendingTransaction = (tx, type, callbacks = []) => {
+  getTransactionCount = (address) => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getTransactionCount(address, (e,r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  getBlock = (block) => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getBlock(block, (e,r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  logPendingTransaction = async (tx, type, callbacks = []) => {
+    const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
+    const checkFromBlock = (await this.getBlock('latest')).number;
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = {tx, pending: true, error: false, callbacks}
+    transactions[type] = { tx, pending: true, error: false, nonce, checkFromBlock, callbacks }
     this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
   }
@@ -472,7 +556,7 @@ class App extends Component {
         false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
-      this.setState({transactions}, () => {
+      this.setState({ transactions }, () => {
         console.log(msgTemp.replace('TX', tx));
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
