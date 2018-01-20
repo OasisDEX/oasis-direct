@@ -1099,7 +1099,7 @@ class App extends Component {
         <section>
           <header>
             <div className="Logo">
-              <a href="/"> <img width="216px" height="48px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
+              <a href="/"> <img width="216px" height="38px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
             </div>
             {
               this.state.account && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
