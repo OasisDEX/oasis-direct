@@ -611,39 +611,6 @@ class App extends Component {
   //
 
   // Actions
-  getCallDataAndValue = (operation, from, to, amount, limit) => {
-    const result = {};
-    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
-    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')], false);
-    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')], false);
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
-        result.value = web3.toWei(amount);
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    } else {
-      if (from === "eth") {
-        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
-        result.value = limit;
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    }
-    return result;
-  }
-
   checkAllowance = (token, dst, value, callbacks) => {
     if (token === 'eth') {
       this.setState((prevState, props) => {
@@ -696,6 +663,39 @@ class App extends Component {
     }
   }
 
+  getCallDataAndValue = (operation, from, to, amount, limit) => {
+    const result = {};
+    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
+    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')], false);
+    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')], false);
+    if (operation === 'sellAll') {
+      if (from === "eth") {
+        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
+          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
+        result.value = web3.toWei(amount);
+      } else if (to === "eth") {
+        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+      } else {
+        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
+          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+      }
+    } else {
+      if (from === "eth") {
+        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
+        result.value = limit;
+      } else if (to === "eth") {
+        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+      } else {
+        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
+          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+      }
+    }
+    return result;
+  }
+
   executeProxyTx = (amount, limit) => {
     const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     Promise.resolve(this.logRequestTransaction('trade')).then(() => {
@@ -708,41 +708,44 @@ class App extends Component {
     });
   }
 
-  executeProxyCreateAndExecute = (amount, limit) => {
-    let method = "";
-    let params = [];
-    let value = 0;
+  getActionCreateAndExecute = (operation, from, to, amount, limit) => {
     const addrFrom = this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address;
     const addrTo = this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address;
-    if (this.state.trade.operation === 'sellAll') {
-      if (this.state.trade.from === "eth") {
-        method = 'createAndSellAllAmountPayEth';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
-        value = web3.toWei(amount);
-      } else if (this.state.trade.to === "eth") {
-        method = 'createAndSellAllAmountBuyEth';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+    const result = {};
+    if (operation === 'sellAll') {
+      if (from === "eth") {
+        result.method = 'createAndSellAllAmountPayEth';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
+        result.value = web3.toWei(amount);
+      } else if (to === "eth") {
+        result.method = 'createAndSellAllAmountBuyEth';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
       } else {
-        method = 'createAndSellAllAmount';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+        result.method = 'createAndSellAllAmount';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
       }
     } else {
-      if (this.state.trade.from === "eth") {
-        method = 'createAndBuyAllAmountPayEth';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
-        value = limit;
-      } else if (this.state.trade.to === "eth") {
-        method = 'createAndBuyAllAmountBuyEth';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+      if (from === "eth") {
+        result.method = 'createAndBuyAllAmountPayEth';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
+        result.value = limit;
+      } else if (to === "eth") {
+        result.method = 'createAndBuyAllAmountBuyEth';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
       } else {
-        method = 'createAndBuyAllAmount';
-        params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+        result.method = 'createAndBuyAllAmount';
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
       }
     }
+    return result;
+  }
+
+  executeProxyCreateAndExecute = (amount, limit) => {
+    const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
 
     Promise.resolve(this.logRequestTransaction('trade')).then(() => {
       this.loadObject(proxycreateandexecute.abi,
-        settings.chain[this.state.network.network].proxyCreationAndExecute)[method](...params, {value}, (e, tx) => {
+        settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
         if (!e) {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
         } else {
@@ -912,18 +915,34 @@ class App extends Component {
                 });
                 return;
               }
-              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-              const canUseAddress = this.state.proxy
-                ?
-                from === 'eth' ||
-                await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount))
-                :
-                false;
-              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-              const params = this.getCallDataAndValue('sellAll', from, to, amount, 0);
-              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+
+              let action = null;
+              let data = null;
+              let target = null;
+              let addrFrom = null;
+              if (this.state.proxy) {
+                // Calculate cost of proxy execute
+                const hasAllowance = (from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount)));
+                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+                action = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+                data = this.loadObject(dsproxy.abi, target).execute['address,bytes'].getData(
+                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
+                  action.calldata
+                );
+              } else {
+                // Calculate cost of proxy creation and execution
+                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
+                const hasAllowance = (from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(amount)));
+                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+                action = this.getActionCreateAndExecute('sellAll', from, to, amount, 0);
+                data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
+              }
+              this.calculateCost(target, data, action.value, addrFrom);
             });
           } else {
             console.log(e);
@@ -988,19 +1007,34 @@ class App extends Component {
                 });
                 return;
               }
-              // if user has proxy and allowance, use this address as from, otherwise a known and funded account
-              const canUseAddress = this.state.proxy
-                ?
-                from === 'eth' ||
-                await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy)
-                ||
-                (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay))
-                :
-                false;
-              const addrFrom = canUseAddress ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-              const proxyAddr = canUseAddress ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-              const params = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
-              this.calculateCost(proxyAddr, params.calldata, params.value, addrFrom);
+
+              let action = null;
+              let data = null;
+              let target = null;
+              let addrFrom = null;
+              if (this.state.proxy) {
+                // Calculate cost of proxy execute
+                const hasAllowance = (from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay)));
+                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+                action = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
+                data = this.loadObject(dsproxy.abi, target).execute['address,bytes'].getData(
+                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
+                  action.calldata
+                );
+              } else {
+                // Calculate cost of proxy creation and execution
+                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
+                const hasAllowance = (from === 'eth' ||
+                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(this.state.trade.amountPay)));
+                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+                action = this.getActionCreateAndExecute('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
+                data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
+              }
+              this.calculateCost(target, data, action.value, addrFrom);
             });
           } else {
             console.log(e);
@@ -1025,8 +1059,10 @@ class App extends Component {
     });
   }
 
-  calculateCost = (proxyAddr, calldata, value = 0, from) => {
-    Promise.all([this.estimateGas(proxyAddr, calldata, value, from), this.getGasPrice()]).then(r => {
+  calculateCost = (to, data, value = 0, from) => {
+    console.log(to, data, value, from);
+    Promise.all([this.estimateGas(to, data, value, from), this.getGasPrice()]).then(r => {
+      console.log(r[0], r[1].valueOf())
       this.setState((prevState, props) => {
         const trade = {...prevState.trade};
         trade.txCost = web3.fromWei(r[1].times(r[0]));
@@ -1035,14 +1071,10 @@ class App extends Component {
     });
   }
 
-  estimateGas = (proxyAddr, calldata, value, from) => {
+  estimateGas = (to, data, value, from) => {
     return new Promise((resolve, reject) => {
-      const data = this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes'].getData(
-        settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-        calldata
-      );
       web3.eth.estimateGas(
-        {to: proxyAddr, data, value, from},
+        {to, data, value, from},
         (e, r) => {
           if (!e) {
             resolve(r);
