@@ -1077,6 +1077,18 @@ class App extends Component {
     this.setState({ui: {isDropdownCollapsed: false}})
   }
 
+  switchAccount = (newAccount) => {
+    this.setState((prevState) => {
+      const network = {...prevState.network};
+      network.defaultAccount = newAccount;
+
+      const ui = {...prevState.ui};
+      ui.isDropdownCollapsed = false;
+
+      return { ui, network };
+    });
+  }
+
   renderMain = () => {
     return (
       <div>
@@ -1117,7 +1129,7 @@ class App extends Component {
                     <ul>
                       {
                         this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
-                          onClick={(event) => this.setState({ui:{isDropdownCollapsed: false},account: event.target.innerText})}
+                          onClick={(event) => this.switchAccount(event.target.innerText)}
                           key={index}>{account}</li>)
                       }
                     </ul>
@@ -1133,7 +1145,7 @@ class App extends Component {
               <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
             </div>
             <div>
-              <h2>No registration. No Fees.</h2>
+              <h2>No Registration. No Fees.</h2>
             </div>
           </div>
           <div className="Widget">

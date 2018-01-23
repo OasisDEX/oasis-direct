@@ -7,15 +7,18 @@ import { printNumber } from '../helpers';
 const tokens = {
   'eth': {
     icon: <Ether/>,
+    symbol: "ETH",
     name: "Ether"
   },
   'mkr': {
     icon: <MKR/>,
+    symbol: "MKR",
     name: "Maker"
   },
   'dai': {
     icon: <DAI/>,
-    name: "DAI"
+    symbol: "DAI",
+    name: "DAI",
   },
 }
 
@@ -41,13 +44,13 @@ class SetTrade extends Component {
     if (token === this.state[side]) {
       this.swapTokens()
     } else {
-      this.setState({ [this.state.selectedToken]: token});
+      this.setState({[this.state.selectedToken]: token});
     }
-    this.setState({shouldDisplayTokenSelector: false })
+    this.setState({shouldDisplayTokenSelector: false})
   }
 
   swapTokens = () => {
-    this.setState({ from: this.state.to, to: this.state.from }, () => {
+    this.setState({from: this.state.to, to: this.state.from}, () => {
       this.props.cleanInputs();
     });
   }
@@ -74,7 +77,7 @@ class SetTrade extends Component {
     return (
       <section className="frame">
         <div className="heading">
-          <h3>Choose which Assets to trade</h3>
+          <h3>Choose which assets to trade</h3>
         </div>
         <div className="info-box">
           <span className="icon"> <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/> </span>
@@ -89,7 +92,7 @@ class SetTrade extends Component {
           this.state.shouldDisplayTokenSelector
             ? (<div className="token-selector">
               <div className="frame">
-                <button className="close" onClick={ () => this.setState({shouldDisplayTokenSelector: false}) }/>
+                <button className="close" onClick={() => this.setState({shouldDisplayTokenSelector: false})}/>
                 <div className="tokens">
                   {
                     ['eth', 'mkr', 'dai'].map((token, index) => {
@@ -109,7 +112,7 @@ class SetTrade extends Component {
             : null
         }
 
-        <form onSubmit={this.nextStep}>
+        <form className="trade" onSubmit={this.nextStep}>
           <div>
             <div className="selected-token">
               <div className="token" onClick={() => {
@@ -118,16 +121,18 @@ class SetTrade extends Component {
                 {tokens[this.state.from].icon}
               </div>
               <div>
-                <div className={ `trade-errors${this.props.trade.errorFunds ? ' show' : ''}` }>
-                  { this.props.trade.errorFunds }
+                <div className={`trade-errors${this.props.trade.errorFunds ? ' show' : ''}`}>
+                  {this.props.trade.errorFunds}
                 </div>
-                <input className={`${this.props.trade.errorFunds ? 'has-errors' : ''}`} type="number" ref={(input) => this.amountPay = input}
+                <input className={`${this.props.trade.errorFunds ? 'has-errors' : ''}`} type="number"
+                       ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
               </div>
             </div>
             <div className='separator'>
-              <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg' className="swap-tokens" onClick={ this.swapTokens } />
+              <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg' className="swap-tokens"
+                   onClick={this.swapTokens}/>
             </div>
             <div className="selected-token">
               <div className="token" onClick={() => {
@@ -144,12 +149,19 @@ class SetTrade extends Component {
               </div>
             </div>
           </div>
-          <div className={ `trade-details${this.hasDetails() ? '' : ' trade-details--hidden'} ${this.props.trade.errorOrders ? 'trade-errors show' : ''}` }>
+          <div className={`info-box info-box--vertical${this.hasDetails() ? '' : ' info-box--hidden'}`}>
             {
               this.props.trade.errorOrders &&
-              <span>
-                { this.props.trade.errorOrders }
-              </span>
+              (
+                <div>
+                  <span className="icon">
+                    <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                  </span>
+                  <span className="label">
+                    {this.props.trade.errorOrders}
+                  </span>
+                </div>
+              )
             }
             {
               !this.props.trade.errorOrders &&
@@ -162,7 +174,8 @@ class SetTrade extends Component {
               <span>
                 <span className="label">Price </span>
                 <span className='value'>
-                  ~ { printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))) } ETH
+                  <span>~ {printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
+                  <span> {tokens[this.props.trade.to].symbol} / {tokens[this.props.trade.from].symbol}</span>
                 </span>
               </span>
             }
@@ -171,12 +184,15 @@ class SetTrade extends Component {
               <span>
                 <span className="label">Fee </span>
                 <span className='value'>
-                  ~ { printNumber(web3.toWei(this.props.trade.txCost)) } ETH
+                  ~ {printNumber(web3.toWei(this.props.trade.txCost))} ETH
                 </span>
               </span>
             }
           </div>
-          <button type="submit" value="Start transaction" disabled={ this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) }>START TRANSACTION</button>
+          <button type="submit" value="Start transaction"
+                  disabled={this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0)}>
+            START TRANSACTION
+          </button>
         </form>
       </section>
     )
