@@ -145,8 +145,18 @@
 }
 
 .info-box .icon {
+  display: inline-block;
   height: 14px;
-  margin-right: 16px
+  margin-right: 16px;
+  vertical-align: middle;
+}
+
+.info-box--hidden {
+  visibility: hidden;
+}
+
+.info-box--vertical {
+  margin: 18px 0;
 }
 
 .pictogram {
@@ -291,22 +301,6 @@ input.has-errors {
   background: rgba(248, 147, 140, 0.10);
 }
 
-.trade-details {
-  margin: 18px 0;
-  border: 1px solid rgba(156, 156, 157, 0.08);
-  height: 30px;
-
-  display: flex;
-  align-content: center;
-  justify-content: space-evenly;
-  vertical-align: middle;
-  line-height: 25px;
-}
-
-.trade-details--hidden {
-  visibility: hidden;
-}
-
 .token-selector {
   position: absolute;
   top: 0;
@@ -395,6 +389,10 @@ button[disabled] {
 
 .swap-tokens {
   cursor: pointer;
+}
+
+.trade .info-box {
+  justify-content: space-around;
 }
 
 .transaction-info-box {
