@@ -916,13 +916,15 @@ class App extends Component {
                 return;
               }
 
+              let hasAllowance = false;
               let action = null;
               let data = null;
               let target = null;
               let addrFrom = null;
+              const txs = [];
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
-                const hasAllowance = (from === 'eth' ||
+                hasAllowance = (from === 'eth' ||
                                     await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
                                     (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
@@ -935,14 +937,22 @@ class App extends Component {
               } else {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                const hasAllowance = (from === 'eth' ||
+                hasAllowance = (from === 'eth' ||
                                     await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
                                     (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 action = this.getActionCreateAndExecute('sellAll', from, to, amount, 0);
                 data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
               }
-              this.calculateCost(target, data, action.value, addrFrom);
+              if (!hasAllowance) {
+                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
+                  -1
+                );
+                txs.push({to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address, data: dataAllowance, value: 0, from: this.state.network.defaultAccount});
+              }
+              txs.push({to: target, data, value: action.value, from: addrFrom});
+              this.saveCost(txs);
             });
           } else {
             console.log(e);
@@ -1008,13 +1018,15 @@ class App extends Component {
                 return;
               }
 
+              let hasAllowance = false;
               let action = null;
               let data = null;
               let target = null;
               let addrFrom = null;
+              const txs = [];
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
-                const hasAllowance = (from === 'eth' ||
+                hasAllowance = (from === 'eth' ||
                                     await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
                                     (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
@@ -1027,14 +1039,22 @@ class App extends Component {
               } else {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                const hasAllowance = (from === 'eth' ||
+                hasAllowance = (from === 'eth' ||
                                     await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
                                     (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 action = this.getActionCreateAndExecute('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
                 data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
               }
-              this.calculateCost(target, data, action.value, addrFrom);
+              if (!hasAllowance) {
+                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
+                  -1
+                );
+                txs.push({to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address, data: dataAllowance, value: 0, from: this.state.network.defaultAccount});
+              }
+              txs.push({to: target, data, value: action.value, from: addrFrom});
+              this.saveCost(txs);
             });
           } else {
             console.log(e);
@@ -1059,14 +1079,32 @@ class App extends Component {
     });
   }
 
-  calculateCost = (to, data, value = 0, from) => {
-    console.log(to, data, value, from);
-    Promise.all([this.estimateGas(to, data, value, from), this.getGasPrice()]).then(r => {
-      console.log(r[0], r[1].valueOf())
+  saveCost = (txs = []) => {
+    const promises = [];
+    let total = web3.toBigNumber(0);
+    txs.forEach(tx => {
+      promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
+    });
+    Promise.all(promises).then(costs => {
+      costs.forEach(cost => {
+        total = total.add(cost);
+      });
       this.setState((prevState, props) => {
         const trade = {...prevState.trade};
-        trade.txCost = web3.fromWei(r[1].times(r[0]));
+        trade.txCost = web3.fromWei(total);
         return {trade};
+      });
+    })
+  }
+
+  calculateCost = (to, data, value = 0, from) => {
+    return new Promise((resolve, reject) => {
+      Promise.all([this.estimateGas(to, data, value, from), this.getGasPrice()]).then(r => {
+        console.log(to, data, value, from);
+        console.log(r[0], r[1].valueOf());
+        resolve(r[1].times(r[0]));
+      }, e => {
+        reject(e);
       });
     });
   }
