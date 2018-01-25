@@ -225,16 +225,6 @@ class App extends Component {
     }, 5000);
   }
 
-  getAccountBalance = () => {
-    if (web3.isAddress(this.state.profile.activeProfile)) {
-      web3.eth.getBalance(this.state.profile.activeProfile, (e, r) => {
-        const profile = {...this.state.profile};
-        profile.accountBalance = r;
-        this.setState({profile});
-      });
-    }
-  }
-
   getProxyOwner = (proxy) => {
     return new Promise((resolve, reject) => {
       this.loadObject(dsproxy.abi, proxy).owner((e, r) => {
@@ -386,38 +376,6 @@ class App extends Component {
         });
       }
     }
-  }
-
-  getTotalSupply = name => {
-    this[`${name}Obj`].totalSupply.call((e, r) => {
-      if (!e) {
-        this.setState((prevState, props) => {
-          const tokens = {...prevState.tokens};
-          const tok = {...tokens[name]};
-          tok.totalSupply = r;
-          tokens[name] = tok;
-          return {tokens};
-        }, () => {
-          if (name === 'sin') {
-            this.calculateSafetyAndDeficit();
-          }
-        });
-      }
-    })
-  }
-
-  getBalanceOf = (name, address, field) => {
-    this[`${name}Obj`].balanceOf.call(address, (e, r) => {
-      if (!e) {
-        this.setState((prevState, props) => {
-          const tokens = {...prevState.tokens};
-          const tok = {...tokens[name]};
-          tok[field] = r;
-          tokens[name] = tok;
-          return {tokens};
-        });
-      }
-    })
   }
   //
 
@@ -598,7 +556,9 @@ class App extends Component {
       return {trade, transactions};
     });
   }
+  //
 
+  // Actions
   executeCallback = args => {
     const method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
@@ -608,9 +568,7 @@ class App extends Component {
       this[method](...args);
     }, timeout);
   }
-  //
 
-  // Actions
   checkAllowance = (token, dst, value, callbacks) => {
     if (token === 'eth') {
       this.setState((prevState, props) => {
@@ -742,7 +700,6 @@ class App extends Component {
 
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-
     Promise.resolve(this.logRequestTransaction('trade')).then(() => {
       this.loadObject(proxycreateandexecute.abi,
         settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
@@ -771,30 +728,6 @@ class App extends Component {
         this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
         [['executeProxyCreateAndExecute', amount, limit]]);
     }
-  }
-
-  getBalance = address => {
-    return new Promise((resolve, reject) => {
-      web3.eth.getBalance(address, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          resolve(e);
-        }
-      })
-    });
-  }
-
-  getTokenBalance = (token, address) => {
-    return new Promise((resolve, reject) => {
-      this[`${token}Obj`].balanceOf.call(address, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          resolve(e);
-        }
-      })
-    });
   }
 
   getTokenTrusted = (token, from, to) => {
