@@ -29,7 +29,8 @@ class SetTrade extends Component {
       from: this.props.trade.from,
       to: this.props.trade.to,
       selectedToken: null,
-      shouldDisplayTokenSelector: false
+      shouldDisplayTokenSelector: false,
+      hasAcceptedTerms: false
     }
   }
 
@@ -70,23 +71,77 @@ class SetTrade extends Component {
   }
 
   hasDetails = () => {
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorFunds) || this.props.trade.errorOrders
+    // return true;
+    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorFunds) || this.props.trade.errorOrders;
   }
+
+
+  acceptTermsAndConditions = () => {
+    const hasAcceptedTerms = this.state.hasAcceptedTerms;
+    this.setState({hasAcceptedTerms: !hasAcceptedTerms});
+  }
+
 
   render() {
     return (
       <section className="frame">
         <div className="heading">
-          <h3>Choose which assets to trade</h3>
+          <h3>Enter Order Details</h3>
         </div>
-        <div className="info-box">
-          <span className="icon"> <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/> </span>
-          <span className="label">
-            Order details are estimations and may vary
-          </span>
-          <span className="value">
-            5%
-          </span>
+        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
+          <div className="info-box-row">
+            <span>
+              <span className="icon">
+                <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+              </span>
+              <span className="label">
+                Order details are estimations and may vary
+              </span>
+              <span className="value">
+                5%
+              </span>
+            </span>
+          </div>
+          <div className="info-box-row">
+            {
+              this.props.trade.errorOrders &&
+              (
+                <div>
+                  <span className="icon">
+                    <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                  </span>
+                  <span className="label">
+                    {this.props.trade.errorOrders}
+                  </span>
+                </div>
+              )
+            }
+            {
+              !this.props.trade.errorOrders &&
+              <span>
+                <span className='value'>OasisDex</span>
+              </span>
+            }
+            {
+              !this.props.trade.errorOrders &&
+              <span>
+                <span className="label">Price </span>
+                <span className='value'>
+                  <span>~ {printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
+                  <span> {tokens[this.props.trade.to].symbol}/{tokens[this.props.trade.from].symbol}</span>
+                </span>
+              </span>
+            }
+            {
+              !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
+              <span>
+                <span className="label">Gas Cost </span>
+                <span className='value'>
+                  ~ {printNumber(web3.toWei(this.props.trade.txCost))} ETH
+                </span>
+              </span>
+            }
+          </div>
         </div>
         {
           this.state.shouldDisplayTokenSelector
@@ -118,7 +173,8 @@ class SetTrade extends Component {
               <div className="token" onClick={() => {
                 this.pickToken('from')
               }}>
-                {tokens[this.state.from].icon}
+                <span>{tokens[this.state.from].icon}</span>
+                <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
                 <div className={`trade-errors${this.props.trade.errorFunds ? ' show' : ''}`}>
@@ -138,7 +194,8 @@ class SetTrade extends Component {
               <div className="token" onClick={() => {
                 this.pickToken('to');
               }}>
-                {tokens[this.state.to].icon}
+                <span>{tokens[this.state.to].icon}</span>
+                <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
                 <div className="trade-errors">
@@ -149,48 +206,23 @@ class SetTrade extends Component {
               </div>
             </div>
           </div>
-          <div className={`info-box info-box--vertical${this.hasDetails() ? '' : ' info-box--hidden'}`}>
-            {
-              this.props.trade.errorOrders &&
-              (
-                <div>
-                  <span className="icon">
-                    <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
-                  </span>
-                  <span className="label">
-                    {this.props.trade.errorOrders}
-                  </span>
-                </div>
-              )
-            }
-            {
-              !this.props.trade.errorOrders &&
-              <span>
-                <span className='value'>OasisDex</span>
-              </span>
-            }
-            {
-              !this.props.trade.errorOrders &&
-              <span>
-                <span className="label">Price </span>
-                <span className='value'>
-                  <span>~ {printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
-                  <span> {tokens[this.props.trade.to].symbol} / {tokens[this.props.trade.from].symbol}</span>
+          {
+            this.hasDetails() &&  !this.props.trade.errorFunds && !this.props.trade.errorOrders &&
+            <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
+                 onClick={this.acceptTermsAndConditions}>
+              <span className="checkbox">
+                {
+                  this.state.hasAcceptedTerms &&
+                  <img width="14px" height="14px" alt="accepted" src="/assets/od-icons/od_done.svg"/>
+                }
                 </span>
+              <span className="label">
+                I agree to the Terms and certify that I am the beneficial owner of the deposit asset.
               </span>
-            }
-            {
-              !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
-              <span>
-                <span className="label">Fee </span>
-                <span className='value'>
-                  ~ {printNumber(web3.toWei(this.props.trade.txCost))} ETH
-                </span>
-              </span>
-            }
-          </div>
-          <button type="submit" value="Start transaction"
-                  disabled={this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0)}>
+            </div>
+          }
+          <button type="submit" value="Start transaction" className="start"
+                  disabled={this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>
         </form>

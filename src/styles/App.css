@@ -46,12 +46,15 @@
 }
 
 .frame {
+  display: flex;
+  flex-direction: column;
+
   position: relative;
 
   box-sizing: border-box;
-  width: 420px;
-  height: 380px;
-  padding: 18px 16px;
+  width: 470px;
+  height: 420px;
+  padding: 24px;
 
   border: 1px solid rgba(182, 182, 183, 0.05);
   border-radius: 4px;
@@ -62,7 +65,7 @@
 
 .heading {
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 12px;
   color: rgba(73, 73, 74, 0.90);
 }
 
@@ -132,16 +135,14 @@
 
 .info-box {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 
   border: 1px solid #F0F0F0;
   border-radius: 4px;
 
-  margin-bottom: 24px;
-  padding: 0 14px;
-
-  height: 30px;
+  margin-bottom: 12px;
 }
 
 .info-box .icon {
@@ -155,8 +156,19 @@
   visibility: hidden;
 }
 
-.info-box--vertical {
-  margin: 18px 0;
+.info-box .info-box-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+
+  border-bottom: 1px solid #F0F0F0;
+
+  height: 34px;
+  width: 100%;
+}
+
+.info-box .info-box-row:last-child {
+  border-bottom: none;
 }
 
 .pictogram {
@@ -167,8 +179,9 @@
 
 .token {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   width: 102px;
   height: 92px;
   margin: 0 auto;
@@ -211,7 +224,7 @@
   fill: #DEE4F4;
 }
 
-.token--disabled .dai #Shape, .token--disabled .dai #Rectangle, .token--disabled .dai #Rectangle-Copy{
+.token--disabled .dai #Shape, .token--disabled .dai #Rectangle, .token--disabled .dai #Rectangle-Copy {
   stroke: #DEE4F4 !important;
 }
 
@@ -221,7 +234,7 @@
 
 .selected-token {
   display: inline-block;
-  width: 168px;
+  width: 180px;
 }
 
 .selected-token input {
@@ -313,6 +326,10 @@ input.has-errors {
   background: white;
 }
 
+button.start {
+  margin-top: 0;
+}
+
 button.close {
   height: 22px;
   width: 22px;
@@ -391,6 +408,13 @@ button[disabled] {
   cursor: pointer;
 }
 
+.trade {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .trade .info-box {
   justify-content: space-around;
 }
@@ -415,7 +439,7 @@ button[disabled] {
 .transaction-info-box.half {
   width: 168px;
   height: auto;
-  vertical-align:top;
+  vertical-align: top;
 }
 
 .transaction-info-box .operation {
@@ -465,7 +489,7 @@ button[disabled] {
   margin-right: 24px;
 }
 
-.transaction-info-box.half .status .spinner{
+.transaction-info-box.half .status .spinner {
   margin-right: 12px;
 }
 
@@ -578,3 +602,41 @@ button[disabled] {
 a.no-pointer {
   cursor: default;
 }
+
+.terms-and-conditions {
+  height: 48px;
+  margin-bottom: 0px;
+}
+
+.info-box.terms-and-conditions {
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.info-box.terms-and-conditions:hover {
+  cursor: pointer;
+}
+
+.terms-and-conditions .label {
+  letter-spacing: 0;
+  width: 330px;
+  color: rgba(73, 73, 74, 0.90);
+  opacity: 1;
+}
+
+.terms-and-conditions.accepted .checkbox {
+  background: #448AFF;
+  border-color: #448AFF;
+}
+
+.checkbox {
+  height: 14px;
+  width: 14px;
+  border: 1px solid #DEE4F4;
+  border-radius: 2px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
