@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 import { Ether, MKR, DAI } from './Tokens';
-import { printNumber, etherscanUrl } from '../helpers';
+import { printNumber, etherscanUrl, wdiv } from '../helpers';
 
 const spinner = (
   <span className="spinner">
@@ -181,6 +181,31 @@ class DoTrade extends Component {
             }
           </div>
         </a>
+        {
+          typeof this.props.transactions.trade !== 'undefined' && typeof this.props.transactions.trade.pending !== 'undefined' && !this.props.transactions.trade.pending &&
+          <div>
+            <h3>Congratulations!</h3>
+            <span>
+              You successfully bought&nbsp;
+              { this.props.transactions.trade.amountBuy.eq(-1) ? <img src="/assets/loader.gif" alt="Loading..." /> : printNumber(this.props.transactions.trade.amountBuy) } { this.props.trade.to.toUpperCase() } with&nbsp;
+              { this.props.transactions.trade.amountSell.eq(-1) ? <img src="/assets/loader.gif" alt="Loading..." /> : printNumber(this.props.transactions.trade.amountSell)} { this.props.trade.from.toUpperCase() } at&nbsp;
+              { this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1) ? <img src="/assets/loader.gif" alt="Loading..." /> : printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)) } { this.props.trade.from.toUpperCase() }/{ this.props.trade.to.toUpperCase() } by paying&nbsp;
+              {
+                (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
+                ?
+                  <img src="/assets/loader.gif" alt="Loading..." />
+                :
+                  printNumber((typeof this.props.transactions.approval !== 'undefined'
+                            ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
+                            : web3.toBigNumber(0)).add(
+                              this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)
+                              )
+                           )
+              }
+              &nbsp;ETH gas cost
+            </span>
+          </div>
+        }
         <div className="footer contact">
           Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
         </div>

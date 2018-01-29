@@ -371,13 +371,38 @@ class App extends Component {
       if (this[`${token}Obj`][filters[i]]) {
         this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
           if (!e) {
-            this.logTransactionConfirmed(r.transactionHash);
+            //this.logTransactionConfirmed(r.transactionHash);
           }
         });
       }
     }
   }
   //
+
+  getLogsByAddressFromEtherscan = (address, fromBlock, filter = {}) => {
+    let filterString = '';
+    if (Object.keys(filter).length > 0) {
+      Object.keys(filter).map(key => {
+        filterString += `&${key}=${filter[key]}`;
+        return false;
+      });
+    }
+    return new Promise((resolve, reject) => {
+      const url = `https://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}`
+      // console.log(url);
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
+        }
+      }
+      xhr.send();
+    })
+  }
 
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
@@ -406,7 +431,7 @@ class App extends Component {
             if (r.logs.length === 0) {
               this.logTransactionFailed(transactions[type].tx);
             } else if (r.blockNumber) {
-              this.logTransactionConfirmed(transactions[type].tx);
+              this.logTransactionConfirmed(transactions[type].tx, r.gasUsed);
             }
           } else {
             Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
@@ -450,6 +475,41 @@ class App extends Component {
             // });
           }
         });
+      } else {
+        if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
+          Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address,
+                          transactions[type].checkFromBlock,
+                          {topic2: addressToBytes32(this.state.network.defaultAccount)})).then(logs => {
+            if (parseInt(logs.status, 10) === 1) {
+              logs.result.forEach(log => {
+                if (log.transactionHash === transactions[type].tx) {
+                  this.setState((prevState, props) => {
+                    const transactions = {...prevState.transactions};
+                    transactions[type].amountSell = web3.toBigNumber(log.data);
+                    return { transactions };
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
+          Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address,
+                          transactions[type].checkFromBlock,
+                          {topic2: addressToBytes32(this.state.network.defaultAccount)})).then(logs => {
+            if (parseInt(logs.status, 10) === 1) {
+              logs.result.forEach(log => {
+                if (log.transactionHash === transactions[type].tx) {
+                  this.setState((prevState, props) => {
+                    const transactions = {...prevState.transactions};
+                    transactions[type].amountBuy = web3.toBigNumber(log.data);
+                    return { transactions };
+                  });
+                }
+              });
+            }
+          });
+        }
       }
       return false;
     });
@@ -495,11 +555,15 @@ class App extends Component {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
     transactions[type] = { tx, pending: true, error: false, nonce, checkFromBlock, callbacks }
+    if (type === 'trade') {
+      transactions[type].amountSell = web3.toBigNumber(-1);
+      transactions[type].amountBuy = web3.toBigNumber(-1);
+    }
     this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
   }
 
-  logTransactionConfirmed = tx => {
+  logTransactionConfirmed = (tx, gasUsed) => {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = {...this.state.transactions};
 
@@ -514,8 +578,15 @@ class App extends Component {
                        false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
+      transactions[type].gasUsed = parseInt(gasUsed, 10);
       this.setState({ transactions }, () => {
         console.log(msgTemp.replace('TX', tx));
+        web3.eth.getTransaction(tx, (e, r) => {
+          if (!e) {
+            transactions[type].gasPrice = r.gasPrice;
+            this.setState({ transactions });
+          }
+        });
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
