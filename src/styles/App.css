@@ -117,20 +117,17 @@
   opacity: 0.6;
 }
 
+.label a {
+  color: #448AFF;
+  text-decoration: none;
+}
+
 .value {
   font-family: Montserrat, sans-serif;
   font-size: 10px;
   font-weight: 500;
   color: rgba(73, 73, 74, 0.90);
   letter-spacing: 1px;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  margin-bottom: 24px;
 }
 
 .info-box {
@@ -163,12 +160,21 @@
 
   border-bottom: 1px solid #F0F0F0;
 
-  height: 34px;
   width: 100%;
+
+  padding: 7px 16px;
+}
+
+.info-box .info-box-row--left {
+  justify-content: flex-start;
 }
 
 .info-box .info-box-row:last-child {
   border-bottom: none;
+}
+
+.info-box--no-borders .info-box-row {
+  border: none;
 }
 
 .pictogram {
@@ -234,7 +240,7 @@
 
 .selected-token {
   display: inline-block;
-  width: 180px;
+  width: 185px;
 }
 
 .selected-token input {
@@ -337,8 +343,6 @@ button.close {
   border-radius: 100%;
 
   background: transparent;
-
-  cursor: pointer;
 }
 
 button.close:before, button.close:after {
@@ -374,6 +378,8 @@ button {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 1.4px;
+
+  cursor: pointer;
 }
 
 button[disabled] {
@@ -437,7 +443,7 @@ button[disabled] {
 }
 
 .transaction-info-box.half {
-  width: 168px;
+  width: 185px;
   height: auto;
   vertical-align: top;
 }
@@ -537,18 +543,14 @@ button[disabled] {
   font-size: 8px;
 }
 
-.contact {
-  font-family: Montserrat, sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.80);
-  text-align: center;
-  letter-spacing: 1px;
-  line-height: 13px;
+.transaction-details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 }
 
-.contact a {
-  color: #448AFF;
+.transaction-info-box  > a {
+  width: 100%;
   text-decoration: none;
 }
 
@@ -639,4 +641,24 @@ a.no-pointer {
   align-items: center;
 }
 
+.holder {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.congratulations {
+  padding: 8px 0;
+}
+
+.congratulations .label , .congratulations .value {
+  display: inline-block;
+}
+.congratulations .heading {
+  opacity: 0.9;
+  font-size: 14px;
+  color: #5B5B5C;
+  letter-spacing: 1.02px;
+  margin: 0;
+}
 

@@ -90,7 +90,7 @@ class SetTrade extends Component {
         </div>
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
           <div className="info-box-row">
-            <span>
+            <span className="holder">
               <span className="icon">
                 <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
               </span>
@@ -106,25 +106,25 @@ class SetTrade extends Component {
             {
               this.props.trade.errorOrders &&
               (
-                <div>
+                <span className="holder">
                   <span className="icon">
                     <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
                   </span>
                   <span className="label">
                     {this.props.trade.errorOrders}
                   </span>
-                </div>
+                </span>
               )
             }
             {
               !this.props.trade.errorOrders &&
-              <span>
+              <span className="holder">
                 <span className='value'>OasisDex</span>
               </span>
             }
             {
               !this.props.trade.errorOrders &&
-              <span>
+              <span className="holder">
                 <span className="label">Price </span>
                 <span className='value'>
                   <span>~ {printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
@@ -134,7 +134,7 @@ class SetTrade extends Component {
             }
             {
               !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
-              <span>
+              <span className="holder">
                 <span className="label">Gas Cost </span>
                 <span className='value'>
                   ~ {printNumber(web3.toWei(this.props.trade.txCost))} ETH
