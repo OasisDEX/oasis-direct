@@ -24,7 +24,6 @@ class App extends Component {
     this.state = {
       ...initialState,
       network: {},
-      transactions: {},
       params: '',
       account:'',
       ui: {
@@ -34,6 +33,7 @@ class App extends Component {
   }
 
   getInitialState = () => {
+    const initialUserVariables = this.getInitialUserVariables();
     return {
       tokens: {
         weth: '',
@@ -41,6 +41,12 @@ class App extends Component {
         dai: ''
       },
       otc: '',
+      ...initialUserVariables
+    };
+  }
+
+  getInitialUserVariables = () => {
+    return {
       trade: {
         step: 1,
         operation: '',
@@ -54,7 +60,8 @@ class App extends Component {
         errorFunds: null,
         errorOrders: null,
         txs: null,
-      }
+      },
+      transactions: {},
     };
   }
 
@@ -663,7 +670,7 @@ class App extends Component {
   }
 
   reset = () => {
-    this.setState({...this.getInitialState()});
+    this.setState({...this.getInitialUserVariables()});
   }
   //
 
