@@ -478,35 +478,17 @@ class App extends Component {
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address,
-                          transactions[type].checkFromBlock,
-                          {topic2: addressToBytes32(this.state.network.defaultAccount)})).then(logs => {
+                          transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              logs.result.forEach(log => {
-                if (log.transactionHash === transactions[type].tx) {
-                  this.setState((prevState, props) => {
-                    const transactions = {...prevState.transactions};
-                    transactions[type].amountSell = web3.toBigNumber(log.data);
-                    return { transactions };
-                  });
-                }
-              });
+              this.saveTradedValue('sell', logs);
             }
           });
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address,
-                          transactions[type].checkFromBlock,
-                          {topic2: addressToBytes32(this.state.network.defaultAccount)})).then(logs => {
+                          transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              logs.result.forEach(log => {
-                if (log.transactionHash === transactions[type].tx) {
-                  this.setState((prevState, props) => {
-                    const transactions = {...prevState.transactions};
-                    transactions[type].amountBuy = web3.toBigNumber(log.data);
-                    return { transactions };
-                  });
-                }
-              });
+              this.saveTradedValue('buy', logs);
             }
           });
         }
@@ -514,6 +496,42 @@ class App extends Component {
       return false;
     });
   }
+
+  saveTradedValue = (type, logs) => {
+    let value = web3.toBigNumber(0);
+    logs.result.forEach(log => {
+      if (log.transactionHash === this.state.transactions.trade.tx) {
+        if (this.state.trade[type === 'buy' ? 'to' : 'from'] !== 'eth' &&
+            log.topics[type === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
+            log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+            // No ETH, src or dst is user's address and Transfer Event
+            value = value.add(web3.toBigNumber(log.data));
+        } else if (this.state.trade[type === 'buy' ? 'to' : 'from'] === 'eth') {
+          if (log.topics[0] === '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c') {
+            // Deposit (only can come when selling ETH)
+            value = value.add(web3.toBigNumber(log.data));
+          } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'){
+            // Withdrawal
+            if (type === 'buy') {
+              // If buying, the withdrawal shows amount the user is receiving
+              value = value.add(web3.toBigNumber(log.data));
+            } else {
+              // If selling, the withdrawal shows part of the amount sent that is refunded
+              value = value.minus(web3.toBigNumber(log.data));
+            }
+          }
+        }
+      }
+    });
+    if (value.gt(0)) {
+      this.setState((prevState, props) => {
+        const transactions = {...prevState.transactions};
+        transactions.trade[type === 'buy' ? 'amountBuy' : 'amountSell'] = value;
+        return { transactions };
+      });
+    }
+  }
+
 
   logRequestTransaction = type => {
     return new Promise(resolve => {
