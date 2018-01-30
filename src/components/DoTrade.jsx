@@ -54,6 +54,16 @@ class DoTrade extends Component {
       && !this.props.transactions[type].error;
   }
 
+  showTradeAgainButton = () => {
+    return (typeof this.props.transactions.approval !== 'undefined' &&
+      (this.props.transactions.approval.error || this.props.transactions.approval.rejected)) ||
+      (typeof this.props.transactions.trade !== 'undefined' &&
+      !this.props.transactions.trade.requested &&
+      (!this.props.transactions.trade.pending
+      || this.props.transactions.trade.error
+      || this.props.transactions.trade.rejected));
+  }
+
   hasTwoTransactions = () => {
     return this.props.trade.txs === 2;
   }
@@ -110,7 +120,7 @@ class DoTrade extends Component {
                     :
                     this.props.transactions.approval.rejected
                       ?
-                      <div className="status"><span className="label error">Rejected, redirecting...</span></div>
+                      <div className="status"><span className="label error">Rejected</span></div>
                       :
                       this.props.transactions.approval.requested
                         ?
@@ -182,7 +192,7 @@ class DoTrade extends Component {
                   :
                   this.props.transactions.trade.rejected
                     ?
-                    <div className="status"><span className="label error">Rejected, redirecting...</span></div>
+                    <div className="status"><span className="label error">Rejected</span></div>
                     :
                     this.props.transactions.trade.requested
                       ?
@@ -194,7 +204,7 @@ class DoTrade extends Component {
                         :
                         this.props.transactions.trade.error
                           ?
-                          <div className="status"><span className="label error">Error occurred, redirecting...</span>
+                          <div className="status"><span className="label error">Error occurred</span>
                           </div>
                           :
                           <div className="status"><span className="label info">Confirmed</span></div>
@@ -281,7 +291,7 @@ class DoTrade extends Component {
         <div>
           <button type="submit" value="Trade again" className="start"
                   onClick={this.props.reset}
-                  disabled={!this.hasTxCompleted('trade')}>
+                  disabled={!this.showTradeAgainButton()}>
             TRADE AGAIN
           </button>
         </div>

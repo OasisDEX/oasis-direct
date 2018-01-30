@@ -649,14 +649,14 @@ class App extends Component {
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
-      // this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+      this.setState({transactions});
     }
   }
 
   logTransactionRejected = type => {
     const transactions = {...this.state.transactions};
     transactions[type] = {rejected: true}
-    // this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+    this.setState({transactions});
   }
 
   returnToSetTrade = () => {
