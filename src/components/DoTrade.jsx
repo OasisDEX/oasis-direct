@@ -256,12 +256,8 @@ class DoTrade extends Component {
                    this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                      ? <span>{spinner}</span>
                      : <span>
-                       {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy))}&nbsp;
-                       {
-                         this.props.trade.from.toUpperCase()
-                       }/{
-                       this.props.trade.to.toUpperCase()
-                     }
+                        {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy))}&nbsp;
+                        {this.props.trade.from.toUpperCase()}/{this.props.trade.to.toUpperCase()}
                        </span>
                  }
                 </span>
