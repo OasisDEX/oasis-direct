@@ -434,45 +434,31 @@ class App extends Component {
               this.logTransactionConfirmed(transactions[type].tx, r.gasUsed);
             }
           } else {
+            // Using logs:
+            web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
+              if (!e) {
+                console.log(r);
+                r.forEach(v => {
+                  web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
+                    if (!e2 &&
+                        r2.from === this.state.network.defaultAccount &&
+                        r2.nonce === transactions[type].nonce) {
+                      this.saveReplacedTransaction(type, v.transactionHash);
+                    }
+                  });
+                });
+              }
+            });
+            // Using Etherscan API (backup)
             Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
                 r.result.forEach(v => {
                   if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
-                    if (transactions[type].tx !== v.hash) {
-                      console.log(`Transaction ${transactions[type].tx} was replaced by ${v.hash}.`);
-                    }
-                    this.setState((prevState, props) => {
-                      const transactions = {...prevState.transactions};
-                      transactions[type].tx = v.hash;
-                      return { transactions };
-                    }, () => {
-                      this.checkPendingTransactions();
-                    });
+                    this.saveReplacedTransaction(type, v.hash);
                   }
                 });
               }
             });
-            // Solution using logs:
-            // web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
-            //   r.forEach(v => {
-            //     web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
-            //       if (!e &&
-            //           r2.from === this.state.network.defaultAccount &&
-            //           r2.nonce === transactions[type].nonce) {
-            //         if (transactions[type].tx !== v.transactionHash) {
-            //           console.log(`Transaction ${transactions[type].tx} was replaced by ${v.transactionHash}.`);
-            //         }
-            //         this.setState((prevState, props) => {
-            //           const transactions = {...prevState.transactions};
-            //           transactions[type].tx = v.transactionHash;
-            //           return { transactions };
-            //         }, () => {
-            //           this.checkPendingTransactions();
-            //         });
-            //       }
-            //     });
-            //   });
-            // });
           }
         });
       } else {
@@ -511,22 +497,35 @@ class App extends Component {
     });
   }
 
-  saveTradedValue = (type, logs) => {
+  saveReplacedTransaction = (type, newTx) => {
+    if (this.state.transactions[type].tx !== newTx) {
+      console.log(`Transaction ${this.state.transactions[type].tx} was replaced by ${newTx}.`);
+    }
+    this.setState((prevState, props) => {
+      const transactions = {...prevState.transactions};
+      transactions[type].tx = newTx;
+      return { transactions };
+    }, () => {
+      this.checkPendingTransactions();
+    });
+  }
+
+  saveTradedValue = (operation, logs) => {
     let value = web3.toBigNumber(0);
     logs.forEach(log => {
       if (log.transactionHash === this.state.transactions.trade.tx) {
-        if (this.state.trade[type === 'buy' ? 'to' : 'from'] !== 'eth' &&
-            log.topics[type === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
+        if (this.state.trade[operation === 'buy' ? 'to' : 'from'] !== 'eth' &&
+            log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
             log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
             // No ETH, src or dst is user's address and Transfer Event
             value = value.add(web3.toBigNumber(log.data));
-        } else if (this.state.trade[type === 'buy' ? 'to' : 'from'] === 'eth') {
+        } else if (this.state.trade[operation === 'buy' ? 'to' : 'from'] === 'eth') {
           if (log.topics[0] === '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c') {
             // Deposit (only can come when selling ETH)
             value = value.add(web3.toBigNumber(log.data));
           } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'){
             // Withdrawal
-            if (type === 'buy') {
+            if (operation === 'buy') {
               // If buying, the withdrawal shows amount the user is receiving
               value = value.add(web3.toBigNumber(log.data));
             } else {
@@ -540,7 +539,7 @@ class App extends Component {
     if (value.gt(0)) {
       this.setState((prevState, props) => {
         const transactions = {...prevState.transactions};
-        transactions.trade[type === 'buy' ? 'amountBuy' : 'amountSell'] = value;
+        transactions.trade[operation === 'buy' ? 'amountBuy' : 'amountSell'] = value;
         return { transactions };
       });
     }
@@ -615,8 +614,11 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         web3.eth.getTransaction(tx, (e, r) => {
           if (!e) {
-            transactions[type].gasPrice = r.gasPrice;
-            this.setState({ transactions });
+            this.setState((prevState, props) => {
+              const transactions = {...prevState.transactions};
+              transactions[type].gasPrice = r.gasPrice;
+              return {transactions};
+            });
           }
         });
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
