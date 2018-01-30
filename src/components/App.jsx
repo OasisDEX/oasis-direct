@@ -477,18 +477,32 @@ class App extends Component {
         });
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
+          // Using Logs
+          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, logs) => {
+            if (!e) {
+              this.saveTradedValue('sell', logs);
+            }
+          });
+          // Using Etherscan API (backup)
           Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address,
                           transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              this.saveTradedValue('sell', logs);
+              this.saveTradedValue('sell', logs.result);
             }
           });
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
+          // Using Logs
+          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address }).get((e, logs) => {
+            if (!e) {
+              this.saveTradedValue('buy', logs);
+            }
+          });
+          // Using Etherscan API (backup)
           Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address,
                           transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              this.saveTradedValue('buy', logs);
+              this.saveTradedValue('buy', logs.result);
             }
           });
         }
@@ -499,7 +513,7 @@ class App extends Component {
 
   saveTradedValue = (type, logs) => {
     let value = web3.toBigNumber(0);
-    logs.result.forEach(log => {
+    logs.forEach(log => {
       if (log.transactionHash === this.state.transactions.trade.tx) {
         if (this.state.trade[type === 'buy' ? 'to' : 'from'] !== 'eth' &&
             log.topics[type === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
