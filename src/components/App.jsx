@@ -642,14 +642,14 @@ class App extends Component {
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
-      this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+      // this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
     }
   }
 
   logTransactionRejected = type => {
     const transactions = {...this.state.transactions};
     transactions[type] = {rejected: true}
-    this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
+    // this.setState({transactions}, () => setTimeout(setTimeout(() => this.returnToSetTrade(), 3000)));
   }
 
   returnToSetTrade = () => {
@@ -660,6 +660,10 @@ class App extends Component {
       trade.txs = null;
       return {trade, transactions};
     });
+  }
+
+  reset = () => {
+    this.setState({...this.getInitialState()});
   }
   //
 
@@ -1207,7 +1211,7 @@ class App extends Component {
                       calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
                       trade={this.state.trade}/>
             :
-            <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network}/>
+            <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network} reset={this.reset}/>
         }
       </div>
     )
