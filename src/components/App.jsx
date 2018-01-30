@@ -444,7 +444,7 @@ class App extends Component {
             // Using logs:
             web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
               if (!e) {
-                console.log(r);
+                // console.log(r);
                 r.forEach(v => {
                   web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
                     if (!e2 &&

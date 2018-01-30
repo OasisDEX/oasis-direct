@@ -232,24 +232,22 @@ class DoTrade extends Component {
               <span className="icon" style={{'height': '18px'}}>
                 <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_finalized.svg"/>
               </span>
-                <span>
-                  <span className="label">
-                    You successfully bought
-                  </span>
-                  <span className="value">
-                    {
-                      this.props.transactions.trade.amountBuy.eq(-1)
-                        ? <span>{spinner}</span>
-                        :
-                        <span>{printNumber(this.props.transactions.trade.amountBuy)} {this.props.trade.to.toUpperCase()}</span>
-                    }
-                    </span>
+              <span>
+                <span className="label">You successfully bought</span>
+                <span className="value">
+                  {
+                    this.props.transactions.trade.amountBuy.eq(-1)
+                      ? <span>{spinner}</span>
+                      :
+                      <span>{printNumber(this.props.transactions.trade.amountBuy)} {this.props.trade.to.toUpperCase()}</span>
+                  }
+                </span>
                 <span className="label">&nbsp;with</span>
                 <span className="value">
                   {
                     this.props.transactions.trade.amountSell.eq(-1)
                       ? <span>{spinner}</span>
-                      : <span>&nbsp; {printNumber(this.props.transactions.trade.amountSell)} {this.props.trade.from.toUpperCase()}</span>
+                      : <span>{printNumber(this.props.transactions.trade.amountSell)} {this.props.trade.from.toUpperCase()}</span>
                   }
                 </span>
                 <span className="label">&nbsp;at</span>
@@ -280,9 +278,9 @@ class DoTrade extends Component {
                 <span className="label">
                   gas cost
                 </span>
-                </span>
-              </div>
+              </span>
             </div>
+          </div>
         }
         <div>
           <button type="submit" value="Trade again" className="start"
