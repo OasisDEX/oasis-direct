@@ -51,7 +51,8 @@ class DoTrade extends Component {
     return this.props.transactions[type]
       && this.props.transactions[type].tx
       && !this.props.transactions[type].pending
-      && !this.props.transactions[type].error;
+      && !this.props.transactions[type].error
+      && (type !== 'trade' || this.props.transactions.trade.amountBuy.gt(0) || this.props.transactions.trade.amountSell.gt(0));
   }
 
   showTradeAgainButton = () => {
@@ -208,7 +209,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                            <div className="status"><span className="label info">Confirmed, fetching trade data...</span></div>
+                            <div className="status"><span className="label info">{spinner}Confirmed, loading trade data...</span></div>
                           :
                             <div className="status"><span className="label info">Completed</span></div>
               }
@@ -216,7 +217,7 @@ class DoTrade extends Component {
             </div>
         </div>
         {
-          !this.hasTxCompleted('trade') || this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+          !this.hasTxCompleted('trade')
             ?
               <div className="info-box info-box--no-borders" style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
