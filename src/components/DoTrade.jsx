@@ -73,7 +73,7 @@ class DoTrade extends Component {
     return (
       <section className="frame">
         <div className="heading">
-          <h3>Finalize Trade</h3>
+          <h2>Finalize Trade</h2>
         </div>
         <div className="info-box">
           <div className="info-box-row">
@@ -88,7 +88,7 @@ class DoTrade extends Component {
             </span>
           </div>
         </div>
-        <div className="transaction-details">
+        <div className="content">
           {
             this.hasTwoTransactions() &&
             <a

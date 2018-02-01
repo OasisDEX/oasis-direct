@@ -86,7 +86,7 @@ class SetTrade extends Component {
     return (
       <section className="frame">
         <div className="heading">
-          <h3>Enter Order Details</h3>
+          <h2>Enter Order Details</h2>
         </div>
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
           <div className="info-box-row">
@@ -166,14 +166,13 @@ class SetTrade extends Component {
             </div>)
             : null
         }
-
-        <form className="trade" onSubmit={this.nextStep}>
-          <div>
+        <div className="content">
+          <form className="trade" onSubmit={this.nextStep}>
             <div className="selected-token">
               <div className="token" onClick={() => {
                 this.pickToken('from')
               }}>
-                <span>{tokens[this.state.from].icon}</span>
+                <span className="token-icon">{tokens[this.state.from].icon}</span>
                 <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
@@ -194,7 +193,7 @@ class SetTrade extends Component {
               <div className="token" onClick={() => {
                 this.pickToken('to');
               }}>
-                <span>{tokens[this.state.to].icon}</span>
+                <span className="token-icon">{tokens[this.state.to].icon}</span>
                 <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
@@ -207,6 +206,7 @@ class SetTrade extends Component {
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
               </div>
             </div>
+           </form>
           </div>
           {
             this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
@@ -218,7 +218,7 @@ class SetTrade extends Component {
                   <img width="14px" height="14px" alt="accepted" src="/assets/od-icons/od_done.svg"/>
                 }
                 </span>
-              <span className="label">
+                <span className="label">
                 I agree to the Terms and certify that I am the beneficial owner of the deposit asset.
               </span>
             </div>
@@ -227,7 +227,6 @@ class SetTrade extends Component {
                   disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>
-        </form>
       </section>
     )
   }
