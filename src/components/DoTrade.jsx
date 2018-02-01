@@ -60,7 +60,7 @@ class DoTrade extends Component {
       (this.props.transactions.approval.error || this.props.transactions.approval.rejected)) ||
       (typeof this.props.transactions.trade !== 'undefined' &&
       !this.props.transactions.trade.requested &&
-      (!this.props.transactions.trade.pending
+      (this.hasTxCompleted('trade')
       || this.props.transactions.trade.error
       || this.props.transactions.trade.rejected));
   }
@@ -209,7 +209,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                            <div className="status"><span className="label info">{spinner}Confirmed, loading trade data...</span></div>
+                            <div className="status"><span className="label info">{spinner}Confirmed. Loading data...</span></div>
                           :
                             <div className="status"><span className="label info">Completed</span></div>
               }
