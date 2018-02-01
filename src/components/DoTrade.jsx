@@ -115,25 +115,25 @@ class DoTrade extends Component {
                 </div>
                 {
                   typeof this.props.transactions.approval === 'undefined'
-                    ?
+                  ?
                     <div className="status">{spinner}<span className="label">Initiating transaction...</span></div>
-                    :
+                  :
                     this.props.transactions.approval.rejected
-                      ?
+                    ?
                       <div className="status"><span className="label error">Rejected</span></div>
-                      :
+                    :
                       this.props.transactions.approval.requested
-                        ?
+                      ?
                         <div className="status">{spinner}<span className="label info">Signing transaction</span></div>
-                        :
+                      :
                         this.props.transactions.approval.pending
-                          ?
+                        ?
                           <div className="status">{spinner}<span className="label info">Pending...</span></div>
-                          :
+                        :
                           this.props.transactions.approval.error
-                            ?
+                          ?
                             <div className="status"><span className="label error">Error occurred</span></div>
-                            :
+                          :
                             <div className="status"><span className="label info">Confirmed</span></div>
                 }
               </div>
@@ -183,109 +183,102 @@ class DoTrade extends Component {
               </div>
               {
                 typeof this.props.transactions.trade === 'undefined'
-                  ?
+                ?
                   this.props.trade.txs === 1
-                    ?
+                  ?
                     <div className="status">{spinner}<span className="label">initiating transaction</span></div>
-                    :
-                    <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
                   :
+                    <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
+                :
                   this.props.transactions.trade.rejected
-                    ?
+                  ?
                     <div className="status"><span className="label error">Rejected</span></div>
-                    :
+                  :
                     this.props.transactions.trade.requested
-                      ?
+                    ?
                       <div className="status">{spinner}<span className="label">Signing transaction</span></div>
-                      :
+                    :
                       this.props.transactions.trade.pending
-                        ?
+                      ?
                         <div className="status">{spinner}<span className="label info">Pending...</span></div>
-                        :
+                      :
                         this.props.transactions.trade.error
+                        ?
+                          <div className="status"><span className="label error">Error occurred</span></div>
+                        :
+                          this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                          <div className="status"><span className="label error">Error occurred</span>
-                          </div>
+                            <div className="status"><span className="label info">Confirmed, fetching trade data...</span></div>
                           :
-                          <div className="status"><span className="label info">Confirmed</span></div>
+                            <div className="status"><span className="label info">Confirmed</span></div>
               }
               </a>
             </div>
         </div>
         {
-          !this.hasTxCompleted('trade') ?
-            <div className="info-box info-box--no-borders" style={{marginTop: 'auto'}}>
-              <div className="info-box-row info-box-row--left">
-              <span className="icon" style={{'height': '18px'}}>
-                <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
-              </span>
-                <span className="label">
-                Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
-              </span>
+          !this.hasTxCompleted('trade')
+            ?
+              <div className="info-box info-box--no-borders" style={{marginTop: 'auto'}}>
+                <div className="info-box-row info-box-row--left">
+                <span className="icon" style={{'height': '18px'}}>
+                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                </span>
+                  <span className="label">
+                  Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
+                </span>
+                </div>
+                <div className="info-box-row info-box-row--left">
+                <span className="icon" style={{'height': '18px'}}>
+                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                </span>
+                  <span className="label">
+                  Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
+                </span>
+                </div>
               </div>
-              <div className="info-box-row info-box-row--left">
-              <span className="icon" style={{'height': '18px'}}>
-                <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
-              </span>
-                <span className="label">
-                Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
-              </span>
-              </div>
-            </div> :
-            <div className="info-box info-box--no-borders congratulations" style={{marginTop: 'auto'}}>
-              <div className="info-box-row info-box-row--left">
-                <h3 className="heading">
-                  Congratulations!
-                </h3>
-              </div>
-              <div className="info-box-row info-box-row--left">
-              <span className="icon" style={{'height': '18px'}}>
-                <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_finalized.svg"/>
-              </span>
-              <span>
-                <span className="label">You successfully bought</span>
-                <span className="value">
+            :
+              this.props.transactions.trade.amountBuy.gt(0) && this.props.transactions.trade.amountSell.gt(0) &&
+              <div className="info-box info-box--no-borders congratulations" style={{marginTop: 'auto'}}>
+                <div className="info-box-row info-box-row--left">
+                  <h3 className="heading">
+                    Congratulations!
+                  </h3>
+                </div>
+                <div className="info-box-row info-box-row--left">
+                <span className="icon" style={{'height': '18px'}}>
+                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_finalized.svg"/>
+                </span>
+                <span>
+                  <span className="label">You successfully bought</span>
+                  <span className="value">
+                    <span>{printNumber(this.props.transactions.trade.amountBuy)} {this.props.trade.to.toUpperCase()}</span>
+                  </span>
+                  <span className="label">&nbsp;with</span>
+                  <span className="value">
+                    <span>{printNumber(this.props.transactions.trade.amountSell)} {this.props.trade.from.toUpperCase()}</span>
+                  </span>
+                  <span className="label">&nbsp;at</span>
+                  <span className="value">
+                    <span>
+                      {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy))}&nbsp;
+                      {this.props.trade.from.toUpperCase()}/{this.props.trade.to.toUpperCase()}
+                    </span>
+                  </span>
+                  <span className="label">&nbsp;by paying</span>
+                  <span className="value">
                   {
-                    this.props.transactions.trade.amountBuy.eq(-1)
+                    (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
                       ? <span>{spinner}</span>
-                      :
-                      <span>{printNumber(this.props.transactions.trade.amountBuy)} {this.props.trade.to.toUpperCase()}</span>
-                  }
+                      : printNumber((typeof this.props.transactions.approval !== 'undefined'
+                        ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
+                        : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)))
+                  } ETH&nbsp;
+                  </span>
+                  <span className="label">
+                    gas cost
+                  </span>
                 </span>
-                <span className="label">&nbsp;with</span>
-                <span className="value">
-                  {
-                    this.props.transactions.trade.amountSell.eq(-1)
-                      ? <span>{spinner}</span>
-                      : <span>{printNumber(this.props.transactions.trade.amountSell)} {this.props.trade.from.toUpperCase()}</span>
-                  }
-                </span>
-                <span className="label">&nbsp;at</span>
-                <span className="value">
-                 {
-                   this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
-                     ? <span>{spinner}</span>
-                     : <span>
-                        {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy))}&nbsp;
-                        {this.props.trade.from.toUpperCase()}/{this.props.trade.to.toUpperCase()}
-                       </span>
-                 }
-                </span>
-                <span className="label">&nbsp;by paying</span>
-                <span className="value">
-                 {
-                   (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
-                     ? <span>{spinner}</span>
-                     : printNumber((typeof this.props.transactions.approval !== 'undefined'
-                       ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                       : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)))
-                 } ETH&nbsp;
-                </span>
-                <span className="label">
-                  gas cost
-                </span>
-              </span>
-            </div>
+              </div>
           </div>
         }
         <div>
