@@ -24,8 +24,6 @@ class App extends Component {
     this.state = {
       ...initialState,
       network: {},
-      params: '',
-      account:'',
       ui: {
         isDropdownCollapsed: false
       }
@@ -33,19 +31,6 @@ class App extends Component {
   }
 
   getInitialState = () => {
-    const initialUserVariables = this.getInitialUserVariables();
-    return {
-      tokens: {
-        weth: '',
-        mkr: '',
-        dai: ''
-      },
-      otc: '',
-      ...initialUserVariables
-    };
-  }
-
-  getInitialUserVariables = () => {
     return {
       trade: {
         step: 1,
@@ -57,7 +42,8 @@ class App extends Component {
         amountPayInput: '',
         amountBuyInput: '',
         txCost: web3.toBigNumber(0),
-        errorFunds: null,
+        errorInputSell: null,
+        errorInputBuy: null,
         errorOrders: null,
         txs: null,
       },
@@ -215,7 +201,6 @@ class App extends Component {
         this.setState((prevState, props) => {
           return {proxy: r[0]};
         }, () => {
-          this.setUpAddress('otc');
           this.setUpToken('weth');
           this.setUpToken('mkr');
           this.setUpToken('dai');
@@ -304,7 +289,7 @@ class App extends Component {
     const addrs = settings.chain[network.network];
     const me = this;
     return new Promise((resolve, reject) => {
-      if (settings.chain[network.network].proxyDirectoryService) {
+      if (addrs.proxyDirectoryService) {
         Promise.resolve(me.getFromDirectoryService({owner: network.defaultAccount}, {blockNumber: 'asc'})).then(r => {
           Promise.resolve(me.getProxyAddressFromChain(r.lastBlockNumber + 1, r.results)).then(r2 => {
             resolve(r2);
@@ -338,27 +323,9 @@ class App extends Component {
     });
   }
 
-  setUpAddress = contract => {
-    const addr = settings.chain[this.state.network.network][contract];
-    this.setState((prevState, props) => {
-      const returnObj = {};
-      returnObj[contract] = {address: addr};
-      return returnObj;
-    });
-  }
-
   setUpToken = token => {
-    const addrs = settings.chain[this.state.network.network];
-    this.setState((prevState, props) => {
-      const tokens = {...prevState.tokens};
-      const tok = {...tokens[token]};
-      tok.address = addrs.tokens[token];
-      tokens[token] = tok;
-      return {tokens};
-    }, () => {
-      window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, this.state.tokens[token].address);
-      this.setFilterToken(token);
-    });
+    window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, settings.chain[this.state.network.network].tokens[token].address);
+    this.setFilterToken(token);
   }
 
   setFilterToken = token => {
@@ -443,7 +410,7 @@ class App extends Component {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
+            web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
               if (!e) {
                 r.forEach(v => {
                   web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
@@ -471,13 +438,13 @@ class App extends Component {
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
-          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, logs) => {
+          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, logs) => {
             if (!e) {
               this.saveTradedValue('sell', logs);
             }
           });
           // Using Etherscan API (backup)
-          Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address,
+          Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
                           transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
@@ -486,13 +453,13 @@ class App extends Component {
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
-          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address }).get((e, logs) => {
+          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address }).get((e, logs) => {
             if (!e) {
               this.saveTradedValue('buy', logs);
             }
           });
           // Using Etherscan API (backup)
-          Promise.resolve(this.getLogsByAddressFromEtherscan(this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address,
+          Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
                           transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
@@ -670,7 +637,7 @@ class App extends Component {
   }
 
   reset = () => {
-    this.setState({...this.getInitialUserVariables()});
+    this.setState({...this.getInitialState()});
   }
   //
 
@@ -740,8 +707,8 @@ class App extends Component {
   getCallDataAndValue = (operation, from, to, amount, limit) => {
     const result = {};
     const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
-    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')], false);
-    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')], false);
+    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address, false);
+    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address, false);
     if (operation === 'sellAll') {
       if (from === "eth") {
         result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
@@ -783,8 +750,8 @@ class App extends Component {
   }
 
   getActionCreateAndExecute = (operation, from, to, amount, limit) => {
-    const addrFrom = this.state.tokens[this.state.trade.from.replace('eth', 'weth')].address;
-    const addrTo = this.state.tokens[this.state.trade.to.replace('eth', 'weth')].address;
+    const addrFrom = settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
+    const addrTo = settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
     const result = {};
     if (operation === 'sellAll') {
       if (from === "eth") {
@@ -878,7 +845,8 @@ class App extends Component {
       trade.amountBuyInput = '';
       trade.amountPayInput = '';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorFunds = null;
+      trade.errorInputSell = null;
+      trade.errorInputBuy = null;
       trade.errorOrders = null;
       return {trade};
     });
@@ -919,7 +887,8 @@ class App extends Component {
       trade.amountPayInput = amount;
       trade.operation = 'sellAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorFunds = null;
+      trade.errorInputSell = null;
+      trade.errorInputBuy = null;
       trade.errorOrders = null;
       return {trade};
     }, () => {
@@ -931,9 +900,18 @@ class App extends Component {
         });
         return;
       }
+      const minValue = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
+      if (this.state.trade.amountPay.lt(minValue)) {
+        this.setState((prevState, props) => {
+          const trade = {...prevState.trade};
+          trade.errorInputSell = `Minimum amount: ${minValue}`;
+          return {trade};
+        });
+        return;
+      }
       this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getBuyAmount(
-        this.state.tokens[to.replace('eth', 'weth')].address,
-        this.state.tokens[from.replace('eth', 'weth')].address,
+        settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
+        settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         web3.toWei(amount),
         (e, r) => {
           if (!e) {
@@ -944,7 +922,7 @@ class App extends Component {
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-              const errorFunds = balance.lt(web3.toWei(amount))
+              const errorInputSell = balance.lt(web3.toWei(amount))
                 ?
                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
                 'Insufficient funds'
@@ -955,10 +933,10 @@ class App extends Component {
                 `No ${to.toUpperCase()} orders available to sell ${amount} ${from.toUpperCase()}`
                 :
                 null;
-              if (errorFunds || errorOrders) {
+              if (errorInputSell || errorOrders) {
                 this.setState((prevState, props) => {
                   const trade = {...prevState.trade};
-                  trade.errorFunds = errorFunds;
+                  trade.errorInputSell = errorInputSell;
                   trade.errorOrders = errorOrders;
                   return {trade};
                 });
@@ -1021,7 +999,8 @@ class App extends Component {
       trade.amountPayInput = '';
       trade.operation = 'buyAll';
       trade.txCost = web3.toBigNumber(0);
-      trade.errorFunds = null;
+      trade.errorInputSell = null;
+      trade.errorInputBuy = null;
       trade.errorOrders = null;
       return {trade};
     }, () => {
@@ -1033,9 +1012,18 @@ class App extends Component {
         });
         return;
       }
+      const minValue = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
+      if (this.state.trade.amountBuy.lt(minValue)) {
+        this.setState((prevState, props) => {
+          const trade = {...prevState.trade};
+          trade.errorInputBuy = `Minimum amount: ${minValue}`;
+          return {trade};
+        });
+        return;
+      }
       this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getPayAmount(
-        this.state.tokens[from.replace('eth', 'weth')].address,
-        this.state.tokens[to.replace('eth', 'weth')].address,
+        settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
+        settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         web3.toWei(amount),
         (e, r) => {
           if (!e) {
@@ -1046,7 +1034,7 @@ class App extends Component {
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-              const errorFunds = balance.lt(web3.toWei(this.state.trade.amountPay))
+              const errorInputSell = balance.lt(web3.toWei(this.state.trade.amountPay))
                 ?
                 // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
                 'Insufficient funds'
@@ -1057,10 +1045,10 @@ class App extends Component {
                 `No orders available to buy ${amount} ${to.toUpperCase()}`
                 :
                 null;
-              if (errorFunds || errorOrders) {
+              if (errorInputSell || errorOrders) {
                 this.setState((prevState, props) => {
                   const trade = {...prevState.trade};
-                  trade.errorFunds = errorFunds;
+                  trade.errorInputSell = errorInputSell;
                   trade.errorOrders = errorOrders;
                   return {trade};
                 });

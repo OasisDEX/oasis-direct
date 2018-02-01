@@ -72,7 +72,7 @@ class SetTrade extends Component {
 
   hasDetails = () => {
     // return true;
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorFunds) || this.props.trade.errorOrders;
+    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders;
   }
 
 
@@ -177,10 +177,10 @@ class SetTrade extends Component {
                 <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
-                <div className={`trade-errors${this.props.trade.errorFunds ? ' show' : ''}`}>
-                  {this.props.trade.errorFunds}
+                <div className={`trade-errors${this.props.trade.errorInputSell ? ' show' : ''}`}>
+                  {this.props.trade.errorInputSell}
                 </div>
-                <input className={`${this.props.trade.errorFunds ? 'has-errors' : ''}`} type="number"
+                <input className={`${this.props.trade.errorInputSell ? 'has-errors' : ''}`} type="number"
                        ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
@@ -198,16 +198,18 @@ class SetTrade extends Component {
                 <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
-                <div className="trade-errors">
+                <div className={`trade-errors${this.props.trade.errorInputBuy ? ' show' : ''}`}>
+                  {this.props.trade.errorInputBuy}
                 </div>
-                <input type="number" ref={(input) => this.amountBuy = input}
+                <input className={`${this.props.trade.errorInputBuy ? 'has-errors' : ''}`} type="number"
+                       ref={(input) => this.amountBuy = input}
                        value={this.props.trade.amountBuyInput || ''}
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
               </div>
             </div>
           </div>
           {
-            this.hasDetails() &&  !this.props.trade.errorFunds && !this.props.trade.errorOrders &&
+            this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
             <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
                  onClick={this.acceptTermsAndConditions}>
               <span className="checkbox">
@@ -222,7 +224,7 @@ class SetTrade extends Component {
             </div>
           }
           <button type="submit" value="Start transaction" className="start"
-                  disabled={this.props.trade.errorFunds || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
+                  disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>
         </form>
