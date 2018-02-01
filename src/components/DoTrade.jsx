@@ -210,13 +210,13 @@ class DoTrade extends Component {
                           ?
                             <div className="status"><span className="label info">Confirmed, fetching trade data...</span></div>
                           :
-                            <div className="status"><span className="label info">Confirmed</span></div>
+                            <div className="status"><span className="label info">Completed</span></div>
               }
               </a>
             </div>
         </div>
         {
-          !this.hasTxCompleted('trade')
+          !this.hasTxCompleted('trade') || this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
             ?
               <div className="info-box info-box--no-borders" style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
@@ -237,7 +237,6 @@ class DoTrade extends Component {
                 </div>
               </div>
             :
-              this.props.transactions.trade.amountBuy.gt(0) && this.props.transactions.trade.amountSell.gt(0) &&
               <div className="info-box info-box--no-borders congratulations" style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
                   <h3 className="heading">
