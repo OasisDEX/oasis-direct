@@ -1,0 +1,267 @@
+@media all and (max-width: 1249px) {
+
+  .Content {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+  }
+}
+
+@media all and (min-width: 768px) and (max-width: 960px) {
+  header {
+    padding: 48px;
+  }
+}
+
+
+@media all and (max-width: 767px) {
+  header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+
+    padding: 32px;
+  }
+
+  .Logo {
+    margin-bottom: 32px;
+  }
+
+  .Content {
+    padding: 48px;
+  }
+
+  .Content .MainHeading {
+    max-width: 288px;
+  }
+
+  .Content h1 {
+    font-size: 18px;
+  }
+
+  .Content h2 {
+    font-size: 20px;
+  }
+
+  .Dropdown {
+    width: 286px;
+  }
+
+  .DropdownList--visible {
+    display: block;
+    width: inherit;
+  }
+
+  .DropdownList--visible:before {
+    right: 24px;
+  }
+
+  .DropdownList ul li {
+    display: list-item;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: auto;
+    padding: 8px 16px;
+  }
+
+  .DropdownToggle {
+    font-size: 20px;
+  }
+
+  .DropdownSelected {
+    max-width: 212px
+  }
+
+  .DropdownArrow {
+    width: 32px;
+  }
+
+  .Widget {
+    margin-top: 48px;
+  }
+}
+
+@media all and (max-width: 499px) {
+  .connectionless .content .heading img {
+    width: 64px;
+    height: 64px;
+    margin:16px 0;
+  }
+
+  .connectionless .content .heading h3 {
+    font-size: 10px;
+  }
+
+  ::-webkit-input-placeholder {
+    font-size:9px;
+  }
+
+  .label, .value {
+    font-size: 8px;
+  }
+
+  .frame {
+    width: 288px;
+    height: 256px;
+    padding: 12px;
+  }
+
+  .frame > .content{
+    order: 2;
+  }
+
+  .frame > .info-box {
+    order: 3;
+    margin-top: auto;
+    margin-bottom: 0;
+    height: 24px;
+    border-radius: 2px;
+  }
+
+  .frame > .info-box .info-box-row {
+    padding: 0;
+  }
+
+  .frame .heading {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .frame .heading h2 {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .info-box .info-box-row.desktop {
+    display: none;
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  .token {
+    width: 65px;
+    height: 57px;
+    padding: 0;
+
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .token-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .selected-token, .transaction-info-box.half {
+    width: 120px;
+  }
+
+  .selected-token input {
+    height: 24px;
+    font-size: 9px;
+  }
+
+  .separator {
+    width: auto;
+  }
+
+  .separator img {
+    bottom: 23px;
+  }
+
+  .ether, .maker, .dai {
+    height: 25px;
+  }
+
+  .trade-errors {
+    font-size: 8px;
+  }
+
+  .token-selector .tokens .token {
+    width: 65px;
+    height: 57px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .token-selector .tokens .token span {
+    height: 25px;
+    width: 25px;
+  }
+
+  button {
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .terms-and-conditions {
+    height: 24px;
+    padding: 8px;
+  }
+
+
+  .terms-and-conditions .label {
+    width: 224px;
+    text-align: left;
+  }
+
+  .checkbox {
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+  }
+
+  .checkbox img {
+    width: 10px;
+    height: 10px;
+  }
+
+  .frame.finalize .info-box {
+    margin-top:0;
+    margin-bottom: 8px;
+    order: 2;
+  }
+
+  .frame.finalize .content {
+    order: 3;
+  }
+
+  .frame.finalize .more-info, .frame.finalize .congratulations {
+    order: 4;
+    height: 40px;
+    padding: 7px 16px;
+  }
+
+  .frame.finalize > button {
+    margin-top: auto;
+  }
+
+  .transaction-info-box .operation .icon {
+    margin: 0 8px;
+  }
+
+  .transaction-info-box .status {
+    height: 32px;
+    padding: 8px;
+  }
+}
+
+@media all and (max-width: 379px) {
+  .Content {
+    padding: 48px 16px;
+  }
+
+  .Content h1 {
+    font-size: 16px;
+  }
+
+  .Content h2 {
+    font-size: 18px;
+  }
+}

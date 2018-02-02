@@ -19,7 +19,7 @@ const NoConnection = () => {
                 </div>
                 <div>
                   <h4 className="heading"> Metamask </h4>
-                  <span> Browser Extension</span>
+                  <span className="desktop"> Browser Extension</span>
                 </div>
                 <div>
                   <a href="https://metamask.io">INSTALL</a>
@@ -31,7 +31,7 @@ const NoConnection = () => {
                 </div>
                 <div>
                   <h4 className="heading"> Mist </h4>
-                  <span> Ethereum Client</span>
+                  <span className="desktop"> Ethereum Client</span>
                 </div>
                 <div>
                   <a href="https://github.com/ethereum/mist">INSTALL</a>
@@ -43,7 +43,7 @@ const NoConnection = () => {
                 </div>
                 <div>
                   <h4 className="heading"> Parity </h4>
-                  <span>Ethereum client + Browser Extension</span>
+                  <span className="desktop">Ethereum client + Browser Extension</span>
                 </div>
                 <div>
                   <a href="https://parity.io/">INSTALL</a>

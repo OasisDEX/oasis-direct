@@ -71,7 +71,7 @@ class DoTrade extends Component {
 
   render() {
     return (
-      <section className="frame">
+      <section className={`frame ${this.props.trade.step === 2 ? 'finalize' : ''}`}>
         <div className="heading">
           <h2>Finalize Trade</h2>
         </div>
@@ -219,7 +219,7 @@ class DoTrade extends Component {
         {
           !this.hasTxCompleted('trade')
             ?
-              <div className="info-box info-box--no-borders" style={{marginTop: 'auto'}}>
+              <div className="info-box more-info info-box--no-borders desktop" style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
                 <span className="icon" style={{'height': '18px'}}>
                   <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
@@ -228,7 +228,7 @@ class DoTrade extends Component {
                   Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
                 </span>
                 </div>
-                <div className="info-box-row info-box-row--left">
+                <div className="info-box-row info-box-row--left desktop">
                 <span className="icon" style={{'height': '18px'}}>
                   <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
                 </span>
@@ -238,7 +238,7 @@ class DoTrade extends Component {
                 </div>
               </div>
             :
-              <div className="info-box info-box--no-borders congratulations" style={{marginTop: 'auto'}}>
+              <div className="info-box info-box--no-borders desktop congratulations" style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
                   <h3 className="heading">
                     Congratulations!
@@ -281,13 +281,11 @@ class DoTrade extends Component {
               </div>
           </div>
         }
-        <div>
-          <button type="submit" value="Trade again" className="start"
-                  onClick={this.props.reset}
-                  disabled={!this.showTradeAgainButton()}>
-            TRADE AGAIN
-          </button>
-        </div>
+        <button type="submit" value="Trade again"
+                onClick={this.props.reset}
+                disabled={!this.showTradeAgainButton()}>
+          TRADE AGAIN
+        </button>
       </section>
 
     )

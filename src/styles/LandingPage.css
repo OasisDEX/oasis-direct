@@ -56,6 +56,10 @@ footer {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.Content .MainHeading {
+  max-width: 424px;
+}
+
 .Content h1, .Content h2 {
   margin: 0;
 }

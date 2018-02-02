@@ -1248,10 +1248,10 @@ class App extends Component {
         </section>
         <section className="Content">
           <div>
-            <div style={{maxWidth: 424}}>
+            <div className="MainHeading">
               <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
             </div>
-            <div>
+            <div className="SecondaryHeading">
               <h2>No Registration. No Fees.</h2>
             </div>
           </div>

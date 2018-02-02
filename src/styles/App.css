@@ -107,6 +107,34 @@
   font-size: 8px;
 }
 
+.frame > .heading {
+  order: 1;
+}
+
+.frame > .info-box {
+  order: 2;
+}
+
+.frame > .content {
+  order: 3;
+}
+
+.frame > .terms-and-conditions {
+  order: 4;
+}
+
+.frame > button {
+  order: 5;
+}
+
+.frame.finalize .more-info, .frame.finalize .congratulations {
+  order: 4;
+}
+
+.frame > .info-box.more-info {
+  order: 4;
+}
+
 .label {
   font-family: Montserrat, sans-serif;
   font-size: 10px;
@@ -169,6 +197,10 @@
 
 .info-box .info-box-row--left {
   justify-content: flex-start;
+}
+
+.info-box .info-box-row--left .label{
+  text-align: left;
 }
 
 .info-box .info-box-row:last-child {
@@ -290,7 +322,7 @@ input.has-errors {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
+  width: auto;
 }
 
 .separator img {
@@ -402,9 +434,9 @@ button[disabled] {
 
 .token-selector .tokens .token {
   flex-direction: column;
-  justify-content: space-evenly;
-  width: 92px;
-  height: 82px;
+  justify-content: space-between;
+  width: 102px;
+  height: 92px;
   margin: 4px;
 }
 
@@ -481,7 +513,7 @@ button[disabled] {
 .arrow-separator {
   display: inline-flex;
   justify-content: center;
-  width: 50px;
+  width: auto;
   height: 66px;
   vertical-align: top;
 }
@@ -610,6 +642,7 @@ a.no-pointer {
 
 .terms-and-conditions {
   height: 48px;
+  margin-top: auto;
   margin-bottom: 0px;
 }
 
@@ -642,6 +675,7 @@ a.no-pointer {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  margin-right: 16px;
 }
 
 .holder {
