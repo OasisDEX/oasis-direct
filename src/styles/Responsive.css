@@ -1,0 +1,253 @@
+@media all and (max-width: 1249px) {
+
+  .Content {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+  }
+}
+
+@media all and (min-width: 768px) and (max-width: 960px) {
+  header {
+    padding: 48px;
+  }
+}
+
+
+@media all and (max-width: 767px) {
+  .Widget {
+    margin-top: 24px;
+  }
+
+  main {
+    height: auto;
+  }
+
+  header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+
+    padding: 24px 8px;
+  }
+
+  .Logo {
+    margin-bottom: 16px;
+  }
+
+  .Content {
+    padding: 24px 8px;
+  }
+
+  .Content .MainHeading {
+    max-width: 288px;
+  }
+
+  .Content h1 {
+    font-size: 18px;
+  }
+
+  .Content h2 {
+    font-size: 20px;
+    line-height: 40px;
+  }
+
+  .Dropdown {
+    max-width: 304px;
+    width: 100%;
+  }
+
+  .DropdownList--visible {
+    display: block;
+    width: inherit;
+  }
+
+  .DropdownList--visible:before {
+    right: 24px;
+  }
+
+  .DropdownList ul li {
+    display: list-item;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: auto;
+    padding: 8px 16px;
+  }
+
+  .DropdownToggle {
+    font-size: 20px;
+  }
+
+  .DropdownSelected {
+    max-width: 212px
+  }
+
+  .DropdownArrow {
+    width: 32px;
+  }
+}
+
+@media all and (max-width: 499px) {
+  .connectionless .content .heading img {
+    width: 64px;
+    height: 64px;
+    margin:16px 0;
+  }
+
+  .connectionless .content .heading h3 {
+    font-size: 10px;
+  }
+
+  ::-webkit-input-placeholder {
+    font-size:9px;
+  }
+
+  .label, .value {
+    font-size: 8px;
+  }
+
+  .Widget {
+    width: 100%;
+  }
+
+  .frame {
+    max-width: 420px;
+    width: 100%;
+    max-height:370px;
+    padding: 12px;
+    margin: auto;
+  }
+
+  .frame > .content{
+  }
+
+  .frame > .info-box {
+    border-radius: 2px;
+  }
+
+  .frame > .info-box .info-box-row {
+    height: 100%;
+    padding: 4px 8px;
+  }
+
+  .frame > .info-box .info-box-row .icon {
+    margin-right: 16px;
+  }
+
+  .frame .heading h2 {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .info-box .info-box-row.desktop {
+    display: none;
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  .token {
+    width: 92px;
+    height: 82px;
+
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  .token-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .selected-token, .transaction-info-box.half {
+    width: auto;
+  }
+
+  .selected-token input {
+    font-size: 9px;
+  }
+
+  .separator {
+    width: auto;
+  }
+
+  .separator img {
+    bottom: 23px;
+  }
+
+  .ether, .maker, .dai {
+    height: 25px;
+  }
+
+  .trade-errors {
+    font-size: 8px;
+  }
+
+  .token-selector .tokens{
+    flex-direction: column;
+  }
+
+  .token-selector .tokens .token {
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+
+  .terms-and-conditions {
+    padding: 8px;
+  }
+
+
+  .terms-and-conditions .label {
+    width: 224px;
+    font-size: 10px;
+    text-align: left;
+  }
+
+  .checkbox {
+    margin-right: 16px;
+  }
+
+  .checkbox img {
+    width: 10px;
+    height: 10px;
+  }
+
+  .frame.finalize .info-box {
+    margin-top:0;
+    margin-bottom: 8px;
+  }
+
+
+  .frame.finalize .more-info, .frame.finalize .congratulations {
+    padding: 8px 8px;
+  }
+
+  .transaction-info-box .operation .icon {
+    margin: 0 16px;
+  }
+
+  .transaction-info-box .status {
+    padding: 8px;
+  }
+}
+
+@media all and (max-width: 379px) {
+
+  .Content h1 {
+    font-size: 16px;
+  }
+
+  .Content h2 {
+    font-size: 18px;
+  }
+
+  .congratulations {
+    height: auto;
+  }
+}

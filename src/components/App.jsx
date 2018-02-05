@@ -1218,7 +1218,7 @@ class App extends Component {
         <section>
           <header>
             <div className="Logo">
-              <a href="/"> <img width="216px" height="38px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
+              <a href="/"> <img width="216px" height="42px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
             </div>
             {
               this.state.network.defaultAccount && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
@@ -1248,10 +1248,10 @@ class App extends Component {
         </section>
         <section className="Content">
           <div>
-            <div style={{maxWidth: 424}}>
+            <div className="MainHeading">
               <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
             </div>
-            <div>
+            <div className="SecondaryHeading">
               <h2>No Registration. No Fees.</h2>
             </div>
           </div>

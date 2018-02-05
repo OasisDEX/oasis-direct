@@ -21,8 +21,9 @@ header {
   display: flex;
   flex-grow: 1;
   justify-content: space-between;
+  align-items: center;
 
-  height: 144px;
+  height: 142px;
   width: 100%;;
 
   padding: 48px 152px;
@@ -47,6 +48,11 @@ footer {
   cursor: pointer;
 }
 
+.Logo a {
+  display: flex;
+  align-items: center;
+}
+
 .Content {
   display: flex;
   justify-content: space-between;
@@ -54,6 +60,10 @@ footer {
   padding: 48px 152px;
 
   background: rgba(255, 255, 255, 0.05);
+}
+
+.Content .MainHeading {
+  max-width: 424px;
 }
 
 .Content h1, .Content h2 {

@@ -2,6 +2,9 @@
   height: 100%;
 }
 
+.connectionless .content {
+  flex-direction: column;
+}
 
 .connectionless .heading h2{
   color: rgba(73,73,74,0.90);
@@ -49,6 +52,7 @@
 .connectionless .content .list ul li div:nth-child(2) {
   flex-grow: 1;
   margin-left: 12px;
+  text-align: left;
 }
 
 .connectionless .content .list ul li div:nth-child(2) h4 {

@@ -51,7 +51,7 @@ class SetTrade extends Component {
   }
 
   swapTokens = () => {
-    this.setState({from: this.state.to, to: this.state.from}, () => {
+    this.setState({from: this.state.to, to: this.state.from, hasAcceptedTerms: false}, () => {
       this.props.cleanInputs();
     });
   }
@@ -86,10 +86,10 @@ class SetTrade extends Component {
     return (
       <section className="frame">
         <div className="heading">
-          <h3>Enter Order Details</h3>
+          <h2>Enter Order Details</h2>
         </div>
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
-          <div className="info-box-row">
+          <div className="info-box-row ">
             <span className="holder">
               <span className="icon">
                 <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
@@ -118,7 +118,7 @@ class SetTrade extends Component {
             }
             {
               !this.props.trade.errorOrders &&
-              <span className="holder">
+              <span className="holder desktop">
                 <span className='value'>OasisDex</span>
               </span>
             }
@@ -155,7 +155,7 @@ class SetTrade extends Component {
                         <div key={index} className='token' onClick={() => {
                           this.select(token)
                         }}>
-                          <span>{tokens[token].icon}</span>
+                          <span className="token-icon">{tokens[token].icon}</span>
                           <span className="token-name">{tokens[token].name}</span>
                         </div>
                       )
@@ -166,14 +166,13 @@ class SetTrade extends Component {
             </div>)
             : null
         }
-
-        <form className="trade" onSubmit={this.nextStep}>
-          <div>
+        <div className="content">
+          <form className="trade">
             <div className="selected-token">
               <div className="token" onClick={() => {
                 this.pickToken('from')
               }}>
-                <span>{tokens[this.state.from].icon}</span>
+                <span className="token-icon">{tokens[this.state.from].icon}</span>
                 <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
@@ -194,7 +193,7 @@ class SetTrade extends Component {
               <div className="token" onClick={() => {
                 this.pickToken('to');
               }}>
-                <span>{tokens[this.state.to].icon}</span>
+                <span className="token-icon">{tokens[this.state.to].icon}</span>
                 <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
@@ -207,27 +206,24 @@ class SetTrade extends Component {
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
               </div>
             </div>
+           </form>
           </div>
           {
             this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
             <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
                  onClick={this.acceptTermsAndConditions}>
-              <span className="checkbox">
-                {
-                  this.state.hasAcceptedTerms &&
-                  <img width="14px" height="14px" alt="accepted" src="/assets/od-icons/od_done.svg"/>
-                }
-                </span>
-              <span className="label">
+              <div className="info-box-row info-box-row--left">
+                <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
+                <span className="label">
                 I agree to the Terms and certify that I am the beneficial owner of the deposit asset.
               </span>
+              </div>
             </div>
           }
-          <button type="submit" value="Start transaction" className="start"
+          <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
                   disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>
-        </form>
       </section>
     )
   }
