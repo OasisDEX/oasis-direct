@@ -51,7 +51,7 @@ class SetTrade extends Component {
   }
 
   swapTokens = () => {
-    this.setState({from: this.state.to, to: this.state.from}, () => {
+    this.setState({from: this.state.to, to: this.state.from, hasAcceptedTerms: false}, () => {
       this.props.cleanInputs();
     });
   }
@@ -89,7 +89,7 @@ class SetTrade extends Component {
           <h2>Enter Order Details</h2>
         </div>
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
-          <div className="info-box-row desktop">
+          <div className="info-box-row ">
             <span className="holder">
               <span className="icon">
                 <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
@@ -156,7 +156,7 @@ class SetTrade extends Component {
                           this.select(token)
                         }}>
                           <span className="token-icon">{tokens[token].icon}</span>
-                          <span className="token-name desktop">{tokens[token].name}</span>
+                          <span className="token-name">{tokens[token].name}</span>
                         </div>
                       )
                     })
@@ -173,7 +173,7 @@ class SetTrade extends Component {
                 this.pickToken('from')
               }}>
                 <span className="token-icon">{tokens[this.state.from].icon}</span>
-                <span className="token-name desktop">{tokens[this.state.from].symbol}</span>
+                <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
                 <div className={`trade-errors${this.props.trade.errorInputSell ? ' show' : ''}`}>
@@ -194,7 +194,7 @@ class SetTrade extends Component {
                 this.pickToken('to');
               }}>
                 <span className="token-icon">{tokens[this.state.to].icon}</span>
-                <span className="token-name desktop">{tokens[this.state.to].symbol}</span>
+                <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
                 <div className={`trade-errors${this.props.trade.errorInputBuy ? ' show' : ''}`}>
@@ -213,12 +213,7 @@ class SetTrade extends Component {
             <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
                  onClick={this.acceptTermsAndConditions}>
               <div className="info-box-row info-box-row--left">
-                 <span className="checkbox">
-                {
-                  this.state.hasAcceptedTerms &&
-                  <img width="14px" height="14px" alt="accepted" src="/assets/od-icons/od_done.svg"/>
-                }
-                </span>
+                <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
                 <span className="label">
                 I agree to the Terms and certify that I am the beneficial owner of the deposit asset.
               </span>

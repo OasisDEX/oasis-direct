@@ -17,21 +17,29 @@
 
 
 @media all and (max-width: 767px) {
+  .Widget {
+    margin-top: 24px;
+  }
+
+  main {
+    height: auto;
+  }
+
   header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: auto;
 
-    padding: 32px;
+    padding: 24px 8px;
   }
 
   .Logo {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   .Content {
-    padding: 48px;
+    padding: 24px 8px;
   }
 
   .Content .MainHeading {
@@ -44,10 +52,12 @@
 
   .Content h2 {
     font-size: 20px;
+    line-height: 40px;
   }
 
   .Dropdown {
-    width: 286px;
+    max-width: 304px;
+    width: 100%;
   }
 
   .DropdownList--visible {
@@ -78,10 +88,6 @@
   .DropdownArrow {
     width: 32px;
   }
-
-  .Widget {
-    margin-top: 48px;
-  }
 }
 
 @media all and (max-width: 499px) {
@@ -103,31 +109,32 @@
     font-size: 8px;
   }
 
+  .Widget {
+    width: 100%;
+  }
+
   .frame {
-    width: 288px;
-    height: 256px;
+    max-width: 420px;
+    width: 100%;
+    max-height:370px;
     padding: 12px;
+    margin: auto;
   }
 
   .frame > .content{
-    order: 2;
   }
 
   .frame > .info-box {
-    order: 3;
-    margin-top: auto;
-    margin-bottom: 0;
-    height: 24px;
     border-radius: 2px;
   }
 
   .frame > .info-box .info-box-row {
-    padding: 0;
+    height: 100%;
+    padding: 4px 8px;
   }
 
-  .frame .heading {
-    margin-top: 0;
-    margin-bottom: 8px;
+  .frame > .info-box .info-box-row .icon {
+    margin-right: 16px;
   }
 
   .frame .heading h2 {
@@ -144,12 +151,11 @@
   }
 
   .token {
-    width: 65px;
-    height: 57px;
-    padding: 0;
+    width: 92px;
+    height: 82px;
 
-    flex-direction: row;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-evenly;
     align-items: center;
   }
 
@@ -159,11 +165,10 @@
   }
 
   .selected-token, .transaction-info-box.half {
-    width: 120px;
+    width: auto;
   }
 
   .selected-token input {
-    height: 24px;
     font-size: 9px;
   }
 
@@ -183,38 +188,29 @@
     font-size: 8px;
   }
 
+  .token-selector .tokens{
+    flex-direction: column;
+  }
+
   .token-selector .tokens .token {
-    width: 65px;
-    height: 57px;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
   }
 
-  .token-selector .tokens .token span {
-    height: 25px;
-    width: 25px;
-  }
-
-  button {
-    height: 24px;
-    font-size: 10px;
-  }
 
   .terms-and-conditions {
-    height: 24px;
     padding: 8px;
   }
 
 
   .terms-and-conditions .label {
     width: 224px;
+    font-size: 10px;
     text-align: left;
   }
 
   .checkbox {
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
+    margin-right: 16px;
   }
 
   .checkbox img {
@@ -225,37 +221,23 @@
   .frame.finalize .info-box {
     margin-top:0;
     margin-bottom: 8px;
-    order: 2;
   }
 
-  .frame.finalize .content {
-    order: 3;
-  }
 
   .frame.finalize .more-info, .frame.finalize .congratulations {
-    order: 4;
-    height: 40px;
-    padding: 7px 16px;
-  }
-
-  .frame.finalize > button {
-    margin-top: auto;
+    padding: 8px 8px;
   }
 
   .transaction-info-box .operation .icon {
-    margin: 0 8px;
+    margin: 0 16px;
   }
 
   .transaction-info-box .status {
-    height: 32px;
     padding: 8px;
   }
 }
 
 @media all and (max-width: 379px) {
-  .Content {
-    padding: 48px 16px;
-  }
 
   .Content h1 {
     font-size: 16px;
@@ -263,5 +245,9 @@
 
   .Content h2 {
     font-size: 18px;
+  }
+
+  .congratulations {
+    height: auto;
   }
 }
