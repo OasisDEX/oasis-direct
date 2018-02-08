@@ -1,21 +1,24 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
+import dstoken from '../abi/dstoken';
 import { Ether, MKR, DAI } from './Tokens';
+import Spinner from './Spinner';
 import { printNumber } from '../helpers';
+import settings from '../settings';
 
 //TODO: make this bound to the token selector.
 const tokens = {
-  'eth': {
+  eth: {
     icon: <Ether/>,
     symbol: "ETH",
-    name: "Ether"
+    name: "Ether",
   },
-  'mkr': {
+  mkr: {
     icon: <MKR/>,
     symbol: "MKR",
     name: "Maker"
   },
-  'dai': {
+  dai : {
     icon: <DAI/>,
     symbol: "DAI",
     name: "DAI",
@@ -30,7 +33,8 @@ class SetTrade extends Component {
       to: this.props.trade.to,
       selectedToken: null,
       shouldDisplayTokenSelector: false,
-      hasAcceptedTerms: false
+      hasAcceptedTerms: false,
+      balances: [],
     }
   }
 
@@ -75,6 +79,38 @@ class SetTrade extends Component {
     return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders;
   }
 
+  loadETHBalance = () => {
+    const balance = this.state.balances.eth;
+
+    if(!balance) {
+      web3.eth.getBalance(web3.eth.defaultAccount, (_ , balance) => {
+        this.setState((prevState) => {
+          const balances = {...prevState.balances};
+          balances.eth = balance.valueOf();
+          prevState.balances = balances;
+          return {prevState};
+        });
+      })
+    }
+  }
+
+  loadTokenBalance = (token) => {
+    const balance = this.state.balances[token];;
+
+    if(!balance){
+      console.log(this.props);
+      const contract = web3.eth.contract(dstoken.abi).at(settings.chain[this.props.network.network].tokens[token].address);
+
+      contract.balanceOf(web3.eth.defaultAccount, (_ , balance) => {
+        this.setState((prevState) => {
+          const balances = {...prevState.balances};
+          balances[token] = balance.valueOf();
+          prevState.balances = balances;
+          return {prevState};
+        });
+      })
+    }
+  }
 
   acceptTermsAndConditions = () => {
     const hasAcceptedTerms = this.state.hasAcceptedTerms;
@@ -151,14 +187,36 @@ class SetTrade extends Component {
                 <div className="tokens-container">
                   <div className="tokens">
                     <div className="token-list">
+                      <div className='token' onClick={() => {
+                        this.select('eth')
+                      }}>
+                        <span className="token-icon">{tokens.eth.icon}</span>
+                        <span className="token-name">{tokens.eth.name}</span>
+                        <span className="token-balance">
+                          {
+                            this.loadETHBalance()
+                          }
+                          {
+                            this.state.balances.eth ? <span>{ printNumber(this.state.balances.eth,3) } ETH</span> : <Spinner/>
+                          }
+                        </span>
+                      </div>
                       {
-                        ['eth', 'mkr', 'dai'].map((token, index) => {
+                        ['mkr', 'dai'].map((token, index) => {
                           return (
                             <div key={index} className='token' onClick={() => {
                               this.select(token)
                             }}>
                               <span className="token-icon">{tokens[token].icon}</span>
                               <span className="token-name">{tokens[token].name}</span>
+                              <span className="token-balance">
+                                {
+                                  this.loadTokenBalance(token)
+                                }
+                                {
+                                  this.state.balances[token] ? <span>{ printNumber(this.state.balances[token],3) } {token.toUpperCase()}</span> : <Spinner/>
+                                }
+                                </span>
                             </div>
                           )
                         })

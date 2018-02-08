@@ -1204,7 +1204,7 @@ class App extends Component {
             ?
             <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
                       calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
-                      trade={this.state.trade}/>
+                      trade={this.state.trade} network={this.state.network}/>
             :
             <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network} reset={this.reset}/>
         }

@@ -74,9 +74,9 @@ export function copyToClipboard(e) {
   alert(`Value: "${value}" copied to clipboard`);
 }
 
-export function printNumber(number) {
+export function printNumber(number, length = 5) {
   // return <span className="printedNumber" onClick={ copyToClipboard } title={ formatNumber(number, 18) }>{ formatNumber(number, 5) }</span>
-  return <span className="printedNumber" title={ formatNumber(number, 18) }>{ formatNumber(number, 5) }</span>
+  return <span className="printedNumber" title={ formatNumber(number, 18) }>{ formatNumber(number, length) }</span>
 }
 
 // Multiply WAD values

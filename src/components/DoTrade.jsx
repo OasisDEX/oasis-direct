@@ -1,22 +1,10 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 import { Ether, MKR, DAI } from './Tokens';
+import Spinner from './Spinner';
 import { printNumber, etherscanUrl, wdiv } from '../helpers';
 
-const spinner = (
-  <span className="spinner">
-     <svg width='10px' height='10px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
-          preserveAspectRatio="xMidYMid" className="uil-ring-alt">
-       <rect x="0" y="0" width="100" height="100" fill="none" className="bk"/>
-       <circle cx="50" cy="50" r="40" stroke="#F8F7F5" fill="none" strokeWidth="10" strokeLinecap="round"/>
-       <circle cx="50" cy="50" r="40" stroke="#3AB493" fill="none" strokeWidth="6" strokeLinecap="round">
-         <animate attributeName="stroke-dashoffset" dur="2s" repeatCount="indefinite" from="0" to="502"/>
-         <animate attributeName="stroke-dasharray" dur="2s" repeatCount="indefinite"
-                  values="150.6 100.4;1 250;150.6 100.4"/>
-       </circle>
-     </svg>
-  </span>
-)
+
 
 const tokens = {
   'eth': {
@@ -117,7 +105,7 @@ class DoTrade extends Component {
                 {
                   typeof this.props.transactions.approval === 'undefined'
                   ?
-                    <div className="status">{spinner}<span className="label">Initiating transaction...</span></div>
+                    <div className="status"><Spinner/><span className="label">Initiating transaction...</span></div>
                   :
                     this.props.transactions.approval.rejected
                     ?
@@ -125,11 +113,11 @@ class DoTrade extends Component {
                     :
                       this.props.transactions.approval.requested
                       ?
-                        <div className="status">{spinner}<span className="label info">Signing transaction</span></div>
+                        <div className="status"><Spinner/><span className="label info">Signing transaction</span></div>
                       :
                         this.props.transactions.approval.pending
                         ?
-                          <div className="status">{spinner}<span className="label info">Pending...</span></div>
+                          <div className="status"><Spinner/><span className="label info">Pending...</span></div>
                         :
                           this.props.transactions.approval.error
                           ?
@@ -187,9 +175,9 @@ class DoTrade extends Component {
                 ?
                   this.props.trade.txs === 1
                   ?
-                    <div className="status">{spinner}<span className="label">initiating transaction</span></div>
+                    <div className="status"><Spinner/><span className="label">initiating transaction</span></div>
                   :
-                    <div className="status">{spinner}<span className="label">Waiting for approval</span></div>
+                    <div className="status"><Spinner/><span className="label">Waiting for approval</span></div>
                 :
                   this.props.transactions.trade.rejected
                   ?
@@ -197,11 +185,11 @@ class DoTrade extends Component {
                   :
                     this.props.transactions.trade.requested
                     ?
-                      <div className="status">{spinner}<span className="label">Signing transaction</span></div>
+                      <div className="status"><Spinner/><span className="label">Signing transaction</span></div>
                     :
                       this.props.transactions.trade.pending
                       ?
-                        <div className="status">{spinner}<span className="label info">Pending...</span></div>
+                        <div className="status"><Spinner/><span className="label info">Pending...</span></div>
                       :
                         this.props.transactions.trade.error
                         ?
@@ -209,7 +197,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                            <div className="status"><span className="label info">{spinner}Confirmed. Loading data...</span></div>
+                            <div className="status"><span className="label info"><Spinner/>Confirmed. Loading data...</span></div>
                           :
                             <div className="status"><span className="label info">Completed</span></div>
               }
@@ -265,10 +253,11 @@ class DoTrade extends Component {
                     </span>
                   </span>
                   <span className="label">&nbsp;by paying</span>
+                  <span className="label">&nbsp;by paying</span>
                   <span className="value">
                   {
                     (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
-                      ? <span>{spinner}</span>
+                      ? <span><Spinner/></span>
                       : printNumber((typeof this.props.transactions.approval !== 'undefined'
                         ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
                         : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)))

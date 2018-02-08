@@ -256,6 +256,15 @@
   height: 38px;
 }
 
+.token-balance {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #4C4C4C;
+  letter-spacing: 1.11px;
+  opacity: 0.5;
+}
+
 .token--disabled {
   cursor: auto;
   pointer-events: none;
@@ -378,6 +387,12 @@ input.has-errors {
 
 .token-selector .frame {
   padding: 14px;
+}
+
+.token-selector .tokens .token-list .token-name{
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 button.start {
