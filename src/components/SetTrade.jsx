@@ -83,34 +83,33 @@ class SetTrade extends Component {
     const balance = this.state.balances.eth;
 
     if(!balance) {
-      web3.eth.getBalance(web3.eth.defaultAccount, (_ , balance) => {
+      web3.eth.getBalance(this.props.network.defaultAccount, (_ , balance) => {
         this.setState((prevState) => {
           const balances = {...prevState.balances};
           balances.eth = balance.valueOf();
           prevState.balances = balances;
           return {prevState};
         });
-      })
+      });
     }
   }
 
   loadTokenBalance = (token) => {
-    const balance = this.state.balances[token];;
+    const balance = this.state.balances[token];
 
     if(!balance){
-      console.log(this.props);
       const contract = web3.eth.contract(dstoken.abi).at(settings.chain[this.props.network.network].tokens[token].address);
 
-      contract.balanceOf(web3.eth.defaultAccount, (_ , balance) => {
+      contract.balanceOf(this.props.network.defaultAccount, (_ , balance) => {
         this.setState((prevState) => {
           const balances = {...prevState.balances};
           balances[token] = balance.valueOf();
           prevState.balances = balances;
           return {prevState};
         });
-      })
+      });
     }
-  }
+  };
 
   acceptTermsAndConditions = () => {
     const hasAcceptedTerms = this.state.hasAcceptedTerms;
