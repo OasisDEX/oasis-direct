@@ -150,18 +150,20 @@ class SetTrade extends Component {
                 <button className="close" onClick={() => this.setState({shouldDisplayTokenSelector: false})}/>
                 <div className="tokens-container">
                   <div className="tokens">
-                    {
-                      ['eth', 'mkr', 'dai'].map((token, index) => {
-                        return (
-                          <div key={index} className='token' onClick={() => {
-                            this.select(token)
-                          }}>
-                            <span className="token-icon">{tokens[token].icon}</span>
-                            <span className="token-name">{tokens[token].name}</span>
-                          </div>
-                        )
-                      })
-                    }
+                    <div className="token-list">
+                      {
+                        ['eth', 'mkr', 'dai'].map((token, index) => {
+                          return (
+                            <div key={index} className='token' onClick={() => {
+                              this.select(token)
+                            }}>
+                              <span className="token-icon">{tokens[token].icon}</span>
+                              <span className="token-name">{tokens[token].name}</span>
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
