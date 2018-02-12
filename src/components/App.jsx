@@ -177,7 +177,11 @@ class App extends Component {
   init = () => {
     initWeb3(web3);
     this.checkNetwork();
-    this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
+
+    if(web3.currentProvider.constructor.name === 'MetamaskInpageProvider') {
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 500);
+    }
+
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
