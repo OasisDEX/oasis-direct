@@ -1,0 +1,22 @@
+.no-account .heading {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.no-account .content {
+  border: 1px solid #F7F7F8;
+  border-radius: 4px;
+  flex-grow: 1;
+}
+
+.no-account .content img {
+  display: block;
+  margin: 64px auto 42px;
+}
+.no-account .content h2 {
+  color: #5B5B5C;
+}
+.no-account .content h3 {
+  text-align: center;
+  color: #5B5B5C;
+}

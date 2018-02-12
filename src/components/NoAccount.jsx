@@ -6,8 +6,7 @@ import '../styles/NoConnection.css'
 const NoConnection = () => {
   const metamask = web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
   return (
-    <div className="frame">
-      <div className="connectionless">
+    <div className="frame no-account">
         <div className="heading">
           <h2>
             { metamask ? 'Metamask Account Locked' : 'No Account found' }</h2>
@@ -16,12 +15,11 @@ const NoConnection = () => {
           {
             metamask &&
             <div className="heading">
-              <img type="svg" width="100" height="100" src="/assets/od_metamask_big.svg" alt="Metamask" />
-              <h3>You are trying to access Oasis.direct without an unlocked account.<br />Unlock your account on the Metamask Extension.</h3>
+              <img type="svg" width="154" height="140" src="/assets/od_metamask_big.svg" alt="Metamask" />
+              <h3>Unlock your Account on the Extension.</h3>
             </div>
           }
         </section>
-      </div>
     </div>
   )
 }
