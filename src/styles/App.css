@@ -303,7 +303,7 @@
 .selected-token {
   display: inline-flex;
   flex-direction: column;
-  max-width: 180px;
+  width: 180px;
 }
 
 .selected-token input {
