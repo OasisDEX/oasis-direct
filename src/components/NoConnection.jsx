@@ -2,20 +2,19 @@ import React from 'react';
 
 const NoConnection = () => {
   return (
-    <div className="frame">
-      <div className="connectionless">
-        <div className="heading">
+    <div className="frame connectionless">
+      <div className="heading">
           <h2>Not Connected to Ethereum</h2>
         </div>
-        <section className="content">
+      <section className="content">
           <div className="heading">
             <h3>Available clients</h3>
           </div>
           <div className="list">
             <ul>
               <li>
-                <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_metamask.svg" alt="Metamask" />
+                <div style={{height : "36px"}}>
+                  <img type="svg" width="36" height="36" src="/assets/od_metamask.svg" alt="Metamask" />
                 </div>
                 <div>
                   <h4 className="heading"> Metamask </h4>
@@ -26,8 +25,8 @@ const NoConnection = () => {
                 </div>
               </li>
               <li>
-                <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_mist.svg" alt="Mist"/>
+                <div style={{height : "36px"}}>
+                  <img type="svg" width="36" height="36" src="/assets/od_mist.svg" alt="Mist"/>
                 </div>
                 <div>
                   <h4 className="heading"> Mist </h4>
@@ -38,8 +37,8 @@ const NoConnection = () => {
                 </div>
               </li>
               <li>
-                <div>
-                  <img type="svg" width="42" height="42" src="/assets/od_parity.svg" alt="Parity"/>
+                <div style={{height : "36px"}}>
+                  <img type="svg" width="36" height="36" src="/assets/od_parity.svg" alt="Parity"/>
                 </div>
                 <div>
                   <h4 className="heading"> Parity </h4>
@@ -52,7 +51,6 @@ const NoConnection = () => {
             </ul>
           </div>
         </section>
-      </div>
     </div>
   )
 }
