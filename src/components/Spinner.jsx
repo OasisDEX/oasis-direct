@@ -3,7 +3,7 @@ import React from 'react';
 const Spinner = (props) => {
   return (
     <span className="spinner">
-     <svg width='10px' height='10px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+     <svg width='14px' height='14px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid" className="uil-ring-alt">
        <rect x="0" y="0" width="100" height="100" fill="none" className="bk"/>
        <circle cx="50" cy="50" r="40" stroke="#F8F7F5" fill="none" strokeWidth="10" strokeLinecap="round"/>

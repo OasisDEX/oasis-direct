@@ -197,7 +197,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                            <div className="status"><span className="label info"><Spinner/>Confirmed. Loading data...</span></div>
+                            <div className="status"><Spinner/><span className="label info">Confirmed. Loading data...</span></div>
                           :
                             <div className="status"><span className="label info">Completed</span></div>
               }
@@ -207,10 +207,10 @@ class DoTrade extends Component {
         {
           !this.hasTxCompleted('trade')
             ?
-              <div className="info-box more-info info-box--no-borders" style={{marginTop: 'auto'}}>
+              <div className={`info-box more-info info-box--no-borders ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
                 <span className="icon" style={{'height': '18px'}}>
-                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_attention.svg"/>
                 </span>
                   <span className="label">
                   Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
@@ -218,7 +218,7 @@ class DoTrade extends Component {
                 </div>
                 <div className="info-box-row info-box-row--left">
                 <span className="icon" style={{'height': '18px'}}>
-                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_question.svg"/>
                 </span>
                   <span className="label">
                   Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
@@ -226,33 +226,28 @@ class DoTrade extends Component {
                 </div>
               </div>
             :
-              <div className="info-box info-box--no-borders congratulations" style={{marginTop: 'auto'}}>
-                <div className="info-box-row info-box-row--left">
-                  <h3 className="heading">
-                    Congratulations!
-                  </h3>
-                </div>
-                <div className="info-box-row info-box-row--left">
-                <span className="icon" style={{'height': '18px'}}>
+              <div className="congratulations">
+                <h3 className="heading">
+                  Congratulations!
+                </h3>
+                <div className="content">
+                <span className="icon">
                   <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_finalized.svg"/>
                 </span>
                 <span>
                   <span className="label">You successfully bought</span>
                   <span className="value">
-                    <span>{printNumber(this.props.transactions.trade.amountBuy)} {this.props.trade.to.toUpperCase()}</span>
+                   {printNumber(this.props.transactions.trade.amountBuy, 3)} {this.props.trade.to.toUpperCase()}
                   </span>
                   <span className="label">&nbsp;with</span>
                   <span className="value">
-                    <span>{printNumber(this.props.transactions.trade.amountSell)} {this.props.trade.from.toUpperCase()}</span>
+                    {printNumber(this.props.transactions.trade.amountSell, 3)} {this.props.trade.from.toUpperCase()}
                   </span>
                   <span className="label">&nbsp;at</span>
                   <span className="value">
-                    <span>
-                      {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy))}&nbsp;
+                      {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy), 3)}&nbsp;
                       {this.props.trade.from.toUpperCase()}/{this.props.trade.to.toUpperCase()}
-                    </span>
                   </span>
-                  <span className="label">&nbsp;by paying</span>
                   <span className="label">&nbsp;by paying</span>
                   <span className="value">
                   {

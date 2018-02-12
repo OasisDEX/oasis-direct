@@ -133,6 +133,19 @@
 
 .frame > .info-box.more-info {
   order: 4;
+  margin-top: auto;
+  margin-bottom: auto;
+  height: 85px;
+}
+
+.frame > .info-box.more-info.single-tx {
+  margin-bottom: 12px;
+}
+
+.frame > .info-box.more-info .label {
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  line-height: 16px;
 }
 
 .label {
@@ -143,12 +156,11 @@
 
   margin-right: 4px;
 
-  color: rgba(73, 73, 74, 0.90);
-  opacity: 0.6;
+  color: rgba(73, 73, 74, 0.6);
 }
 
 .label a {
-  color: #448AFF;
+  color: rgba(33, 150, 243, 0.9);
   text-decoration: none;
 }
 
@@ -169,6 +181,7 @@
   border: 1px solid rgba(156,156,157,0.08);
   border-radius: 6px;
 
+  margin-top: 6px;
   margin-bottom: 12px;
 }
 
@@ -191,6 +204,7 @@
   border-bottom: 1px solid rgba(156,156,157,0.08);
 
   width: 100%;
+  height: 28px;
 
   padding: 7px 16px;
 }
@@ -289,7 +303,7 @@
 .selected-token {
   display: inline-flex;
   flex-direction: column;
-  width: 180px;
+  max-width: 180px;
 }
 
 .selected-token input {
@@ -304,7 +318,7 @@
   width: 100%;
   border-radius: 2px;
   padding: 9px;
-  height: 30px;
+  height: 32px;
   border: 1px solid #DEE4F4;
 }
 
@@ -513,7 +527,6 @@ button[disabled] {
   display: inline-block;
 
   width: 100%;
-  height: 66px;
 
   background: #FFFFFF;
   border: 1px solid rgba(230, 230, 230, 0.60);
@@ -525,13 +538,13 @@ button[disabled] {
 }
 
 .transaction-info-box.half {
-  width: 185px;
+  width: 180px;
   height: auto;
   vertical-align: top;
 }
 
 .transaction-info-box .operation {
-  height: 40px;
+  height: 55px;
   width: 50%;
 
   display: inline-flex;
@@ -552,8 +565,8 @@ button[disabled] {
 }
 
 .transaction-info-box .operation .icon {
-  height: 24px;
-  width: 24px;
+  height: 32px;
+  width: 32px;
   margin: 0 12px 0 24px;
 }
 
@@ -566,7 +579,7 @@ button[disabled] {
 }
 
 .transaction-info-box .status {
-  height: 24px;
+  height: 32px;
 
   display: flex;
   align-items: center;
@@ -575,6 +588,7 @@ button[disabled] {
 
 .transaction-info-box .status .spinner {
   margin-right: 24px;
+  height: 14px;
 }
 
 .transaction-info-box.half .status .spinner {
@@ -587,25 +601,25 @@ button[disabled] {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  align-items: flex-start;
 }
 
 .transaction-info-box .operation .icon svg {
-  height: 24px;
-  width: 24px;
+  height: 100%;
+  width: 100%;
 }
 
 .transaction-info-box .label {
   font-family: Montserrat, sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.83px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1px;
 
   color: rgba(73, 73, 74, 0.90);
-  opacity: 1;
 }
 
 .transaction-info-box .label.info {
-  color: rgba(33, 150, 243, 0.9);
+  color: #448AFF;
 }
 
 .transaction-info-box .label.error {
@@ -614,21 +628,21 @@ button[disabled] {
 
 .transaction-info-box .value {
   font-family: Montserrat, sans-serif;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
 
-  letter-spacing: 0.67px;
+  letter-spacing: 0.83px;
   color: #9C9C9D;
 }
 
 .transaction-info-box .status .label {
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .content {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .transaction-info-box > a {
@@ -680,7 +694,7 @@ button[disabled] {
 }
 
 .info {
-  color: rgba(33, 150, 243, 0.9);
+  color: #448AFF;
 }
 
 a.no-pointer {
@@ -704,9 +718,9 @@ a.no-pointer {
 
 .terms-and-conditions .label {
   letter-spacing: 0;
+  font-size: 11px;
   width: 330px;
   color: rgba(73, 73, 74, 0.90);
-  opacity: 1;
 }
 
 .checkbox {
@@ -736,18 +750,36 @@ a.no-pointer {
 }
 
 .congratulations {
-  padding: 8px 0;
-}
+  border: 1px solid rgba(156,156,157,0.08);
+  border-radius: 6px;
+  height: 85px;
 
-.congratulations .label, .congratulations .value {
-  display: inline-block;
+  margin-top: auto;
+  margin-bottom: 12px;
+
+  padding: 13px;
 }
 
 .congratulations .heading {
   opacity: 0.9;
   font-size: 14px;
+  text-align: left;
   color: #5B5B5C;
   letter-spacing: 1.02px;
-  margin: 0;
+  margin: 0 0 10px;
+}
+
+.congratulations .icon {
+  margin-right: 12px;
+  height: 18px;
+}
+
+.congratulations .content {
+  align-items: center;
+  text-align: left;
+}
+
+.congratulations .label, .congratulations .value {
+  font-size: 11px;
 }
 

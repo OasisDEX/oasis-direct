@@ -51,7 +51,7 @@ class SetTrade extends Component {
     } else {
       this.setState({[this.state.selectedToken]: token});
     }
-    this.setState({shouldDisplayTokenSelector: false})
+    this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false})
   }
 
   swapTokens = () => {
