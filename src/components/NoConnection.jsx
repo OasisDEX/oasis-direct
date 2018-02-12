@@ -22,7 +22,7 @@ const NoConnection = () => {
                   <span className="desktop"> Browser Extension</span>
                 </div>
                 <div>
-                  <a href="https://metamask.io" target="_blank">INSTALL</a>
+                  <a href="https://metamask.io" target="_blank" rel="noopener noreferrer">INSTALL</a>
                 </div>
               </li>
               <li>
@@ -34,7 +34,7 @@ const NoConnection = () => {
                   <span className="desktop"> Ethereum Client</span>
                 </div>
                 <div>
-                  <a href="https://github.com/ethereum/mist" target="_blank">INSTALL</a>
+                  <a href="https://github.com/ethereum/mist" target="_blank" rel="noopener noreferrer">INSTALL</a>
                 </div>
               </li>
               <li>
@@ -46,7 +46,7 @@ const NoConnection = () => {
                   <span className="desktop">Ethereum client + Browser Extension</span>
                 </div>
                 <div>
-                  <a href="https://parity.io/" target="_blank">INSTALL</a>
+                  <a href="https://parity.io/" target="_blank" rel="noopener noreferrer">INSTALL</a>
                 </div>
               </li>
             </ul>
