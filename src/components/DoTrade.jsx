@@ -228,12 +228,13 @@ class DoTrade extends Component {
             :
               <div className="congratulations">
                 <h3 className="heading">
-                  Congratulations!
+                  <span className="icon">
+                    <Finalized/>
+                  </span>
+                  <span>Congratulations!</span>
                 </h3>
                 <div className="content">
-                <span className="icon">
-                  <Finalized/>
-                </span>
+
                 <span>
                   <span className="label">You successfully bought</span>
                   <span className="value">

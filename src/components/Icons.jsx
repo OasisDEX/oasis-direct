@@ -109,14 +109,13 @@ export class Done extends PureComponent {
 export class Finalized extends PureComponent {
   render() {
     return (
-      <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"
            style={{backgroundColor: "#fff"}}>
-        <g id="Page-1-Copy" fill="none" fillRule="evenodd">
-          <g id="oasis-direct-finalize-copy-4">
-            <g id="ic_new_releases_black_24px">
-              <polygon id="Shape" fill="#66BB6A" fillRule="nonzero" points="22 11 19.56 8.22 19.9 4.54 16.29 3.72 14.4 0.54 11 2 7.6 0.54 5.71 3.72 2.1 4.53 2.44 8.21 0 11 2.44 13.78 2.1 17.47 5.71 18.29 7.6 21.47 11 20 14.4 21.46 16.29 18.28 19.9 17.46 19.56 13.78"
-              />
-              <polygon id="Path" fill="#FFF" points="9.3 15.1 6 11.8 7.4 10.4 9.3 12.3 14.6 7 16 8.4"
+        <g id="desktop" fill="none" fillRule="evenodd">
+          <g id="icon-green-tick">
+            <g id="Group">
+              <circle id="Oval" fill="#66BB6A" cx="9" cy="9" r="9" />
+              <polygon id="Path" fill="#FFF" points="7.47 12.6 4.5 9.66666667 5.76 8.42222222 7.47 10.1111111 12.24 5.4 13.5 6.64444444"
               />
             </g>
           </g>
