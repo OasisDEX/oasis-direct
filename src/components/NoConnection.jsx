@@ -13,9 +13,7 @@ const NoConnection = () => {
           <div className="list">
             <ul>
               <li>
-                <div style={{height : "36px"}}>
-                  <img type="svg" width="36" height="36" src="/assets/od_metamask.svg" alt="Metamask" />
-                </div>
+                <div className='icon metamask'/>
                 <div>
                   <h4 className="heading"> Metamask </h4>
                   <span className="desktop"> Browser Extension</span>
@@ -25,9 +23,7 @@ const NoConnection = () => {
                 </div>
               </li>
               <li>
-                <div style={{height : "36px"}}>
-                  <img type="svg" width="36" height="36" src="/assets/od_mist.svg" alt="Mist"/>
-                </div>
+                <div className='icon mist'/>
                 <div>
                   <h4 className="heading"> Mist </h4>
                   <span className="desktop"> Ethereum Client</span>
@@ -37,9 +33,7 @@ const NoConnection = () => {
                 </div>
               </li>
               <li>
-                <div style={{height : "36px"}}>
-                  <img type="svg" width="36" height="36" src="/assets/od_parity.svg" alt="Parity"/>
-                </div>
+                <div className='icon parity'/>
                 <div>
                   <h4 className="heading"> Parity </h4>
                   <span className="desktop">Ethereum client + Browser Extension</span>

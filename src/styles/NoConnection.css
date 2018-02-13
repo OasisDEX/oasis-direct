@@ -84,3 +84,9 @@
   color: #969697;
   letter-spacing: 0.7px;
 }
+
+.connectionless .icon {
+  height: 36px;
+  width: 36px;
+}
+

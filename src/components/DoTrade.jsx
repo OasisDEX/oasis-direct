@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
-import { Ether, MKR, DAI } from './Tokens';
+import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done } from './Icons';
 import Spinner from './Spinner';
 import { printNumber, etherscanUrl, wdiv } from '../helpers';
 
@@ -92,7 +92,7 @@ class DoTrade extends Component {
               <div className={`transaction-info-box half ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
               <span className={`done-placeholder ${this.hasTxCompleted('approval') ? 'show' : ''}`}>
                 <span className="done">
-                  <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+                  <Done/>
                 </span>
               </span>
                 <div className="operation">
@@ -131,7 +131,7 @@ class DoTrade extends Component {
           {
             this.hasTwoTransactions() &&
             <div className="arrow-separator">
-              <img alt="arrow" src="/assets/od-icons/od_arrow.svg"/>
+             <Arrow/>
             </div>
           }
             <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
@@ -149,7 +149,7 @@ class DoTrade extends Component {
 
             <span className={`done-placeholder ${this.hasTxCompleted('trade') ? 'show' : ''}`}>
               <span className="done">
-                <img width="10px" height="10px" alt="done" src="/assets/od-icons/od_done.svg" type="svg"/>
+                <Done/>
               </span>
             </span>
               <div>
@@ -209,8 +209,8 @@ class DoTrade extends Component {
             ?
               <div className={`info-box more-info info-box--no-borders ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--left">
-                <span className="icon" style={{'height': '18px'}}>
-                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_attention.svg"/>
+                <span className="icon">
+                  <Attention/>
                 </span>
                   <span className="label">
                   Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
@@ -218,7 +218,7 @@ class DoTrade extends Component {
                 </div>
                 <div className="info-box-row info-box-row--left">
                 <span className="icon" style={{'height': '18px'}}>
-                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_question.svg"/>
+                  <QuestionMark/>
                 </span>
                   <span className="label">
                   Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
@@ -232,7 +232,7 @@ class DoTrade extends Component {
                 </h3>
                 <div className="content">
                 <span className="icon">
-                  <img width="18px" height="18px" alt="alert icon" src="/assets/od-icons/od_finalized.svg"/>
+                  <Finalized/>
                 </span>
                 <span>
                   <span className="label">You successfully bought</span>

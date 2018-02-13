@@ -1,6 +1,7 @@
 import React from 'react';
 import web3 from  '../web3';
 import '../styles/NoConnection.css'
+import { BigMetamask } from "./Icons";
 
 
 const NoConnection = () => {
@@ -15,7 +16,7 @@ const NoConnection = () => {
           {
             metamask &&
             <div className="heading">
-              <img type="svg" width="154" height="140" src="/assets/od_metamask_big.svg" alt="Metamask" />
+             <div className="icon metamask--big"/>
               <h3>Unlock your Account on the Extension.</h3>
             </div>
           }

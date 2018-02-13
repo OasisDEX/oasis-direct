@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 import dstoken from '../abi/dstoken';
-import { Ether, MKR, DAI } from './Tokens';
+import { Ether, MKR, DAI, SwapArrows, Alert } from './Icons';
 import Spinner from './Spinner';
 import { printNumber } from '../helpers';
 import settings from '../settings';
@@ -127,7 +127,7 @@ class SetTrade extends Component {
           <div className="info-box-row ">
             <span className="holder">
               <span className="icon">
-                <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                <Alert/>
               </span>
               <span className="label">
                 Order details are estimations and may vary
@@ -143,7 +143,7 @@ class SetTrade extends Component {
               (
                 <span className="holder">
                   <span className="icon">
-                    <img width="14px" height="14px" alt="alert icon" src="/assets/od-icons/od_alert.svg"/>
+                    <Alert/>
                   </span>
                   <span className="label">
                     {this.props.trade.errorOrders}
@@ -247,8 +247,9 @@ class SetTrade extends Component {
               </div>
             </div>
             <div className='separator'>
-              <img alt="arrows" src='/assets/od-icons/od_swap_arrow.svg' className="swap-tokens"
-                   onClick={this.swapTokens}/>
+              <span className="swap-tokens" onClick={this.swapTokens}>
+                <SwapArrows/>
+              </span>
             </div>
             <div className="selected-token">
               <div className="token" onClick={() => {

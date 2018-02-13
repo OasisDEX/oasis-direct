@@ -9,7 +9,7 @@
   flex-grow: 1;
 }
 
-.no-account .content img {
+.no-account .content .icon {
   display: block;
   margin: 64px auto 42px;
 }
@@ -19,4 +19,9 @@
 .no-account .content h3 {
   text-align: center;
   color: #5B5B5C;
+}
+
+.no-account .icon {
+  width: 154px;
+  height: 140px;
 }
