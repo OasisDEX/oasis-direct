@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import web3 from '../web3';
 import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done } from './Icons';
 import Spinner from './Spinner';
-import { printNumber, etherscanUrl, wdiv } from '../helpers';
+import TokenAmount from './TokenAmount'
+import { etherscanUrl, wdiv } from '../helpers';
 
 
 
@@ -70,8 +71,8 @@ class DoTrade extends Component {
               Current Estimated Price
             </span>
             <span className="value">
-              <span>{printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
-              <span>{tokens[this.props.trade.from].symbol}/{tokens[this.props.trade.to].symbol}</span>
+              <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+                           token= {`${tokens[this.props.trade.from].symbol}/${tokens[this.props.trade.to].symbol}`}/>
             </span>
             </span>
           </div>
@@ -158,7 +159,7 @@ class DoTrade extends Component {
                   <div className="details">
                     <span className="label">Selling</span>
                     <span
-                      className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}{printNumber(web3.toWei((this.props.trade.amountPay.valueOf())))} {tokens[this.props.trade.from].symbol}</span>
+                      className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}<TokenAmount number={web3.toWei((this.props.trade.amountPay.valueOf()))} token={tokens[this.props.trade.from].symbol}/></span>
                   </div>
                 </div>
                 <div className="operation">
@@ -166,7 +167,9 @@ class DoTrade extends Component {
                   <div className="details">
                     <span className="label">Buying</span>
                     <span
-                      className="value">{this.props.trade.operation === 'buyAll' ? '' : '~ '}{printNumber(web3.toWei((this.props.trade.amountBuy.valueOf())))} {tokens[this.props.trade.to].symbol}</span>
+                      className="value">{this.props.trade.operation === 'buyAll' ? '' : '~ '}
+                      <TokenAmount number={web3.toWei((this.props.trade.amountBuy.valueOf()))} token={tokens[this.props.trade.to].symbol}/>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -238,26 +241,32 @@ class DoTrade extends Component {
                 <span>
                   <span className="label">You successfully bought</span>
                   <span className="value">
-                   {printNumber(this.props.transactions.trade.amountBuy, 3)} {this.props.trade.to.toUpperCase()}
+                    <TokenAmount number={this.props.transactions.trade.amountSell}
+                                 decimal={3}
+                                 token={this.props.trade.to.toUpperCase()}/>
                   </span>
                   <span className="label">&nbsp;with</span>
                   <span className="value">
-                    {printNumber(this.props.transactions.trade.amountSell, 3)} {this.props.trade.from.toUpperCase()}
+                    <TokenAmount number={this.props.transactions.trade.amountBuy}
+                                 decimal={3}
+                                 token={this.props.trade.from.toUpperCase()}/>
                   </span>
                   <span className="label">&nbsp;at</span>
                   <span className="value">
-                      {printNumber(wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy), 3)}&nbsp;
-                      {this.props.trade.from.toUpperCase()}/{this.props.trade.to.toUpperCase()}
+                    <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
+                                 decimal={3}
+                                 token= {`${this.props.trade.from.toUpperCase()}/${this.props.trade.to.toUpperCase()}`}/>
                   </span>
                   <span className="label">&nbsp;by paying</span>
                   <span className="value">
                   {
                     (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
                       ? <span><Spinner/></span>
-                      : printNumber((typeof this.props.transactions.approval !== 'undefined'
-                        ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                        : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)))
-                  } ETH&nbsp;
+                      : <TokenAmount number={(typeof this.props.transactions.approval !== 'undefined'
+                      ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
+                      : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))}
+                                     token={'ETH'}/>
+                  }&nbsp;
                   </span>
                   <span className="label">
                     gas cost

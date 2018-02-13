@@ -1,7 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
 import '../styles/NoConnection.css'
-import { BigMetamask } from "./Icons";
 
 
 const NoConnection = () => {

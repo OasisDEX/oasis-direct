@@ -3,8 +3,8 @@ import web3 from '../web3';
 import dstoken from '../abi/dstoken';
 import { Ether, MKR, DAI, SwapArrows, Alert } from './Icons';
 import Spinner from './Spinner';
-import { printNumber } from '../helpers';
 import settings from '../settings';
+import TokenAmount from "./TokenAmount";
 
 //TODO: make this bound to the token selector.
 const tokens = {
@@ -162,8 +162,8 @@ class SetTrade extends Component {
               <span className="holder">
                 <span className="label">Price </span>
                 <span className='value'>
-                  <span>~ {printNumber(web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy)))} </span>
-                  <span> {tokens[this.props.trade.to].symbol}/{tokens[this.props.trade.from].symbol}</span>
+                  <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+                               token={`${tokens[this.props.trade.to].symbol}/${tokens[this.props.trade.from].symbol}`}/>
                 </span>
               </span>
             }
@@ -172,7 +172,7 @@ class SetTrade extends Component {
               <span className="holder">
                 <span className="label">Gas Cost </span>
                 <span className='value'>
-                  ~ {printNumber(web3.toWei(this.props.trade.txCost))} ETH
+                  <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
                 </span>
               </span>
             }
@@ -196,7 +196,9 @@ class SetTrade extends Component {
                             this.loadETHBalance()
                           }
                           {
-                            this.state.balances.eth ? <span>{ printNumber(this.state.balances.eth,3) } ETH</span> : <Spinner/>
+                            this.state.balances.eth
+                              ? <TokenAmount number={this.state.balances.eth} decimal={3} token={"ETH"}/>
+                              : <Spinner/>
                           }
                         </span>
                       </div>
@@ -213,7 +215,9 @@ class SetTrade extends Component {
                                   this.loadTokenBalance(token)
                                 }
                                 {
-                                  this.state.balances[token] ? <span>{ printNumber(this.state.balances[token],3) } {token.toUpperCase()}</span> : <Spinner/>
+                                  this.state.balances[token]
+                                    ? <TokenAmount number={this.state.balances.eth} decimal={3} token={token.toUpperCase()}/>
+                                    : <Spinner/>
                                 }
                                 </span>
                             </div>

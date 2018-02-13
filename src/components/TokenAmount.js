@@ -1,0 +1,10 @@
+import React from 'react'
+import { formatNumber } from "../helpers";
+
+const TokenAmount = (props) => {
+
+  return <span title={ formatNumber(props.number, 18) }>{ formatNumber(props.number, props.decimal || 5) } {props.token || ''}</span>
+
+};
+
+export default TokenAmount;
