@@ -1,5 +1,4 @@
 {
-  "nodeURL" : "https://dai-service.makerdao.com/node",
   "chain": {
     "private": {
       "otc": "",

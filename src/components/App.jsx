@@ -306,7 +306,6 @@ class App extends Component {
           }).catch(e2 => {
             reject(e2);
           });
-          ;
         });
       } else {
         Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
