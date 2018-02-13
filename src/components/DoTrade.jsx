@@ -251,7 +251,8 @@ class DoTrade extends Component {
                                  decimal={3}
                                  token={this.props.trade.from.toUpperCase()}/>
                   </span>
-                  <span className="label">&nbsp;at</span>
+                  <br/>
+                  <span className="label">at</span>
                   <span className="value">
                     <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
                                  decimal={3}
