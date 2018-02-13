@@ -139,10 +139,6 @@
   height: 90px;
 }
 
-.frame > .info-box.more-info.single-tx {
-  margin-bottom: 12px;
-}
-
 .frame > .info-box.more-info .label {
   font-size: 11px;
   letter-spacing: 0.8px;
@@ -762,7 +758,7 @@ a.no-pointer {
   height: 90px;
 
   margin-top: auto;
-  margin-bottom: 12px;
+  margin-bottom: auto;
 
   padding: 12px 16px;
 }
