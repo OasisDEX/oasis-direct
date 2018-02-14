@@ -1205,11 +1205,13 @@ class App extends Component {
         {
           this.state.trade.step === 1
             ?
-            <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
-                      calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
-                      trade={this.state.trade} network={this.state.network}/>
+            <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount }
+                      calculatePayAmount={ this.calculatePayAmount } doTrade={ this.doTrade }
+                      trade={ this.state.trade } network={ this.state.network }
+                      ethBalanceOf={ this.ethBalanceOf }
+                      tokenBalanceOf={ this.tokenBalanceOf } />
             :
-            <DoTrade trade={this.state.trade} transactions={this.state.transactions} network={this.state.network.network} reset={this.reset}/>
+            <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset}/>
         }
       </div>
     )
