@@ -210,8 +210,8 @@ class DoTrade extends Component {
         {
           !this.hasTxCompleted('trade')
             ?
-              <div className={`info-box more-info info-box--no-borders ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
-                <div className="info-box-row info-box-row--left">
+              <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
+                <div className="info-box-row info-box-row--no-borders info-box-row--left">
                 <span className="icon">
                   <Attention/>
                 </span>

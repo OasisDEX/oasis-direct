@@ -240,7 +240,7 @@
   border-bottom: none;
 }
 
-.info-box--no-borders, .info-box--no-borders .info-box-row {
+.info-box--no-borders, .info-box .info-box-row--no-borders {
   border: none;
 }
 
