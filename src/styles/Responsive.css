@@ -126,7 +126,6 @@
 
   .frame > .info-box .info-box-row {
     height: 24px;
-    padding: 4px 8px;
   }
 
   .frame > .info-box .info-box-row .icon {
@@ -197,11 +196,11 @@
   }
 
   .terms-and-conditions {
-    padding: 8px;
+    padding: 8px 12px;
   }
 
   .terms-and-conditions .label {
-    width: 224px;
+    width: 100%;
     font-size: 10px;
     text-align: left;
   }
@@ -235,6 +234,22 @@
   .frame > .info-box .info-box-row {
     height: auto;
     line-height: normal;
+  }
+
+  .info-box.disclaimer {
+    margin-top: 6px;
+  }
+
+  .info-box.disclaimer .info-box-row {
+    padding: 0;
+  }
+
+  .info-box.disclaimer .info-box-row .label {
+    font-size: 9px;
+  }
+
+  .info-box.disclaimer .info-box-row .icon {
+    margin-right: 12px;
   }
 }
 
@@ -309,5 +324,9 @@
 
   .transaction-info-box.half {
     max-width: 120px;
+  }
+
+  .info-box.disclaimer .info-box-row .label {
+    font-size: 8px;
   }
 }

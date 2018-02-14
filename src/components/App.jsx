@@ -933,7 +933,11 @@ class App extends Component {
                 '';
               const errorOrders = this.state.trade.amountBuy.eq(0)
                 ?
-                `No ${to.toUpperCase()} orders available to sell ${amount} ${from.toUpperCase()}`
+                {
+                  type:"sell",
+                  amount,
+                  token: from.toUpperCase()
+                }
                 :
                 null;
               if (errorInputSell || errorOrders) {
@@ -1045,7 +1049,11 @@ class App extends Component {
                 null;
               const errorOrders = this.state.trade.amountPay.eq(0)
                 ?
-                `No orders available to buy ${amount} ${to.toUpperCase()}`
+                {
+                  type:"buy",
+                  amount,
+                  token: to.toUpperCase()
+                }
                 :
                 null;
               if (errorInputSell || errorOrders) {
