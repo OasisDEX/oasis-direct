@@ -123,31 +123,25 @@ class SetTrade extends Component {
         <div className="heading">
           <h2>Enter Order Details</h2>
         </div>
-        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'}`}>
-          <div className="info-box-row ">
+        <div className={'info-box info-box--no-borders disclaimer'}>
+          <div className="info-box-row">
             <span className="holder">
               <span className="icon">
                 <Alert/>
               </span>
               <span className="label">
-                Order details are estimations and may vary
-              </span>
-              <span className="value">
-                5%
+                Order details are estimations and may vary 5%
               </span>
             </span>
           </div>
+        </div>
+        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders ? 'has-errors' : ''}`}>
           <div className="info-box-row">
             {
               this.props.trade.errorOrders &&
               (
-                <span className="holder">
-                  <span className="icon">
-                    <Alert/>
-                  </span>
-                  <span className="label">
-                    {this.props.trade.errorOrders}
-                  </span>
+                <span className="label">
+                  No orders available to {this.props.trade.errorOrders.type}  <strong>{ this.props.trade.errorOrders.amount} { this.props.trade.errorOrders.token }</strong>
                 </span>
               )
             }
@@ -241,10 +235,7 @@ class SetTrade extends Component {
                 <span className="token-name">{tokens[this.state.from].symbol}</span>
               </div>
               <div>
-                <div className={`trade-errors${this.props.trade.errorInputSell ? ' show' : ''}`}>
-                  {this.props.trade.errorInputSell}
-                </div>
-                <input className={`${this.props.trade.errorInputSell ? 'has-errors' : ''}`} type="number"
+                <input type="number"
                        ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
@@ -263,10 +254,7 @@ class SetTrade extends Component {
                 <span className="token-name">{tokens[this.state.to].symbol}</span>
               </div>
               <div>
-                <div className={`trade-errors${this.props.trade.errorInputBuy ? ' show' : ''}`}>
-                  {this.props.trade.errorInputBuy}
-                </div>
-                <input className={`${this.props.trade.errorInputBuy ? 'has-errors' : ''}`} type="number"
+                <input type="number"
                        ref={(input) => this.amountBuy = input}
                        value={this.props.trade.amountBuyInput || ''}
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
