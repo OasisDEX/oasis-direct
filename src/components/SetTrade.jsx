@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
-import { Ether, MKR, DAI, SwapArrows, Alert } from './Icons';
+import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from "./TokenAmount";
 
@@ -125,7 +125,7 @@ class SetTrade extends Component {
           <div className="info-box-row">
             <span className="holder">
               <span className="icon">
-                <Alert/>
+                <Attention/>
               </span>
               <span className="label">
                 Order details are estimations and may vary 5%
