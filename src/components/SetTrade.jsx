@@ -34,8 +34,11 @@ class SetTrade extends Component {
       hasAcceptedTerms: false,
       balances: [],
     }
-    setInterval(this.loadETHBalance, 5000);
-    setInterval(() => {
+  }
+
+  componentDidMount = () => {
+    this.ethBalanceInterval = setInterval(this.loadETHBalance, 5000);
+    this.ethTokenInterval = setInterval(() => {
       this.loadTokenBalance('mkr');
       this.loadTokenBalance('dai');
     }, 5000);
@@ -44,6 +47,11 @@ class SetTrade extends Component {
       this.loadTokenBalance('mkr');
       this.loadTokenBalance('dai');
     }, 1000);
+  }
+
+  componentWillUnmount = () => {
+    clearInterval(this.ethBalanceInterval);
+    clearInterval(this.ethTokenInterval);
   }
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
