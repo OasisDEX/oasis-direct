@@ -197,17 +197,17 @@
 
 .info-box.disclaimer .info-box-row .label {
   font-size: 11px;
-  color: #6B6B6C;
+  color: #898989;
 }
 
 .info-box.disclaimer .info-box-row .icon {
- height: 18px;
+  height: 18px;
 }
 
 .info-box .icon {
   display: inline-block;
   height: 14px;
-  margin-right: 16px;
+  margin-right: 12px;
   vertical-align: middle;
 }
 
@@ -616,8 +616,8 @@ button[disabled] {
 }
 
 .transaction-info-box .status .spinner {
-  margin-right: 24px;
-  height: 14px;
+  margin-right: 12px;
+  height: 18px;
 }
 
 .transaction-info-box.half .status .spinner {
@@ -658,8 +658,8 @@ button[disabled] {
 .transaction-info-box .value {
   font-family: Montserrat, sans-serif;
   font-size: 10px;
-  font-weight: 500;
-
+  font-weight: 400;
+  padding-top: 4px;
   letter-spacing: 0.83px;
   color: #9C9C9D;
 }
@@ -681,19 +681,14 @@ button[disabled] {
 
 .done-placeholder {
   position: absolute;
-
   visibility: hidden;
-
   display: inline-flex;
   justify-content: center;
   align-items: center;
-
   top: -10px;
   right: -10px;
-
   width: 20px;
   height: 20px;
-
   background: white;
 }
 
@@ -840,5 +835,3 @@ a.no-pointer {
   background-size: contain;
   background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MyA0MyI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOm5vbmU7c3Ryb2tlOiNkZWU0ZjQ7fS5jbHMtMntmaWxsOiMyYjQ3N2M7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5vZF9taXN0XzI8L3RpdGxlPjxjaXJjbGUgY2xhc3M9ImNscy0xIiBjeD0iMjEuNSIgY3k9IjIxLjUiIHI9IjIxIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMjIsMzRsNy0xMC03LDQuMTlMMTUsMjRabTAtOCw3LTQuMkwyMiwxMCwxNSwyMS44WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSIvPjwvc3ZnPg==) no-repeat center;
 }
-
-
