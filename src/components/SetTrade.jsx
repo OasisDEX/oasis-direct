@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
-import dstoken from '../abi/dstoken';
 import { Ether, MKR, DAI, SwapArrows, Alert } from './Icons';
 import Spinner from './Spinner';
-import settings from '../settings';
 import TokenAmount from "./TokenAmount";
 
 //TODO: make this bound to the token selector.
@@ -36,6 +34,16 @@ class SetTrade extends Component {
       hasAcceptedTerms: false,
       balances: [],
     }
+    setInterval(this.loadETHBalance, 5000);
+    setInterval(() => {
+      this.loadTokenBalance('mkr');
+      this.loadTokenBalance('dai');
+    }, 5000);
+    setTimeout(this.loadETHBalance, 1000);
+    setTimeout(() => {
+      this.loadTokenBalance('mkr');
+      this.loadTokenBalance('dai');
+    }, 1000);
   }
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
@@ -80,35 +88,25 @@ class SetTrade extends Component {
   }
 
   loadETHBalance = () => {
-    const balance = this.state.balances.eth;
-
-    if(!balance) {
-      web3.eth.getBalance(this.props.network.defaultAccount, (_ , balance) => {
-        this.setState((prevState) => {
-          const balances = {...prevState.balances};
-          balances.eth = balance.valueOf();
-          prevState.balances = balances;
-          return {prevState};
-        });
+    Promise.resolve(this.props.ethBalanceOf(this.props.network.defaultAccount)).then(r => {
+      this.setState((prevState) => {
+        const balances = {...prevState.balances};
+        balances.eth = r.valueOf();
+        prevState.balances = balances;
+        return {prevState};
       });
-    }
+    });
   }
 
-  loadTokenBalance = (token) => {
-    const balance = this.state.balances[token];
-
-    if(!balance){
-      const contract = web3.eth.contract(dstoken.abi).at(settings.chain[this.props.network.network].tokens[token].address);
-
-      contract.balanceOf(this.props.network.defaultAccount, (_ , balance) => {
-        this.setState((prevState) => {
-          const balances = {...prevState.balances};
-          balances[token] = balance.valueOf();
-          prevState.balances = balances;
-          return {prevState};
-        });
+  loadTokenBalance = token => {
+    Promise.resolve(this.props.tokenBalanceOf(token, this.props.network.defaultAccount)).then(r => {
+      this.setState((prevState) => {
+        const balances = {...prevState.balances};
+        balances[token] = r.valueOf();
+        prevState.balances = balances;
+        return {prevState};
       });
-    }
+    });
   };
 
   acceptTermsAndConditions = () => {
@@ -187,9 +185,6 @@ class SetTrade extends Component {
                         <span className="token-name">{tokens.eth.name}</span>
                         <span className="token-balance">
                           {
-                            this.loadETHBalance()
-                          }
-                          {
                             this.state.balances.eth
                               ? <TokenAmount number={this.state.balances.eth} decimal={3} token={"ETH"}/>
                               : <Spinner/>
@@ -206,11 +201,8 @@ class SetTrade extends Component {
                               <span className="token-name">{tokens[token].name}</span>
                               <span className="token-balance">
                                 {
-                                  this.loadTokenBalance(token)
-                                }
-                                {
                                   this.state.balances[token]
-                                    ? <TokenAmount number={this.state.balances.eth} decimal={3} token={token.toUpperCase()}/>
+                                    ? <TokenAmount number={this.state.balances[token]} decimal={3} token={token.toUpperCase()}/>
                                     : <Spinner/>
                                 }
                                 </span>
