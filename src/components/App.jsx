@@ -32,6 +32,7 @@ class App extends Component {
 
   getInitialState = () => {
     return {
+      balances: {},
       trade: {
         step: 1,
         operation: '',
@@ -326,8 +327,32 @@ class App extends Component {
     });
   }
 
+  saveBalance = token => {
+    if (token === 'weth') {
+      Promise.resolve(this.ethBalanceOf(this.state.network.defaultAccount)).then(r => {
+        this.setState((prevState) => {
+          const balances = {...prevState.balances};
+          balances.eth = r;
+          return {balances};
+        });
+      });
+    } else {
+      Promise.resolve(this.tokenBalanceOf(token, this.state.network.defaultAccount)).then(r => {
+        this.setState((prevState) => {
+          const balances = {...prevState.balances};
+          balances[token] = r;
+          return {balances};
+        });
+      });
+    }
+  }
+
   setUpToken = token => {
     window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, settings.chain[this.state.network.network].tokens[token].address);
+    setInterval(() => {
+      this.saveBalance(token);
+    }, 5000);
+    this.saveBalance(token);
     this.setFilterToken(token);
   }
 
@@ -1216,8 +1241,7 @@ class App extends Component {
             <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount }
                       calculatePayAmount={ this.calculatePayAmount } doTrade={ this.doTrade }
                       trade={ this.state.trade } network={ this.state.network }
-                      ethBalanceOf={ this.ethBalanceOf }
-                      tokenBalanceOf={ this.tokenBalanceOf } />
+                      balances={ this.state.balances } />
             :
             <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset}/>
         }

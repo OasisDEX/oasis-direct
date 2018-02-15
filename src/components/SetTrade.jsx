@@ -32,26 +32,7 @@ class SetTrade extends Component {
       selectedToken: null,
       shouldDisplayTokenSelector: false,
       hasAcceptedTerms: false,
-      balances: [],
     }
-  }
-
-  componentDidMount = () => {
-    this.ethBalanceInterval = setInterval(this.loadETHBalance, 5000);
-    this.ethTokenInterval = setInterval(() => {
-      this.loadTokenBalance('mkr');
-      this.loadTokenBalance('dai');
-    }, 5000);
-    setTimeout(this.loadETHBalance, 1000);
-    setTimeout(() => {
-      this.loadTokenBalance('mkr');
-      this.loadTokenBalance('dai');
-    }, 1000);
-  }
-
-  componentWillUnmount = () => {
-    clearInterval(this.ethBalanceInterval);
-    clearInterval(this.ethTokenInterval);
   }
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
@@ -95,33 +76,10 @@ class SetTrade extends Component {
     return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders;
   }
 
-  loadETHBalance = () => {
-    Promise.resolve(this.props.ethBalanceOf(this.props.network.defaultAccount)).then(r => {
-      this.setState((prevState) => {
-        const balances = {...prevState.balances};
-        balances.eth = r.valueOf();
-        prevState.balances = balances;
-        return {prevState};
-      });
-    });
-  }
-
-  loadTokenBalance = token => {
-    Promise.resolve(this.props.tokenBalanceOf(token, this.props.network.defaultAccount)).then(r => {
-      this.setState((prevState) => {
-        const balances = {...prevState.balances};
-        balances[token] = r.valueOf();
-        prevState.balances = balances;
-        return {prevState};
-      });
-    });
-  };
-
   acceptTermsAndConditions = () => {
     const hasAcceptedTerms = this.state.hasAcceptedTerms;
     this.setState({hasAcceptedTerms: !hasAcceptedTerms});
   }
-
 
   render() {
     return (
@@ -193,8 +151,8 @@ class SetTrade extends Component {
                         <span className="token-name">{tokens.eth.name}</span>
                         <span className="token-balance">
                           {
-                            this.state.balances.eth
-                              ? <TokenAmount number={this.state.balances.eth} decimal={3} token={"ETH"}/>
+                            this.props.balances.eth
+                              ? <TokenAmount number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"}/>
                               : <Spinner/>
                           }
                         </span>
@@ -209,8 +167,8 @@ class SetTrade extends Component {
                               <span className="token-name">{tokens[token].name}</span>
                               <span className="token-balance">
                                 {
-                                  this.state.balances[token]
-                                    ? <TokenAmount number={this.state.balances[token]} decimal={3} token={token.toUpperCase()}/>
+                                  this.props.balances[token]
+                                    ? <TokenAmount number={this.props.balances[token].valueOf()} decimal={3} token={token.toUpperCase()}/>
                                     : <Spinner/>
                                 }
                                 </span>
