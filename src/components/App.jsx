@@ -178,11 +178,7 @@ class App extends Component {
   init = () => {
     initWeb3(web3);
     this.checkNetwork();
-
-    if(web3.currentProvider.constructor.name === 'MetamaskInpageProvider') {
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 500);
-    }
-
+    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
@@ -1254,11 +1250,11 @@ class App extends Component {
       <main>
         <section>
           <header>
-            <div className="Logo">
+            <div className={`Logo Logo--no-margin`}>
               <a href="/"> <img width="216px" height="42px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
             </div>
             {
-              this.state.network.defaultAccount && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+              false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
                 <div className="DropdownToggle" onClick={this.toggle}>
                 <span data-selected className="DropdownSelected">
                   {
@@ -1305,9 +1301,6 @@ class App extends Component {
                 <NoConnection/>
             }
           </div>
-        </section>
-        <section>
-          <footer/>
         </section>
       </main>
     );
