@@ -1,4 +1,7 @@
 @media all and (max-width: 1249px) {
+  main {
+    height: auto;
+  }
 
   .Content {
     flex-direction: column;
@@ -19,10 +22,6 @@
 @media all and (max-width: 767px) {
   .Widget {
     margin-top: 24px;
-  }
-
-  main {
-    height: auto;
   }
 
   header {

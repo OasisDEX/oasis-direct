@@ -617,7 +617,7 @@ button[disabled] {
 
 .transaction-info-box .status .spinner {
   margin-right: 12px;
-  height: 18px;
+  height: 14px;
 }
 
 .transaction-info-box.half .status .spinner {

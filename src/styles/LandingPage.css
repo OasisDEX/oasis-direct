@@ -30,22 +30,12 @@ header {
   box-sizing: border-box;
 }
 
-footer {
-  flex-grow: 1;
-
-  height: 216px;
-  width: 100%;
-}
-
-@media all and (max-width: 1400px) {
-  footer {
-    height: auto;
-    max-height: 104px;
-  }
-}
-
 .Logo {
   cursor: pointer;
+}
+
+.Logo.Logo--no-margin {
+  margin: 0;
 }
 
 .Logo a {
