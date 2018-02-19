@@ -5,6 +5,7 @@ import NoAccount from './NoAccount';
 import { toBytes32, addressToBytes32, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
+import { Logo } from "./Icons";
 
 const settings = require('../settings');
 
@@ -1251,7 +1252,7 @@ class App extends Component {
         <section>
           <header>
             <div className={`Logo Logo--no-margin`}>
-              <a href="/"> <img width="216px" height="42px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
+              <a href="/"> <Logo/> </a>
             </div>
             {
               false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
