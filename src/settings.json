@@ -55,25 +55,25 @@
       "fromBlock": 0
     },
     "main": {
-      "otc": "",
+      "otc": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
       "tokens": {
         "weth": {
-          "address": "",
-          "minValue": 0
+          "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "minValue": 0.00000001
         },
         "mkr": {
-          "address": "",
-          "minValue": 0
+          "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
+          "minValue": 0.00000001
         },
         "dai": {
-          "address": "",
-          "minValue": 0
+          "address": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
+          "minValue": 0.00000001
         }
       },
-      "proxyRegistry": "",
-      "proxyFactory": "",
+      "proxyRegistry": "0xaa63c8683647ef91b3fdab4b4989ee9588da297b",
+      "proxyFactory": "0x1043fbd15c10a3234664cbdd944a16a204f945e6",
       "proxyContracts": {
-        "oasisDirect": ""
+        "oasisDirect": "0x279594b6843014376a422ebb26a6eab7a30e36f0"
       },
       "addrEstimation": "",
       "proxyEstimation": "",
