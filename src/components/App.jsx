@@ -5,6 +5,7 @@ import NoAccount from './NoAccount';
 import { toBytes32, addressToBytes32, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
+import { Logo } from "./Icons";
 
 const settings = require('../settings');
 
@@ -139,6 +140,12 @@ class App extends Component {
 
   componentDidMount = () => {
     setTimeout(this.init, 500);
+  }
+
+  componentWillUnmount = () => {
+    clearInterval(this.checkAccountsInterval);
+    clearInterval(this.checkNetworkInterval);
+    clearInterval(this.checkWeb3Provider);
   }
 
   getFromDirectoryService = (conditions = {}, sort = {}) => {
@@ -809,8 +816,7 @@ class App extends Component {
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-      this.loadObject(proxycreateandexecute.abi,
-        settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
+      this.loadObject(proxycreateandexecute.abi,settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
         if (!e) {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
         } else {
@@ -1248,11 +1254,11 @@ class App extends Component {
 
   render = () => {
     return (
-      <main>
+      <section>
         <section>
-          <header>
+          <header className="Container">
             <div className={`Logo Logo--no-margin`}>
-              <a href="/"> <img width="216px" height="42px" alt="oasis direct logo" src="/assets/oasis-logo.svg"/> </a>
+              <a href="/"> <Logo/> </a>
             </div>
             {
               false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
@@ -1281,29 +1287,63 @@ class App extends Component {
           </header>
         </section>
         <section className="Content">
-          <div>
-            <div className="MainHeading">
-              <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+          <main className="Container">
+            <div>
+              <div className="MainHeading">
+                <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+              </div>
+              <div className="SecondaryHeading">
+                <h2>No Registration. No Fees.</h2>
+              </div>
             </div>
-            <div className="SecondaryHeading">
-              <h2>No Registration. No Fees.</h2>
-            </div>
-          </div>
-          <div className="Widget">
-            {
-              this.state.network.isConnected
-                ?
-                this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+            <div className="Widget">
+              {
+                this.state.network.isConnected
                   ?
-                  this.renderMain()
+                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                    ?
+                    this.renderMain()
+                    :
+                    <NoAccount/>
                   :
-                  <NoAccount/>
-                :
-                <NoConnection/>
-            }
-          </div>
+                  <NoConnection/>
+              }
+            </div>
+          </main>
         </section>
-      </main>
+        <section>
+          <footer className="Container">
+             <div className="LinksWrapper">
+               <h1> Resources </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Oasis </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Maker </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
+                 <li className="Link"><a href="" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Follow us </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Steem</a></li>
+               </ul>
+             </div>
+          </footer>
+        </section>
+      </section>
     );
   }
 }

@@ -13,6 +13,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh"
   }
 }
