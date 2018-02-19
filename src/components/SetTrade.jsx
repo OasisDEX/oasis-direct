@@ -77,8 +77,7 @@ class SetTrade extends Component {
   }
 
   acceptTermsAndConditions = () => {
-    const hasAcceptedTerms = this.state.hasAcceptedTerms;
-    this.setState({hasAcceptedTerms: !hasAcceptedTerms});
+    this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
   }
 
   render() {
