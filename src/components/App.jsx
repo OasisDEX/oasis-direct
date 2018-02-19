@@ -815,8 +815,7 @@ class App extends Component {
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-      this.loadObject(proxycreateandexecute.abi,
-        settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
+      this.loadObject(proxycreateandexecute.abi,settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
         if (!e) {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
         } else {
@@ -1254,7 +1253,7 @@ class App extends Component {
 
   render = () => {
     return (
-      <body>
+      <section>
         <section>
           <header className="Container">
             <div className={`Logo Logo--no-margin`}>
@@ -1331,7 +1330,7 @@ class App extends Component {
                <h1> Maker </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
-                 <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+                 <li className="Link"><a href="" target="_blank" rel="noopener noreferrer">Reddit</a></li>
                </ul>
              </div>
              <div className="LinksWrapper">
@@ -1343,7 +1342,7 @@ class App extends Component {
              </div>
           </footer>
         </section>
-      </body>
+      </section>
     );
   }
 }

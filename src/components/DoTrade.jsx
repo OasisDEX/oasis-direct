@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
-import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done } from './Icons';
+import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done, Failed } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount'
 import { etherscanUrl, wdiv } from '../helpers';
@@ -122,7 +122,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.approval.error
                           ?
-                            <div className="status"><span className="label error">Error occurred</span></div>
+                            <div className="status"><span className="label error">Failed</span></div>
                           :
                             <div className="status"><span className="label info">Confirmed</span></div>
                 }
@@ -196,7 +196,7 @@ class DoTrade extends Component {
                       :
                         this.props.transactions.trade.error
                         ?
-                          <div className="status"><span className="label error">Error occurred</span></div>
+                          <div className="status"><span className="label error">Failed</span></div>
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
@@ -209,8 +209,24 @@ class DoTrade extends Component {
         </div>
         {
           !this.hasTxCompleted('trade')
-            ?
-              <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
+            ? this.props.transactions.trade && this.props.transactions.trade.error
+            ? <div className="transaction-result">
+              <h3 className="heading">
+                <span className="icon">
+                  <Failed/>
+                </span>
+                <span>Failed to execute trade</span>
+              </h3>
+              <div className="content">
+                <span>
+                  <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
+                  <span className="value">
+                    5% impact limit
+                  </span>
+                </span>
+              </div>
+            </div>
+              : <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
                 <div className="info-box-row info-box-row--no-borders info-box-row--left">
                 <span className="icon">
                   <Attention/>
@@ -229,7 +245,7 @@ class DoTrade extends Component {
                 </div>
               </div>
             :
-              <div className="congratulations">
+              <div className="transaction-result">
                 <h3 className="heading">
                   <span className="icon">
                     <Finalized/>

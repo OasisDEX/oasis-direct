@@ -127,7 +127,7 @@
   order: 5;
 }
 
-.frame.finalize .more-info, .frame.finalize .congratulations {
+.frame.finalize .more-info, .frame.finalize .transaction-result {
   order: 4;
 }
 
@@ -652,7 +652,7 @@ button[disabled] {
 }
 
 .transaction-info-box .label.error {
-  color: rgba(203, 100, 94, 0.9);
+  color: #EF5350;
 }
 
 .transaction-info-box .value {
@@ -714,7 +714,7 @@ button[disabled] {
 }
 
 .error {
-  color: rgba(203, 100, 94, 0.9);
+  color:  #EF5350;
 }
 
 .info {
@@ -776,7 +776,7 @@ a.no-pointer {
   align-items: center;
 }
 
-.congratulations {
+.transaction-result {
   border: 1px solid rgba(156,156,157,0.08);
   border-radius: 6px;
   height: 90px;
@@ -787,8 +787,9 @@ a.no-pointer {
   padding: 12px 16px;
 }
 
-.congratulations .heading {
+.transaction-result .heading {
   opacity: 0.9;
+  font-family: 'Raleway', sans-serif;
   font-size: 14px;
   text-align: left;
   color: #5B5B5C;
@@ -796,23 +797,23 @@ a.no-pointer {
   margin: 0 0 12px;
 }
 
-.congratulations .icon {
+.transaction-result .icon {
   display: inline-block;
   margin-right: 12px;
   height: 18px;
   vertical-align: middle;
 }
 
-.congratulations .icon ~ span{
+.transaction-result .icon ~ span{
   vertical-align: middle;
 }
 
-.congratulations .content {
+.transaction-result .content {
   align-items: center;
   text-align: left;
 }
 
-.congratulations .label, .congratulations .value {
+.transaction-result .label, .transaction-result .value {
   font-size: 11px;
 }
 

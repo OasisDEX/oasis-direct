@@ -114,6 +114,20 @@ export class Finalized extends PureComponent {
   }
 }
 
+export class Failed extends PureComponent {
+  render() {
+    return (
+      <svg height="18px" width="18px" version="1.1" viewBox="0 0 18 18">
+        <g id="desktop" fill="none" stroke="none" strokeWidth="1">
+          <g id="Artboard" fill="#EF5350">
+            <path id="Shape" d="M9,0 C4.032,0 0,4.032 0,9 C0,13.968 4.032,18 9,18 C13.968,18 18,13.968 18,9 C18,4.032 13.968,0 9,0 Z M13.5,9.9 L4.5,9.9 L4.5,8.1 L13.5,8.1 L13.5,9.9 Z"/>
+          </g>
+        </g>
+      </svg>
+    )
+  }
+}
+
 export class Ether extends PureComponent {
     render() {
         return (

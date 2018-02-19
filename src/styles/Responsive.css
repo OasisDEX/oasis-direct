@@ -235,8 +235,8 @@
     text-align: left;
   }
 
-  .congratulations .label,
-  .congratulations .value{
+  .transaction-result .label,
+  .transaction-result .value{
     font-size: 10px;
   }
 
@@ -257,7 +257,7 @@
     margin-top:0;
   }
 
-  .frame.finalize .more-info, .frame.finalize .congratulations {
+  .frame.finalize .more-info, .frame.finalize .transaction-result {
     padding: 8px 8px;
   }
 
@@ -295,8 +295,8 @@
   .transaction-info-box .status .label,
   .transaction-info-box .label,
   .transaction-info-box .value,
-  .congratulations .label,
-  .congratulations .value{
+  .transaction-result .label,
+  .transaction-result .value {
     font-size: 8px;
   }
 
@@ -314,7 +314,7 @@
     line-height: normal;
   }
 
-  .congratulations .heading {
+  .transaction-result .heading {
     font-size: 10px;
   }
 
@@ -352,7 +352,7 @@
     font-size: 18px;
   }
 
-  .congratulations {
+  .transaction-result {
     height: auto;
   }
 
