@@ -72,6 +72,7 @@
       },
       "proxyRegistry": "0xaa63c8683647ef91b3fdab4b4989ee9588da297b",
       "proxyFactory": "0x1043fbd15c10a3234664cbdd944a16a204f945e6",
+      "proxyCreationAndExecute": "0xb0a00896f34655edff6c8d915fb342194c4a6d48",
       "proxyContracts": {
         "oasisDirect": "0x279594b6843014376a422ebb26a6eab7a30e36f0"
       },
