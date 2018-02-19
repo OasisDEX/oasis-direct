@@ -45,9 +45,9 @@
       },
       "proxyRegistry": "0x383a7fc29edde64aec7f776e2517ec8819e147f1",
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
-      "proxyCreationAndExecute": "0xcc99714a88ed3205c0a1572c4d5be23935366719",
+      "proxyCreationAndExecute": "0x8e006e88aecb510e5fc0dfb04e3cc01fe97035e5",
       "proxyContracts": {
-        "oasisDirect": "0xc01756dc8cf37ea681b4ad06ce7a6424ab91ce19"
+        "oasisDirect": "0xe635f5f52220a114fea0985abf7ec8144710507b"
       },
       "addrEstimation": "0xdb33dfd3d61308c33c63209845dad3e6bfb2c674",
       "proxyEstimation": "0x1b68f4c1681e723f5c6db120cc6a7da58db37c37",

@@ -393,7 +393,7 @@ class App extends Component {
       });
     }
     return new Promise((resolve, reject) => {
-      const url = `https://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.state.network.network !== 'main' ? `-${this.state.network.network}` : ''}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
       console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -411,7 +411,8 @@ class App extends Component {
 
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
-      const url = `https://${this.state.network.network.replace('main', 'api')}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.state.network.network !== 'main' ? `-${this.state.network.network}` : ''}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
+      console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onreadystatechange = () => {

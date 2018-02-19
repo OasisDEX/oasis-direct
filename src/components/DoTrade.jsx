@@ -175,7 +175,7 @@ class DoTrade extends Component {
                 ?
                   this.props.trade.txs === 1
                   ?
-                    <div className="status"><Spinner/><span className="label">initiating transaction</span></div>
+                    <div className="status"><Spinner/><span className="label">Initiating transaction</span></div>
                   :
                     <div className="status"><Spinner/><span className="label">Waiting for approval</span></div>
                 :
