@@ -813,6 +813,10 @@ a.no-pointer {
   text-align: left;
 }
 
+.transaction-result .value {
+  white-space: nowrap;
+}
+
 .transaction-result .label, .transaction-result .value {
   font-size: 11px;
 }

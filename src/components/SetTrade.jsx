@@ -118,19 +118,15 @@ class SetTrade extends Component {
               !this.props.trade.errorOrders &&
               <span className="holder">
                 <span className="label">Price </span>
-                <span className='value'>
-                  <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+                <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
                                token={`${tokens[this.props.trade.to].symbol}/${tokens[this.props.trade.from].symbol}`}/>
-                </span>
               </span>
             }
             {
               !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
               <span className="holder">
                 <span className="label">Gas Cost </span>
-                <span className='value'>
-                  <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
-                </span>
+                <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
               </span>
             }
           </div>
