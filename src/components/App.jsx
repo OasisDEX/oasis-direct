@@ -142,6 +142,12 @@ class App extends Component {
     setTimeout(this.init, 500);
   }
 
+  componentWillUnmount = () => {
+    clearInterval(this.checkAccountsInterval);
+    clearInterval(this.checkNetworkInterval);
+    clearInterval(this.checkWeb3Provider);
+  }
+
   getFromDirectoryService = (conditions = {}, sort = {}) => {
     const p = new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -1248,9 +1254,9 @@ class App extends Component {
 
   render = () => {
     return (
-      <main>
+      <body>
         <section>
-          <header>
+          <header className="Container">
             <div className={`Logo Logo--no-margin`}>
               <a href="/"> <Logo/> </a>
             </div>
@@ -1281,29 +1287,63 @@ class App extends Component {
           </header>
         </section>
         <section className="Content">
-          <div>
-            <div className="MainHeading">
-              <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+          <main className="Container">
+            <div>
+              <div className="MainHeading">
+                <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+              </div>
+              <div className="SecondaryHeading">
+                <h2>No Registration. No Fees.</h2>
+              </div>
             </div>
-            <div className="SecondaryHeading">
-              <h2>No Registration. No Fees.</h2>
-            </div>
-          </div>
-          <div className="Widget">
-            {
-              this.state.network.isConnected
-                ?
-                this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+            <div className="Widget">
+              {
+                this.state.network.isConnected
                   ?
-                  this.renderMain()
+                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                    ?
+                    this.renderMain()
+                    :
+                    <NoAccount/>
                   :
-                  <NoAccount/>
-                :
-                <NoConnection/>
-            }
-          </div>
+                  <NoConnection/>
+              }
+            </div>
+          </main>
         </section>
-      </main>
+        <section>
+          <footer className="Container">
+             <div className="LinksWrapper">
+               <h1> Resources </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Oasis </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Maker </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
+                 <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+               </ul>
+             </div>
+             <div className="LinksWrapper">
+               <h1> Follow us </h1>
+               <ul className="Links">
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Steem</a></li>
+               </ul>
+             </div>
+          </footer>
+        </section>
+      </body>
     );
   }
 }
