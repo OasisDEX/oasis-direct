@@ -254,8 +254,8 @@ class DoTrade extends Component {
                     You successfully bought&nbsp;
                     <TokenAmount number={this.props.transactions.trade.amountSell} decimal={3}
                                  token={this.props.trade.to.toUpperCase()}/> with <TokenAmount number={this.props.transactions.trade.amountBuy}
-                                 decimal={3}  token={this.props.trade.from.toUpperCase()}/> at <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
-                                 decimal={3}  token= {`${this.props.trade.from.toUpperCase()}/${this.props.trade.to.toUpperCase()}`}/> by paying <span className="value">
+                                 decimal={5}  token={this.props.trade.from.toUpperCase()}/> at <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
+                                 decimal={5}  token= {`${this.props.trade.from.toUpperCase()}/${this.props.trade.to.toUpperCase()}`}/> by paying <span className="value">
                     {
                       (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
                         ? <span><Spinner/></span>

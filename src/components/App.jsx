@@ -593,7 +593,7 @@ class App extends Component {
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = { tx, pending: true, error: false, checkFromBlock, callbacks }
+    transactions[type] = { tx, pending: true, error: false, nonce, checkFromBlock, callbacks }
     if (type === 'trade') {
       transactions[type].amountSell = web3.toBigNumber(-1);
       transactions[type].amountBuy = web3.toBigNumber(-1);
