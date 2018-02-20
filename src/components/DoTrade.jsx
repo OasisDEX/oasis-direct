@@ -252,8 +252,8 @@ class DoTrade extends Component {
                 <div className="content">
                   <span className="label">
                     You successfully bought&nbsp;
-                    <TokenAmount number={this.props.transactions.trade.amountSell} decimal={3}
-                                 token={this.props.trade.to.toUpperCase()}/> with <TokenAmount number={this.props.transactions.trade.amountBuy}
+                    <TokenAmount number={this.props.transactions.trade.amountBuy} decimal={5}
+                                 token={this.props.trade.to.toUpperCase()}/> with <TokenAmount number={this.props.transactions.trade.amountSell}
                                  decimal={5}  token={this.props.trade.from.toUpperCase()}/> at <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
                                  decimal={5}  token= {`${this.props.trade.from.toUpperCase()}/${this.props.trade.to.toUpperCase()}`}/> by paying <span className="value">
                     {
