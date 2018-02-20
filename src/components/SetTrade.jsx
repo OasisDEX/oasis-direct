@@ -73,11 +73,16 @@ class SetTrade extends Component {
 
   hasDetails = () => {
     // return true;
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders;
+    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders || this.props.trade.errorInputSell;
   }
 
   acceptTermsAndConditions = () => {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
+  }
+
+  debug = (value) => {
+    console.log(value);
+    return value;
   }
 
   render() {
@@ -98,7 +103,7 @@ class SetTrade extends Component {
             </span>
           </div>
         </div>
-        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders ? 'has-errors' : ''}`}>
+        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell ? 'has-errors' : ''}`}>
           <div className="info-box-row">
             {
               this.props.trade.errorOrders &&
@@ -109,13 +114,21 @@ class SetTrade extends Component {
               )
             }
             {
-              !this.props.trade.errorOrders &&
+              !this.props.trade.errorOrders && this.props.trade.errorInputSell &&
+              (
+                <span className="label">
+                  You don't have enough <strong>{ tokens[this.props.trade.from].name } </strong> in your Wallet
+                </span>
+              )
+            }
+            {
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="holder desktop">
                 <span className='value'>OasisDex</span>
               </span>
             }
             {
-              !this.props.trade.errorOrders &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="holder">
                 <span className="label">Price </span>
                 <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
@@ -123,7 +136,7 @@ class SetTrade extends Component {
               </span>
             }
             {
-              !this.props.trade.errorOrders && this.props.trade.txCost.gt(0) &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.txCost.gt(0) &&
               <span className="holder">
                 <span className="label">Gas Cost </span>
                 <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
@@ -189,6 +202,7 @@ class SetTrade extends Component {
               </div>
               <div>
                 <input type="number"
+                       className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
                        ref={(input) => this.amountPay = input}
                        value={this.props.trade.amountPayInput || ''}
                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
@@ -208,6 +222,7 @@ class SetTrade extends Component {
               </div>
               <div>
                 <input type="number"
+                       className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
                        ref={(input) => this.amountBuy = input}
                        value={this.props.trade.amountBuyInput || ''}
                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
