@@ -1316,7 +1316,7 @@ class App extends Component {
              <div className="LinksWrapper">
                <h1> Resources </h1>
                <ul className="Links">
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                 <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
                  <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a></li>
                </ul>
              </div>
@@ -1331,13 +1331,13 @@ class App extends Component {
                <h1> Maker </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
-                 <li className="Link"><a href="" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+                 <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
                </ul>
              </div>
              <div className="LinksWrapper">
                <h1> Follow us </h1>
                <ul className="Links">
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                 <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
                  <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Steem</a></li>
                </ul>
              </div>
