@@ -589,6 +589,8 @@ class App extends Component {
   logPendingTransaction = async (tx, type, callbacks = []) => {
     const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
     const checkFromBlock = (await this.getBlock('latest')).number;
+    console.log('nonce', nonce);
+    console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
     transactions[type] = { tx, pending: true, error: false, nonce, checkFromBlock, callbacks }
@@ -1317,14 +1319,14 @@ class App extends Component {
                <h1> Resources </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Legal</a></li>
+                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Legal</a></li>
                </ul>
              </div>
              <div className="LinksWrapper">
                <h1> Oasis </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
+                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
                </ul>
              </div>
              <div className="LinksWrapper">
@@ -1338,7 +1340,7 @@ class App extends Component {
                <h1> Follow us </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Steem</a></li>
+                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Steem</a></li>
                </ul>
              </div>
           </footer>
