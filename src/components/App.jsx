@@ -442,32 +442,29 @@ class App extends Component {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            if (transactions[type].nonce) {
-              // We have to wait the nonce is reached (asynchronously)
-              web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
-                if (!e) {
-                  r.forEach(v => {
-                    web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
-                      if (!e2 &&
-                          r2.from === this.state.network.defaultAccount &&
-                          r2.nonce === transactions[type].nonce) {
-                        this.saveReplacedTransaction(type, v.transactionHash);
-                      }
-                    });
-                  });
-                }
-              });
-              // Using Etherscan API (backup)
-              Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
-                if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
-                  r.result.forEach(v => {
-                    if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
-                      this.saveReplacedTransaction(type, v.hash);
+            web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
+              if (!e) {
+                r.forEach(v => {
+                  web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
+                    if (!e2 &&
+                        r2.from === this.state.network.defaultAccount &&
+                        r2.nonce === transactions[type].nonce) {
+                      this.saveReplacedTransaction(type, v.transactionHash);
                     }
                   });
-                }
-              });
-            }
+                });
+              }
+            });
+            // Using Etherscan API (backup)
+            Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
+              if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
+                r.result.forEach(v => {
+                  if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
+                    this.saveReplacedTransaction(type, v.hash);
+                  }
+                });
+              }
+            });
           }
         });
       } else {
@@ -565,23 +562,15 @@ class App extends Component {
     });
   }
 
-  getTransactionNonce = tx => {
+  getTransactionCount = address => {
     return new Promise((resolve, reject) => {
-      const func = () => {
-        web3.eth.getTransaction(tx, (e,r) => {
-          if (!e) {
-            if (r) {
-              clearInterval(interval);
-              resolve(r.nonce);
-            }
-          } else {
-            reject(e);
-          }
-        });
-      }
-      const interval = setInterval(
-        func, 500
-      );
+      web3.eth.getTransactionCount(address, 'pending', (e, r) => {
+        if (!e) {
+          resolve(r - 1);
+        } else {
+          reject(e);
+        }
+      });
     });
   }
 
@@ -598,7 +587,9 @@ class App extends Component {
   }
 
   logPendingTransaction = async (tx, type, callbacks = []) => {
+    const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
     const checkFromBlock = (await this.getBlock('latest')).number;
+    console.log('nonce', nonce);
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
@@ -607,17 +598,7 @@ class App extends Component {
       transactions[type].amountSell = web3.toBigNumber(-1);
       transactions[type].amountBuy = web3.toBigNumber(-1);
     }
-    this.setState({transactions}, () => {
-      // We need to do it asynchronously for preventing cases where it might get stuck as is not even necessary
-      Promise.resolve(this.getTransactionNonce(tx)).then(nonce => {
-        this.setState((prevState, props) => {
-          const transactions = {...prevState.transactions};
-          transactions[type].nonce = nonce;
-          console.log('nonce', nonce);
-          return {transactions};
-        });
-      });
-    });
+    this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
   }
 
