@@ -73,7 +73,7 @@ class SetTrade extends Component {
 
   hasDetails = () => {
     // return true;
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders || this.props.trade.errorInputSell;
+    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy;
   }
 
   acceptTermsAndConditions = () => {
@@ -103,32 +103,36 @@ class SetTrade extends Component {
             </span>
           </div>
         </div>
-        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell ? 'has-errors' : ''}`}>
+        <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
           <div className="info-box-row">
             {
               this.props.trade.errorOrders &&
-              (
-                <span className="label">
-                  No orders available to {this.props.trade.errorOrders.type}  <strong>{ this.props.trade.errorOrders.amount} { this.props.trade.errorOrders.token }</strong>
-                </span>
-              )
+              <span className="label">
+                No orders available to {this.props.trade.errorOrders.type}  <strong>{ this.props.trade.errorOrders.amount} { this.props.trade.errorOrders.token }</strong>
+              </span>
             }
             {
               !this.props.trade.errorOrders && this.props.trade.errorInputSell &&
               (
-                <span className="label">
-                  You don't have enough <strong>{ tokens[this.props.trade.from].name } </strong> in your Wallet
-                </span>
+                this.props.trade.errorInputSell === 'funds'
+                ?
+                  <span className="label"> You don't have enough <strong>{ tokens[this.props.trade.from].name } </strong> in your Wallet</span>
+                :
+                  <span className="label">Minimum Value: { this.props.trade.errorInputSell.replace('minValue:', '') }</span>
               )
             }
             {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
+              <span className="label">Minimum Value: { this.props.trade.errorInputBuy.replace('minValue:', '') }</span>
+            }
+            {
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder desktop">
                 <span className='value'>OasisDex</span>
               </span>
             }
             {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder">
                 <span className="label">Price </span>
                 <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
@@ -136,7 +140,7 @@ class SetTrade extends Component {
               </span>
             }
             {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.txCost.gt(0) &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && this.props.trade.txCost.gt(0) &&
               <span className="holder">
                 <span className="label">Gas Cost </span>
                 <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
