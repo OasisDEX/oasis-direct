@@ -1317,7 +1317,7 @@ class App extends Component {
                <h1> Resources </h1>
                <ul className="Links">
                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
-                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a></li>
+                 <li className="Link"><a href="#" target="_blank" rel="noopener noreferrer">Legal</a></li>
                </ul>
              </div>
              <div className="LinksWrapper">
