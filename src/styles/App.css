@@ -283,6 +283,11 @@
 
   letter-spacing: 1.2px;
   color: #6B6B6C;
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .token-icon {
@@ -362,6 +367,11 @@ input[type=number]::-webkit-outer-spin-button {
 ::-webkit-input-placeholder {
   font-size: 11px;
   text-transform: uppercase;
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
   color: rgba(73, 73, 74, 0.90);
 }
