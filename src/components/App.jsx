@@ -831,7 +831,8 @@ class App extends Component {
 
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
-    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(0.95) : this.state.trade.amountPay.times(1.05)).round(0);
+    const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
+    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
     if (this.state.proxy) {
       this.checkAllowance(this.state.trade.from,
         this.state.proxy,
@@ -1245,7 +1246,7 @@ class App extends Component {
             ?
             <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount }
                       calculatePayAmount={ this.calculatePayAmount } doTrade={ this.doTrade }
-                      trade={ this.state.trade } network={ this.state.network }
+                      trade={ this.state.trade } network={ this.state.network.network }
                       balances={ this.state.balances } />
             :
             <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset}/>

@@ -3,6 +3,11 @@
   "chain": {
     "private": {
       "otc": "",
+      "threshold": {
+        "daieth": 2,
+        "daimkr": 5,
+        "ethmkr": 5
+      },
       "tokens": {
         "weth": {
           "address": "",
@@ -29,6 +34,11 @@
     },
     "kovan": {
       "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
+      "threshold": {
+        "daieth": 2,
+        "daimkr": 5,
+        "ethmkr": 5
+      },
       "tokens": {
         "weth": {
           "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
@@ -56,6 +66,11 @@
     },
     "main": {
       "otc": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
+      "threshold": {
+        "daieth": 2,
+        "daimkr": 5,
+        "ethmkr": 5
+      },
       "tokens": {
         "weth": {
           "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",

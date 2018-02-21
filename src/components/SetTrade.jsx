@@ -4,6 +4,8 @@ import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from "./TokenAmount";
 
+const settings = require('../settings');
+
 //TODO: make this bound to the token selector.
 const tokens = {
   eth: {
@@ -98,7 +100,7 @@ class SetTrade extends Component {
                 <Attention/>
               </span>
               <span className="label">
-                Order details are estimations and may vary 5%
+                Order details are estimations and may vary { settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')] }%
               </span>
             </span>
           </div>

@@ -5,7 +5,7 @@ import Spinner from './Spinner';
 import TokenAmount from './TokenAmount'
 import { etherscanUrl, wdiv } from '../helpers';
 
-
+const settings = require('../settings');
 
 const tokens = {
   'eth': {
@@ -218,7 +218,7 @@ class DoTrade extends Component {
                 <span>
                   <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
                   <span className="value">
-                    5% impact limit
+                    { settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort((a, b) => a > b).join('')] }% impact limit
                   </span>
                 </span>
               </div>
