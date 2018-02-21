@@ -240,11 +240,13 @@ class SetTrade extends Component {
             this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
             <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
                  onClick={this.acceptTermsAndConditions}>
-              <div className="info-box-row info-box-row--left">
-                <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
-                <span className="label">
-                I agree to the Terms and certify that I am the beneficial owner of the deposit asset.
-              </span>
+              <div className="info-box-row">
+                <span>
+                  <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
+                  <span className="label">
+                    I agree to the <a href="https://makerdao.com" onClick={(e) => e.stopPropagation()}>Terms of Service</a>
+                  </span>
+                </span>
               </div>
             </div>
           }
