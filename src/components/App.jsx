@@ -1323,7 +1323,7 @@ class App extends Component {
                         />
                         <Route
                           path="/tax-exporter"
-                          render={ () => <TaxExporter account={ this.state.network.defaultAccount } network={ this.state.network.network } /> }
+                          render={ () => <TaxExporter account={ this.state.network.defaultAccount } network={ this.state.network.network } proxyRegistryObj={ this.proxyRegistryObj } getProxy={ this.getProxy } /> }
                           />
                       </div>
                     :
