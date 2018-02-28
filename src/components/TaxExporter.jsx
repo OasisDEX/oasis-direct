@@ -150,7 +150,7 @@ class TaxExporter extends Component {
           oasisPromises.push(this.fetchOasisMakeTrades(contract, accounts[key]));
           oasisPromises.push(this.fetchOasisTakeTrades(contract, accounts[key]));
         });
-        // oasisPromises.push(this.fetchLegacyTrades(accounts[key]));
+        oasisPromises.push(this.fetchLegacyTrades(accounts[key]));
       });
 
       Promise.all(oasisPromises).then(() => {
@@ -161,21 +161,37 @@ class TaxExporter extends Component {
     });
   }
 
+  fetchLegacyFile = (fileIndex, address) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', "https://oasis-tax-cors.surge.sh/maker-otc-" + fileIndex + ".trades.json", true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const promises = [];
+          const data = JSON.parse(xhr.responseText);
+          for (let i = 0; i < data.length; i++) {
+            const taker = `0x${data[i].taker}`;
+            const maker = `0x${data[i].maker}`;
+            if (taker === address || maker === address) {
+              promises.push(this.addOasisLegacyTradeFor(address, maker === address ? 'maker' : 'taker', data[i]));
+            }
+          }
+          Promise.all(promises).then(() => resolve(true));
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
+        }
+      }
+      xhr.send();
+    })
+  }
+
   fetchLegacyTrades = address => {
     return new Promise((resolve, reject) => {
-      // for (let j = 2; j < 15; j++) {
-      //   HTTP.get(Meteor.absoluteUrl("/maker-otc-" + j + ".trades.json"), (err, result) => {
-      //     let data = result.data;
-      //     for (let i = 0; i < data.length; i++) {
-      //       const taker = EthUtils.addHexPrefix(data[i].taker);
-      //       const maker = EthUtils.addHexPrefix(data[i].maker);
-      //       if (taker === address.name || maker === address.name) {
-      //           this.addOasisLegacyTradeFor(address, data[i])
-      //       }
-      //     }
-      //   });
-      // }
-      resolve();
+      const promises = [];
+      for (let i = 2; i < 15; i++) {
+        promises.push(this.fetchLegacyFile(i, address));
+      }
+      Promise.all(promises).then(() => resolve(true));
     });
   }
 
@@ -183,14 +199,13 @@ class TaxExporter extends Component {
     return new Promise((resolve, reject) => {
       const sellAmount = web3.fromWei(side === 'maker' ? log.take_amt : log.give_amt).toString(10);
       const buyAmount = web3.fromWei(side === 'maker' ? log.give_amt : log.take_amt).toString(10);
-      let sellTokenAddress = side === 'maker' ? log.pay_gem : log.buy_gem;
-      let buyTokenAddress = side === 'maker' ? log.buy_gem : log.pay_gem;
-      let sellToken = config.tokens[this.props.network][sellTokenAddress];
-      let buyToken = config.tokens[this.props.network][buyTokenAddress];
+      const sellTokenAddress = side === 'maker' ? log.pay_gem : log.buy_gem;
+      const buyTokenAddress = side === 'maker' ? log.buy_gem : log.pay_gem;
+      const sellToken = config.tokens[this.props.network][sellTokenAddress];
+      const buyToken = config.tokens[this.props.network][buyTokenAddress];
+      const timestamp = new Date(log.timestamp * 1000).toLocaleString().replace(',', '');
 
-      let timestamp = new Date(log.timestamp * 1000).toLocaleString();
-
-      let trade = {
+      const trade = {
         'Type': 'Trade',
         'Buy': buyAmount,
         'Buy_Cur': buyToken,
@@ -206,49 +221,41 @@ class TaxExporter extends Component {
 
       //add trade to CSV
       Promise.resolve(this.addTradeToCSV(trade)).then(() => resolve(true));
-      // account.trades.push(trade);
     });
   }
 
-  // addOasisLegacyTradeFor = (address, log) => {
-  //   let giveAmount = web3.fromWei(web3.toBigNumber(log.giveAmount, 16).toString(10));
-  //   let takeAmount = web3.fromWei(web3.toBigNumber(log.takeAmount, 16).toString(10));
-  //   // let haveTokenAddress = EthUtils.addHexPrefix(log.haveToken);
-  //   // let wantTokenAddress = EthUtils.addHexPrefix(log.wantToken);
-  //   let haveTokenAddress = `0x${log.haveToken}`;
-  //   let wantTokenAddress = `0x${log.wantToken}`;
-  //   let wantToken = config.tokens[this.props.network][haveTokenAddress];
-  //   let haveToken = config.tokens[this.props.network][wantTokenAddress];
-  //   let timestamp = new Date(log.timestamp * 1000).toLocaleString();
+  addOasisLegacyTradeFor = (address, side, log) => {
+    return new Promise((resolve, reject) => {
+      const sellAmount = web3.fromWei(`0x${side === 'maker' ? log.takeAmount : log.giveAmount}`).toString(10);
+      const buyAmount = web3.fromWei(`0x${side === 'maker' ? log.giveAmount : log.takeAmount}`).toString(10);
+      const sellTokenAddress = `0x${side === 'maker' ? log.haveToken : log.wantToken}`;
+      const buyTokenAddress = `0x${side === 'maker' ? log.wantToken : log.haveToken}`;
+      const sellToken = config.tokens[this.props.network][sellTokenAddress];
+      const buyToken = config.tokens[this.props.network][buyTokenAddress];
+      const timestamp = new Date(log.timestamp * 1000).toLocaleString().replace(',', '');
 
-  //   let trade = {
-  //     'Type': 'Trade',
-  //     'Buy': takeAmount,
-  //     'Buy_Cur': wantToken,
-  //     'Sell': giveAmount,
-  //     'Sell_Cur': haveToken,
-  //     'Fee': '',
-  //     'Fee_Cur': '',
-  //     'Exchange': 'Oasisdex.com',
-  //     'Group': '',
-  //     'Comment': address,
-  //     'Date': timestamp,
-  //   };
+      const trade = {
+        'Type': 'Trade',
+        'Buy': buyAmount,
+        'Buy_Cur': buyToken,
+        'Sell': sellAmount,
+        'Sell_Cur': sellToken,
+        'Fee': '',
+        'Fee_Cur': '',
+        'Exchange': 'Oasisdex.com',
+        'Group': '',
+        'Comment': address,
+        'Date': timestamp,
+      };
 
-  //   //add trade to CSV
-  //   this.addTradeToCSV(trade);
-
-  //   account.trades.push(trade);
-  // }
+      //add trade to CSV
+      Promise.resolve(this.addTradeToCSV(trade)).then(() => resolve(true));
+    });
+  }
 
   addTradeToCSV = trade => {
     return new Promise((resolve, reject) => {
-      const tradeData = typeof trade !== 'object' ? JSON.parse(trade) : trade;
-      let row = '';
-      for (let i in tradeData) {
-        row += '"' + tradeData[i] + '",';
-      }
-      row += row.slice(0, row.length - 1) + '\r\n';
+      const row = `"${Object.keys(trade).map(key => trade[key]).join('";"')}"\r\n`;
 
       //add a line break after each row
       this.setState(prevState => {
@@ -262,7 +269,7 @@ class TaxExporter extends Component {
   downloadCSV = () => {
     const fileName = 'TaxReport';
     const csvData = {...this.state.csvData};
-    var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(`Type,Buy,Cur.,Sell,Cur.,Fee,Cur.,Exchange,Comment,Date\r\n${Object.keys(csvData).map(key => csvData[key]).join('')}`);
+    var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(`"Type";"Buy";"Cur.";"Sell";"Cur.";"Fee";"Cur.";"Exchange";"Comment";"Date"\r\n${Object.keys(csvData).map(key => csvData[key]).join('')}`);
     const link = document.createElement("a");
     link.href = uri;
 
