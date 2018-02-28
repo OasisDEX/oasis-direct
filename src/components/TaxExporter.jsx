@@ -139,15 +139,15 @@ class TaxExporter extends Component {
   fetchData = e => {
     e.preventDefault();
     // this.setLoading(true);
-    let accounts = {...this.state.accounts};
+    let accounts = [...this.state.accounts];
     let oasisPromises = [];
     this.setState({csvData: []}, () => {
-      Object.keys(accounts).forEach(key => {
+      accounts.forEach(account => {
         config.oasis.contract[this.props.network].forEach(contract => {
-          oasisPromises.push(this.fetchOasisMakeTrades(contract, accounts[key]));
-          oasisPromises.push(this.fetchOasisTakeTrades(contract, accounts[key]));
+          oasisPromises.push(this.fetchOasisMakeTrades(contract, account));
+          oasisPromises.push(this.fetchOasisTakeTrades(contract, account));
         });
-        oasisPromises.push(this.fetchLegacyTrades(accounts[key]));
+        oasisPromises.push(this.fetchLegacyTrades(account));
       });
 
       Promise.all(oasisPromises).then(() => {
