@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 import config from "../exporter-config.json";
-import ReactDOM from 'react-dom';
 
 import matchingmarket from '../abi/matchingmarket.json';
 
