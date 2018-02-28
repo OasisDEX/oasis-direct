@@ -1268,7 +1268,7 @@ class App extends Component {
               </div>
               <div className={'NavigationLinks'}>
                 <NavLink exact activeStyle={{ color: 'white' }} to={'/'}>Exchange</NavLink>
-                <NavLink exact activeStyle={{ color: 'white' }} to={'/tax-exporter'}>Exporter</NavLink>
+                <NavLink exact activeStyle={{ color: 'white' }} to={'/tax-exporter'}>Export Trades</NavLink>
               </div>
               {
                 false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">

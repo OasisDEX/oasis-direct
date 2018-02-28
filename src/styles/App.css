@@ -173,6 +173,121 @@
   letter-spacing: 1px;
 }
 
+.panel {
+  border: 1px solid rgba(156,156,157,0.08);
+  border-radius: 4px;
+}
+
+.exporter .panel {
+  height: 122px;
+
+  overflow-x: auto;
+
+  margin-top: 13px;
+  margin-bottom: 16px;
+}
+
+.exporter .content {
+  flex-direction: column;
+}
+
+.exporter .content input {
+  max-width: 340px;
+  height: 38px;
+  margin-right: 12px;
+  margin-top: 0;
+  padding: 10px 16px;
+
+  font-size: 14px;
+  text-align: left;
+}
+
+.exporter .content input::placeholder {
+  font-size: 14px;
+  color: #D1D6E3;
+  letter-spacing: 1.71px;
+  text-transform: none;
+}
+
+.exporter .content button {
+  max-width: 70px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.list-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+
+  color: rgba(91, 91, 92, 0.9);
+  letter-spacing: 2px;
+
+  padding: 10px 16px;
+
+
+  border-bottom: 1px solid rgba(156,156,157,0.08);
+}
+
+.exporter .panel .list .list-item .address {
+  display: inline-block;
+  width: 328px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.exporter .panel .list .list-item .close {
+  width: 22px;
+  height: 22px;
+}
+
+.exporter .content .exchanges .heading {
+  text-align: left;
+  margin: 0 0 10px 8px;
+}
+
+.exporter .content .exchanges .heading h3 {
+  letter-spacing: 1.17px;
+}
+
+.exporter .content .exchanges .list {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exporter .content .exchanges .list-item {
+  border: 1px solid;
+  border-radius: 6px;
+  max-width: 132px;
+  height: 46px;
+}
+.exporter .content .exchanges .list-item.disabled svg path,.exporter .content .exchanges .list-item.disabled svg polygon {
+  fill: #DEE4F4;
+}
+
+.exporter .content .exchanges .list-item.oasis {border-color: #9FA8DA}
+.exporter .content .exchanges .list-item.etherDelta {border-color: #7FB2E5}
+.exporter .content .exchanges .list-item.zeroEx {border-color: #7F7F7F}
+
+.exporter .content .exchanges .list-item.disabled {
+  border-color: #DEE4F4;
+  pointer-events: none;
+}
+
+
 .info-box {
   display: flex;
   flex-direction: column;
@@ -330,7 +445,7 @@
   width: 180px;
 }
 
-.selected-token input {
+input {
   font-family: Montserrat, sans-serif;
   font-size: 12px;
   font-weight: 400;
@@ -528,16 +643,16 @@ button[disabled] {
   margin: 4px;
 }
 
-.token-selector .tokens::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: 8px;
 }
 
-.token-selector .tokens::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: #F8FAFD;
   border-radius: 8px;
 }
 
-.token-selector .tokens::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: rgba(222,228,244,0.80);
   border-radius: 8px;
 }
