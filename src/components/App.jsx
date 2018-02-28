@@ -7,7 +7,7 @@ import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 import TaxExporter from './TaxExporter';
 import { Logo } from "./Icons";
-import {BrowserRouter as Router, Link, Route} from 'react-router-dom';
+import { BrowserRouter as Router, NavLink, Route } from 'react-router-dom';
 
 const settings = require('../settings');
 
@@ -1266,13 +1266,9 @@ class App extends Component {
               <div className={`Logo Logo--no-margin`}>
                 <a href="/"> <Logo/> </a>
               </div>
-              <div>
-                <Link to={'/'}>
-                  <button type="button" className="btn btn-primary btn-generate">Exchange</button>
-                </Link>
-                <Link to={'/tax-exporter'}>
-                  <button type="button" className="btn btn-primary btn-generate">Tax Exporter</button>
-                </Link>
+              <div className={'NavigationLinks'}>
+                <NavLink exact activeStyle={{ color: 'white' }} to={'/'}>Exchange</NavLink>
+                <NavLink exact activeStyle={{ color: 'white' }} to={'/tax-exporter'}>Exporter</NavLink>
               </div>
               {
                 false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">

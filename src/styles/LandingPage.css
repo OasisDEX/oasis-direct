@@ -42,6 +42,21 @@ header {
   align-items: center;
 }
 
+.NavigationLinks {
+  font-family: Raleway, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+
+  letter-spacing: 1.67px;
+}
+
+.NavigationLinks a {
+  text-decoration: none;
+
+  color: rgba(255,255,255,0.40);
+  margin-right: 32px;
+}
+
 .Container {
   width: 100%;
   max-width: 1168px;
