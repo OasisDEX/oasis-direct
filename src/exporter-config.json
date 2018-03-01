@@ -99,6 +99,16 @@
           "block_end": 4262880
         },
         {
+          "address": "0x3aa927a97594c3ab7d7bf0d47c71c3877d1de4a1",
+          "block_start": 4262057,
+          "block_end": 4761589
+        },
+        {
+          "address": "0x91dfe531ff8ba876a505c8f1c98bafede6c7effc",
+          "block_start": 4732388,
+          "block_end": 4732986
+        },
+        {
           "address": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
           "block_start": 4751582,
           "block_end": "latest"
