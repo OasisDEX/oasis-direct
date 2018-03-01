@@ -155,7 +155,9 @@ class TaxExporter extends Component {
           oasisPromises.push(this.fetchOasisMakeTrades(contract, account));
           oasisPromises.push(this.fetchOasisTakeTrades(contract, account));
         });
-        oasisPromises.push(this.fetchLegacyTrades(account));
+        if (this.props.network === 'main') {
+          oasisPromises.push(this.fetchLegacyTrades(account));
+        }
       });
 
       Promise.all(oasisPromises).then(() => {
@@ -169,7 +171,7 @@ class TaxExporter extends Component {
   fetchLegacyFile = (fileIndex, address) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', "https://oasis-tax-cors.surge.sh/maker-otc-" + fileIndex + ".trades.json", true);
+      xhr.open('GET', `https://oasisdex.github.io/oasis-dex-script/maker-otc-${fileIndex < 10 ? "0" : ""}${fileIndex}.trades.json`, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const promises = [];
@@ -187,13 +189,13 @@ class TaxExporter extends Component {
         }
       }
       xhr.send();
-    })
+    });
   }
 
   fetchLegacyTrades = address => {
     return new Promise((resolve, reject) => {
       const promises = [];
-      for (let i = 2; i < 15; i++) {
+      for (let i = 2; i <= 19; i++) {
         promises.push(this.fetchLegacyFile(i, address));
       }
       Promise.all(promises).then(() => resolve(true));
