@@ -208,20 +208,19 @@ class TaxExporter extends Component {
       const buyTokenAddress = side === 'maker' ? log.buy_gem : log.pay_gem;
       const sellToken = config.tokens[this.props.network][sellTokenAddress];
       const buyToken = config.tokens[this.props.network][buyTokenAddress];
-      const timestamp = new Date(log.timestamp * 1000).toLocaleString().replace(',', '');
 
       const trade = {
-        'Type': 'Trade',
-        'Buy': buyAmount,
-        'Buy_Cur': buyToken,
-        'Sell': sellAmount,
-        'Sell_Cur': sellToken,
-        'Fee': '',
-        'Fee_Cur': '',
-        'Exchange': 'Oasisdex.com',
-        'Group': '',
-        'Comment': address,
-        'Date': timestamp,
+        type: 'Trade',
+        buyAmount,
+        buyToken,
+        sellAmount,
+        sellToken: sellToken,
+        fee: '',
+        feeToken: '',
+        exchange: 'Oasisdex.com',
+        group: '',
+        address,
+        timestamp: log.timestamp,
       };
 
       //add trade to CSV
@@ -237,20 +236,19 @@ class TaxExporter extends Component {
       const buyTokenAddress = `0x${side === 'maker' ? log.wantToken : log.haveToken}`;
       const sellToken = config.tokens[this.props.network][sellTokenAddress];
       const buyToken = config.tokens[this.props.network][buyTokenAddress];
-      const timestamp = new Date(log.timestamp * 1000).toLocaleString().replace(',', '');
 
       const trade = {
-        'Type': 'Trade',
-        'Buy': buyAmount,
-        'Buy_Cur': buyToken,
-        'Sell': sellAmount,
-        'Sell_Cur': sellToken,
-        'Fee': '',
-        'Fee_Cur': '',
-        'Exchange': 'Oasisdex.com',
-        'Group': '',
-        'Comment': address,
-        'Date': timestamp,
+        type: 'Trade',
+        buyAmount,
+        buyToken,
+        sellAmount,
+        sellToken: sellToken,
+        fee: '',
+        feeToken: '',
+        exchange: 'Oasisdex.com',
+        group: '',
+        address,
+        timestamp: log.timestamp,
       };
 
       //add trade to CSV
@@ -260,12 +258,10 @@ class TaxExporter extends Component {
 
   addTradeToCSV = trade => {
     return new Promise((resolve, reject) => {
-      const row = `"${Object.keys(trade).map(key => trade[key]).join('";"')}"\r\n`;
-
       //add a line break after each row
       this.setState(prevState => {
-        const csvData = {...prevState.csvData};
-        csvData[Object.keys(csvData).length] = row;
+        const csvData = [...prevState.csvData];
+        csvData.push(trade);
         return {csvData};
       }, () => resolve(true));
     });
@@ -273,8 +269,16 @@ class TaxExporter extends Component {
 
   downloadCSV = () => {
     const fileName = 'TaxReport';
-    const csvData = {...this.state.csvData};
-    var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(`"Type";"Buy";"Cur.";"Sell";"Cur.";"Fee";"Cur.";"Exchange";"Comment";"Date"\r\n${Object.keys(csvData).map(key => csvData[key]).join('')}`);
+    let csvData = [...this.state.csvData];
+    csvData = csvData.sort((a, b) => a.timestamp > b.timestamp);
+    csvData.map(trade => {
+      trade.date = new Date(trade.timestamp * 1000).toLocaleString().replace(',', '');
+      delete trade.timestamp;
+      return trade;
+    })
+    var uri = 'data:text/csv;charset=utf-8,'
+              +
+              encodeURIComponent(`"Type";"Buy";"Cur.";"Sell";"Cur.";"Fee";"Cur.";"Exchange";"Address";"Date"\r\n${csvData.map(trade => `"${Object.keys(trade).map(key => trade[key]).join('";"')}"\r\n`).join('')}`);
     const link = document.createElement("a");
     link.href = uri;
 
