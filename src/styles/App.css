@@ -174,7 +174,7 @@
 }
 
 .panel {
-  border: 1px solid rgba(156,156,157,0.08);
+  border: 1px solid rgba(156, 156, 157, 0.08);
   border-radius: 4px;
 }
 
@@ -235,13 +235,13 @@
 
   padding: 10px 16px;
 
-
-  border-bottom: 1px solid rgba(156,156,157,0.08);
+  border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 }
 
 .exporter .panel .list .list-item .address {
   display: inline-block;
   width: 328px;
+  margin-right: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
@@ -271,22 +271,37 @@
 .exporter .content .exchanges .list-item {
   border: 1px solid;
   border-radius: 6px;
+
   max-width: 132px;
   height: 46px;
+
+  margin-right: 12px;
 }
-.exporter .content .exchanges .list-item.disabled svg path,.exporter .content .exchanges .list-item.disabled svg polygon {
+
+.exporter .content .exchanges .list-item:last-child {
+  margin-right: 0;
+}
+
+.exporter .content .exchanges .list-item.disabled svg path, .exporter .content .exchanges .list-item.disabled svg polygon {
   fill: #DEE4F4;
 }
 
-.exporter .content .exchanges .list-item.oasis {border-color: #9FA8DA}
-.exporter .content .exchanges .list-item.etherDelta {border-color: #7FB2E5}
-.exporter .content .exchanges .list-item.zeroEx {border-color: #7F7F7F}
+.exporter .content .exchanges .list-item.oasis {
+  border-color: #9FA8DA
+}
+
+.exporter .content .exchanges .list-item.etherDelta {
+  border-color: #7FB2E5
+}
+
+.exporter .content .exchanges .list-item.zeroEx {
+  border-color: #7F7F7F
+}
 
 .exporter .content .exchanges .list-item.disabled {
   border-color: #DEE4F4;
   pointer-events: none;
 }
-
 
 .info-box {
   display: flex;
@@ -294,7 +309,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(156,156,157,0.08);
+  border: 1px solid rgba(156, 156, 157, 0.08);
   border-radius: 6px;
 
   margin-top: 8px;
@@ -335,7 +350,7 @@
   justify-content: space-evenly;
   align-items: center;
 
-  border-bottom: 1px solid rgba(156,156,157,0.08);
+  border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
   height: 30px;
@@ -347,7 +362,7 @@
   justify-content: flex-start;
 }
 
-.info-box .info-box-row--left .label{
+.info-box .info-box-row--left .label {
   text-align: left;
 }
 
@@ -492,7 +507,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .info-box.has-errors {
-  border: 1px solid rgba(239,83,80,0.20);
+  border: 1px solid rgba(239, 83, 80, 0.20);
 }
 
 .has-errors .label {
@@ -502,7 +517,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 input.has-errors {
   color: #EF5350;
-  border: 1px solid rgba(239,83,80,0.20);
+  border: 1px solid rgba(239, 83, 80, 0.20);
 }
 
 .separator {
@@ -559,7 +574,7 @@ input.has-errors {
   padding: 14px;
 }
 
-.token-selector .tokens .token-list .token-name{
+.token-selector .tokens .token-list .token-name {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
@@ -575,7 +590,7 @@ button.close {
   border-radius: 100%;
   border: transparent;
 
-  background: transparent url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyOHB4IiBoZWlnaHQ9IjI4cHgiIHZpZXdCb3g9IjAgMCAyOCAyOCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBzdHlsZT0iYmFja2dyb3VuZDogI0ZGRkZGRjsiPiAgICAgICAgPHRpdGxlPmljb24tY2xvc2U8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iZGVza3RvcCIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+ICAgICAgICA8ZyBpZD0iaWNvbi1jbG9zZSI+ICAgICAgICAgICAgPGcgaWQ9Imljb24tcGlja2VyLWNsb3NlIj4gICAgICAgICAgICAgICAgPGNpcmNsZSBpZD0iT3ZhbCIgc3Ryb2tlPSIjRkZBOEE4IiBzdHJva2Utd2lkdGg9IjEiIGN4PSIxNCIgY3k9IjE0IiByPSIxMy41Ij48L2NpcmNsZT4gICAgICAgICAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBwb2ludHM9IjYgNiAyMiA2IDIyIDIyIDYgMjIiPjwvcG9seWdvbj4gICAgICAgICAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBmaWxsPSIjRkZBOEE4IiBmaWxsLXJ1bGU9Im5vbnplcm8iIHBvaW50cz0iMTguNjY2NjY2NyAxMC4yNzMzMzMzIDE3LjcyNjY2NjcgOS4zMzMzMzMzMyAxNCAxMy4wNiAxMC4yNzMzMzMzIDkuMzMzMzMzMzMgOS4zMzMzMzMzMyAxMC4yNzMzMzMzIDEzLjA2IDE0IDkuMzMzMzMzMzMgMTcuNzI2NjY2NyAxMC4yNzMzMzMzIDE4LjY2NjY2NjcgMTQgMTQuOTQgMTcuNzI2NjY2NyAxOC42NjY2NjY3IDE4LjY2NjY2NjcgMTcuNzI2NjY2NyAxNC45NCAxNCI+PC9wb2x5Z29uPiAgICAgICAgICAgIDwvZz4gICAgICAgIDwvZz4gICAgPC9nPjwvc3ZnPg==) no-repeat 100% 100%;
+  background: transparent url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyOHB4IiBoZWlnaHQ9IjI4cHgiIHZpZXdCb3g9IjAgMCAyOCAyOCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBzdHlsZT0iYmFja2dyb3VuZDogI0ZGRkZGRjsiPiAgICAgICAgPHRpdGxlPmljb24tY2xvc2U8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iZGVza3RvcCIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+ICAgICAgICA8ZyBpZD0iaWNvbi1jbG9zZSI+ICAgICAgICAgICAgPGcgaWQ9Imljb24tcGlja2VyLWNsb3NlIj4gICAgICAgICAgICAgICAgPGNpcmNsZSBpZD0iT3ZhbCIgc3Ryb2tlPSIjRkZBOEE4IiBzdHJva2Utd2lkdGg9IjEiIGN4PSIxNCIgY3k9IjE0IiByPSIxMy41Ij48L2NpcmNsZT4gICAgICAgICAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBwb2ludHM9IjYgNiAyMiA2IDIyIDIyIDYgMjIiPjwvcG9seWdvbj4gICAgICAgICAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBmaWxsPSIjRkZBOEE4IiBmaWxsLXJ1bGU9Im5vbnplcm8iIHBvaW50cz0iMTguNjY2NjY2NyAxMC4yNzMzMzMzIDE3LjcyNjY2NjcgOS4zMzMzMzMzMyAxNCAxMy4wNiAxMC4yNzMzMzMzIDkuMzMzMzMzMzMgOS4zMzMzMzMzMyAxMC4yNzMzMzMzIDEzLjA2IDE0IDkuMzMzMzMzMzMgMTcuNzI2NjY2NyAxMC4yNzMzMzMzIDE4LjY2NjY2NjcgMTQgMTQuOTQgMTcuNzI2NjY2NyAxOC42NjY2NjY3IDE4LjY2NjY2NjcgMTcuNzI2NjY2NyAxNC45NCAxNCI+PC9wb2x5Z29uPiAgICAgICAgICAgIDwvZz4gICAgICAgIDwvZz4gICAgPC9nPjwvc3ZnPg==) no-repeat 50% 50%;
   background-size: contain;
 
 }
@@ -639,7 +654,7 @@ button[disabled] {
   flex-direction: column;
   justify-content: space-between;
   width: 124px;
-  height:115px;
+  height: 115px;
   margin: 4px;
 }
 
@@ -653,10 +668,9 @@ button[disabled] {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(222,228,244,0.80);
+  background: rgba(222, 228, 244, 0.80);
   border-radius: 8px;
 }
-
 
 .token-selector button.close {
   position: absolute;
@@ -844,7 +858,7 @@ button[disabled] {
 }
 
 .error {
-  color:  #EF5350;
+  color: #EF5350;
 }
 
 .info {
@@ -874,7 +888,7 @@ a.no-pointer {
 
 .terms-and-conditions .label {
   font-size: 12px;
-  color: rgba(156,156,157,0.90);
+  color: rgba(156, 156, 157, 0.90);
   letter-spacing: 0.7px;
   margin-right: 0;
 }
@@ -912,7 +926,7 @@ a.no-pointer {
 }
 
 .transaction-result {
-  border: 1px solid rgba(156,156,157,0.08);
+  border: 1px solid rgba(156, 156, 157, 0.08);
   border-radius: 6px;
   height: 90px;
 
@@ -939,7 +953,7 @@ a.no-pointer {
   vertical-align: middle;
 }
 
-.transaction-result .icon ~ span{
+.transaction-result .icon ~ span {
   vertical-align: middle;
 }
 

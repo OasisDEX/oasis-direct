@@ -316,7 +316,7 @@ class TaxExporter extends Component {
               }
             </ul>
           </div>
-          <div style={{marginBottom:'16px'}}>
+          <div style={{marginBottom:'16px', display: 'inline-flex'}}>
             <input type="text" value={ this.state.newAddress } onChange={ event => this.setState({newAddress:event.target.value}) } placeholder="0x"/>
             <button disabled={ !this.state.newAddress } onClick={ this.addAccount }>ADD</button>
           </div>

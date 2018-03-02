@@ -203,7 +203,7 @@ export class Logo extends PureComponent {
 export class OasisExchangeLogo extends PureComponent {
   render() {
     return (
-      <svg width='100' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
+      <svg width='100%' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
            style={{backgroundColor: '#fff'}}>
         <g id='oasisLogo' fill='none' fillRule='evenodd'>
           <path
@@ -218,7 +218,7 @@ export class OasisExchangeLogo extends PureComponent {
 export class EtherDeltaExchangeLogo extends PureComponent {
   render() {
     return (
-      <svg width='100' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
+      <svg width='100%' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
            style={{backgroundColor: '#fff'}}>
         <g id='etherDeltaLogo' fill='none' fillRule='evenodd'>
           <path
@@ -236,7 +236,7 @@ export class EtherDeltaExchangeLogo extends PureComponent {
 export class ZeroExExchangesLogo extends PureComponent {
   render() {
     return (
-      <svg width='100' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
+      <svg width='100%' height='26' viewBox='0 0 100 26' xmlns='http://www.w3.org/2000/svg'
            style={{backgroundColor: '#fff'}}>
         <g id='zeroExLogo' fill='#000' fillRule='nonzero'>
           <path
