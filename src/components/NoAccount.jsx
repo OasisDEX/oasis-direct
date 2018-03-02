@@ -4,7 +4,7 @@ import '../styles/NoConnection.css'
 
 
 const NoConnection = () => {
-  const metamask = web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+  const metamask = web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
   return (
     <div className="frame no-account">
         <div className="heading">
