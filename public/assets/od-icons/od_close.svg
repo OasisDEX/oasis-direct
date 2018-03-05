@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background: #FFFFFF;">
+    <!-- Generator: Sketch 49 (51002) - http://www.bohemiancoding.com/sketch -->
+    <title>icon-close</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="icon-close" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Oval" stroke="#FF80AB" cx="10" cy="10" r="9.5"></circle>
+        <polygon id="Shape" fill="#FF80AB" fill-rule="nonzero" points="13.3333333 7.33809524 12.6619048 6.66666667 10 9.32857143 7.33809524 6.66666667 6.66666667 7.33809524 9.32857143 10 6.66666667 12.6619048 7.33809524 13.3333333 10 10.6714286 12.6619048 13.3333333 13.3333333 12.6619048 10.6714286 10"></polygon>
+    </g>
+</svg>

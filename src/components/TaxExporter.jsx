@@ -297,7 +297,7 @@ class TaxExporter extends Component {
     return (
       <section className="frame exporter">
         <div className="heading">
-          <h2>Export Trades</h2>
+          <h2>Enter Addresses</h2>
         </div>
         <div className="content">
           <div className="panel">
@@ -316,24 +316,24 @@ class TaxExporter extends Component {
               }
             </ul>
           </div>
-          <div style={{marginBottom:'16px', display: 'inline-flex'}}>
+          <div style={{marginBottom:'24px', display: 'inline-flex'}}>
             <input type="text" value={ this.state.newAddress } onChange={ event => this.setState({newAddress:event.target.value}) } placeholder="0x"/>
             <button disabled={ !this.state.newAddress } onClick={ this.addAccount }>ADD</button>
           </div>
           <div className="exchanges">
             <div className="heading">
-              <h3>Exchanges</h3>
+              <h3>Choose Exchanges</h3>
             </div>
-            <div style={{marginBottom:'20px'}}>
+            <div style={{marginBottom:'24px'}}>
               <ul className="list">
                 <li className="list-item oasis">
-                  <OasisExchangeLogo/>
+                  <a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer"><OasisExchangeLogo/></a>
                 </li>
                 <li className="list-item etherDelta disabled">
-                  <EtherDeltaExchangeLogo/>
+                  <a href="#" target="_blank" rel="noopener noreferrer"><EtherDeltaExchangeLogo/></a>
                 </li>
                 <li className="list-item zeroEx disabled">
-                  <ZeroExExchangesLogo/>
+                  <a href="#" target="_blank" rel="noopener noreferrer"><ZeroExExchangesLogo/></a>
                 </li>
               </ul>
             </div>
