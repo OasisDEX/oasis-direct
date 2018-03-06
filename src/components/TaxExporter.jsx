@@ -4,7 +4,25 @@ import web3 from '../web3';
 import config from "../exporter-config.json";
 
 import matchingmarket from '../abi/matchingmarket.json';
-import {ZeroExExchangesLogo, EtherDeltaExchangeLogo, OasisExchangeLogo } from "./Icons";
+import { ZeroExExchangesLogo, EtherDeltaExchangeLogo, OasisExchangeLogo } from "./Icons";
+
+const EXCHANGES = [
+  {
+    name: "oasis",
+    disabled: false,
+    logo: <OasisExchangeLogo/>
+  },
+  {
+    name: "etherDelta",
+    disabled: true,
+    logo: <EtherDeltaExchangeLogo/>
+  },
+  {
+    name: "zeroEx",
+    disabled: true,
+    logo: <ZeroExExchangesLogo/>
+  },
+]
 
 class TaxExporter extends Component {
   constructor(props) {
@@ -14,6 +32,9 @@ class TaxExporter extends Component {
       isLoading: false,
       accounts: [
         this.props.account,
+      ],
+      exchanges: [
+        'oasis'
       ],
       newAddress: "",
       csvData: []
@@ -41,7 +62,7 @@ class TaxExporter extends Component {
 
       if (!accounts.includes(address)) {
         accounts.push(address);
-        this.setState({accounts,newAddress:''});
+        this.setState({accounts, newAddress: ''});
       } else {
         alert("This address is already in the list");
       }
@@ -279,8 +300,8 @@ class TaxExporter extends Component {
       return trade;
     })
     var uri = 'data:text/csv;charset=utf-8,'
-              +
-              encodeURIComponent(`"Type";"Buy";"Cur.";"Sell";"Cur.";"Fee";"Cur.";"Exchange";"Address";"Date"\r\n${csvData.map(trade => `"${Object.keys(trade).map(key => trade[key]).join('";"')}"\r\n`).join('')}`);
+      +
+      encodeURIComponent(`"Type";"Buy";"Cur.";"Sell";"Cur.";"Fee";"Cur.";"Exchange";"Address";"Date"\r\n${csvData.map(trade => `"${Object.keys(trade).map(key => trade[key]).join('";"')}"\r\n`).join('')}`);
     const link = document.createElement("a");
     link.href = uri;
 
@@ -291,6 +312,23 @@ class TaxExporter extends Component {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  toggleExchange = (thisOne) => {
+    if(!thisOne) return;
+
+    this.setState((prevState) => {
+      const currentExchanges = [...prevState.exchanges];
+
+      if (currentExchanges.includes(thisOne) && currentExchanges.length > 1) {
+        const position = currentExchanges.indexOf(thisOne);
+        currentExchanges.splice(position, 1);
+      } else if (!currentExchanges.includes(thisOne)) {
+        currentExchanges.push(thisOne);
+      }
+
+      return { exchanges: currentExchanges };
+    });
   }
 
   render() {
@@ -306,7 +344,10 @@ class TaxExporter extends Component {
                 this.state.accounts.map((account, index) => {
                   return (
                     <li key={index} className="list-item">
-                      <span className="address">{ account }</span>
+                      <span className="address--with-tail"
+                            data-address-tail={account.substr(account.length - 6).toLowerCase()}>
+                        <span className="address">{account.toLowerCase()}</span>
+                      </span>
                       <button onClick={() => {
                         this.removeAccount(index);
                       }} className="close"/>
@@ -316,31 +357,40 @@ class TaxExporter extends Component {
               }
             </ul>
           </div>
-          <div style={{marginBottom:'24px', display: 'inline-flex'}}>
-            <input type="text" value={ this.state.newAddress } onChange={ event => this.setState({newAddress:event.target.value}) } placeholder="0x"/>
-            <button disabled={ !this.state.newAddress } onClick={ this.addAccount }>ADD</button>
+          <div style={{marginBottom: '24px', display: 'inline-flex'}}>
+            <input type="text" value={this.state.newAddress} placeholder="0x"
+                   onChange={event => this.setState({newAddress: event.target.value})}/>
+            <button disabled={!this.state.newAddress} onClick={this.addAccount}>ADD</button>
           </div>
           <div className="exchanges">
             <div className="heading">
-              <h3>Choose Exchanges</h3>
+              <h2>Choose Exchanges</h2>
             </div>
-            <div style={{marginBottom:'24px'}}>
+            <div style={{marginBottom: '24px'}}>
               <ul className="list">
-                <li className="list-item oasis">
-                  <a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer"><OasisExchangeLogo/></a>
-                </li>
-                <li className="list-item etherDelta disabled">
-                  <a href="#" target="_blank" rel="noopener noreferrer"><EtherDeltaExchangeLogo/></a>
-                </li>
-                <li className="list-item zeroEx disabled">
-                  <a href="#" target="_blank" rel="noopener noreferrer"><ZeroExExchangesLogo/></a>
-                </li>
+                {
+                  /* TODO:
+                  * When integration with all exchanges is done the `exchange.name`
+                  * should be passed to the toggleExchange function.
+                  *
+                  * Also in the `.exporter .content .exchanges .list-item.disabled`
+                  * the rule for `pointer-events` should be removed.
+                  * */
+                  EXCHANGES.map((exchange) => (
+                    <li
+                      className={`list-item ${exchange.name} ${!this.state.exchanges.includes(exchange.name) ? 'disabled' : '' }`}
+                      onClick={() => this.toggleExchange()} key={exchange.name}>
+                      {exchange.logo}
+                    </li>
+                  ))
+                }
               </ul>
             </div>
           </div>
         </div>
-        <button type="button" value="Create Report" onClick={ this.fetchData } disabled={ !this.state.accounts.length || this.state.isLoading }>
-          { this.state.isLoading ? <Spinner /> : 'GENERATE REPORT' }
+        <button type="button" value="Create Report" onClick={this.fetchData}
+                disabled={!this.state.accounts.length || this.state.isLoading}>
+          {this.state.isLoading ? <Spinner/> : 'GENERATE REPORT'}
         </button>
       </section>
     )

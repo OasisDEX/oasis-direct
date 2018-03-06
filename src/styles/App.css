@@ -233,7 +233,7 @@
   color: rgba(91, 91, 92, 0.9);
   letter-spacing: 2px;
 
-  padding: 8px 16px;
+  padding: 6.5px 16px;
 
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 }
@@ -243,21 +243,32 @@
 }
 
 .exporter .panel .list .list-item .address {
-  display: inline-block;
-  width: 328px;
-  margin-right: 16px;
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  vertical-align: middle;
+}
+
+.exporter .panel .list .list-item .address--with-tail {
+  display: inline-block;
+  width: 71%;
+  position: relative;
+}
+
+.exporter .panel .list .list-item .address--with-tail:after {
+  content: attr(data-address-tail);
+  position: absolute;
+  left: 98%;
+  top: 0;
 }
 
 .exporter .panel .list .list-item .close {
   width: 20px;
   height: 20px;
+  margin-left: 36px;
 }
 
 .exporter .content .exchanges .heading {
-  margin: 0 0 16px 8px;
+  margin: 0 0 16px;
 }
 
 .exporter .content .exchanges .heading h3 {
