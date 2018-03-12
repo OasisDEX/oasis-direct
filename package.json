@@ -6,7 +6,6 @@
     "create-react-class": "^15.6.2",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.14",
     "web3": "^0.20.2"
   },
