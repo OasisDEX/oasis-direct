@@ -31,7 +31,6 @@
   }
 }
 
-
 @media all and (max-width: 767px) {
   .Widget {
     margin-top: 24px;
@@ -48,6 +47,14 @@
 
   .Logo {
     margin-bottom: 16px;
+  }
+
+  .NavigationLinks {
+    margin-top: 16px;
+  }
+
+  .NavigationLinks a:last-child {
+    margin-right: 0;
   }
 
   main.Container {
@@ -119,7 +126,7 @@
   .connectionless .content .heading img {
     width: 64px;
     height: 64px;
-    margin:16px 0;
+    margin: 16px 0;
   }
 
   .connectionless .content .heading h3 {
@@ -127,7 +134,7 @@
   }
 
   ::-webkit-input-placeholder {
-    font-size:9px;
+    font-size: 9px;
   }
 
   main.Container {
@@ -142,12 +149,12 @@
   .frame {
     max-width: 420px;
     width: 100%;
-    max-height:370px;
+    max-height: 370px;
     padding: 12px;
     margin: auto;
   }
 
-  .frame > .content{
+  .frame > .content {
   }
 
   .frame > .info-box {
@@ -236,7 +243,7 @@
   }
 
   .transaction-result .label,
-  .transaction-result .value{
+  .transaction-result .value {
     font-size: 10px;
   }
 
@@ -254,7 +261,7 @@
   }
 
   .frame.finalize .info-box {
-    margin-top:0;
+    margin-top: 0;
   }
 
   .frame.finalize .more-info, .frame.finalize .transaction-result {
@@ -300,7 +307,6 @@
     font-size: 8px;
   }
 
-
   .transaction-info-box .operation .icon {
     margin: 0 16px;
   }
@@ -344,6 +350,10 @@
 
 @media all and (max-width: 374px) {
 
+  .NavigationLinks {
+    font-size: 16px;
+  }
+
   .Content h1 {
     font-size: 16px;
   }
@@ -370,5 +380,18 @@
 
   .info-box.disclaimer .info-box-row .label {
     font-size: 8px;
+  }
+
+  .exporter .content input {
+    max-width: 196px;
+  }
+
+  .exporter .content .exchanges .list-item {
+    max-width: 88px;
+    padding: 5px 8px;
+  }
+
+  .exporter .panel .list .list-item .address--with-tail {
+    width: 61%;
   }
 }

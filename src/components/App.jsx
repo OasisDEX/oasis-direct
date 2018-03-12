@@ -5,7 +5,9 @@ import NoAccount from './NoAccount';
 import { toBytes32, addressToBytes32, methodSig } from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
+import TaxExporter from './TaxExporter';
 import { Logo } from "./Icons";
+import { BrowserRouter as Router, NavLink, Route } from 'react-router-dom';
 
 const settings = require('../settings');
 
@@ -1257,96 +1259,111 @@ class App extends Component {
 
   render = () => {
     return (
-      <section>
+      <Router>
         <section>
-          <header className="Container">
-            <div className={`Logo Logo--no-margin`}>
-              <a href="/"> <Logo/> </a>
-            </div>
-            {
-              false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
-                <div className="DropdownToggle" onClick={this.toggle}>
-                <span data-selected className="DropdownSelected">
-                  {
-                    this.state.network.defaultAccount
-                  }
-                </span>
-                  <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
-                </span>
-                </div>
-                <div className={`DropdownList ${this.state.ui.isDropdownCollapsed ? 'DropdownList--visible' : ''}`}>
-                  <div className="DropdownListWrapper">
-                    <ul>
-                      {
-                        this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
-                          onClick={(event) => this.switchAccount(event.target.innerText)}
-                          key={index}>{account}</li>)
-                      }
-                    </ul>
+          <section>
+            <header className="Container">
+              <div className={`Logo Logo--no-margin`}>
+                <a href="/"> <Logo/> </a>
+              </div>
+              <div className={'NavigationLinks'}>
+                <NavLink exact activeStyle={{ color: 'white' }} to={'/'}>Exchange</NavLink>
+                <NavLink exact activeStyle={{ color: 'white' }} to={'/tax-exporter'}>Export Trades</NavLink>
+              </div>
+              {
+                false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+                  <div className="DropdownToggle" onClick={this.toggle}>
+                  <span data-selected className="DropdownSelected">
+                    {
+                      this.state.network.defaultAccount
+                    }
+                  </span>
+                    <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
+                  </span>
+                  </div>
+                  <div className={`DropdownList ${this.state.ui.isDropdownCollapsed ? 'DropdownList--visible' : ''}`}>
+                    <div className="DropdownListWrapper">
+                      <ul>
+                        {
+                          this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
+                            onClick={(event) => this.switchAccount(event.target.innerText)}
+                            key={index}>{account}</li>)
+                        }
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
-          </header>
-        </section>
-        <section className="Content">
-          <main className="Container">
-            <div>
-              <div className="MainHeading">
-                <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
-              </div>
-              <div className="SecondaryHeading">
-                <h2>No Registration. No Fees.</h2>
-              </div>
-            </div>
-            <div className="Widget">
-              {
-                this.state.network.isConnected
-                  ?
-                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
-                    ?
-                    this.renderMain()
-                    :
-                    <NoAccount/>
-                  :
-                  <NoConnection/>
               }
-            </div>
-          </main>
+            </header>
+          </section>
+          <section className="Content">
+            <main className="Container">
+              <div>
+                <div className="MainHeading">
+                  <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+                </div>
+                <div className="SecondaryHeading">
+                  <h2>No Registration. No Fees.</h2>
+                </div>
+              </div>
+              <div className="Widget">
+                {
+                  this.state.network.isConnected
+                  ?
+                    this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                    ?
+                      <div>
+                        <Route
+                            exact path="/"
+                            render={ () => this.renderMain() }
+                        />
+                        <Route
+                          path="/tax-exporter"
+                          render={ () => <TaxExporter account={ this.state.network.defaultAccount } network={ this.state.network.network } proxyRegistryObj={ this.proxyRegistryObj } getProxy={ this.getProxy } /> }
+                          />
+                      </div>
+                    :
+                      <NoAccount/>
+                  :
+                    <NoConnection/>
+                }
+              </div>
+            </main>
+          </section>
+          <section>
+            <footer className="Container">
+              <div className="LinksWrapper">
+                <h1> Resources </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                  <li className="Link"><a href="/OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Oasis </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
+                  <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Maker </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
+                  <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Follow us </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                  <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Steem</a></li>
+                </ul>
+              </div>
+            </footer>
+          </section>
         </section>
-        <section>
-          <footer className="Container">
-             <div className="LinksWrapper">
-               <h1> Resources </h1>
-               <ul className="Links">
-                 <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
-                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Legal</a></li>
-               </ul>
-             </div>
-             <div className="LinksWrapper">
-               <h1> Oasis </h1>
-               <ul className="Links">
-                 <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
-                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
-               </ul>
-             </div>
-             <div className="LinksWrapper">
-               <h1> Maker </h1>
-               <ul className="Links">
-                 <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
-                 <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
-               </ul>
-             </div>
-             <div className="LinksWrapper">
-               <h1> Follow us </h1>
-               <ul className="Links">
-                 <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-                 <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Steem</a></li>
-               </ul>
-             </div>
-          </footer>
-        </section>
-      </section>
+      </ Router>
     );
   }
 }
