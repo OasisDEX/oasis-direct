@@ -1364,8 +1364,8 @@ class App extends Component {
             <div className="LinksWrapper">
               <h1> Follow us </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-                <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Steem</a></li>
+                <li className="Link"><a href="https://twitter.com/oasisdirect" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                <li className="Link"><a href="https://steemit.com/@oasisdirect" target="_blank" rel="noopener noreferrer">Steem</a></li>
               </ul>
             </div>
           </footer>
