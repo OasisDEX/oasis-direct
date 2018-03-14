@@ -23,16 +23,6 @@ const NoConnection = () => {
                 </div>
               </li>
               <li>
-                <div className='icon mist'/>
-                <div>
-                  <h4 className="heading"> Mist </h4>
-                  <span className="desktop"> Ethereum Client</span>
-                </div>
-                <div>
-                  <a href="https://github.com/ethereum/mist" target="_blank" rel="noopener noreferrer">INSTALL</a>
-                </div>
-              </li>
-              <li>
                 <div className='icon parity'/>
                 <div>
                   <h4 className="heading"> Parity </h4>
