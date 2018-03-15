@@ -1360,7 +1360,7 @@ class App extends Component {
               <h1> Oasis </h1>
               <ul className="Links">
                 <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
-                <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
+                {/* <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li> */}
               </ul>
             </div>
             <div className="LinksWrapper">
