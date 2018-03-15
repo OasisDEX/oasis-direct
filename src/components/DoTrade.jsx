@@ -223,24 +223,32 @@ class DoTrade extends Component {
                 </span>
               </div>
             </div>
-              : <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
-                <div className="info-box-row info-box-row--no-borders info-box-row--left">
-                <span className="icon">
-                  <Attention/>
-                </span>
-                  <span className="label">
-                  Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
-                </span>
+              :
+                <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
+                  <div className="info-box-row info-box-row--no-borders info-box-row--left">
+                    <span className="icon">
+                      <Attention/>
+                    </span>
+                      <span className="label">
+                      Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
+                      {
+                        this.props.showTxMessage &&
+                        <span><br /><br />If your transaction doesn't confirm, click on metamask and <strong>try the resend with higher fee button</strong></span>
+                      }
+                    </span>
+                  </div>
+                  {
+                    !this.props.showTxMessage &&
+                    <div className="info-box-row info-box-row--left">
+                      <span className="icon" style={{'height': '18px'}}>
+                        <QuestionMark/>
+                      </span>
+                        <span className="label">
+                        Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
+                      </span>
+                    </div>
+                  }
                 </div>
-                <div className="info-box-row info-box-row--left">
-                <span className="icon" style={{'height': '18px'}}>
-                  <QuestionMark/>
-                </span>
-                  <span className="label">
-                  Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
-                </span>
-                </div>
-              </div>
             :
               <div className="transaction-result">
                 <h3 className="heading">

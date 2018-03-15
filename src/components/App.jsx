@@ -31,10 +31,12 @@ class App extends Component {
         isDropdownCollapsed: false
       }
     }
+    this.txInterval = {};
   }
 
   getInitialState = () => {
     return {
+      showTxMessage: false,
       balances: {},
       trade: {
         step: 1,
@@ -599,6 +601,11 @@ class App extends Component {
   }
 
   logPendingTransaction = async (tx, type, callbacks = []) => {
+    this.txInterval[tx] = setTimeout(() => {
+      this.setState(prevState => {
+        return { showTxMessage: true }
+      })
+    }, 10000);
     const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
     const checkFromBlock = (await this.getBlock('latest')).number;
     console.log('nonce', nonce);
@@ -637,7 +644,8 @@ class App extends Component {
             this.setState((prevState, props) => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
-              return {transactions};
+              clearInterval(this.txInterval[tx]);
+              return {transactions, showTxMessage: false};
             });
           }
         });
@@ -662,7 +670,8 @@ class App extends Component {
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
-      this.setState({transactions});
+      clearInterval(this.txInterval[tx]);
+      this.setState({transactions, showTxMessage: false});
     }
   }
 
@@ -1261,7 +1270,7 @@ class App extends Component {
                       trade={ this.state.trade } network={ this.state.network.network }
                       balances={ this.state.balances } />
             :
-            <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset}/>
+            <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset } showTxMessage={ this.state.showTxMessage } />
         }
       </div>
     )
