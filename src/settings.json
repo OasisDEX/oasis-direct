@@ -74,15 +74,15 @@
       "tokens": {
         "weth": {
           "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "minValue": 0.00000001
+          "minValue": 0.03
         },
         "mkr": {
           "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
-          "minValue": 0.00000001
+          "minValue": 0.03
         },
         "dai": {
           "address": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
-          "minValue": 0.00000001
+          "minValue": 30
         }
       },
       "proxyRegistry": "0xaa63c8683647ef91b3fdab4b4989ee9588da297b",
