@@ -59,6 +59,7 @@ class DoTrade extends Component {
   }
 
   render() {
+    const metamask = web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
     return (
       <section className={`frame ${this.props.trade.step === 2 ? 'finalize' : ''}`}>
         <div className="heading">
@@ -229,13 +230,24 @@ class DoTrade extends Component {
                     <span className="icon">
                       <Attention/>
                     </span>
+                    {
+                      !this.props.showTxMessage &&
                       <span className="label">
-                      Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
-                      {
-                        this.props.showTxMessage &&
-                        <span><br /><br />If your transaction doesn't confirm, click on metamask and <strong>try the resend with higher fee button</strong></span>
-                      }
-                    </span>
+                        Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
+                      </span>
+                    }
+                    {
+                      this.props.showTxMessage && metamask &&
+                      <span className="label">
+                        If your transaction doesn't confirm, click on metamask and <strong>try the resend with higher fee button</strong>
+                      </span>
+                    }
+                    {
+                      this.props.showTxMessage && !metamask &&
+                      <span className="label">
+                        If your transaction doesn't confirm, please <strong>resubmit it with a higher gas price in your wallet</strong>
+                      </span>
+                    }
                   </div>
                   {
                     !this.props.showTxMessage &&
