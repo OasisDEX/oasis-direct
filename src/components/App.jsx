@@ -605,7 +605,7 @@ class App extends Component {
       this.setState(prevState => {
         return { showTxMessage: true }
       })
-    }, 10000);
+    }, 60000);
     const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
     const checkFromBlock = (await this.getBlock('latest')).number;
     console.log('nonce', nonce);
