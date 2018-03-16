@@ -811,11 +811,11 @@ class App extends Component {
     if (operation === 'sellAll') {
       if (from === "eth") {
         result.method = 'createAndSellAllAmountPayEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, addrTo, limit];
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, limit];
         result.value = web3.toWei(amount);
       } else if (to === "eth") {
         result.method = 'createAndSellAllAmountBuyEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), limit];
       } else {
         result.method = 'createAndSellAllAmount';
         result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
@@ -823,11 +823,11 @@ class App extends Component {
     } else {
       if (from === "eth") {
         result.method = 'createAndBuyAllAmountPayEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom];
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount)];
         result.value = limit;
       } else if (to === "eth") {
         result.method = 'createAndBuyAllAmountBuyEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
+        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, web3.toWei(amount), addrFrom, limit];
       } else {
         result.method = 'createAndBuyAllAmount';
         result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
