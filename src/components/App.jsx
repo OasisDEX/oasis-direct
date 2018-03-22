@@ -444,13 +444,16 @@ class App extends Component {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, r) => {
+            web3.eth.filter({
+              fromBlock: transactions[type].checkFromBlock,
+              address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
+            }).get((e, r) => {
               if (!e) {
                 r.forEach(v => {
                   web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
                     if (!e2 &&
-                        r2.from === this.state.network.defaultAccount &&
-                        r2.nonce === transactions[type].nonce) {
+                      r2.from === this.state.network.defaultAccount &&
+                      r2.nonce === transactions[type].nonce) {
                       this.saveReplacedTransaction(type, v.transactionHash);
                     }
                   });
@@ -472,14 +475,17 @@ class App extends Component {
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
-          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address }).get((e, logs) => {
+          web3.eth.filter({
+            fromBlock: transactions[type].checkFromBlock,
+            address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
+          }).get((e, logs) => {
             if (!e) {
               this.saveTradedValue('sell', logs);
             }
           });
           // Using Etherscan API (backup)
           Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
-                          transactions[type].checkFromBlock)).then(logs => {
+            transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
             }
@@ -487,14 +493,17 @@ class App extends Component {
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
-          web3.eth.filter({ fromBlock: transactions[type].checkFromBlock, address: settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address }).get((e, logs) => {
+          web3.eth.filter({
+            fromBlock: transactions[type].checkFromBlock,
+            address: settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
+          }).get((e, logs) => {
             if (!e) {
               this.saveTradedValue('buy', logs);
             }
           });
           // Using Etherscan API (backup)
           Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
-                          transactions[type].checkFromBlock)).then(logs => {
+            transactions[type].checkFromBlock)).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
@@ -512,7 +521,7 @@ class App extends Component {
     this.setState((prevState, props) => {
       const transactions = {...prevState.transactions};
       transactions[type].tx = newTx;
-      return { transactions };
+      return {transactions};
     }, () => {
       this.checkPendingTransactions();
     });
@@ -523,15 +532,15 @@ class App extends Component {
     logs.forEach(log => {
       if (log.transactionHash === this.state.transactions.trade.tx) {
         if (this.state.trade[operation === 'buy' ? 'to' : 'from'] !== 'eth' &&
-            log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
-            log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
-            // No ETH, src or dst is user's address and Transfer Event
-            value = value.add(web3.toBigNumber(log.data));
+          log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
+          log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+          // No ETH, src or dst is user's address and Transfer Event
+          value = value.add(web3.toBigNumber(log.data));
         } else if (this.state.trade[operation === 'buy' ? 'to' : 'from'] === 'eth') {
           if (log.topics[0] === '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c') {
             // Deposit (only can come when selling ETH)
             value = value.add(web3.toBigNumber(log.data));
-          } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'){
+          } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65') {
             // Withdrawal
             if (operation === 'buy') {
               // If buying, the withdrawal shows amount the user is receiving
@@ -548,7 +557,7 @@ class App extends Component {
       this.setState((prevState, props) => {
         const transactions = {...prevState.transactions};
         transactions.trade[operation === 'buy' ? 'amountBuy' : 'amountSell'] = value;
-        return { transactions };
+        return {transactions};
       });
     }
   }
@@ -578,7 +587,7 @@ class App extends Component {
 
   getBlock = (block) => {
     return new Promise((resolve, reject) => {
-      web3.eth.getBlock(block, (e,r) => {
+      web3.eth.getBlock(block, (e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -595,7 +604,7 @@ class App extends Component {
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = { tx, pending: true, error: false, nonce, checkFromBlock, callbacks }
+    transactions[type] = {tx, pending: true, error: false, nonce, checkFromBlock, callbacks}
     if (type === 'trade') {
       transactions[type].amountSell = web3.toBigNumber(-1);
       transactions[type].amountBuy = web3.toBigNumber(-1);
@@ -609,18 +618,18 @@ class App extends Component {
     const transactions = {...this.state.transactions};
 
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-                 ?
-                   'approval'
-                 :
-                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-                     ?
-                       'trade'
-                     :
-                       false;
+      ?
+      'approval'
+      :
+      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+        ?
+        'trade'
+        :
+        false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
       transactions[type].gasUsed = parseInt(gasUsed, 10);
-      this.setState({ transactions }, () => {
+      this.setState({transactions}, () => {
         console.log(msgTemp.replace('TX', tx));
         web3.eth.getTransaction(tx, (e, r) => {
           if (!e) {
@@ -641,14 +650,14 @@ class App extends Component {
   logTransactionFailed = tx => {
     const transactions = {...this.state.transactions};
     const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-                 ?
-                   'approval'
-                 :
-                   typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-                     ?
-                       'trade'
-                     :
-                       false;
+      ?
+      'approval'
+      :
+      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+        ?
+        'trade'
+        :
+        false;
     if (type) {
       transactions[type].pending = false;
       transactions[type].error = true;
@@ -823,7 +832,10 @@ class App extends Component {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
       Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-        this.loadObject(proxycreateandexecute.abi,settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value, gasPrice}, (e, tx) => {
+        this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
+          value: action.value,
+          gasPrice
+        }, (e, tx) => {
           if (!e) {
             this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
           } else {
@@ -963,19 +975,19 @@ class App extends Component {
             }, async () => {
               const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
               const errorInputSell = balance.lt(web3.toWei(amount))
-              ?
+                ?
                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
                 'funds'
-              :
+                :
                 '';
               const errorOrders = this.state.trade.amountBuy.eq(0)
-              ?
+                ?
                 {
-                  type:"sell",
+                  type: "sell",
                   amount,
                   token: from.toUpperCase()
                 }
-              :
+                :
                 null;
               if (errorInputSell || errorOrders) {
                 this.setState((prevState, props) => {
@@ -996,8 +1008,8 @@ class App extends Component {
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount)));
+                  await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
                 action = this.getCallDataAndValue('sellAll', from, to, amount, 0);
@@ -1009,8 +1021,8 @@ class App extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(amount)));
+                  await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 action = this.getActionCreateAndExecute('sellAll', from, to, amount, 0);
                 data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
@@ -1020,7 +1032,12 @@ class App extends Component {
                   this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
                   -1
                 );
-                txs.push({to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address, data: dataAllowance, value: 0, from: this.state.network.defaultAccount});
+                txs.push({
+                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
+                  data: dataAllowance,
+                  value: 0,
+                  from: this.state.network.defaultAccount
+                });
               }
               txs.push({to: target, data, value: action.value, from: addrFrom});
               this.saveCost(txs);
@@ -1079,19 +1096,19 @@ class App extends Component {
             }, async () => {
               const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
               const errorInputSell = balance.lt(web3.toWei(this.state.trade.amountPay))
-              ?
+                ?
                 // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
                 'funds'
-              :
+                :
                 null;
               const errorOrders = this.state.trade.amountPay.eq(0)
-              ?
+                ?
                 {
-                  type:"buy",
+                  type: "buy",
                   amount,
                   token: to.toUpperCase()
                 }
-              :
+                :
                 null;
               if (errorInputSell || errorOrders) {
                 this.setState((prevState, props) => {
@@ -1112,8 +1129,8 @@ class App extends Component {
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay)));
+                  await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
                 action = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
@@ -1125,8 +1142,8 @@ class App extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                                    await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                                    (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(this.state.trade.amountPay)));
+                  await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 action = this.getActionCreateAndExecute('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
                 data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
@@ -1136,7 +1153,12 @@ class App extends Component {
                   this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
                   -1
                 );
-                txs.push({to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address, data: dataAllowance, value: 0, from: this.state.network.defaultAccount});
+                txs.push({
+                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
+                  data: dataAllowance,
+                  value: 0,
+                  from: this.state.network.defaultAccount
+                });
               }
               txs.push({to: target, data, value: action.value, from: addrFrom});
               this.saveCost(txs);
@@ -1214,21 +1236,29 @@ class App extends Component {
 
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
-      web3.eth.getGasPrice(
-        (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
+      fetch("https://ethgasstation.info/jskon/ethgasAPI.json").then(stream => {
+        stream.json().then(price => {
+          resolve(web3.toWei(price.average / 10,"gwei"));
+        })
+      }).catch(e => {
+        console.debug("Cannot fetch gas price", e);
+        web3.eth.getGasPrice(
+          (e, r) => {
+            if (!e) {
+              resolve(r);
+            } else {
+              reject(e);
+            }
           }
-        }
-      );
+        );
+      });
     });
   }
 
   fasterGasPrice(increaseInGwei) {
     return this.getGasPrice().then(price => {
-      return web3.toBigNumber(price).add(web3.toBigNumber(web3.toWei(increaseInGwei,"gwei")));
+      console.log(price);
+      return web3.toBigNumber(price).add(web3.toBigNumber(web3.toWei(increaseInGwei, "gwei")));
     })
   }
 
@@ -1249,7 +1279,7 @@ class App extends Component {
       const ui = {...prevState.ui};
       ui.isDropdownCollapsed = false;
 
-      return { ui, network };
+      return {ui, network};
     });
   }
 
@@ -1259,12 +1289,13 @@ class App extends Component {
         {
           this.state.trade.step === 1
             ?
-            <SetTrade cleanInputs={ this.cleanInputs } calculateBuyAmount={ this.calculateBuyAmount }
-                      calculatePayAmount={ this.calculatePayAmount } doTrade={ this.doTrade }
-                      trade={ this.state.trade } network={ this.state.network.network }
-                      balances={ this.state.balances } />
+            <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
+                      calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
+                      trade={this.state.trade} network={this.state.network.network}
+                      balances={this.state.balances}/>
             :
-            <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset}/>
+            <DoTrade trade={this.state.trade} transactions={this.state.transactions}
+                     network={this.state.network.network} reset={this.reset}/>
         }
       </div>
     )
@@ -1280,11 +1311,12 @@ class App extends Component {
                 <a href="/"> <Logo/> </a>
               </div>
               <div className={'NavigationLinks'}>
-                <NavLink exact activeStyle={{ color: 'white' }} to={'/'}>Exchange</NavLink>
-                <NavLink exact activeStyle={{ color: 'white' }} to={'/tax-exporter'}>Export Trades</NavLink>
+                <NavLink exact activeStyle={{color: 'white'}} to={'/'}>Exchange</NavLink>
+                <NavLink exact activeStyle={{color: 'white'}} to={'/tax-exporter'}>Export Trades</NavLink>
               </div>
               {
-                false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+                false &&
+                <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
                   <div className="DropdownToggle" onClick={this.toggle}>
                   <span data-selected className="DropdownSelected">
                     {
@@ -1322,22 +1354,25 @@ class App extends Component {
               <div className="Widget">
                 {
                   this.state.network.isConnected
-                  ?
-                    this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
                     ?
+                    this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                      ?
                       <div>
                         <Route
-                            exact path="/"
-                            render={ () => this.renderMain() }
+                          exact path="/"
+                          render={() => this.renderMain()}
                         />
                         <Route
                           path="/tax-exporter"
-                          render={ () => <TaxExporter account={ this.state.network.defaultAccount } network={ this.state.network.network } proxyRegistryObj={ this.proxyRegistryObj } getProxy={ this.getProxy } /> }
-                          />
+                          render={() => <TaxExporter account={this.state.network.defaultAccount}
+                                                     network={this.state.network.network}
+                                                     proxyRegistryObj={this.proxyRegistryObj}
+                                                     getProxy={this.getProxy}/>}
+                        />
                       </div>
-                    :
+                      :
                       <NoAccount/>
-                  :
+                    :
                     <NoConnection/>
                 }
               </div>
@@ -1348,28 +1383,33 @@ class App extends Component {
               <div className="LinksWrapper">
                 <h1> Resources </h1>
                 <ul className="Links">
-                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank"
+                                          rel="noopener noreferrer">Documentation</a></li>
                   <li className="Link"><a href="/OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
                 </ul>
               </div>
               <div className="LinksWrapper">
                 <h1> Oasis </h1>
                 <ul className="Links">
-                  <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
+                  <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a>
+                  </li>
                   <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li>
                 </ul>
               </div>
               <div className="LinksWrapper">
                 <h1> Maker </h1>
                 <ul className="Links">
-                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
-                  <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a>
+                  </li>
+                  <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank"
+                                          rel="noopener noreferrer">Reddit</a></li>
                 </ul>
               </div>
               <div className="LinksWrapper">
                 <h1> Follow us </h1>
                 <ul className="Links">
-                  <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                  <li className="Link"><a href="https://twitter.com/oasisdex" target="_blank" rel="noopener noreferrer">Twitter</a>
+                  </li>
                   <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Steem</a></li>
                 </ul>
               </div>
