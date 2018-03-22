@@ -723,14 +723,16 @@ class App extends Component {
             return {trade};
           }, () => {
             setTimeout(() => {
-              Promise.resolve(this.logRequestTransaction('approval')).then(() => {
-                this[`${token}Obj`].approve(dst, -1, {}, (e, tx) => {
-                  if (!e) {
-                    this.logPendingTransaction(tx, 'approval', callbacks);
-                  } else {
-                    console.log(e);
-                    this.logTransactionRejected('approval');
-                  }
+              this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
+                Promise.resolve(this.logRequestTransaction('approval')).then(() => {
+                  this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
+                    if (!e) {
+                      this.logPendingTransaction(tx, 'approval', callbacks);
+                    } else {
+                      console.log(e);
+                      this.logTransactionRejected('approval');
+                    }
+                  });
                 });
               });
             }, 2000);
@@ -819,14 +821,16 @@ class App extends Component {
 
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-      this.loadObject(proxycreateandexecute.abi,settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value}, (e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-        } else {
-          console.log(e);
-          this.logTransactionRejected('trade');
-        }
+    this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
+      Promise.resolve(this.logRequestTransaction('trade')).then(() => {
+        this.loadObject(proxycreateandexecute.abi,settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {value: action.value, gasPrice}, (e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+          } else {
+            console.log(e);
+            this.logTransactionRejected('trade');
+          }
+        });
       });
     });
   }
@@ -1145,19 +1149,22 @@ class App extends Component {
   }
 
   callProxyTx = (proxyAddr, type, calldata, value = 0, from) => {
-    return new Promise((resolve, reject) => {
-      this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-        calldata,
-        {value, from},
-        (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
+    return this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
+      return new Promise((resolve, reject) => {
+        this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisDirect,
+          calldata,
+          {value, from, gasPrice},
+          (e, r) => {
+            if (!e) {
+              resolve(r);
+            } else {
+              reject(e);
+            }
           }
-        }
-      );
+        );
+      });
     });
+
   }
 
   saveCost = (txs = []) => {
@@ -1180,7 +1187,7 @@ class App extends Component {
 
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
-      Promise.all([this.estimateGas(to, data, value, from), this.getGasPrice()]).then(r => {
+      Promise.all([this.estimateGas(to, data, value, from), this.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
         console.log(to, data, value, from);
         console.log(r[0], r[1].valueOf());
         resolve(r[1].times(r[0]));
@@ -1217,6 +1224,12 @@ class App extends Component {
         }
       );
     });
+  }
+
+  fasterGasPrice(increaseInGwei) {
+    return this.getGasPrice().then(price => {
+      return web3.toBigNumber(price).add(web3.toBigNumber(web3.toWei(increaseInGwei,"gwei")));
+    })
   }
 
   toggle = () => {
