@@ -1236,7 +1236,7 @@ class App extends Component {
 
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
-      fetch("https://ethgasstation.info/jskon/ethgasAPI.json").then(stream => {
+      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
         stream.json().then(price => {
           resolve(web3.toWei(price.average / 10,"gwei"));
         })
