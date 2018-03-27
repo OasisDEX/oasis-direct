@@ -3,7 +3,6 @@ import web3 from '../web3';
 import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from "./TokenAmount";
-import Link from "react-router-dom/es/Link";
 
 const settings = require('../settings');
 
@@ -245,7 +244,7 @@ class SetTrade extends Component {
                 <span>
                   <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
                   <span className="label">
-                    I agree to the <Link to="/OasisToS.pdf" target="_blank">Terms of Service</Link>
+                    I agree to the <a href="/OasisToS.pdf" target="_blank">Terms of Service</a>
                   </span>
                 </span>
               </div>
