@@ -117,7 +117,7 @@ class DoTrade extends Component {
                       :
                         this.props.transactions.approval.pending
                         ?
-                          <div className="status"><Spinner/><span className="label info">Pending...</span></div>
+                          <div className="status"><Spinner/><span className="label info">View on Etherscan</span></div>
                         :
                           this.props.transactions.approval.error
                           ?
@@ -190,7 +190,7 @@ class DoTrade extends Component {
                     :
                       this.props.transactions.trade.pending
                       ?
-                        <div className="status"><Spinner/><span className="label info">Pending...</span></div>
+                        <div className="status"><Spinner/><span className="label info">View on Etherscan</span></div>
                       :
                         this.props.transactions.trade.error
                         ?

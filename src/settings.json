@@ -96,6 +96,7 @@
       "proxyDirectoryService": "",
       "fromBlock": 0
     }
-  }
+  },
+  "gasPriceIncreaseInGwei":3
 }
     
