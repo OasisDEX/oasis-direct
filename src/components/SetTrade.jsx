@@ -244,7 +244,7 @@ class SetTrade extends Component {
                 <span>
                   <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
                   <span className="label">
-                    I agree to the <a href="/OasisToS.pdf" target="_blank" onClick={(e) => {e.stopPropagation()}}>Terms of Service</a>
+                    I agree to the <a href="OasisToS.pdf" target="_blank" onClick={(e) => {e.stopPropagation()}}>Terms of Service</a>
                   </span>
                 </span>
               </div>
