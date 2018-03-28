@@ -1276,7 +1276,6 @@ class App extends Component {
 
   fasterGasPrice(increaseInGwei) {
     return this.getGasPrice().then(price => {
-      console.log(price);
       return web3.toBigNumber(price).add(web3.toBigNumber(web3.toWei(increaseInGwei, "gwei")));
     })
   }
