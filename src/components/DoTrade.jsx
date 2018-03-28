@@ -256,7 +256,7 @@ class DoTrade extends Component {
                         <QuestionMark/>
                       </span>
                         <span className="label">
-                        Need help? Contact us on <a href="http://chat.makerdao.com">chat.makerdao.com</a>
+                        Need help? Contact us on <a href="http://chat.makerdao.com" target="_blank" rel="noopener noreferrer">chat.makerdao.com</a>
                       </span>
                     </div>
                   }
