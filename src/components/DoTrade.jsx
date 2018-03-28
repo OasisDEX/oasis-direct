@@ -233,13 +233,13 @@ class DoTrade extends Component {
                     {
                       !this.props.showTxMessage &&
                       <span className="label">
-                        Each trading pair requires a one-time transaction per Ether address to be enabled for trading.
+                        Each trading pair requires a one-time transaction per Ethereum address to be enabled for trading.
                       </span>
                     }
                     {
                       this.props.showTxMessage && metamask &&
                       <span className="label">
-                        If your transaction doesn't confirm, click on metamask and <strong>try the resend with higher fee button</strong>
+                        If your transaction doesn't confirm, click on MetaMask and <strong>try the "Retry with a higher gas price here" button</strong>
                       </span>
                     }
                     {
