@@ -1329,7 +1329,6 @@ class App extends Component {
             <div className={'NavigationLinks'}>
               <a href="/#" style={{ color: 'white' }}>Exchange</a>
               <a href="/#tax-exporter" style={{ color: 'white' }}>Export Trades</a>
-              <a href="https://github.com/OasisDEX/oasis-direct-base" style={{ color: 'white' }} target="_blank" rel="noopener noreferrer">FAQ</a>
             </div>
             {
               false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
@@ -1395,6 +1394,7 @@ class App extends Component {
             <div className="LinksWrapper">
               <h1> Resources </h1>
               <ul className="Links">
+                <li className="Link"><a href="https://github.com/OasisDEX/oasis-direct-base" target="_blank" rel="noopener noreferrer">FAQ</a></li>
                 <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
                 <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
               </ul>
