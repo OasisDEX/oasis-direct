@@ -91,7 +91,7 @@
       "proxyContracts": {
         "oasisDirect": "0x279594b6843014376a422ebb26a6eab7a30e36f0"
       },
-      "addrEstimation": "0x1F3d07BE27601f9A7C17B0564d53b55552026337",
+      "addrEstimation": "0x1f3d07be27601f9a7c17b0564d53b55552026337",
       "proxyEstimation": "0x407368b59d8d27afad7321944eb811b935d5b974",
       "proxyDirectoryService": "",
       "fromBlock": 0
