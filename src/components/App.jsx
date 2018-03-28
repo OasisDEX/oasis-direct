@@ -1394,7 +1394,6 @@ class App extends Component {
             <div className="LinksWrapper">
               <h1> Resources </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://github.com/OasisDEX/oasis-direct-base" target="_blank" rel="noopener noreferrer">FAQ</a></li>
                 <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
                 <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
               </ul>
