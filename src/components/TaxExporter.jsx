@@ -291,7 +291,8 @@ class TaxExporter extends Component {
   }
 
   downloadCSV = () => {
-    const fileName = 'TaxReport';
+    const currentDate = new Date();
+    const fileName = `trades-report-${currentDate.getFullYear()}-${ (currentDate.getMonth()+1) <= 9 ? '0'+(currentDate.getMonth()+1) : (currentDate.getMonth()+1) }-${currentDate.getDate()}`;
     let csvData = [...this.state.csvData];
     csvData = csvData.sort((a, b) => a.timestamp > b.timestamp);
     csvData.map(trade => {

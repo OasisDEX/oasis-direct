@@ -378,6 +378,10 @@
     max-width: 120px;
   }
 
+  .transaction-info-box.half .status .spinner {
+    margin-right: 10px;
+  }
+
   .info-box.disclaimer .info-box-row .label {
     font-size: 8px;
   }

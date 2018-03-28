@@ -198,7 +198,7 @@ class DoTrade extends Component {
                         :
                           this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                           ?
-                            <div className="status"><Spinner/><span className="label info">Confirmed. Loading data...</span></div>
+                            <div className="status"><Spinner/><span className="label info">Confirmed. <br/> Loading data...</span></div>
                           :
                             <div className="status"><span className="label info">Completed</span></div>
               }
