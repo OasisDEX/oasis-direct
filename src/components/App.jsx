@@ -649,7 +649,7 @@ class App extends Component {
       this.setState({transactions}, () => {
         console.log(msgTemp.replace('TX', tx));
         web3.eth.getTransaction(tx, (e, r) => {
-          if (!e) {
+          if (!e && r) {
             this.setState((prevState, props) => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
