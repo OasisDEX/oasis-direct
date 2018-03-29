@@ -752,16 +752,19 @@ class App extends Component {
           }, () => {
             setTimeout(() => {
               this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-                Promise.resolve(this.logRequestTransaction('approval')).then(() => {
-                  this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
-                    if (!e) {
-                      this.logPendingTransaction(tx, 'approval', callbacks);
-                    } else {
-                      console.log(e);
-                      this.logTransactionRejected('approval');
-                    }
+                Promise.resolve(this.logRequestTransaction('approval'))
+                  .then(() => {
+                    this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
+                      if (!e) {
+                        this.logPendingTransaction(tx, 'approval', callbacks);
+                      } else {
+                        this.logTransactionRejected('approval');
+                      }
+                    });
+                  })
+                  .catch((e) => {
+                    console.debug("Couldn't calculate gas price because of", e);
                   });
-                });
               });
             }, 2000);
           });
@@ -850,20 +853,21 @@ class App extends Component {
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-      Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-        this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
-          value: action.value,
-          gasPrice
-        }, (e, tx) => {
-          if (!e) {
-            this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-          } else {
-            console.log(e);
-            this.logTransactionRejected('trade');
-          }
+        Promise.resolve(this.logRequestTransaction('trade')).then(() => {
+          this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
+            value: action.value,
+            gasPrice
+          }, (e, tx) => {
+            if (!e) {
+              this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+            } else {
+              console.log(e);
+              this.logTransactionRejected('trade');
+            }
+          });
         });
-      });
-    });
+      })
+      .catch(error => console.debug("Couldn't calculate gas price because of:", error));
   }
 
   doTrade = () => {
@@ -1290,8 +1294,7 @@ class App extends Component {
     return new Promise((resolve, reject) => {
       this.getGasPriceFormETHGasStation()
         .then(estimation => resolve(estimation))
-        .catch(error => {
-          console.debug("Cannot fetch gas price", error);
+        .catch(_ => {
           this.getNativeGasPrice()
             .then(estimation => resolve(estimation))
             .catch(error => reject(error));
