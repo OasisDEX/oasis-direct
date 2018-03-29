@@ -200,7 +200,7 @@ class App extends Component {
 
   setHashSection = () => {
     const section = window.location.hash.replace(/^#\/?|\/$/g, '').split('/')[0];
-    this.setState({ section });
+    this.setState({section});
   }
 
   loadObject = (abi, address) => {
@@ -612,7 +612,7 @@ class App extends Component {
   logPendingTransaction = async (tx, type, callbacks = []) => {
     this.txInterval[tx] = setTimeout(() => {
       this.setState(prevState => {
-        return { showTxMessage: true }
+        return {showTxMessage: true}
       })
     }, 60000);
     const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
@@ -752,16 +752,19 @@ class App extends Component {
           }, () => {
             setTimeout(() => {
               this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-                Promise.resolve(this.logRequestTransaction('approval')).then(() => {
-                  this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
-                    if (!e) {
-                      this.logPendingTransaction(tx, 'approval', callbacks);
-                    } else {
-                      console.log(e);
-                      this.logTransactionRejected('approval');
-                    }
+                Promise.resolve(this.logRequestTransaction('approval'))
+                  .then(() => {
+                    this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
+                      if (!e) {
+                        this.logPendingTransaction(tx, 'approval', callbacks);
+                      } else {
+                        this.logTransactionRejected('approval');
+                      }
+                    });
+                  })
+                  .catch((e) => {
+                    console.debug("Couldn't calculate gas price because of", e);
                   });
-                });
               });
             }, 2000);
           });
@@ -850,20 +853,21 @@ class App extends Component {
   executeProxyCreateAndExecute = (amount, limit) => {
     const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-      Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-        this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
-          value: action.value,
-          gasPrice
-        }, (e, tx) => {
-          if (!e) {
-            this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-          } else {
-            console.log(e);
-            this.logTransactionRejected('trade');
-          }
+        Promise.resolve(this.logRequestTransaction('trade')).then(() => {
+          this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
+            value: action.value,
+            gasPrice
+          }, (e, tx) => {
+            if (!e) {
+              this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+            } else {
+              console.log(e);
+              this.logTransactionRejected('trade');
+            }
+          });
         });
-      });
-    });
+      })
+      .catch(error => console.debug("Couldn't calculate gas price because of:", error));
   }
 
   doTrade = () => {
@@ -1228,6 +1232,7 @@ class App extends Component {
 
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
+      console.log("Calculating cost...");
       Promise.all([this.estimateGas(to, data, value, from), this.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
         console.log(to, data, value, from);
         console.log(r[0], r[1].valueOf());
@@ -1253,26 +1258,49 @@ class App extends Component {
     });
   }
 
-  getGasPrice = () => {
+  getNativeGasPrice = () => {
     return new Promise((resolve, reject) => {
-      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
-        stream.json().then(price => {
-          resolve(web3.toWei(price.average / 10,"gwei"));
-        })
-      }).catch(e => {
-        console.debug("Cannot fetch gas price", e);
-        web3.eth.getGasPrice(
-          (e, r) => {
-            if (!e) {
-              resolve(r);
-            } else {
-              reject(e);
-            }
+      web3.eth.getGasPrice(
+        (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
           }
-        );
-      });
+        }
+      );
     });
   }
+
+  getGasPriceFormETHGasStation = () => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject("Request timed out!");
+      }, 3000);
+
+      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
+        stream.json().then(price => {
+          clearTimeout(timeout);
+          resolve(web3.toWei(price.average / 10, "gwei"));
+        })
+      }).catch(e => {
+        clearTimeout(timeout);
+        reject(e);
+      });
+    })
+  }
+
+  getGasPrice = () => {
+    return new Promise((resolve, reject) => {
+      this.getGasPriceFormETHGasStation()
+        .then(estimation => resolve(estimation))
+        .catch(_ => {
+          this.getNativeGasPrice()
+            .then(estimation => resolve(estimation))
+            .catch(error => reject(error));
+        });
+    });
+  };
 
   fasterGasPrice(increaseInGwei) {
     return this.getGasPrice().then(price => {
@@ -1312,7 +1340,8 @@ class App extends Component {
                       trade={this.state.trade} network={this.state.network.network}
                       balances={this.state.balances}/>
             :
-            <DoTrade trade={ this.state.trade } transactions={ this.state.transactions } network={ this.state.network.network } reset={ this.reset } showTxMessage={ this.state.showTxMessage } />
+            <DoTrade trade={this.state.trade} transactions={this.state.transactions}
+                     network={this.state.network.network} reset={this.reset} showTxMessage={this.state.showTxMessage}/>
         }
       </div>
     )
@@ -1327,11 +1356,12 @@ class App extends Component {
               <a href="/"> <Logo/> </a>
             </div>
             <div className={'NavigationLinks'}>
-              <a href="/#" style={{ color: 'white' }}>Exchange</a>
-              <a href="/#tax-exporter" style={{ color: 'white' }}>Export Trades</a>
+              <a href="/#" style={{color: 'white'}}>Exchange</a>
+              <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
             </div>
             {
-              false && <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
+              false &&
+              <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
                 <div className="DropdownToggle" onClick={this.toggle}>
                 <span data-selected className="DropdownSelected">
                   {
@@ -1369,21 +1399,22 @@ class App extends Component {
             <div className="Widget">
               {
                 this.state.network.isConnected
-                ?
-                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
                   ?
+                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                    ?
                     <div>
                       {
                         this.state.section === 'tax-exporter'
-                        ?
-                          <TaxExporter account={ this.state.network.defaultAccount } network={ this.state.network.network } proxyRegistryObj={ this.proxyRegistryObj } getProxy={ this.getProxy } />
-                        :
+                          ?
+                          <TaxExporter account={this.state.network.defaultAccount} network={this.state.network.network}
+                                       proxyRegistryObj={this.proxyRegistryObj} getProxy={this.getProxy}/>
+                          :
                           this.renderMain()
                       }
                     </div>
-                  :
+                    :
                     <NoAccount/>
-                :
+                  :
                   <NoConnection/>
               }
             </div>
@@ -1394,29 +1425,35 @@ class App extends Component {
             <div className="LinksWrapper">
               <h1> Resources </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                <li className="Link"><a href="https://developer.makerdao.com/" target="_blank"
+                                        rel="noopener noreferrer">Documentation</a></li>
                 <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
               </ul>
             </div>
             <div className="LinksWrapper">
               <h1> Oasis </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a></li>
+                <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a>
+                </li>
                 {/* <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li> */}
               </ul>
             </div>
             <div className="LinksWrapper">
               <h1> Maker </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a></li>
-                <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+                <li className="Link"><a href="https://chat.makerdao.com" target="_blank"
+                                        rel="noopener noreferrer">Chat</a></li>
+                <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank"
+                                        rel="noopener noreferrer">Reddit</a></li>
               </ul>
             </div>
             <div className="LinksWrapper">
               <h1> Follow us </h1>
               <ul className="Links">
-                <li className="Link"><a href="https://twitter.com/oasisdirect" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-                <li className="Link"><a href="https://steemit.com/@oasisdirect" target="_blank" rel="noopener noreferrer">Steem</a></li>
+                <li className="Link"><a href="https://twitter.com/oasisdirect" target="_blank"
+                                        rel="noopener noreferrer">Twitter</a></li>
+                <li className="Link"><a href="https://steemit.com/@oasisdirect" target="_blank"
+                                        rel="noopener noreferrer">Steem</a></li>
               </ul>
             </div>
           </footer>

@@ -696,6 +696,10 @@ button[disabled] {
   right: 0;
 }
 
+.spinner {
+  height: 14px;
+}
+
 .swap-tokens {
   cursor: pointer;
   height: 24px;
@@ -779,7 +783,6 @@ button[disabled] {
 
 .transaction-info-box .status .spinner {
   margin-right: 12px;
-  height: 14px;
 }
 
 .transaction-info-box.half .status .spinner {

@@ -142,10 +142,14 @@ class SetTrade extends Component {
               </span>
             }
             {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && this.props.trade.txCost.gt(0) &&
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder">
                 <span className="label">Gas Cost </span>
-                <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
+                {
+                  this.props.trade.txCost.gt(0)
+                    ? <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
+                    : <Spinner/>
+                }
               </span>
             }
           </div>
