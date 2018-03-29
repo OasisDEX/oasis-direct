@@ -148,7 +148,7 @@ class SetTrade extends Component {
                 {
                   this.props.trade.txCost.gt(0)
                     ? <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
-                    : <Spingner/>
+                    : <Spinner/>
                 }
               </span>
             }
