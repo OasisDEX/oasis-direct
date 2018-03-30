@@ -32,7 +32,7 @@ Oasis.Direct is the most convenient, fully-decentralized way to change tokens. Y
 **Are you going to support more trading pairs in the future ?**
 
 
-Yes, we will support more trading pairs in the future. In the beginning we’re focusing on DAI/ETH, MKR/DAI and ETH/MKR pairs. 
+Yes, more trading pairs will be supported in the future. In the beginning the following pairs are available: DAI/ETH, MKR/DAI and ETH/MKR. 
 
 **Why do I sometimes need to confirm two transactions, and sometimes only one ?**
 
