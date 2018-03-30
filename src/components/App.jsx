@@ -990,9 +990,31 @@ class App extends Component {
         web3.toWei(amount),
         (e, r) => {
           if (!e) {
+            /*
+            * Even thought the user entered how much he wants to pay
+            * we still must calculate if what he will receive is higher than
+            * the min value for the receive token.
+            *
+            * If the amount of the calculated buying value is under the min value
+            * an error message is displayed for violating min value.
+            *
+            * */
+            const calculatedReceiveValue = web3.fromWei(web3.toBigNumber(r));
+            const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
+
+            if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
+              this.setState((prevState) => {
+                const trade = {...prevState.trade};
+                trade.amountBuyInput = calculatedReceiveValue.valueOf();
+                trade.errorInputBuy = `minValue:${calculatedReceiveValueMin.valueOf()}`;
+                return {trade};
+              });
+              return;
+            }
+
             this.setState((prevState, props) => {
               const trade = {...prevState.trade};
-              trade.amountBuy = web3.fromWei(web3.toBigNumber(r));
+              trade.amountBuy = calculatedReceiveValue;
               trade.amountBuyInput = trade.amountBuy.valueOf();
               return {trade};
             }, async () => {
@@ -1098,7 +1120,7 @@ class App extends Component {
       }
       const minValue = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
       if (this.state.trade.amountBuy.lt(minValue)) {
-        this.setState((prevState, props) => {
+        this.setState((prevState) => {
           const trade = {...prevState.trade};
           trade.errorInputBuy = `minValue:${minValue}`;
           return {trade};
@@ -1111,9 +1133,31 @@ class App extends Component {
         web3.toWei(amount),
         (e, r) => {
           if (!e) {
+            /*
+            * Even thought the user entered how much he wants to receive
+            * we still must calculate if what he has to pay is higher than
+            * the min value for the pay token.
+            *
+            * If the amount of the calculated selling  value is under the min value
+            * an error message is displayed for violating min value.
+            *
+            * */
+            const calculatedPayValue = web3.fromWei(web3.toBigNumber(r));
+            const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
+
+            if(calculatedPayValue.lt(calculatePayValueMin)) {
+              this.setState((prevState) => {
+                const trade = {...prevState.trade};
+                trade.amountPayInput = calculatedPayValue.valueOf();
+                trade.errorInputSell = `minValue:${calculatePayValueMin}`;
+                return {trade};
+              });
+              return;
+            }
+
             this.setState((prevState, props) => {
               const trade = {...prevState.trade};
-              trade.amountPay = web3.fromWei(web3.toBigNumber(r));
+              trade.amountPay = calculatedPayValue;
               trade.amountPayInput = trade.amountPay.valueOf();
               return {trade};
             }, async () => {
@@ -1272,7 +1316,7 @@ class App extends Component {
     });
   }
 
-  getGasPriceFormETHGasStation = () => {
+  getGasPriceFromETHGasStation = () => {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject("Request timed out!");
@@ -1292,7 +1336,7 @@ class App extends Component {
 
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
-      this.getGasPriceFormETHGasStation()
+      this.getGasPriceFromETHGasStation()
         .then(estimation => resolve(estimation))
         .catch(_ => {
           this.getNativeGasPrice()
