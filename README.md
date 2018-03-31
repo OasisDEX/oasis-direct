@@ -26,7 +26,7 @@ You don’t need to think about wrapping/unwrapping ETH (and other non ERC-20 co
 
 **What is Oasis.Direct ?**
 
-Oasis.Direct is the most convenient, fully-decentralized way to change tokens. You don’t need to think about wrapping/unwrapping Ether or any other Ethereum token, you don’t need to worry about the current liquidity and you are always guaranteed the best price you can get from [Oasis.DEX](www.oasisdex.com). Simply specify the amount that you want to trade and confirm the transaction. 
+Oasis.Direct is the most convenient, fully-decentralized way to change tokens. You don’t need to think about wrapping/unwrapping Ether or any other Ethereum token, you don’t need to worry about the current liquidity and you are always guaranteed the best available price on [Oasis.DEX](www.oasisdex.com). Simply specify the amount that you want to trade and confirm the transaction. 
 
 
 **Are you going to support more trading pairs in the future ?**
@@ -41,18 +41,15 @@ You just need to confirm two Ethereum transactions if it is the first time you a
 
 **What does “Order estimation may vary” mean ?**
 
-
-The threshold value is used to create a Limit Order for your transaction. If this Limit Order cannot be immediately filled on Oasis.DEX, the transaction will fail. As the price can never be guaranteed since you are trading directly with another person posting an order on Oasis.DEX (Order Book changes dynamically and you can never be sure what orders will be filled as they may change between showing you the estimated price and submitting the transaction)  Limit Order might be safer than Market Order that can result in unexpected too low (or too high) price.
+The slippage limit value is used to create a Limit Order for your transaction. If this Limit Order cannot be immediately completely filled on Oasis.DEX, the transaction will fail. It’s impossible to guarantee that your order will succeed, since it is being matched with other orders on Oasis.DEX in real time. The fact that Oasis.Direct uses Limit Orders, rather than Market Orders, ensures that a user won’t experience unexpected slippage. 
 
 **What happens if the transaction price exceeds the given threshold ? Will I still pay gas price for the transaction ?** 
 
-
-Yes, you will still pay the gas price. Bear in mind that the the probability that your transaction price will exceed the given threshold is relatively low.
+Yes, you will still pay for gas. Bear in mind that the likelihood that your order can’t be filled is quite low, and will only occur if the price has moved in excess of the slippage limit in the time between you receiving the quote and your transaction getting mined.
 
 **Why is the “order estimation vary indicator” (threshold) different for some pairs ?** 
 
-
-The threshold was set up by analyzing the spread historically on the Oasis.Dex for given pairs. The threshold might be adjusted accordingly if the average liquidity on Oasis.DEX has changed. In the future, you will be able to set the threshold manually according to your personal preference.
+The slippage limits were decided by analyzing the volatility and book depth historically on the Oasis.Dex for the given pairs. The limit might be adjusted accordingly if the market on Oasis.DEX changes. In the future, you will be able to set the slippage limit manually according to your personal preference.
 
 **Can you list order estimation variations (thresholds) for all assets/tokens ?** 
 
@@ -60,7 +57,7 @@ Right now there is  a fixed threshold of 1% for ETH/MKR and DAI/MKR pairs, and 2
 
 **What is the maximum value I can trade through Oasis.Direct ?**
 
-There is no maximum value limit. However, with big sell/buy orders it is more likely that you may exceed the threshold limit for your order and the transaction will fail
+There is no maximum size limit. However, larger orders impact the market more, and so may be quoted poorer prices. They are also more likely to fail by exceeding the slippage limit
 
 **I want to submit a big Sell/Buy Order. Can I see how likely my order will fail due to exceeding threshold limit ?**
 
@@ -68,17 +65,17 @@ This functionality will be included in the future release of Oasis.Direct
 
 **Why there is a minimum trading limit ?** 
 
-As the gas cost for a transaction does not depend on the amount you want to trade, the bigger amount, the less (percentage-wise) you pay for gas. Minimum trading was introduced to make sure that the total transaction cost is minimal with respect to the traded amount. Also trading very low amounts (so called dust transactions) is forbidden to make sure there are no rounding errors in Smart Contracts responsible for filling the trades. Currently the minimum values are:
+As the gas cost for a transaction is fixed and doesn’t  depend on the amount you want to trade, the bigger amount, the less (percentage-wise) you pay for gas. Minimum trade sizes were introduced to make sure that the total transaction cost is minimal with respect to the traded amount. Currently the minimum trade sizes are:
  * 30 DAI
  * 0.03 ETH
  * 0.03 MKR
-
+Note that both buy and sell amounts of a transaction need to be above the minimum trade size.
 
 
 **You said Oasis.Direct is fee-less. Do I still need to cover gas cost ?** 
 
 
-Yes, even though there are no fees,you still need to cover the gas cost of the transaction. The gas price is estimated according to the current transaction details. If you are unsure what is the gas cost and why it is needed for Ethereum transactions, check this excellent [guide](https://myetherwallet.github.io/knowledge-base/gas/what-is-gas-ethereum.html). 
+Yes, even though there are no fees, you still need to cover the gas cost of the transaction. The gas price is estimated according to the current transaction details. To learn more about gas and why it is needed for Ethereum transactions, check this excellent [guide](https://myetherwallet.github.io/knowledge-base/gas/what-is-gas-ethereum.html). 
 
 **Why does the transaction confirmation takes so long? What can I do to speed it up ?** 
 
