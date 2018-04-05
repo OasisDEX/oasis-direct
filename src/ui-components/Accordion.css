@@ -2,10 +2,11 @@
 
 .Accordion .Headline, .Accordion .Content {
   font-family: Montserrat, sans-serif;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 400;
   letter-spacing: 0.5px;
   line-height: 24px;
+  text-align: left;
 }
 
 .Accordion .Headline {
@@ -45,13 +46,14 @@
 }
 
 .Accordion .Headline--collapsed {
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 42px;
 }
 
 .Accordion .Headline--collapsed + .Content {
   height: auto;
-  opacity: 0.9;
+  font-weight: 400;
+  font-size: 18px;
 }
 
 .Accordion .Headline--collapsed:after {

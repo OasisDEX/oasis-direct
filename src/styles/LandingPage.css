@@ -330,8 +330,8 @@ footer.Container {
 }
 
 .FAQ .ListItem {
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
 
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 2px solid #B1B6D4;
