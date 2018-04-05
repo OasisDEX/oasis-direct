@@ -7,6 +7,7 @@ import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 import TaxExporter from './TaxExporter';
 import { Logo } from "./Icons";
+import FAQ from "./FAQ";
 
 const settings = require('../settings');
 
@@ -1402,6 +1403,7 @@ class App extends Component {
             <div className={'NavigationLinks'}>
               <a href="/#" style={{color: 'white'}}>Exchange</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
+              <a href="/#faq" style={{color: 'white'}}>FAQ</a>
             </div>
             {
               false &&
@@ -1430,40 +1432,45 @@ class App extends Component {
             }
           </header>
         </section>
-        <section className="Content">
-          <main className="Container">
-            <div>
-              <div className="MainHeading">
-                <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
-              </div>
-              <div className="SecondaryHeading">
-                <h2>No Registration. No Fees.</h2>
-              </div>
-            </div>
-            <div className="Widget">
-              {
-                this.state.network.isConnected
-                  ?
-                  this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
-                    ?
-                    <div>
-                      {
-                        this.state.section === 'tax-exporter'
-                          ?
-                          <TaxExporter account={this.state.network.defaultAccount} network={this.state.network.network}
-                                       proxyRegistryObj={this.proxyRegistryObj} getProxy={this.getProxy}/>
-                          :
-                          this.renderMain()
-                      }
-                    </div>
-                    :
-                    <NoAccount/>
-                  :
-                  <NoConnection/>
-              }
-            </div>
-          </main>
-        </section>
+        {
+          this.state.section === 'faq'
+            ? <FAQ/>
+            : <section className="Content">
+              <main className="Container">
+                <div>
+                  <div className="MainHeading">
+                    <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+                  </div>
+                  <div className="SecondaryHeading">
+                    <h2>No Registration. No Fees.</h2>
+                  </div>
+                </div>
+                <div className="Widget">
+                  {
+                    this.state.network.isConnected
+                      ?
+                      this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
+                        ?
+                        <div>
+                          {
+                            this.state.section === 'tax-exporter'
+                              ?
+                              <TaxExporter account={this.state.network.defaultAccount}
+                                           network={this.state.network.network}
+                                           proxyRegistryObj={this.proxyRegistryObj} getProxy={this.getProxy}/>
+                              :
+                              this.renderMain()
+                          }
+                        </div>
+                        :
+                        <NoAccount/>
+                      :
+                      <NoConnection/>
+                  }
+                </div>
+              </main>
+            </section>
+        }
         <section>
           <footer className="Container">
             <div className="LinksWrapper">

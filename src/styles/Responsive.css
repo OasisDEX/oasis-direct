@@ -137,6 +137,15 @@
     font-size: 9px;
   }
 
+  .Container {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .NavigationLinks a {
+     margin-right: 20px;
+  }
+
   main.Container {
     padding-right: 8px;
     padding-left: 8px;
