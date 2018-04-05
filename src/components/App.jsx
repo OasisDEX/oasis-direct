@@ -1403,7 +1403,6 @@ class App extends Component {
             <div className={'NavigationLinks'}>
               <a href="/#" style={{color: 'white'}}>Exchange</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
-              <a href="/#faq" style={{color: 'white'}}>FAQ</a>
             </div>
             {
               false &&
@@ -1476,6 +1475,9 @@ class App extends Component {
             <div className="LinksWrapper">
               <h1> Resources </h1>
               <ul className="Links">
+                <li className="Link" onClick={ () => {
+                  window.scrollTo(0,0);
+                }}><a href="/#faq" style={{color: 'white'}}>FAQ</a></li>
                 <li className="Link"><a href="https://developer.makerdao.com/" target="_blank"
                                         rel="noopener noreferrer">Documentation</a></li>
                 <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
