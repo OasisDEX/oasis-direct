@@ -16,3 +16,9 @@ body {
   height: 100%;
   background: #3F51B5;
 }
+
+pre {
+  white-space: pre-line;
+  font-family: inherit;
+  margin: 0;
+}
