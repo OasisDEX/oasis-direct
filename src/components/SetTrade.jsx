@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import web3 from '../web3';
 import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
-import TokenAmount from "./TokenAmount";
+import TokenAmount from './TokenAmount';
+import { toWei } from '../helpers'
 
 const settings = require('../settings');
 
@@ -137,7 +137,7 @@ class SetTrade extends Component {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder">
                 <span className="label">Price </span>
-                <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+                <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
                                token={`${tokens[this.props.trade.to].symbol}/${tokens[this.props.trade.from].symbol}`}/>
               </span>
             }
@@ -147,7 +147,7 @@ class SetTrade extends Component {
                 <span className="label">Gas Cost </span>
                 {
                   this.props.trade.txCost.gt(0)
-                    ? <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
+                    ? <TokenAmount number={toWei(this.props.trade.txCost)} token={'ETH'}/>
                     : <Spinner/>
                 }
               </span>
