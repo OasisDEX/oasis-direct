@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import web3 from '../web3';
+import { isMetamask } from '../blockchainHandler';
 import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done, Failed } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount'
-import { etherscanUrl, wdiv } from '../helpers';
+import { etherscanUrl, wdiv, toBigNumber, toWei } from '../helpers';
 
 const settings = require('../settings');
 
@@ -59,7 +59,7 @@ class DoTrade extends Component {
   }
 
   render() {
-    const metamask = web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+    const metamask = isMetamask();
     return (
       <section className={`frame ${this.props.trade.step === 2 ? 'finalize' : ''}`}>
         <div className="heading">
@@ -71,7 +71,7 @@ class DoTrade extends Component {
               <span className="label">
               Current Estimated Price
               </span>
-              <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+              <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
                            token= {`${tokens[this.props.trade.from].symbol}/${tokens[this.props.trade.to].symbol}`}/>
             </span>
           </div>
@@ -158,7 +158,7 @@ class DoTrade extends Component {
                   <div className="details">
                     <span className="label">Selling</span>
                     <span
-                      className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}<TokenAmount number={web3.toWei((this.props.trade.amountPay.valueOf()))} token={tokens[this.props.trade.from].symbol}/></span>
+                      className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}<TokenAmount number={toWei((this.props.trade.amountPay.valueOf()))} token={tokens[this.props.trade.from].symbol}/></span>
                   </div>
                 </div>
                 <div className="operation">
@@ -166,7 +166,7 @@ class DoTrade extends Component {
                   <div className="details">
                     <span className="label">Buying</span>
                     <span className="value">{this.props.trade.operation === 'buyAll' ? '' : '~ '}
-                      <TokenAmount number={web3.toWei((this.props.trade.amountBuy.valueOf()))} token={tokens[this.props.trade.to].symbol}/>
+                      <TokenAmount number={toWei((this.props.trade.amountBuy.valueOf()))} token={tokens[this.props.trade.to].symbol}/>
                     </span>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ class DoTrade extends Component {
                         ? <span><Spinner/></span>
                         : <TokenAmount number={(typeof this.props.transactions.approval !== 'undefined'
                         ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                        : web3.toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))} token={'ETH'}/>
+                        : toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))} token={'ETH'}/>
                     }&nbsp;
                   </span>
                     gas cost
