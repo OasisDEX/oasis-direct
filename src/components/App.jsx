@@ -129,7 +129,7 @@ class App extends Component {
           this.initContracts();
         }
       });
-    });
+    }).catch(() => {});
   }
 
   componentDidMount = () => {
@@ -196,7 +196,7 @@ class App extends Component {
       this.setState((prevState, props) => {
         return {proxy};
       });
-    });
+    }).catch(() => {});
   }
 
   saveBalance = token => {
@@ -207,7 +207,7 @@ class App extends Component {
           balances.eth = r;
           return {balances};
         });
-      });
+      }).catch(() => {});
     } else {
       Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
         this.setState((prevState) => {
@@ -215,7 +215,7 @@ class App extends Component {
           balances[token] = r;
           return {balances};
         });
-      });
+      }).catch(() => {});
     }
   }
 
@@ -335,14 +335,14 @@ class App extends Component {
               }
             });
           }
-        });
+        }).catch(() => {});
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs));
+          ).then(logs => this.saveTradedValue('sell', logs)).catch(() => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
             transactions[type].checkFromBlock).then(logs => {
@@ -356,14 +356,14 @@ class App extends Component {
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs));
+          ).then(logs => this.saveTradedValue('buy', logs)).catch(() => {}).catch(() => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
-            transactions[type].checkFromBlock).then(logs => {
+          transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
-          });
+          }).catch(() => {});
         }
       }
       return false;
@@ -477,7 +477,7 @@ class App extends Component {
               return {transactions, showTxMessage: false};
             });
           }
-        })
+        }).catch(() => {});
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -585,7 +585,7 @@ class App extends Component {
             }, 2000);
           });
         }
-      });
+      }).catch(() => {});
     }
   }
 
@@ -632,8 +632,8 @@ class App extends Component {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      });
-    });
+      }).catch(() => {});
+    }).catch(() => {});
   }
 
   getActionCreateAndExecute = (operation, from, to, amount, limit) => {
@@ -643,26 +643,26 @@ class App extends Component {
     if (operation === 'sellAll') {
       if (from === "eth") {
         result.method = 'createAndSellAllAmountPayEth';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, limit];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, limit];
         result.value = toWei(amount);
       } else if (to === "eth") {
         result.method = 'createAndSellAllAmountBuyEth';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), limit];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), limit];
       } else {
         result.method = 'createAndSellAllAmount';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), addrTo, limit];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), addrTo, limit];
       }
     } else {
       if (from === "eth") {
         result.method = 'createAndBuyAllAmountPayEth';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, toWei(amount)];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount)];
         result.value = limit;
       } else if (to === "eth") {
         result.method = 'createAndBuyAllAmountBuyEth';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, toWei(amount), addrFrom, limit];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, toWei(amount), addrFrom, limit];
       } else {
         result.method = 'createAndBuyAllAmount';
-        result.params = [window.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, toWei(amount), addrFrom, limit];
+        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount), addrFrom, limit];
       }
     }
     return result;
@@ -678,7 +678,7 @@ class App extends Component {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      });
+      }).catch(() => {});
     })
     .catch(e => console.debug("Couldn't calculate gas price because of:", e));
   }
