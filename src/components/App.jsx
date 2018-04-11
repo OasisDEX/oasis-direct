@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { initWeb3 } from '../web3';
+import React, {Component} from 'react';
+import {initWeb3} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
-import { toBytes32, addressToBytes32, methodSig, toBigNumber, toWei, fromWei, isAddress } from '../helpers';
+import {toBytes32, addressToBytes32, methodSig, toBigNumber, toWei, fromWei, isAddress} from '../helpers';
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 import TaxExporter from './TaxExporter';
@@ -147,7 +147,7 @@ class App extends Component {
       this.setHashSection();
     }
 
-  initWeb3();
+    initWeb3();
     this.checkNetwork();
     this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
