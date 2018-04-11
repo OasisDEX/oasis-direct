@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import * as Blockchain from "../blockchainHandler";
 import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { toWei } from '../helpers'
+import { toWei, fromWei, toBigNumber } from '../helpers'
 
 const settings = require('../settings');
 
@@ -37,6 +38,293 @@ class SetTrade extends Component {
     }
   }
 
+  calculateBuyAmount = () => {
+    const from = this.state.from;
+    const to = this.state.to;
+    const amount = this.amountPay.value;
+
+    let trade = {
+      from,
+      to,
+      amountBuy: toBigNumber(0),
+      amountPay: toBigNumber(amount),
+      amountBuyInput: '',
+      amountPayInput: amount,
+      operation: 'sellAll',
+      txCost: toBigNumber(0),
+      errorInputSell: null,
+      errorInputBuy: null,
+      errorOrders: null
+    };
+
+    this.props.setMainState({trade}).then(() => {
+      if (toBigNumber(amount).eq(0)) {
+        trade = {
+          amountBuy: fromWei(toBigNumber(0)),
+          amountBuyInput: ''
+        };
+        this.props.setMainState({trade});
+        return;
+      }
+      const minValue = settings.chain[this.props.network].tokens[from.replace('eth', 'weth')].minValue;
+      if (this.props.trade.amountPay.lt(minValue)) {
+        trade = {
+          errorInputSell: `minValue:${minValue}`
+        };
+        this.props.setMainState({trade});
+        return;
+      }
+      Blockchain.loadObject('matchingmarket', settings.chain[this.props.network].otc).getBuyAmount(
+        settings.chain[this.props.network].tokens[to.replace('eth', 'weth')].address,
+        settings.chain[this.props.network].tokens[from.replace('eth', 'weth')].address,
+        toWei(amount),
+        (e, r) => {
+          if (!e) {
+            /*
+            * Even thought the user entered how much he wants to pay
+            * we still must calculate if what he will receive is higher than
+            * the min value for the receive token.
+            *
+            * If the amount of the calculated buying value is under the min value
+            * an error message is displayed for violating min value.
+            *
+            * */
+            const calculatedReceiveValue = fromWei(toBigNumber(r));
+            const calculatedReceiveValueMin = settings.chain[this.props.network].tokens[to.replace('eth', 'weth')].minValue;
+  
+            if(calculatedReceiveValue.lt(calculatedReceiveValueMin) && calculatedReceiveValue.gt(0)) {
+              trade = {
+                amountBuyInput: calculatedReceiveValue.valueOf(),
+                errorInputBuy: `minValue:${calculatedReceiveValueMin.valueOf()}`
+              };
+              this.props.setMainState({trade});
+              return;
+            }
+
+            trade = {
+              amountBuy: calculatedReceiveValue,
+              amountBuyInput: calculatedReceiveValue.valueOf()
+            };
+            this.props.setMainState({trade}).then(async () => {
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.props.defaultAccount);
+              const errorInputSell = balance.lt(toWei(amount))
+                ?
+                // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
+                'funds'
+                :
+                '';
+              const errorOrders = this.props.trade.amountBuy.eq(0)
+                ?
+                {
+                  type: "sell",
+                  amount,
+                  token: from.toUpperCase()
+                }
+                :
+                null;
+              if (errorInputSell || errorOrders) {
+                trade = {
+                  errorInputSell,
+                  errorOrders
+                };
+                this.props.setMainState({trade});
+                return;
+              }
+  
+              let hasAllowance = false;
+              let action = null;
+              let data = null;
+              let target = null;
+              let addrFrom = null;
+              const txs = [];
+              if (this.props.proxy) {
+                // Calculate cost of proxy execute
+                hasAllowance = (from === 'eth' ||
+                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, this.props.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, this.props.proxy)).gt(toWei(amount)));
+                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                target = hasAllowance ? this.props.proxy : settings.chain[this.props.network].proxyEstimation;
+                action = this.props.getCallDataAndValue('sellAll', from, to, amount, 0);
+                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
+                  settings.chain[this.props.network].proxyContracts.oasisDirect,
+                  action.calldata
+                );
+              } else {
+                // Calculate cost of proxy creation and execution
+                target = settings.chain[this.props.network].proxyCreationAndExecute;
+                hasAllowance = (from === 'eth' ||
+                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, target)).gt(toWei(amount)));
+                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                action = this.props.getActionCreateAndExecute('sellAll', from, to, amount, 0);
+                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+              }
+              if (!hasAllowance) {
+                const dataAllowance = this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                  this.props.proxy ? this.props.proxy : settings.chain[this.props.network].proxyCreationAndExecute,
+                  -1
+                );
+                txs.push({
+                  to: this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
+                  data: dataAllowance,
+                  value: 0,
+                  from: this.props.defaultAccount
+                });
+              }
+              txs.push({to: target, data, value: action.value, from: addrFrom});
+              this.props.saveCost(txs);
+            });
+          } else {
+            console.log(e);
+          }
+        });
+    });
+  }
+  
+  calculatePayAmount = () => {
+    const from = this.state.from;
+    const to = this.state.to;
+    const amount = this.amountBuy.value;
+
+    let trade = {
+      from: from,
+      to: to,
+      amountBuy: toBigNumber(amount),
+      amountPay: toBigNumber(0),
+      amountBuyInput: amount,
+      amountPayInput: '',
+      operation: 'buyAll',
+      txCost: toBigNumber(0),
+      errorInputSell: null,
+      errorInputBuy: null,
+      errorOrders: null
+    };
+    this.props.setMainState({trade}).then(() => {
+      if (toBigNumber(amount).eq(0)) {
+        trade = {
+          amountPay: fromWei(toBigNumber(0)),
+          amountPayInput: ''
+        };
+        this.props.setMainState({trade});
+        return;
+      }
+      const minValue = settings.chain[this.props.network].tokens[to.replace('eth', 'weth')].minValue;
+      if (this.props.trade.amountBuy.lt(minValue)) {
+        trade = {
+          errorInputBuy: `minValue:${minValue}`
+        };
+        this.props.setMainState({trade});
+        return;
+      }
+      Blockchain.loadObject('matchingmarket', settings.chain[this.props.network].otc).getPayAmount(
+        settings.chain[this.props.network].tokens[from.replace('eth', 'weth')].address,
+        settings.chain[this.props.network].tokens[to.replace('eth', 'weth')].address,
+        toWei(amount),
+        (e, r) => {
+          if (!e) {
+            /*
+            * Even thought the user entered how much he wants to receive
+            * we still must calculate if what he has to pay is higher than
+            * the min value for the pay token.
+            *
+            * If the amount of the calculated selling  value is under the min value
+            * an error message is displayed for violating min value.
+            *
+            * */
+            const calculatedPayValue = fromWei(toBigNumber(r));
+            const calculatePayValueMin = settings.chain[this.props.network].tokens[from.replace('eth', 'weth')].minValue;
+  
+            if(calculatedPayValue.lt(calculatePayValueMin) && calculatedPayValue.gt(0)) {
+              trade = {
+                amountPayInput: calculatedPayValue.valueOf(),
+                errorInputSell: `minValue:${calculatePayValueMin}`
+              };
+              this.props.setMainState({trade});
+              return;
+            }
+  
+            trade = {
+              amountPay: calculatedPayValue,
+              amountPayInput: calculatedPayValue.valueOf()
+            };
+            console.log('aaa', calculatedPayValue.valueOf());
+            this.props.setMainState({trade}).then(async () => {
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.props.defaultAccount);
+              const errorInputSell = balance.lt(toWei(this.props.trade.amountPay))
+                ?
+                // `Not enough balance to sell ${this.props.trade.amountPay} ${from.toUpperCase()}`
+                'funds'
+                :
+                null;
+              console.log('topay', this.props.trade.amountPay.valueOf());
+              const errorOrders = this.props.trade.amountPay.eq(0)
+                ?
+                {
+                  type: "buy",
+                  amount,
+                  token: to.toUpperCase()
+                }
+                :
+                null;
+              if (errorInputSell || errorOrders) {
+                trade = {
+                  errorInputSell: errorInputSell,
+                  errorOrders: errorOrders
+                };
+                this.props.setMainState({trade});
+                return;
+              }
+  
+              let hasAllowance = false;
+              let action = null;
+              let data = null;
+              let target = null;
+              let addrFrom = null;
+              const txs = [];
+              if (this.props.proxy) {
+                // Calculate cost of proxy execute
+                hasAllowance = (from === 'eth' ||
+                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, this.props.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, this.props.proxy)).gt(toWei(this.props.trade.amountPay)));
+                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                target = hasAllowance ? this.props.proxy : settings.chain[this.props.network].proxyEstimation;
+                action = this.props.getCallDataAndValue('buyAll', from, to, amount, toWei(this.props.trade.amountPay));
+                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
+                  settings.chain[this.props.network].proxyContracts.oasisDirect,
+                  action.calldata
+                );
+              } else {
+                // Calculate cost of proxy creation and execution
+                target = settings.chain[this.props.network].proxyCreationAndExecute;
+                hasAllowance = (from === 'eth' ||
+                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, target)).gt(toWei(this.props.trade.amountPay)));
+                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                action = this.props.getActionCreateAndExecute('buyAll', from, to, amount, toWei(this.props.trade.amountPay));
+                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+              }
+              if (!hasAllowance) {
+                const dataAllowance = this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                  this.props.proxy ? this.props.proxy : settings.chain[this.props.network].proxyCreationAndExecute,
+                  -1
+                );
+                txs.push({
+                  to: this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
+                  data: dataAllowance,
+                  value: 0,
+                  from: this.props.defaultAccount
+                });
+              }
+              txs.push({to: target, data, value: action.value, from: addrFrom});
+              this.props.saveCost(txs);
+            });
+          } else {
+            console.log(e);
+          }
+        });
+    });
+  }
+
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
     this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
@@ -63,14 +351,6 @@ class SetTrade extends Component {
     e.preventDefault();
     this.props.doTrade();
     return false;
-  }
-
-  calculateBuyAmount = () => {
-    this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
-  }
-
-  calculatePayAmount = () => {
-    this.props.calculatePayAmount(this.state.from, this.state.to, this.amountBuy.value);
   }
 
   hasDetails = () => {
