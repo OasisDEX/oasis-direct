@@ -160,12 +160,12 @@ class SetTrade extends Component {
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
-                const dataAllowance = this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                const dataAllowance = Blockchain[`${this.props.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
                   this.props.proxy ? this.props.proxy : settings.chain[this.props.network].proxyCreationAndExecute,
                   -1
                 );
                 txs.push({
-                  to: this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
+                  to: Blockchain[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
                   data: dataAllowance,
                   value: 0,
                   from: this.props.defaultAccount
@@ -325,10 +325,24 @@ class SetTrade extends Component {
     });
   }
 
+  cleanInputs = () => {
+    const trade = {
+      amountBuy: toBigNumber(0),
+      amountPay: toBigNumber(0),
+      amountBuyInput: '',
+      amountPayInput: '',
+      txCost: toBigNumber(0),
+      errorInputSell: null,
+      errorInputBuy: null,
+      errorOrders: null
+    };
+    this.props.setMainState({trade});
+  }
+
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
     this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
-    this.props.cleanInputs();
+    this.cleanInputs();
   }
 
   select = (token) => {
@@ -343,13 +357,16 @@ class SetTrade extends Component {
 
   swapTokens = () => {
     this.setState({from: this.state.to, to: this.state.from, hasAcceptedTerms: false}, () => {
-      this.props.cleanInputs();
+      this.cleanInputs();
     });
   }
 
   nextStep = e => {
     e.preventDefault();
-    this.props.doTrade();
+    const trade = {
+      step: 2
+    };
+    this.props.setMainState({trade});
     return false;
   }
 
