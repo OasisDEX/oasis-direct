@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
 import {initWeb3} from '../web3';
 import * as Blockchain from "../blockchainHandler";
-import NoConnection from './NoConnection';
-import NoAccount from './NoAccount';
-import {toBytes32, addressToBytes32, methodSig, toBigNumber, toWei, fromWei, isAddress} from '../helpers';
-import SetTrade from './SetTrade';
-import DoTrade from './DoTrade';
-import TaxExporter from './TaxExporter';
+import {toBigNumber, toWei} from '../helpers';
+import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
 
@@ -247,102 +243,6 @@ class App extends Component {
   reset = () => {
     this.setState({...this.getInitialState()});
   }
-  
-  getCallDataAndValue = (operation, from, to, amount, limit) => {
-    const result = {};
-    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
-    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address, false);
-    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address, false);
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
-        result.value = toWei(amount);
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    } else {
-      if (from === "eth") {
-        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}`;
-        result.value = limit;
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    }
-    return result;
-  }
-
-  getActionCreateAndExecute = (operation, from, to, amount, limit) => {
-    const addrFrom = settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
-    const addrTo = settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
-    const result = {};
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.method = 'createAndSellAllAmountPayEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, limit];
-        result.value = toWei(amount);
-      } else if (to === "eth") {
-        result.method = 'createAndSellAllAmountBuyEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), limit];
-      } else {
-        result.method = 'createAndSellAllAmount';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), addrTo, limit];
-      }
-    } else {
-      if (from === "eth") {
-        result.method = 'createAndBuyAllAmountPayEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount)];
-        result.value = limit;
-      } else if (to === "eth") {
-        result.method = 'createAndBuyAllAmountBuyEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, toWei(amount), addrFrom, limit];
-      } else {
-        result.method = 'createAndBuyAllAmount';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount), addrFrom, limit];
-      }
-    }
-    return result;
-  }
-
-  saveCost = (txs = []) => {
-    const promises = [];
-    let total = toBigNumber(0);
-    txs.forEach(tx => {
-      promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
-    });
-    Promise.all(promises).then(costs => {
-      costs.forEach(cost => {
-        total = total.add(cost);
-      });
-      this.setState((prevState, props) => {
-        const trade = {...prevState.trade};
-        trade.txCost = fromWei(total);
-        return {trade};
-      });
-    })
-  }
-
-  calculateCost = (to, data, value = 0, from) => {
-    return new Promise((resolve, reject) => {
-      console.log("Calculating cost...");
-      Promise.all([Blockchain.estimateGas(to, data, value, from), this.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
-        console.log(to, data, value, from);
-        console.log(r[0], r[1].valueOf());
-        resolve(r[1].times(r[0]));
-      }, e => {
-        reject(e);
-      });
-    });
-  }
 
   getGasPriceFromETHGasStation = () => {
     return new Promise((resolve, reject) => {
@@ -433,41 +333,6 @@ class App extends Component {
     });
   }
 
-  renderMain = () => {
-    return (
-      <div>
-        {
-          this.state.trade.step === 1
-            ?
-            <SetTrade network={this.state.network.network}
-                      defaultAccount={this.state.network.defaultAccount}
-                      proxy={this.state.proxy}
-                      setMainState={this.setMainState}
-                      saveCost={this.saveCost}
-                      getCallDataAndValue={this.getCallDataAndValue}
-                      getActionCreateAndExecute={this.getActionCreateAndExecute}
-                      calculateBuyAmount={this.calculateBuyAmount}
-                      calculatePayAmount={this.calculatePayAmount}
-                      doTrade={this.doTrade}
-                      trade={this.state.trade}
-                      balances={this.state.balances}/>
-            :
-            <DoTrade network={this.state.network.network}
-                     defaultAccount={this.state.network.defaultAccount}
-                     proxy={this.state.proxy}
-                     trade={this.state.trade}
-                     transactions={this.state.transactions}
-                     setMainState={this.setMainState}
-                     getCallDataAndValue={this.getCallDataAndValue}
-                     getActionCreateAndExecute={this.getActionCreateAndExecute}
-                     fasterGasPrice={this.fasterGasPrice}
-                     reset={this.reset}
-                     showTxMessage={this.state.showTxMessage}/>
-        }
-      </div>
-    )
-  }
-
   render = () => {
     return (
       <section>
@@ -509,8 +374,10 @@ class App extends Component {
         </section>
         {
           this.state.section === 'faq'
-            ? <FAQ/>
-            : <section className="Content">
+          ?
+            <FAQ/>
+          :
+            <section className="Content">
               <main className="Container">
                 <div>
                   <div className="MainHeading">
@@ -520,27 +387,20 @@ class App extends Component {
                     <h2>No Registration. No Fees.</h2>
                   </div>
                 </div>
-                <div className="Widget">
-                  {
-                    this.state.network.isConnected
-                      ?
-                      this.state.network.defaultAccount && isAddress(this.state.network.defaultAccount)
-                        ?
-                        <div>
-                          {
-                            this.state.section === 'tax-exporter'
-                              ?
-                              <TaxExporter account={this.state.network.defaultAccount} network={this.state.network.network} getProxy={this.getProxy}/>
-                              :
-                              this.renderMain()
-                          }
-                        </div>
-                        :
-                        <NoAccount/>
-                      :
-                      <NoConnection/>
-                  }
-                </div>
+                <Widget isConnected={this.state.network.isConnected}
+                        section={this.state.section}
+                        network={this.state.network.network}
+                        account={this.state.network.defaultAccount}
+                        proxy={this.state.proxy}
+                        trade={this.state.trade}
+                        balances={this.state.balances}
+                        showTxMessage={this.state.showTxMessage}
+                        transactions={this.state.transactions}
+                        setMainState={this.setMainState}
+                        fasterGasPrice={this.fasterGasPrice}
+                        doTrade={this.doTrade}
+                        reset={this.reset}
+                        getProxy={this.getProxy} />
               </main>
             </section>
         }
@@ -562,7 +422,6 @@ class App extends Component {
               <ul className="Links">
                 <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a>
                 </li>
-                {/* <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li> */}
               </ul>
             </div>
             <div className="LinksWrapper">

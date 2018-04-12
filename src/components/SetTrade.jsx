@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import * as Blockchain from "../blockchainHandler";
-import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
+import {Ether, MKR, DAI, SwapArrows, Attention} from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { toWei, fromWei, toBigNumber } from '../helpers'
+import {toWei, fromWei, toBigNumber} from '../helpers'
 
 const settings = require('../settings');
 
@@ -36,6 +36,36 @@ class SetTrade extends Component {
       shouldDisplayTokenSelector: false,
       hasAcceptedTerms: false,
     }
+  }
+
+  calculateCost = (to, data, value = 0, from) => {
+    return new Promise((resolve, reject) => {
+      console.log("Calculating cost...");
+      Promise.all([Blockchain.estimateGas(to, data, value, from), this.props.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
+        console.log(to, data, value, from);
+        console.log(r[0], r[1].valueOf());
+        resolve(r[1].times(r[0]));
+      }, e => {
+        reject(e);
+      });
+    });
+  }
+
+  saveCost = (txs = []) => {
+    const promises = [];
+    let total = toBigNumber(0);
+    txs.forEach(tx => {
+      promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
+    });
+    Promise.all(promises).then(costs => {
+      costs.forEach(cost => {
+        total = total.add(cost);
+      });
+      const trade = {
+        txCost: fromWei(total)
+      };
+      this.props.setMainState({trade});
+    })
   }
 
   calculateBuyAmount = () => {
@@ -106,7 +136,7 @@ class SetTrade extends Component {
               amountBuyInput: calculatedReceiveValue.valueOf()
             };
             this.props.setMainState({trade}).then(async () => {
-              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.props.defaultAccount);
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.account) : await Blockchain.getTokenBalanceOf(from, this.props.account);
               const errorInputSell = balance.lt(toWei(amount))
                 ?
                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
@@ -140,11 +170,11 @@ class SetTrade extends Component {
               if (this.props.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, this.props.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, this.props.proxy)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                  await Blockchain.getTokenTrusted(from, this.props.account, this.props.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.account, this.props.proxy)).gt(toWei(amount)));
+                addrFrom = hasAllowance ? this.props.account : settings.chain[this.props.network].addrEstimation;
                 target = hasAllowance ? this.props.proxy : settings.chain[this.props.network].proxyEstimation;
-                action = this.props.getCallDataAndValue('sellAll', from, to, amount, 0);
+                action = Blockchain.getCallDataAndValue(this.props.network, 'sellAll', from, to, amount, 0);
                 data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.props.network].proxyContracts.oasisDirect,
                   action.calldata
@@ -153,10 +183,10 @@ class SetTrade extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.props.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, target)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
-                action = this.props.getActionCreateAndExecute('sellAll', from, to, amount, 0);
+                  await Blockchain.getTokenTrusted(from, this.props.account, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.account, target)).gt(toWei(amount)));
+                addrFrom = hasAllowance ? this.props.account : settings.chain[this.props.network].addrEstimation;
+                action = Blockchain.getActionCreateAndExecute(this.props.network, 'sellAll', from, to, amount, 0);
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
@@ -168,11 +198,11 @@ class SetTrade extends Component {
                   to: Blockchain[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
                   data: dataAllowance,
                   value: 0,
-                  from: this.props.defaultAccount
+                  from: this.props.account
                 });
               }
               txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.props.saveCost(txs);
+              this.saveCost(txs);
             });
           } else {
             console.log(e);
@@ -247,16 +277,14 @@ class SetTrade extends Component {
               amountPay: calculatedPayValue,
               amountPayInput: calculatedPayValue.valueOf()
             };
-            console.log('aaa', calculatedPayValue.valueOf());
             this.props.setMainState({trade}).then(async () => {
-              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.props.defaultAccount);
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.props.account) : await Blockchain.getTokenBalanceOf(from, this.props.account);
               const errorInputSell = balance.lt(toWei(this.props.trade.amountPay))
                 ?
                 // `Not enough balance to sell ${this.props.trade.amountPay} ${from.toUpperCase()}`
                 'funds'
                 :
                 null;
-              console.log('topay', this.props.trade.amountPay.valueOf());
               const errorOrders = this.props.trade.amountPay.eq(0)
                 ?
                 {
@@ -284,11 +312,11 @@ class SetTrade extends Component {
               if (this.props.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, this.props.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, this.props.proxy)).gt(toWei(this.props.trade.amountPay)));
-                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
+                  await Blockchain.getTokenTrusted(from, this.props.account, this.props.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.account, this.props.proxy)).gt(toWei(this.props.trade.amountPay)));
+                addrFrom = hasAllowance ? this.props.account : settings.chain[this.props.network].addrEstimation;
                 target = hasAllowance ? this.props.proxy : settings.chain[this.props.network].proxyEstimation;
-                action = this.props.getCallDataAndValue('buyAll', from, to, amount, toWei(this.props.trade.amountPay));
+                action = Blockchain.getCallDataAndValue(this.props.network, 'buyAll', from, to, amount, toWei(this.props.trade.amountPay));
                 data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.props.network].proxyContracts.oasisDirect,
                   action.calldata
@@ -297,10 +325,10 @@ class SetTrade extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.props.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.props.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.props.defaultAccount, target)).gt(toWei(this.props.trade.amountPay)));
-                addrFrom = hasAllowance ? this.props.defaultAccount : settings.chain[this.props.network].addrEstimation;
-                action = this.props.getActionCreateAndExecute('buyAll', from, to, amount, toWei(this.props.trade.amountPay));
+                  await Blockchain.getTokenTrusted(from, this.props.account, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.props.account, target)).gt(toWei(this.props.trade.amountPay)));
+                addrFrom = hasAllowance ? this.props.account : settings.chain[this.props.network].addrEstimation;
+                action = Blockchain.getActionCreateAndExecute(this.props.network, 'buyAll', from, to, amount, toWei(this.props.trade.amountPay));
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
@@ -312,11 +340,11 @@ class SetTrade extends Component {
                   to: this[`${this.props.trade.from.replace('eth', 'weth')}Obj`].address,
                   data: dataAllowance,
                   value: 0,
-                  from: this.props.defaultAccount
+                  from: this.props.account
                 });
               }
               txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.props.saveCost(txs);
+              this.saveCost(txs);
             });
           } else {
             console.log(e);
@@ -377,11 +405,6 @@ class SetTrade extends Component {
 
   acceptTermsAndConditions = () => {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
-  }
-
-  debug = (value) => {
-    console.log(value);
-    return value;
   }
 
   render() {

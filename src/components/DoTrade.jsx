@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import * as Blockchain from "../blockchainHandler";
-import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done, Failed } from './Icons';
+import {Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done, Failed} from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount'
-import { etherscanUrl, wdiv, toBigNumber, toWei, addressToBytes32 } from '../helpers';
+import {etherscanUrl, wdiv, toBigNumber, toWei, addressToBytes32} from '../helpers';
 
 const settings = require('../settings');
 
@@ -140,7 +140,7 @@ class DoTrade extends Component {
             ).then(r => {
               r.forEach(v => {
                 Blockchain.getTransaction(v.transactionHash).then(r2 => {
-                  if (r2.from === this.props.defaultAccount &&
+                  if (r2.from === this.props.account &&
                     r2.nonce === transactions[type].nonce) {
                     this.saveReplacedTransaction(type, v.transactionHash);
                   }
@@ -148,7 +148,7 @@ class DoTrade extends Component {
               });
             });
             // Using Etherscan API (backup)
-            this.getTransactionsByAddressFromEtherscan(this.props.defaultAccount, transactions[type].checkFromBlock).then(r => {
+            this.getTransactionsByAddressFromEtherscan(this.props.account, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
                 r.result.forEach(v => {
                   if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
@@ -209,7 +209,7 @@ class DoTrade extends Component {
     logs.forEach(log => {
       if (log.transactionHash === this.props.transactions.trade.tx) {
         if (this.props.trade[operation === 'buy' ? 'to' : 'from'] !== 'eth' &&
-          log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.props.defaultAccount) &&
+          log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.props.account) &&
           log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
           // No ETH, src or dst is user's address and Transfer Event
           value = value.add(toBigNumber(log.data));
@@ -249,7 +249,7 @@ class DoTrade extends Component {
     this.txInterval[tx] = setTimeout(() => {
       this.props.setMainState({showTxMessage: true});
     }, 60000);
-    const nonce = await Blockchain.getTransactionCount(this.props.defaultAccount);
+    const nonce = await Blockchain.getTransactionCount(this.props.account);
     const checkFromBlock = (await Blockchain.getBlock('latest')).number;
     console.log('nonce', nonce);
     console.log('checkFromBlock', checkFromBlock);
@@ -358,7 +358,7 @@ class DoTrade extends Component {
     } else {
       const valueObj = toBigNumber(toWei(value));
 
-      Blockchain.getTokenAllowance(token, this.props.defaultAccount, dst).then(r => {
+      Blockchain.getTokenAllowance(token, this.props.account, dst).then(r => {
         if (r.gte(valueObj)) {
           const trade = {
             step: 2,
@@ -395,7 +395,7 @@ class DoTrade extends Component {
   }
 
   executeProxyTx = (amount, limit) => {
-    const params = this.props.getCallDataAndValue(this.props.trade.operation, this.props.trade.from, this.props.trade.to, amount, limit);
+    const params = Blockchain.getCallDataAndValue(this.props.network, this.props.trade.operation, this.props.trade.from, this.props.trade.to, amount, limit);
     this.logRequestTransaction('trade').then(() => {
       this.props.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
 
@@ -410,7 +410,7 @@ class DoTrade extends Component {
   }
 
   executeProxyCreateAndExecute = (amount, limit) => {
-    const action = this.props.getActionCreateAndExecute(this.props.trade.operation, this.props.trade.from, this.props.trade.to, amount, limit);
+    const action = Blockchain.getActionCreateAndExecute(this.props.network, this.props.trade.operation, this.props.trade.from, this.props.trade.to, amount, limit);
     this.props.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.logRequestTransaction('trade').then(() => {
         Blockchain.proxyCreateAndExecute(settings.chain[this.props.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
