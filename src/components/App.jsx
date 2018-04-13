@@ -60,7 +60,11 @@ class App extends Component {
           // https://github.com/MetaMask/metamask-plugin/issues/504
           console.debug('Skipping old block');
         }
+
+        return null;
       });
+
+      return null;
     }).catch(e => {
       isConnected = false;
     }).then(() => {
@@ -83,6 +87,7 @@ class App extends Component {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
+            return null;
           }).catch(() => {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
@@ -96,6 +101,7 @@ class App extends Component {
           this.setState({network: networkState});
         }
       }
+      return  null;
     });
   }
 
@@ -121,6 +127,7 @@ class App extends Component {
           this.initContracts();
         }
       });
+      return null;
     }).catch(() => {});
   }
 
