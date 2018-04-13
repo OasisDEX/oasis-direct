@@ -158,14 +158,14 @@ class DoTrade extends Component {
               }
             });
           }
-        }).catch(() => {});
+        }, () => {});
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.props.network].tokens[this.props.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs)).catch(() => {});
+          ).then(logs => this.saveTradedValue('sell', logs), () => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.props.network].tokens[this.props.trade.from.replace('eth', 'weth')].address,
             transactions[type].checkFromBlock).then(logs => {
@@ -179,14 +179,14 @@ class DoTrade extends Component {
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.props.network].tokens[this.props.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs)).catch(() => {});
+          ).then(logs => this.saveTradedValue('buy', logs), () => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.props.network].tokens[this.props.trade.to.replace('eth', 'weth')].address,
           transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
-          }).catch(() => {});
+          }, () => {});
         }
       }
       return false;
@@ -292,7 +292,7 @@ class DoTrade extends Component {
               clearInterval(this.txInterval[tx]);
             });
           }
-        }).catch(() => {});
+        }, () => {});
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -381,16 +381,15 @@ class DoTrade extends Component {
                   .then(() => {
                     Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
                       this.logPendingTransaction(tx, 'approval', callbacks);
-                    }).catch(() => this.logTransactionRejected('approval'));
-                  })
-                  .catch((e) => {
+                    }, () => this.logTransactionRejected('approval'));
+                  }, e => {
                     console.debug("Couldn't calculate gas price because of", e);
                   });
               });
             }, 2000);
           });
         }
-      }).catch(() => {});
+      }, () => {});
     }
   }
 
@@ -401,12 +400,12 @@ class DoTrade extends Component {
 
         Blockchain.proxyExecute(this.props.proxy, settings.chain[this.props.network].proxyContracts.oasisDirect, params.calldata, gasPrice, params.value).then(tx => {
           this.logPendingTransaction(tx, 'trade');
-        }).catch(e => {
+        }, e => {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      }).catch(() => {});
-    }).catch(() => {});
+      }, () => {});
+    }, () => {});
   }
 
   executeProxyCreateAndExecute = (amount, limit) => {
@@ -415,13 +414,12 @@ class DoTrade extends Component {
       this.logRequestTransaction('trade').then(() => {
         Blockchain.proxyCreateAndExecute(settings.chain[this.props.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-        }).catch(e => {
+        }, e => {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      }).catch(() => {});
-    })
-    .catch(e => console.debug("Couldn't calculate gas price because of:", e));
+      }, () => {});
+    }, e => console.debug("Couldn't calculate gas price because of:", e));
   }
 
   doTrade = () => {

@@ -184,7 +184,7 @@ class App extends Component {
       this.setState(() => {
         return {proxy};
       });
-    }).catch(() => {});
+    }, () => {});
   }
 
   saveBalance = token => {
@@ -195,7 +195,7 @@ class App extends Component {
           balances.eth = r;
           return {balances};
         });
-      }).catch(() => {});
+      }, () => {});
     } else {
       Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
         this.setState((prevState) => {
@@ -203,7 +203,7 @@ class App extends Component {
           balances[token] = r;
           return {balances};
         });
-      }).catch(() => {});
+      }, () => {});
     }
   }
 
@@ -256,7 +256,7 @@ class App extends Component {
           clearTimeout(timeout);
           resolve(toWei(price.average / 10, "gwei"));
         })
-      }).catch(e => {
+      }, e => {
         clearTimeout(timeout);
         reject(e);
       });
@@ -266,11 +266,9 @@ class App extends Component {
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
       this.getGasPriceFromETHGasStation()
-        .then(estimation => resolve(estimation))
-        .catch(_ => {
+        .then(estimation => resolve(estimation), () => {
           Blockchain.getGasPrice()
-            .then(estimation => resolve(estimation))
-            .catch(error => reject(error));
+            .then(estimation => resolve(estimation), error => reject(error));
         });
     });
   };
