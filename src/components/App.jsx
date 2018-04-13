@@ -16,9 +16,6 @@ class App extends Component {
       ...initialState,
       network: {},
       section: 'exchange',
-      ui: {
-        isDropdownCollapsed: false
-      }
     }
     this.txInterval = {};
   }
@@ -1000,27 +997,6 @@ class App extends Component {
     })
   }
 
-  toggle = () => {
-    const isDropdownCollapsed = this.state.ui.isDropdownCollapsed;
-    this.setState({ui: {isDropdownCollapsed: !isDropdownCollapsed}})
-  }
-
-  contractDropdownList = () => {
-    this.setState({ui: {isDropdownCollapsed: false}})
-  }
-
-  switchAccount = (newAccount) => {
-    this.setState((prevState) => {
-      const network = {...prevState.network};
-      network.defaultAccount = newAccount;
-
-      const ui = {...prevState.ui};
-      ui.isDropdownCollapsed = false;
-
-      return {ui, network};
-    });
-  }
-
   render = () => {
     return (
       <section>
@@ -1033,31 +1009,6 @@ class App extends Component {
               <a href="/#" style={{color: 'white'}}>Exchange</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
             </div>
-            {
-              false &&
-              <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
-                <div className="DropdownToggle" onClick={this.toggle}>
-                <span data-selected className="DropdownSelected">
-                  {
-                    this.state.network.defaultAccount
-                  }
-                </span>
-                  <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
-                </span>
-                </div>
-                <div className={`DropdownList ${this.state.ui.isDropdownCollapsed ? 'DropdownList--visible' : ''}`}>
-                  <div className="DropdownListWrapper">
-                    <ul>
-                      {
-                        this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
-                          onClick={(event) => this.switchAccount(event.target.innerText)}
-                          key={index}>{account}</li>)
-                      }
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            }
           </header>
         </section>
         {
