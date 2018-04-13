@@ -1,8 +1,9 @@
 import web3 from './web3';
+import Promise from 'bluebird';
 import { toBytes32, addressToBytes32, toWei, methodSig } from './helpers';
 
 const settings = require('./settings');
-
+const promisify = Promise.promisify;
 const schema = {};
 
 schema.dstoken = require('./abi/dstoken');
@@ -13,16 +14,8 @@ schema.matchingmarket = require('./abi/matchingmarket');
 schema.proxycreateandexecute = require('./abi/proxycreateandexecute');
 
 export const getAccounts = () => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getAccounts((e, accounts) => {
-      if (!e) {
-        resolve(accounts);
-      } else {
-        reject(e);
-      }
-    });
-  });
-} 
+  return promisify(web3.eth.getAccounts)();
+}
 
 export const loadObject = (type, address, label = null) => {
   const object = web3.eth.contract(schema[type].abi).at(address);
@@ -37,104 +30,35 @@ export const setDefaultAccount = account => {
 }
 
 export const getGasPrice = () => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getGasPrice(
-      (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      }
-    );
-  });
+  return promisify(web3.eth.getGasPrice)();
 }
 
 export const estimateGas = (to, data, value, from) => {
-  return new Promise((resolve, reject) => {
-    web3.eth.estimateGas(
-      {to, data, value, from},
-      (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      }
-    );
-  });
+  return promisify(web3.eth.estimateGas)({to, data, value, from});
 }
 
 export const getTransaction = tx => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getTransaction(tx, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.eth.getTransaction)(tx);
 }
 
 export const getTransactionReceipt = tx => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getTransactionReceipt(tx, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.eth.getTransactionReceipt)(tx);
 }
 
 export const getTransactionCount = address => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getTransactionCount(address, 'pending', (e, r) => {
-      if (!e) {
-        resolve(r - 1);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.eth.getTransactionCount)(address, 'pending');
 }
 
 export const getNode = () => {
-  return new Promise((resolve, reject) => {
-    web3.version.getNode((e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.version.getNode)();
 }
 
 export const getBlock = block => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getBlock(block, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.eth.getBlock)(block);
 }
 
 export const setFilter = (fromBlock, address) => {
-  return new Promise((resolve, reject) => {
-    web3.eth.filter({fromBlock, address}).get((e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    })
-  });
+  return promisify(web3.eth.filter)({fromBlock, address});
 }
 
 export const resetFilters = bool => {
@@ -142,150 +66,65 @@ export const resetFilters = bool => {
 }
 
 export const getEthBalanceOf = addr => {
-  return new Promise((resolve, reject) => {
-    web3.eth.getBalance(addr, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(web3.eth.getBalance)(addr);
 }
 
 export const getTokenBalanceOf = (token, addr) => {
-  return new Promise((resolve, reject) => {
-    this[`${token}Obj`].balanceOf(addr, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(this[`${token}Obj`].balanceOf)(addr);
 }
 
 export const getTokenAllowance = (token, from, to) => {
-  return new Promise((resolve, reject) => {
-    this[`${token}Obj`].allowance.call(from, to, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        resolve(e);
-      }
-    })
-  });
+  return promisify(this[`${token}Obj`].allowance.call)(from, to);
 }
 
 export const getTokenTrusted = (token, from, to) => {
-  return new Promise((resolve, reject) => {
-    this[`${token}Obj`].allowance.call(from, to, (e, r) => {
-      if (!e) {
-        resolve(r.eq(web3.toBigNumber(2).pow(256).minus(1))); // uint(-1)
-      } else {
-        resolve(e);
-      }
-    })
-  });
+  return promisify(this[`${token}Obj`].allowance.call)(from, to)
+        .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
 export const tokenApprove = (token, dst, gasPrice) => {
-  return new Promise((resolve, reject) => {
-    this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
-      if (!e) {
-        resolve(tx);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(this[`${token}Obj`].approve)(dst, -1, {gasPrice});
 }
 
-
-export const getProxy = (account, i) => {
-  return new Promise((resolve, reject) => {
-    this.proxyRegistryObj.proxies(account, i, (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+/*
+   On the contract side, there is a mapping (address) -> []DsProxy
+   A given address can have multiple proxies. Since lists cannot be
+   iterated, the way to access a give element is access it by index
+ */
+export const getProxy = (account, proxyIndex) => {
+  return promisify(this.proxyRegistryObj.proxies)(account, proxyIndex);
 }
 
 export const getProxiesCount = account => {
-  return new Promise((resolve, reject) => {
-    this.proxyRegistryObj.proxiesCount(account, async (e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(this.proxyRegistryObj.proxiesCount)(account);
 }
 
 export const getProxyAddress = account => {
-  return new Promise((resolve, reject) => {
-    this.getProxiesCount(account).then(async (r) => {
-      if (r.gt(0)) {
-        for (let i = r.toNumber() - 1; i >= 0; i--) {
-          const proxyAddr = await this.getProxy(account, i);
-          if (await this.getProxyOwner(proxyAddr) === account) {
-            resolve(proxyAddr);
-            break;
-          }
+  return this.getProxiesCount(account).then(async (r) => {
+    if (r.gt(0)) {
+      for (let i = r.toNumber() - 1; i >= 0; i--) {
+        const proxyAddr = await this.getProxy(account, i);
+        if (await this.getProxyOwner(proxyAddr) === account) {
+          return proxyAddr;
         }
-        resolve(null);
-      } else {
-        resolve(null);
       }
-    }).catch(e => reject (e));
+    }
+    return null;
   });
 }
 
 export const getProxyOwner = proxy => {
-  return new Promise((resolve, reject) => {
-    this.loadObject('dsproxy', proxy).owner((e, r) => {
-      if (!e) {
-        resolve(r);
-      } else {
-        reject(e);
-      }
-    });
-  });
+  return promisify(this.loadObject('dsproxy', proxy).owner)();
 }
 
 export const proxyExecute = (proxyAddr, targetAddr, calldata, gasPrice, value = 0) => {
-  return new Promise((resolve, reject) => {
-    this.loadObject('dsproxy', proxyAddr).execute['address,bytes'](targetAddr,
-      calldata,
-      {value, gasPrice},
-      (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      }
-    );
-  });
+  const proxyExecuteCall = this.loadObject('dsproxy', proxyAddr).execute['address,bytes'];
+  return promisify(proxyExecuteCall)(targetAddr,calldata, {value, gasPrice});
 }
 
 export const proxyCreateAndExecute = (contractAddr, method, params, value, gasPrice) => {
-  return new Promise((resolve, reject) => {
-    this.loadObject('proxycreateandexecute', contractAddr)[method](...params, {
-      value,
-      gasPrice
-    }, (e, tx) => {
-      if (!e) {
-        resolve(tx);
-      } else {
-        reject(e);
-      }
-    });
-  })
+  const proxyCreateAndExecuteCall = this.loadObject('proxycreateandexecute', contractAddr)[method];
+  return promisify(proxyCreateAndExecuteCall)(...params, { value, gasPrice });
 }
 
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
