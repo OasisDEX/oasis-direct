@@ -8,6 +8,8 @@ import FAQ from "./FAQ";
 
 const settings = require('../settings');
 
+window.Blockchain = Blockchain;
+
 class App extends Component {
   constructor() {
     super();
@@ -65,7 +67,7 @@ class App extends Component {
       // because you have another then after this.
       // The best way to handle is to return isConnect;
       return null;
-    },() => {
+    }, () => {
       isConnected = false;
     }).then(() => {
       if (this.state.network.isConnected !== isConnected) {
@@ -162,7 +164,7 @@ class App extends Component {
       ...initialState
     }, () => {
       const addrs = settings.chain[this.state.network.network];
-      window.proxyRegistryObj = Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
+      Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
 
       const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
@@ -208,36 +210,11 @@ class App extends Component {
   }
 
   setUpToken = token => {
-    window[`${token}Obj`] = Blockchain.loadObject(token === 'weth' ? 'dsethtoken' : 'dstoken', settings.chain[this.state.network.network].tokens[token].address, token);
+    Blockchain.loadObject(token === 'weth' ? 'dsethtoken' : 'dstoken', settings.chain[this.state.network.network].tokens[token].address, token);
     setInterval(() => {
       this.saveBalance(token);
     }, 5000);
     this.saveBalance(token);
-    this.setFilterToken(token);
-  }
-
-  setFilterToken = token => {
-    const filters = ['Transfer'];
-
-    if (token === 'gem') {
-      filters.push('Deposit');
-      filters.push('Withdrawal');
-    } else {
-      filters.push('Mint');
-      filters.push('Burn');
-      filters.push('Trust');
-    }
-
-    for (let i = 0; i < filters.length; i++) {
-      const conditions = {};
-      if (Blockchain[`${token}Obj`][filters[i]]) {
-        Blockchain[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
-          if (!e) {
-            //this.logTransactionConfirmed(r.transactionHash);
-          }
-        });
-      }
-    }
   }
   //
 
