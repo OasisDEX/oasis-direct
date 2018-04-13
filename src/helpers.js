@@ -59,8 +59,7 @@ export const addZero = value => {
 }
 
 export const fromRaytoWad = (x) => {
-  const y = web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9))
-  return y;
+  return web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9));
 }
 
 export const copyToClipboard = e => {
@@ -104,18 +103,4 @@ export const methodSig = method => {
   return web3.sha3(method).substring(0, 10)
 }
 
-export const toBigNumber = number => {
-  return web3.toBigNumber(number);
-}
-
-export const toWei = (number, unit) => {
-  return web3.toWei(number, unit);
-}
-
-export const fromWei = (number, unit) => {
-  return web3.fromWei(number, unit);
-}
-
-export const isAddress = addr => {
-  return web3.isAddress(addr);
-}
+export const {toBigNumber , toWei, fromWei, isAddress} = web3;

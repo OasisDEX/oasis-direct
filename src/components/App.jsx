@@ -177,7 +177,7 @@ class App extends Component {
   setProxyAddress = () => {
     Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
-      this.setState((prevState, props) => {
+      this.setState(() => {
         return {proxy};
       });
     }).catch(() => {});
