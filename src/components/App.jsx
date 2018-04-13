@@ -60,12 +60,12 @@ class App extends Component {
           // https://github.com/MetaMask/metamask-plugin/issues/504
           console.debug('Skipping old block');
         }
-
-        return null;
       });
 
+      // because you have another then after this.
+      // The best way to handle is to return isConnect;
       return null;
-    }).catch(e => {
+    },() => {
       isConnected = false;
     }).then(() => {
       if (this.state.network.isConnected !== isConnected) {
@@ -87,8 +87,7 @@ class App extends Component {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
-            return null;
-          }).catch(() => {
+          }, () => {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
@@ -101,7 +100,6 @@ class App extends Component {
           this.setState({network: networkState});
         }
       }
-      return  null;
     });
   }
 
@@ -127,8 +125,7 @@ class App extends Component {
           this.initContracts();
         }
       });
-      return null;
-    }).catch(() => {});
+    }, error => {console.debug(error)});
   }
 
   componentDidMount = () => {
