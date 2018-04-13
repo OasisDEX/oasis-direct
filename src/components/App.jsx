@@ -180,15 +180,6 @@ class App extends Component {
     });
   }
 
-  setProxyAddress = () => {
-    Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
-      console.log('proxy', proxy);
-      this.setState(() => {
-        return {proxy};
-      });
-    }, () => {});
-  }
-
   saveBalance = token => {
     if (token === 'weth') {
       Blockchain.getEthBalanceOf(this.state.network.defaultAccount).then(r => {

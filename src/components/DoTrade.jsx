@@ -345,6 +345,13 @@ class DoTrade extends Component {
     }, timeout);
   }
 
+  setProxyAddress = () => {
+    Blockchain.getProxyAddress(this.props.account).then(proxy => {
+      console.log('proxy', proxy);
+      this.props.setMainState({proxy});
+    }, () => {});
+  }
+
   checkAllowance = (token, dst, value, callbacks) => {
     if (token === 'eth') {
       const trade = {
