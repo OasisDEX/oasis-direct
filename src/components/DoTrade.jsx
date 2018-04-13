@@ -321,7 +321,8 @@ class DoTrade extends Component {
 
   logTransactionRejected = type => {
     const transactions = {...this.props.transactions};
-    transactions[type] = {rejected: true}
+    transactions[type] = {rejected: true, requested: null}
+    console.log(transactions)
     this.props.setMainState({transactions});
   }
 

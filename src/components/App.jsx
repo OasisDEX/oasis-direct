@@ -283,7 +283,11 @@ class App extends Component {
     if (newData !== null) {
       if (typeof data === 'object' && typeof newData === 'object') {
         Object.keys(newData).forEach(key => {
-          data[key] = this.copyObject(data[key], newData[key]);
+          if (typeof data[key] === 'object' && typeof newData[key] === 'object') {
+            data[key] = this.copyObject(data[key], newData[key]);
+          } else {
+            data[key] = newData[key];
+          }
         });
       } else {
         data = newData;
