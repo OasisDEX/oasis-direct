@@ -75,40 +75,6 @@
     line-height: 40px;
   }
 
-  .Dropdown {
-    max-width: 304px;
-    width: 100%;
-  }
-
-  .DropdownList--visible {
-    display: block;
-    width: inherit;
-  }
-
-  .DropdownList--visible:before {
-    right: 24px;
-  }
-
-  .DropdownList ul li {
-    display: list-item;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: auto;
-    padding: 8px 16px;
-  }
-
-  .DropdownToggle {
-    font-size: 20px;
-  }
-
-  .DropdownSelected {
-    max-width: 212px
-  }
-
-  .DropdownArrow {
-    width: 32px;
-  }
-
   footer.Container {
     flex-wrap: wrap;
     padding: 0 64px;
