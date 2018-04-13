@@ -144,9 +144,9 @@ class DoTrade extends Component {
                     r2.nonce === transactions[type].nonce) {
                     this.saveReplacedTransaction(type, v.transactionHash);
                   }
-                })
+                }, () => {})
               });
-            });
+            }, () => {});
             // Using Etherscan API (backup)
             this.getTransactionsByAddressFromEtherscan(this.props.account, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
@@ -168,11 +168,11 @@ class DoTrade extends Component {
           ).then(logs => this.saveTradedValue('sell', logs), () => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.props.network].tokens[this.props.trade.from.replace('eth', 'weth')].address,
-            transactions[type].checkFromBlock).then(logs => {
+          transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
             }
-          });
+          }, () => {});
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
