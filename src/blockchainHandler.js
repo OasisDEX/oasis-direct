@@ -100,11 +100,11 @@ export const getProxiesCount = account => {
 }
 
 export const getProxyAddress = account => {
-  return this.getProxiesCount(account).then(async (r) => {
+  return getProxiesCount(account).then(async (r) => {
     if (r.gt(0)) {
       for (let i = r.toNumber() - 1; i >= 0; i--) {
-        const proxyAddr = await this.getProxy(account, i);
-        if (await this.getProxyOwner(proxyAddr) === account) {
+        const proxyAddr = await getProxy(account, i);
+        if (await getProxyOwner(proxyAddr) === account) {
           return proxyAddr;
         }
       }
@@ -114,16 +114,16 @@ export const getProxyAddress = account => {
 }
 
 export const getProxyOwner = proxy => {
-  return promisify(this.loadObject('dsproxy', proxy).owner)();
+  return promisify(loadObject('dsproxy', proxy).owner)();
 }
 
 export const proxyExecute = (proxyAddr, targetAddr, calldata, gasPrice, value = 0) => {
-  const proxyExecuteCall = this.loadObject('dsproxy', proxyAddr).execute['address,bytes'];
+  const proxyExecuteCall = loadObject('dsproxy', proxyAddr).execute['address,bytes'];
   return promisify(proxyExecuteCall)(targetAddr,calldata, {value, gasPrice});
 }
 
 export const proxyCreateAndExecute = (contractAddr, method, params, value, gasPrice) => {
-  const proxyCreateAndExecuteCall = this.loadObject('proxycreateandexecute', contractAddr)[method];
+  const proxyCreateAndExecuteCall = loadObject('proxycreateandexecute', contractAddr)[method];
   return promisify(proxyCreateAndExecuteCall)(...params, { value, gasPrice });
 }
 
@@ -163,8 +163,8 @@ export const getCallDataAndValue = (network, operation, from, to, amount, limit)
 }
 
 export const getActionCreateAndExecute = (network, operation, from, to, amount, limit) => {
-  const addrFrom = settings.chain[network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
-  const addrTo = settings.chain[network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
+  const addrFrom = settings.chain[network].tokens[from.replace('eth', 'weth')].address;
+  const addrTo = settings.chain[network].tokens[to.replace('eth', 'weth')].address;
   const result = {};
   if (operation === 'sellAll') {
     if (from === "eth") {
