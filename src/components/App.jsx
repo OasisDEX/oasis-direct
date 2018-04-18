@@ -62,7 +62,11 @@ class App extends Component {
           console.debug('Skipping old block');
         }
       });
-    }).catch(e => {
+
+      // because you have another then after this.
+      // The best way to handle is to return isConnect;
+      return null;
+    }, () => {
       isConnected = false;
     }).then(() => {
       if (this.state.network.isConnected !== isConnected) {
@@ -84,7 +88,7 @@ class App extends Component {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
-          }).catch(() => {
+          }, () => {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
@@ -122,7 +126,7 @@ class App extends Component {
           this.initContracts();
         }
       });
-    }).catch(() => {});
+    }, () => {});
   }
 
   componentDidMount = () => {
@@ -189,7 +193,7 @@ class App extends Component {
       this.setState(() => {
         return {proxy};
       });
-    }).catch(() => {});
+    }, () => {});
   }
 
   saveBalance = token => {
@@ -200,7 +204,7 @@ class App extends Component {
           balances.eth = r;
           return {balances};
         });
-      }).catch(() => {});
+      }, () => {});
     } else {
       Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
         this.setState((prevState) => {
@@ -208,7 +212,7 @@ class App extends Component {
           balances[token] = r;
           return {balances};
         });
-      }).catch(() => {});
+      }, () => {});
     }
   }
 
@@ -316,7 +320,7 @@ class App extends Component {
                   }
                 })
               });
-            });
+            }, () => {});
             // Using Etherscan API (backup)
             this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
@@ -326,37 +330,37 @@ class App extends Component {
                   }
                 });
               }
-            });
+            }, () => {});
           }
-        }).catch(() => {});
+        }, () => {});
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs)).catch(() => {});
+          ).then(logs => this.saveTradedValue('sell', logs), () => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
-            transactions[type].checkFromBlock).then(logs => {
+          transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
             }
-          });
+          }, () => {});
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs)).catch(() => {}).catch(() => {});
+          ).then(logs => this.saveTradedValue('buy', logs), () => {}, () => {});
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
           transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
-          }).catch(() => {});
+          }, () => {});
         }
       }
       return false;
@@ -470,7 +474,7 @@ class App extends Component {
               return {transactions, showTxMessage: false};
             });
           }
-        }).catch(() => {});
+        }, () => {});
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -569,16 +573,15 @@ class App extends Component {
                   .then(() => {
                     Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
                       this.logPendingTransaction(tx, 'approval', callbacks);
-                    }).catch(() => this.logTransactionRejected('approval'));
-                  })
-                  .catch((e) => {
+                    }, () => this.logTransactionRejected('approval'));
+                  }, e => {
                     console.debug("Couldn't calculate gas price because of", e);
                   });
               });
             }, 2000);
           });
         }
-      }).catch(() => {});
+      }, () => {});
     }
   }
 
@@ -588,12 +591,12 @@ class App extends Component {
       this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
         Blockchain.proxyExecute(this.state.proxy, settings.chain[this.state.network.network].proxyContracts.oasisDirect, params.calldata, gasPrice, params.value).then(tx => {
           this.logPendingTransaction(tx, 'trade');
-        }).catch(e => {
+        }, e => {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      }).catch(() => {});
-    }).catch(() => {});
+      }, () => {});
+    }, () => {});
   }
 
   executeProxyCreateAndExecute = (amount, limit) => {
@@ -602,13 +605,12 @@ class App extends Component {
       this.logRequestTransaction('trade').then(() => {
         Blockchain.proxyCreateAndExecute(settings.chain[this.state.network.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
           this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-        }).catch(e => {
+        }, e => {
           console.log(e);
           this.logTransactionRejected('trade');
         });
-      }).catch(() => {});
-    })
-    .catch(e => console.debug("Couldn't calculate gas price because of:", e));
+      }, () => {});
+    }, e => console.debug("Couldn't calculate gas price because of:", e));
   }
 
   doTrade = () => {
@@ -972,7 +974,7 @@ class App extends Component {
           clearTimeout(timeout);
           resolve(toWei(price.average / 10, "gwei"));
         })
-      }).catch(e => {
+      }, e => {
         clearTimeout(timeout);
         reject(e);
       });
@@ -982,11 +984,9 @@ class App extends Component {
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
       this.getGasPriceFromETHGasStation()
-        .then(estimation => resolve(estimation))
-        .catch(_ => {
+        .then(estimation => resolve(estimation), () => {
           Blockchain.getGasPrice()
-            .then(estimation => resolve(estimation))
-            .catch(error => reject(error));
+            .then(estimation => resolve(estimation), error => reject(error));
         });
     });
   };
