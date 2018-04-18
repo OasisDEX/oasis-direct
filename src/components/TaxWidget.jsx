@@ -81,7 +81,7 @@ class TaxWidget extends Component {
           }
         }
         resolve(proxies);
-      }).catch(e => reject(e));
+      }, e => reject(e));
     });
   }
 
@@ -102,7 +102,7 @@ class TaxWidget extends Component {
 
   getOwnerTransaction = tx => {
     return new Promise((resolve, reject) => {
-      Blockchain.getTransactionReceipt(tx).then(r => resolve(r.from)).catch(e => reject(e));
+      Blockchain.getTransactionReceipt(tx).then(r => resolve(r.from), e => reject(e));
     });
   }
 
@@ -114,7 +114,7 @@ class TaxWidget extends Component {
           promises.push(this.addOasisTradeFor(address, 'maker', log.args));
         });
         Promise.all(promises).then(() => resolve(true));
-      }).catch(() => {
+      }, () => {
         reject();
       })
     });
@@ -143,7 +143,7 @@ class TaxWidget extends Component {
           }
         }
         Promise.all(promises2).then(() => resolve(true));
-      }).catch(() => {
+      }, () => {
         reject();
       })
     });
