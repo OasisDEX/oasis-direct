@@ -40,7 +40,6 @@ class SetTrade extends Component {
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
     this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
-    this.props.cleanInputs();
   }
 
   select = (token) => {
@@ -50,7 +49,8 @@ class SetTrade extends Component {
     } else {
       this.setState({[this.state.selectedToken]: token});
     }
-    this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false})
+    this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false});
+    this.props.cleanInputs();
   }
 
   swapTokens = () => {
