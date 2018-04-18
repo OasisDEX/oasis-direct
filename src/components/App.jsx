@@ -745,12 +745,12 @@ class App extends Component {
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
-                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                const dataAllowance = Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
                   this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
                   -1
                 );
                 txs.push({
-                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
+                  to: Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
                   data: dataAllowance,
                   value: 0,
                   from: this.state.network.defaultAccount
@@ -1016,7 +1016,8 @@ class App extends Component {
                         reset={this.reset}
                         getProxy={this.getProxy}
                         calculateBuyAmount={this.calculateBuyAmount}
-                        calculatePayAmount={this.calculatePayAmount} />
+                        calculatePayAmount={this.calculatePayAmount}
+                        cleanInputs={this.cleanInputs} />
               </main>
             </section>
         }
