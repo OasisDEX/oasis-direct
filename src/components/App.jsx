@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
 import {initWeb3} from '../web3';
 import * as Blockchain from "../blockchainHandler";
-import NoConnection from './NoConnection';
-import NoAccount from './NoAccount';
-import {toBytes32, addressToBytes32, methodSig, toBigNumber, toWei, fromWei, isAddress} from '../helpers';
-import SetTrade from './SetTrade';
-import DoTrade from './DoTrade';
-import TaxExporter from './TaxExporter';
+import {addressToBytes32, toBigNumber, toWei, fromWei} from '../helpers';
+import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
 
@@ -589,41 +585,8 @@ class App extends Component {
     }
   }
 
-  getCallDataAndValue = (operation, from, to, amount, limit) => {
-    const result = {};
-    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
-    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address, false);
-    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address, false);
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
-        result.value = toWei(amount);
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    } else {
-      if (from === "eth") {
-        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}`;
-        result.value = limit;
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    }
-    return result;
-  }
-
   executeProxyTx = (amount, limit) => {
-    const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    const params = Blockchain.getCallDataAndValue(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.logRequestTransaction('trade').then(() => {
       this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
         Blockchain.proxyExecute(this.state.proxy, settings.chain[this.state.network.network].proxyContracts.oasisDirect, params.calldata, gasPrice, params.value).then(tx => {
@@ -636,40 +599,8 @@ class App extends Component {
     }).catch(() => {});
   }
 
-  getActionCreateAndExecute = (operation, from, to, amount, limit) => {
-    const addrFrom = settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
-    const addrTo = settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
-    const result = {};
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.method = 'createAndSellAllAmountPayEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, limit];
-        result.value = toWei(amount);
-      } else if (to === "eth") {
-        result.method = 'createAndSellAllAmountBuyEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), limit];
-      } else {
-        result.method = 'createAndSellAllAmount';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrFrom, toWei(amount), addrTo, limit];
-      }
-    } else {
-      if (from === "eth") {
-        result.method = 'createAndBuyAllAmountPayEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount)];
-        result.value = limit;
-      } else if (to === "eth") {
-        result.method = 'createAndBuyAllAmountBuyEth';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, toWei(amount), addrFrom, limit];
-      } else {
-        result.method = 'createAndBuyAllAmount';
-        result.params = [settings.chain[this.state.network.network].proxyRegistry, settings.chain[this.state.network.network].otc, addrTo, toWei(amount), addrFrom, limit];
-      }
-    }
-    return result;
-  }
-
   executeProxyCreateAndExecute = (amount, limit) => {
-    const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    const action = Blockchain.getActionCreateAndExecute(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.logRequestTransaction('trade').then(() => {
         Blockchain.proxyCreateAndExecute(settings.chain[this.state.network.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
@@ -822,7 +753,7 @@ class App extends Component {
                   (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = this.getCallDataAndValue('sellAll', from, to, amount, 0);
+                action = Blockchain.getCallDataAndValue(this.state.network.network, 'sellAll', from, to, amount, 0);
                 data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.state.network.network].proxyContracts.oasisDirect,
                   action.calldata
@@ -834,7 +765,7 @@ class App extends Component {
                   await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
                   (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = this.getActionCreateAndExecute('sellAll', from, to, amount, 0);
+                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'sellAll', from, to, amount, 0);
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
@@ -965,7 +896,7 @@ class App extends Component {
                   (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = this.getCallDataAndValue('buyAll', from, to, amount, toWei(this.state.trade.amountPay));
+                action = Blockchain.getCallDataAndValue(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
                 data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.state.network.network].proxyContracts.oasisDirect,
                   action.calldata
@@ -977,7 +908,7 @@ class App extends Component {
                   await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
                   (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = this.getActionCreateAndExecute('buyAll', from, to, amount, toWei(this.state.trade.amountPay));
+                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
                 data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
@@ -1090,24 +1021,6 @@ class App extends Component {
     });
   }
 
-  renderMain = () => {
-    return (
-      <div>
-        {
-          this.state.trade.step === 1
-            ?
-            <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
-                      calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
-                      trade={this.state.trade} network={this.state.network.network}
-                      balances={this.state.balances}/>
-            :
-            <DoTrade trade={this.state.trade} transactions={this.state.transactions}
-                     network={this.state.network.network} reset={this.reset} showTxMessage={this.state.showTxMessage}/>
-        }
-      </div>
-    )
-  }
-
   render = () => {
     return (
       <section>
@@ -1160,27 +1073,22 @@ class App extends Component {
                     <h2>No Registration. No Fees.</h2>
                   </div>
                 </div>
-                <div className="Widget">
-                  {
-                    this.state.network.isConnected
-                      ?
-                      this.state.network.defaultAccount && isAddress(this.state.network.defaultAccount)
-                        ?
-                        <div>
-                          {
-                            this.state.section === 'tax-exporter'
-                              ?
-                              <TaxExporter account={this.state.network.defaultAccount} network={this.state.network.network} getProxy={this.getProxy}/>
-                              :
-                              this.renderMain()
-                          }
-                        </div>
-                        :
-                        <NoAccount/>
-                      :
-                      <NoConnection/>
-                  }
-                </div>
+                <Widget isConnected={this.state.network.isConnected}
+                        section={this.state.section}
+                        network={this.state.network.network}
+                        account={this.state.network.defaultAccount}
+                        proxy={this.state.proxy}
+                        trade={this.state.trade}
+                        balances={this.state.balances}
+                        showTxMessage={this.state.showTxMessage}
+                        transactions={this.state.transactions}
+                        setMainState={this.setMainState}
+                        fasterGasPrice={this.fasterGasPrice}
+                        doTrade={this.doTrade}
+                        reset={this.reset}
+                        getProxy={this.getProxy}
+                        calculateBuyAmount={this.calculateBuyAmount}
+                        calculatePayAmount={this.calculatePayAmount} />
               </main>
             </section>
         }
