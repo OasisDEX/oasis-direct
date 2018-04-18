@@ -36,7 +36,8 @@ class Widget extends Component {
                                  doTrade={this.props.doTrade}
                                  reset={this.props.reset}
                                  calculateBuyAmount={this.props.calculateBuyAmount}
-                                 calculatePayAmount={this.props.calculatePayAmount} />
+                                 calculatePayAmount={this.props.calculatePayAmount}
+                                 cleanInputs={this.props.cleanInputs} />
                 }
               </div>
             :
