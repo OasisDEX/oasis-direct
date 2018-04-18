@@ -1,4 +1,7 @@
 import web3 from './web3';
+import { toBytes32, addressToBytes32, toWei, methodSig } from './helpers';
+
+const settings = require('./settings');
 
 const schema = {};
 
@@ -286,3 +289,68 @@ export const proxyCreateAndExecute = (contractAddr, method, params, value, gasPr
 }
 
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+
+export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
+  const result = {};
+  const otcBytes32 = addressToBytes32(settings.chain[network].otc, false);
+  const fromAddrBytes32 = addressToBytes32(settings.chain[network].tokens[from.replace('eth', 'weth')].address, false);
+  const toAddrBytes32 = addressToBytes32(settings.chain[network].tokens[to.replace('eth', 'weth')].address, false);
+  if (operation === 'sellAll') {
+    if (from === "eth") {
+      result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
+        `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
+      result.value = toWei(amount);
+    } else if (to === "eth") {
+      result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+        `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+    } else {
+      result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
+        `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
+    }
+  } else {
+    if (from === "eth") {
+      result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
+        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}`;
+      result.value = limit;
+    } else if (to === "eth") {
+      result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
+        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+    } else {
+      result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
+        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
+    }
+  }
+  return result;
+}
+
+export const getActionCreateAndExecute = (network, operation, from, to, amount, limit) => {
+  const addrFrom = settings.chain[network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
+  const addrTo = settings.chain[network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
+  const result = {};
+  if (operation === 'sellAll') {
+    if (from === "eth") {
+      result.method = 'createAndSellAllAmountPayEth';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, limit];
+      result.value = toWei(amount);
+    } else if (to === "eth") {
+      result.method = 'createAndSellAllAmountBuyEth';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrFrom, toWei(amount), limit];
+    } else {
+      result.method = 'createAndSellAllAmount';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrFrom, toWei(amount), addrTo, limit];
+    }
+  } else {
+    if (from === "eth") {
+      result.method = 'createAndBuyAllAmountPayEth';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount)];
+      result.value = limit;
+    } else if (to === "eth") {
+      result.method = 'createAndBuyAllAmountBuyEth';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, toWei(amount), addrFrom, limit];
+    } else {
+      result.method = 'createAndBuyAllAmount';
+      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount), addrFrom, limit];
+    }
+  }
+  return result;
+}

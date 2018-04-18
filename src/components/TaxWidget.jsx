@@ -24,7 +24,7 @@ const EXCHANGES = [
   },
 ]
 
-class TaxExporter extends Component {
+class TaxWidget extends Component {
   constructor(props) {
     super();
     this.props = props;
@@ -388,4 +388,4 @@ class TaxExporter extends Component {
   }
 }
 
-export default TaxExporter;
+export default TaxWidget;
