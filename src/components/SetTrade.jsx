@@ -31,7 +31,7 @@ class SetTrade extends Component {
     this.state = {
       from: this.props.trade.from,
       to: this.props.trade.to,
-      selectedToken: null,
+      selectedSide: null,
       shouldDisplayTokenSelector: false,
       hasAcceptedTerms: false,
     }
@@ -39,18 +39,45 @@ class SetTrade extends Component {
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
-    this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
+    this.setState({shouldDisplayTokenSelector: true, selectedSide: tokenType});
   }
 
-  select = (token) => {
-    const side = this.state.selectedToken === 'from' ? 'to' : 'from';
-    if (token === this.state[side]) {
-      this.swapTokens()
-    } else {
-      this.setState({[this.state.selectedToken]: token});
-    }
+  closeTokenPicker = () => {
     this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false});
-    this.props.cleanInputs();
+  };
+
+  select = (selectedToken) => {
+    const oppositeSide = this.state.selectedSide === 'from' ? 'to' : 'from';
+    const tokenOnTheOppositeSide = this.state[oppositeSide];
+
+    // We we have selected ETH as DEPOSIT token and we open again DEPOSIT token-picker and select ETH again
+    // nothing should happen except closing the token selector.
+    if(this.state[this.state.selectedSide] === selectedToken) {
+      this.closeTokenPicker();
+      return;
+    }
+
+
+    // If we have ETH / DAI for DEPOSIT / RECEIVE respectively  and we click on
+    // DEPOSIT token and select DAI -> we swap the pair so it has DAI / ETH for
+    // DEPOSIT / RECEIVE respectively. Close the token-picker.
+    if (selectedToken === tokenOnTheOppositeSide) {
+      this.swapTokens();
+      this.closeTokenPicker();
+      return;
+    }
+
+    // If we change the RECEIVE token and we have some amount  for the DEPOSIT token
+    // then we just recalculate what the user will receive with the new RECEIVE token.
+    this.setState({[this.state.selectedSide]: selectedToken}, () => {
+      if(this.state.selectedSide === 'to' && this.props.trade.amountBuy.gt(0) ) {
+        this.calculateBuyAmount();
+      } else {
+        this.props.cleanInputs();
+      }
+    });
+
+    this.closeTokenPicker();
   }
 
   swapTokens = () => {
@@ -66,6 +93,7 @@ class SetTrade extends Component {
   }
 
   calculateBuyAmount = () => {
+    console.log(this.state);
     this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
   }
 
