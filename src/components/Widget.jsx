@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TradeWidget from './TradeWidget';
 import TaxWidget from './TaxWidget';
+import WidgetContext from '../contexts/WidgetContext';
 
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
@@ -10,39 +11,33 @@ import {isAddress} from '../helpers';
 class Widget extends Component {
   render() {
     return (
-      <div className="Widget">
+      <WidgetContext.Consumer>
         {
-          this.props.isConnected
-          ?
-            this.props.account && isAddress(this.props.account)
-            ?
-              <div>
-                {
-                  this.props.section === 'tax-exporter'
+          values => (
+            <div className="Widget">
+              {
+                values.isConnected
+                ?
+                  values.account && isAddress(values.account)
                   ?
-                    <TaxWidget account={this.props.account}
-                               network={this.props.network}
-                               getProxy={this.props.getProxy} />
+                    <div>
+                      {
+                        values.section === 'tax-exporter'
+                        ?
+                          <TaxWidget {...values} />
+                        :
+                          <TradeWidget />
+                      }
+                    </div>
                   :
-                    <TradeWidget network={this.props.network}
-                                 account={this.props.account}
-                                 proxy={this.props.proxy}
-                                 trade={this.props.trade}
-                                 balances={this.props.balances}
-                                 showTxMessage={this.props.showTxMessage}
-                                 transactions={this.props.transactions}
-                                 setMainState={this.props.setMainState}
-                                 fasterGasPrice={this.props.fasterGasPrice}
-                                 doTrade={this.props.doTrade}
-                                 reset={this.props.reset} />
-                }
-              </div>
-            :
-              <NoAccount/>
-          :
-            <NoConnection/>
+                    <NoAccount/>
+                :
+                  <NoConnection/>
+              }
+            </div>
+          )
         }
-      </div>
+      </WidgetContext.Consumer>
     )
   }
 }

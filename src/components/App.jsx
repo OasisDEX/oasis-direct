@@ -3,6 +3,7 @@ import {initWeb3} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {toBigNumber, toWei} from '../helpers';
 import Widget from './Widget';
+import WidgetContext from '../contexts/WidgetContext';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
 
@@ -312,20 +313,26 @@ class App extends Component {
                     <h2>No Registration. No Fees.</h2>
                   </div>
                 </div>
-                <Widget isConnected={this.state.network.isConnected}
-                        section={this.state.section}
-                        network={this.state.network.network}
-                        account={this.state.network.defaultAccount}
-                        proxy={this.state.proxy}
-                        trade={this.state.trade}
-                        balances={this.state.balances}
-                        showTxMessage={this.state.showTxMessage}
-                        transactions={this.state.transactions}
-                        setMainState={this.setMainState}
-                        fasterGasPrice={this.fasterGasPrice}
-                        doTrade={this.doTrade}
-                        reset={this.reset}
-                        getProxy={this.getProxy} />
+                <WidgetContext.Provider value={
+                  {
+                    isConnected: this.state.network.isConnected,
+                    section: this.state.section,
+                    network: this.state.network.network,
+                    account: this.state.network.defaultAccount,
+                    proxy: this.state.proxy,
+                    trade: this.state.trade,
+                    balances: this.state.balances,
+                    showTxMessage: this.state.showTxMessage,
+                    transactions: this.state.transactions,
+                    setMainState: this.setMainState,
+                    fasterGasPrice: this.fasterGasPrice,
+                    doTrade: this.doTrade,
+                    reset: this.reset,
+                    getProxy: this.getProxy
+                  }
+                }>
+                  <Widget />
+                </ WidgetContext.Provider>
               </main>
             </section>
         }
