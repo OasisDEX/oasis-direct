@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 
+const toHtml = (htmlAsString) => {
+  return { __html:htmlAsString };
+}
+
 class Accordion extends Component {
 
   constructor(props) {
@@ -17,10 +21,10 @@ class Accordion extends Component {
              onClick={() => {
                this.setState({isCollapsed: !this.state.isCollapsed})
              }}>
-          <span>{this.props.headline}</span>
+          <span dangerouslySetInnerHTML={toHtml(this.props.headline)}/>
         </div>
         <div className="Content">
-          <span>{this.props.content}</span>
+          <span dangerouslySetInnerHTML={toHtml(this.props.content)}/>
         </div>
       </div>
     )

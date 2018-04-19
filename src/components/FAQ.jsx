@@ -1,8 +1,28 @@
 import React, { Component } from 'react';
 import Accordion from '../ui-components/Accordion';
-import FAQ_DATA from '../misc/faq';
+
+
+const fetchFAQ = async function() {
+  fetch("/faq.json").then((result)=> {
+    return result.json();
+  }).then((json) => {
+     return this.setState({FAQ:json});
+  });
+};
+
 
 class FAQ extends Component {
+
+  constructor(){
+    super();
+    this.state = {
+      FAQ :[]
+    };
+
+    fetchFAQ.bind(this)();
+  }
+
+
   render() {
     return (
       <section className="Content FAQ">
@@ -11,9 +31,9 @@ class FAQ extends Component {
           <div>
             <ul className="List">
               {
-                FAQ_DATA.map(pair => {
+                this.state.FAQ.map((pair,index) => {
                   return (
-                    <li className="ListItem">
+                    <li key={index} className="ListItem">
                       <Accordion
                         headline={pair.question}
                         content={pair.answer}/>
