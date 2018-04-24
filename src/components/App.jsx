@@ -878,13 +878,13 @@ class App extends Component {
     if (this.state.proxy) {
       this.checkAllowance(this.state.trade.from,
         this.state.proxy,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
         [['executeProxyTx', amount, limit]]);
     } else {
       // No Proxy created, we need to use the support contract
       this.checkAllowance(this.state.trade.from,
         settings.chain[this.state.network.network].proxyCreationAndExecute,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1.05).round(0),
+        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
         [['executeProxyCreateAndExecute', amount, limit]]);
     }
   }
