@@ -2,7 +2,7 @@ import React from 'react';
 
 const FAQ = [
   {
-    question: "What is Oasis.Direct ?",
+    question: "What is Oasis.Direct?",
     answer: "Oasis.Direct is the most convenient, fully-decentralized way to change tokens. You don’t need to think about wrapping/unwrapping Ether or any other Ethereum token, you don’t need to worry about the current liquidity and you are always guaranteed the best available price on Oasis.DEX. Simply specify the amount that you want to trade and confirm the transaction."
   },
   {
