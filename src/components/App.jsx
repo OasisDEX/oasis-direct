@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {initWeb3} from '../web3';
 import * as Blockchain from "../blockchainHandler";
-import {addressToBytes32, toBigNumber, toWei, fromWei} from '../helpers';
+import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
@@ -651,7 +651,7 @@ class App extends Component {
       if (this.state.trade.amountPay.lt(minValue)) {
         this.setState((prevState, props) => {
           const trade = {...prevState.trade};
-          trade.errorInputSell = `minValue:${minValue}`;
+          trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
           return {trade};
         });
         return;
