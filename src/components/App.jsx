@@ -678,7 +678,7 @@ class App extends Component {
               this.setState((prevState) => {
                 const trade = {...prevState.trade};
                 trade.amountBuyInput = calculatedReceiveValue.valueOf();
-                trade.errorInputBuy = `minValue:${calculatedReceiveValueMin.valueOf()}`;
+                trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
                 return {trade};
               });
               return;
@@ -794,7 +794,7 @@ class App extends Component {
       if (this.state.trade.amountBuy.lt(minValue)) {
         this.setState((prevState) => {
           const trade = {...prevState.trade};
-          trade.errorInputBuy = `minValue:${minValue}`;
+          trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
           return {trade};
         });
         return;
@@ -821,7 +821,7 @@ class App extends Component {
               this.setState((prevState) => {
                 const trade = {...prevState.trade};
                 trade.amountPayInput = calculatedPayValue.valueOf();
-                trade.errorInputSell = `minValue:${calculatePayValueMin}`;
+                trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
                 return {trade};
               });
               return;
