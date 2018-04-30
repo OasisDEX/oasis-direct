@@ -93,12 +93,19 @@ class SetTrade extends Component {
   }
 
   calculateBuyAmount = () => {
-    console.log(this.state);
-    this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
+    const amountToPay = this.amountPay.value;
+    const decimals = amountToPay.split(".")[1];
+    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+      this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
+    }
   }
 
   calculatePayAmount = () => {
-    this.props.calculatePayAmount(this.state.from, this.state.to, this.amountBuy.value);
+    const amountToBuy = this.amountBuy.value;
+    const decimals = amountToBuy.split(".")[1];
+    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+      this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
+    }
   }
 
   hasDetails = () => {

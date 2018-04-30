@@ -9,6 +9,8 @@ const initWeb3 = () => {
     web3.setProvider('');
   }
   window.web3 = web3;
+
+  web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
 }
 
 export { initWeb3 };
