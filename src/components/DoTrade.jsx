@@ -212,7 +212,7 @@ class DoTrade extends Component {
             </span>
               <div>
                 {
-                  !this.props.trade.proxy &&
+                  this.props.trade.from === 'eth' && !this.props.trade.proxy &&
                   <div className="operation">
                     <span className="icon">{}</span>
                     <div className="details">
