@@ -45,17 +45,15 @@ class DoTrade extends Component {
   }
 
   showTradeAgainButton = () => {
-    return (typeof this.props.transactions.approval !== 'undefined' &&
+    return (typeof this.props.transactions.proxy !== 'undefined' &&
+      (this.props.transactions.proxy.error || this.props.transactions.proxy.rejected)) ||
+      (typeof this.props.transactions.approval !== 'undefined' &&
       (this.props.transactions.approval.error || this.props.transactions.approval.rejected)) ||
       (typeof this.props.transactions.trade !== 'undefined' &&
       !this.props.transactions.trade.requested &&
       (this.hasTxCompleted('trade')
       || this.props.transactions.trade.error
       || this.props.transactions.trade.rejected));
-  }
-
-  hasTwoTransactions = () => {
-    return this.props.trade.txs === 2;
   }
 
   render() {
@@ -78,7 +76,64 @@ class DoTrade extends Component {
         </div>
         <div className="content">
           {
-            this.hasTwoTransactions() &&
+            this.props.trade.txs === 3 &&
+            <a
+              href={typeof this.props.transactions.proxy !== 'undefined' && this.props.transactions.proxy.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.proxy.tx}` : '#'}
+              onClick={(e) => {
+                if (typeof this.props.transactions.proxy === 'undefined' || !this.props.transactions.proxy.tx) {
+                  e.preventDefault();
+                  return false;
+                }
+              }}
+              className={typeof this.props.transactions.proxy === 'undefined' || !this.props.transactions.proxy.tx ? 'no-pointer' : ''}
+              target="_blank" rel="noopener noreferrer">
+              <div className={`transaction-info-box half ${this.hasTxCompleted('proxy') ? 'success' : ''}`}>
+              <span className={`done-placeholder ${this.hasTxCompleted('proxy') ? 'show' : ''}`}>
+                <span className="done">
+                  <Done/>
+                </span>
+              </span>
+                <div className="operation">
+                  <span className="icon">{}</span>
+                  <div className="details">
+                    <span className="label"> Creating</span>
+                    <span className="value"> Proxy</span>
+                  </div>
+                </div>
+                {
+                  typeof this.props.transactions.proxy === 'undefined'
+                  ?
+                    <div className="status"><Spinner/><span className="label">Initiating transaction...</span></div>
+                  :
+                    this.props.transactions.proxy.rejected
+                    ?
+                      <div className="status"><span className="label error">Rejected</span></div>
+                    :
+                      this.props.transactions.proxy.requested
+                      ?
+                        <div className="status"><Spinner/><span className="label info">Signing transaction</span></div>
+                      :
+                        this.props.transactions.proxy.pending
+                        ?
+                          <div className="status"><Spinner/><span className="label info">View on Etherscan</span></div>
+                        :
+                          this.props.transactions.proxy.error
+                          ?
+                            <div className="status"><span className="label error">Failed</span></div>
+                          :
+                            <div className="status"><span className="label info">Confirmed</span></div>
+                }
+              </div>
+            </a>
+          }
+          {
+            this.props.trade.txs === 3 &&
+            <div className="arrow-separator">
+             <Arrow/>
+            </div>
+          }
+          {
+            this.props.trade.txs >= 2 &&
             <a
               href={typeof this.props.transactions.approval !== 'undefined' && this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.approval.tx}` : '#'}
               onClick={(e) => {
@@ -105,7 +160,11 @@ class DoTrade extends Component {
                 {
                   typeof this.props.transactions.approval === 'undefined'
                   ?
-                    <div className="status"><Spinner/><span className="label">Initiating transaction...</span></div>
+                    this.props.trade.txs <= 2 || (/*typeof this.props.transactions.proxy.pending !== 'undefined' && */this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false)
+                    ?
+                      <div className="status"><Spinner/><span className="label">Initiating transaction</span></div>
+                    :
+                      <div className="status"><Spinner/><span className="label">Waiting for proxy creation</span></div>
                   :
                     this.props.transactions.approval.rejected
                     ?
@@ -129,13 +188,12 @@ class DoTrade extends Component {
             </a>
           }
           {
-            this.hasTwoTransactions() &&
+            this.props.trade.txs >= 2 &&
             <div className="arrow-separator">
              <Arrow/>
             </div>
           }
-            <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
-
+            <div className={`transaction-info-box ${this.props.trade.txs === 2 ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
               <a
                 href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
                 onClick={(e) => {

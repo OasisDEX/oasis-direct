@@ -189,11 +189,13 @@ class App extends Component {
     }, 5000);
   }
 
-  setProxyAddress = () => {
+  setProxyAddress = (callbacks = []) => {
     Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
       this.setState(() => {
         return {proxy};
+      }, () => {
+        callbacks.forEach(callback => this.executeCallback(callback));
       });
     }, () => {});
   }
@@ -428,15 +430,19 @@ class App extends Component {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = {...this.state.transactions};
 
-    const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
-      ?
-      'approval'
-      :
-      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
-        ?
-        'trade'
-        :
-        false;
+    const type = typeof transactions.proxy !== 'undefined' && transactions.proxy.tx === tx
+                  ?
+                    'proxy'
+                  :
+                    typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
+                    ?
+                      'approval'
+                    :
+                    typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+                      ?
+                        'trade'
+                      :
+                        false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
       transactions[type].gasUsed = parseInt(gasUsed, 10);
@@ -503,63 +509,72 @@ class App extends Component {
   executeCallback = args => {
     const method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
-    const timeout = ['executeProxyTx', 'executeProxyCreateAndExecute', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
+    const timeout = ['executeProxyTx', 'executeProxyCreateAndSellETH', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 4000;
     // console.log(method, args, timeout);
     setTimeout(() => {
       this[method](...args);
     }, timeout);
   }
 
-  checkAllowance = (token, dst, value, callbacks) => {
-    if (token === 'eth') {
-      this.setState((prevState, props) => {
-        const trade = {...prevState.trade};
-        trade.step = 2;
-        trade.txs = 1;
-        return {trade};
-      }, () => {
-        setTimeout(() => {
-          callbacks.forEach(callback => this.executeCallback(callback));
-        }, 2000);
-      });
+  checkProxy = callbacks => {
+    if (this.state.proxy) {
+      callbacks.forEach(callback => this.executeCallback(callback));
     } else {
-      const valueObj = toBigNumber(toWei(value));
-
-      Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
-        if (r.gte(valueObj)) {
+      this.logRequestTransaction('proxy')
+        .then(() => {
+          const proxyRegistry = Blockchain.objects.proxyRegistry;
+          callbacks = [['setProxyAddress', callbacks]];
           this.setState((prevState, props) => {
             const trade = {...prevState.trade};
             trade.step = 2;
-            trade.txs = 1;
+            trade.txs = 3;
             return {trade};
           }, () => {
-            setTimeout(() => {
-              callbacks.forEach(callback => this.executeCallback(callback));
-            }, 2000);
+            proxyRegistry.build((e, tx) => {
+              if (!e) {
+                this.logPendingTransaction(tx, 'proxy', callbacks);
+              } else {
+                this.logTransactionRejected('proxy');
+              }
+            });
           });
-        } else {
-          this.setState((prevState, props) => {
-            const trade = {...prevState.trade};
-            trade.step = 2;
-            trade.txs = 2;
-            return {trade};
-          }, () => {
-            setTimeout(() => {
-              this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-                this.logRequestTransaction('approval')
-                  .then(() => {
-                    Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
-                      this.logPendingTransaction(tx, 'approval', callbacks);
-                    }, () => this.logTransactionRejected('approval'));
-                  }, e => {
-                    console.debug("Couldn't calculate gas price because of", e);
-                  });
-              });
-            }, 2000);
-          });
-        }
-      }, () => {});
+        });
     }
+  }
+
+  checkAllowance = (token, dst, value, callbacks) => {
+    if (dst === 'proxy') dst = this.state.proxy; // It needs to be done as proxy might not be created when setAllowance is added to the queue of functions to be executed
+    const valueObj = toBigNumber(toWei(value));
+    Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
+      if (r.gte(valueObj)) {
+        this.setState((prevState, props) => {
+          const trade = {...prevState.trade};
+          trade.step = 2;
+          trade.txs = trade.txs ? trade.txs : 1;
+          return {trade};
+        }, () => {
+          callbacks.forEach(callback => this.executeCallback(callback));
+        });
+      } else {
+        this.setState((prevState, props) => {
+          const trade = {...prevState.trade};
+          trade.step = 2;
+          trade.txs = trade.txs ? trade.txs : 2;
+          return {trade};
+        }, () => {
+          this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+            this.logRequestTransaction('approval')
+              .then(() => {
+                Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
+                  this.logPendingTransaction(tx, 'approval', callbacks);
+                }, () => this.logTransactionRejected('approval'));
+              }, e => {
+                console.debug("Couldn't calculate gas price because of", e);
+              });
+          });
+        });
+      }
+    }, () => {});
   }
 
   executeProxyTx = (amount, limit) => {
@@ -576,8 +591,8 @@ class App extends Component {
     }, () => {});
   }
 
-  executeProxyCreateAndExecute = (amount, limit) => {
-    const action = Blockchain.getActionCreateAndExecute(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+  executeProxyCreateAndSellETH = (amount, limit) => {
+    const action = Blockchain.getActionCreateProxyAndSellETH(this.state.network.network, this.state.trade.operation, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.logRequestTransaction('trade').then(() => {
         Blockchain.proxyCreateAndExecute(settings.chain[this.state.network.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
@@ -594,17 +609,29 @@ class App extends Component {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
     const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
     const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
-    if (this.state.proxy) {
-      this.checkAllowance(this.state.trade.from,
-        this.state.proxy,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
-        [['executeProxyTx', amount, limit]]);
+    if (this.state.trade.from === 'eth') {
+      this.setState((prevState, props) => {
+        const trade = {...prevState.trade};
+        trade.step = 2;
+        trade.txs = 1;
+        return {trade};
+      }, () => {
+        // It will use the support contract just for the case of selling ETH
+        this[this.state.proxy ? 'executeProxyTx' : 'executeProxyCreateAndSellETH'](amount, limit);
+      });
     } else {
-      // No Proxy created, we need to use the support contract
-      this.checkAllowance(this.state.trade.from,
-        settings.chain[this.state.network.network].proxyCreationAndExecute,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
-        [['executeProxyCreateAndExecute', amount, limit]]);
+      const callbacks = [
+                          [
+                            'checkAllowance',
+                            this.state.trade.from,
+                            'proxy',
+                            amount,
+                            [
+                              ['executeProxyTx', amount, limit]
+                            ]
+                          ]
+                        ];
+      this.checkProxy(callbacks);
     }
   }
 
@@ -717,48 +744,7 @@ class App extends Component {
                 return;
               }
 
-              let hasAllowance = false;
-              let action = null;
-              let data = null;
-              let target = null;
-              let addrFrom = null;
-              const txs = [];
-              if (this.state.proxy) {
-                // Calculate cost of proxy execute
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = Blockchain.getCallDataAndValue(this.state.network.network, 'sellAll', from, to, amount, 0);
-                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
-                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-                  action.calldata
-                );
-              } else {
-                // Calculate cost of proxy creation and execution
-                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'sellAll', from, to, amount, 0);
-                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
-              }
-              if (!hasAllowance) {
-                const dataAllowance = Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
-                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
-                  -1
-                );
-                txs.push({
-                  to: Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
-                  data: dataAllowance,
-                  value: 0,
-                  from: this.state.network.defaultAccount
-                });
-              }
-              txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.saveCost(txs);
+              this.estimateAllGasCosts('sellAll', from, to, amount);
             });
           } else {
             console.log(e);
@@ -862,54 +848,70 @@ class App extends Component {
                 return;
               }
 
-              let hasAllowance = false;
-              let action = null;
-              let data = null;
-              let target = null;
-              let addrFrom = null;
-              const txs = [];
-              if (this.state.proxy) {
-                // Calculate cost of proxy execute
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(this.state.trade.amountPay)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = Blockchain.getCallDataAndValue(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
-                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
-                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-                  action.calldata
-                );
-              } else {
-                // Calculate cost of proxy creation and execution
-                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(this.state.trade.amountPay)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
-                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
-              }
-              if (!hasAllowance) {
-                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
-                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
-                  -1
-                );
-                txs.push({
-                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
-                  data: dataAllowance,
-                  value: 0,
-                  from: this.state.network.defaultAccount
-                });
-              }
-              txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.saveCost(txs);
+              this.estimateAllGasCosts('buyAll', from, to, amount);
             });
           } else {
             console.log(e);
           }
         });
     });
+  }
+
+  estimateAllGasCosts = async (operation, from, to, amount) => {
+    let hasAllowance = true;
+    let action = null;
+    let data = null;
+    let target = null;
+    let addrFrom = null;
+    const txs = [];
+
+    if (from !== 'eth') {
+      hasAllowance = this.state.proxy &&
+                      (await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                      (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
+
+      if (!hasAllowance) {
+        if (!this.state.proxy) {
+          txs.push({
+            to: Blockchain.objects.proxyRegistry.address,
+            data: Blockchain.objects.proxyRegistry.build.getData(),
+            value: 0,
+            from: this.state.network.defaultAccount
+          });
+        }
+        txs.push({
+          to: Blockchain.objects[from].address,
+          data: Blockchain.objects[from].approve.getData(this.state.proxy ? this.state.proxy : '0x0000000000000000000000000000000000000000', -1),
+          value: 0,
+          from: this.state.network.defaultAccount
+        });
+      }
+    }
+
+    const limit = operation === 'sellAll' ? 0 : toWei(9999999);
+    if (this.state.proxy || from !== 'eth') {
+      target = this.state.proxy && hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+      addrFrom = this.state.proxy && hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+      action = Blockchain.getCallDataAndValue(this.state.network.network, operation, from, to, amount, limit);
+      data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
+        settings.chain[this.state.network.network].proxyContracts.oasisDirect,
+        action.calldata
+      );
+    } else {
+      target = settings.chain[this.state.network.network].proxyCreationAndExecute;
+      addrFrom = this.state.network.defaultAccount;
+      action = Blockchain.getActionCreateProxyAndSellETH(this.state.network.network, operation, to, amount, limit);
+      data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+    }
+
+    txs.push({
+      to: target,
+      data,
+      value: action.value ? action.value : 0,
+      from: addrFrom
+    });
+    console.log(txs);
+    this.saveCost(txs);
   }
 
   saveCost = (txs = []) => {
