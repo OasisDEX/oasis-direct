@@ -3,7 +3,7 @@ import { isMetamask } from '../blockchainHandler';
 import '../styles/NoConnection.css'
 
 
-const NoConnection = () => {
+const NoAccount = props => {
   const metamask = isMetamask();
   return (
     <div className="frame no-account">
@@ -19,9 +19,10 @@ const NoConnection = () => {
               <h3>Unlock your Account on the Extension.</h3>
             </div>
           }
+          <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('ledger') } }>Connect to Ledger</a>
         </section>
     </div>
   )
 }
 
-export default NoConnection;
+export default NoAccount;

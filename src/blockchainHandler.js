@@ -1,6 +1,9 @@
 import web3 from './web3';
 import Promise from 'bluebird';
-import { toBytes32, addressToBytes32, toWei, methodSig } from './helpers';
+import { toBytes32, addressToBytes32, toWei, methodSig, toHex } from './helpers';
+import Transport from "@ledgerhq/hw-transport-u2f";
+import Eth from "@ledgerhq/hw-app-eth";
+import Tx from 'ethereumjs-tx';
 
 const settings = require('./settings');
 const promisify = Promise.promisify;
@@ -30,6 +33,10 @@ export const loadObject = (type, address, label = null) => {
 
 export const setDefaultAccount = account => {
   web3.eth.defaultAccount = account;
+}
+
+export const getNetwork = () => {
+  return promisify(web3.version.getNetwork)();
 }
 
 export const getGasPrice = () => {
@@ -85,10 +92,6 @@ export const getTokenTrusted = (token, from, to) => {
         .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
-export const tokenApprove = (token, dst, gasPrice) => {
-  return promisify(objects[token].approve)(dst, -1, {gasPrice});
-}
-
 /*
    On the contract side, there is a mapping (address) -> []DsProxy
    A given address can have multiple proxies. Since lists cannot be
@@ -118,16 +121,6 @@ export const getProxyAddress = account => {
 
 export const getProxyOwner = proxy => {
   return promisify(loadObject('dsproxy', proxy).owner)();
-}
-
-export const proxyExecute = (proxyAddr, targetAddr, calldata, gasPrice, value = 0) => {
-  const proxyExecuteCall = loadObject('dsproxy', proxyAddr).execute['address,bytes'];
-  return promisify(proxyExecuteCall)(targetAddr,calldata, {value, gasPrice});
-}
-
-export const proxyCreateAndExecute = (contractAddr, method, params, value, gasPrice) => {
-  const proxyCreateAndExecuteCall = loadObject('proxycreateandexecute', contractAddr)[method];
-  return promisify(proxyCreateAndExecuteCall)(...params, { value, gasPrice });
 }
 
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
@@ -180,4 +173,52 @@ export const getActionCreateProxyAndSellETH = (network, operation, to, amount, l
     result.value = limit;
   }
   return result;
+}
+
+export const loadLedgerAddresses = (derivationPath, from) => {
+  return new Promise((resolve, reject) => {
+    Transport.create().then(async transport => {
+      transport.exchangeTimeout = 10000;
+      objects.ledger = new Eth(transport);
+      const addresses = [];
+      try {
+        for (let i = from; i < from + 5; i++){
+          addresses.push((await objects.ledger.getAddress(`${derivationPath}/${i}`)).address);
+        }
+        resolve(addresses);
+      } catch(e) {
+        reject(e);
+      }
+    }, e => reject(e));
+  });
+}
+
+export const signTransactionLedger = (derivationPathWithAccount, account, to, data, value, gasPrice = null) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const tx = new Tx({
+        nonce: toHex(await getTransactionCount(account)),
+        gasPrice: toHex(gasPrice ? gasPrice.toNumber() : (await getGasPrice())),
+        gasLimit: parseInt(await estimateGas(to, data, value, account) * 1.5, 10),
+        to,
+        value: toHex(value),
+        data,
+        v: parseInt(await getNetwork(), 10)
+      });
+      objects.ledger.signTransaction(derivationPathWithAccount, tx.serialize().toString('hex')).then(sig => {
+        tx.v = "0x" + sig['v'];
+        tx.r = "0x" + sig['r'];
+        tx.s = "0x" + sig['s'];
+        web3.eth.sendRawTransaction("0x" + tx.serialize().toString('hex'), (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
+          }
+        });
+      }, e => reject(e));
+    } catch(e) {
+      reject(e);
+    }
+  });
 }

@@ -103,4 +103,4 @@ export const methodSig = method => {
   return web3.sha3(method).substring(0, 10)
 }
 
-export const {toBigNumber , toWei, fromWei, isAddress, BigNumber} = web3;
+export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;
