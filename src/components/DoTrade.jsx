@@ -211,6 +211,16 @@ class DoTrade extends Component {
               </span>
             </span>
               <div>
+                {
+                  !this.props.trade.proxy &&
+                  <div className="operation">
+                    <span className="icon">{}</span>
+                    <div className="details">
+                      <span className="label">Create</span>
+                      <span className="value">Proxy</span>
+                    </div>
+                  </div>
+                }
                 <div className="operation">
                   <span className="icon">{tokens[this.props.trade.from].icon}</span>
                   <div className="details">

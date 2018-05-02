@@ -41,6 +41,7 @@ class App extends Component {
         errorInputBuy: null,
         errorOrders: null,
         txs: null,
+        proxy: null
       },
       transactions: {},
     };
@@ -667,6 +668,7 @@ class App extends Component {
         const trade = {...prevState.trade};
         trade.step = 2;
         trade.txs = 1;
+        trade.proxy = this.state.proxy;
         return {trade};
       }, () => {
         // It will use the support contract just for the case of selling ETH
