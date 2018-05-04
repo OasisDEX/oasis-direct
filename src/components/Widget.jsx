@@ -46,6 +46,7 @@ class Widget extends Component {
                 <HardWallet hw={ this.props.hw }
                             loadHWAddresses={ this.props.loadHWAddresses }
                             selectHWAddress={ this.props.selectHWAddress }
+                            loadMoreHwAddresses= { this.props.loadMoreHwAddresses }
                             importAddress={ this.props.importAddress } />
               :
                 <NoAccount showHW={ this.props.showHW } />

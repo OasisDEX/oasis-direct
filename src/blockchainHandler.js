@@ -176,21 +176,28 @@ export const getActionCreateProxyAndSellETH = (network, operation, to, amount, l
   return result;
 }
 
+const createLedgerTransport = () => {
+  return Transport.create().then(transport => {
+    transport.exchangeTimeout = 10000;
+    const result = new Eth(transport);
+    return result;
+  }, e => e);
+}
+
 export const loadLedgerAddresses = (derivationPath, from) => {
-  return new Promise((resolve, reject) => {
-    Transport.create().then(async transport => {
-      transport.exchangeTimeout = 10000;
-      objects.ledger = new Eth(transport);
-      const addresses = [];
-      try {
-        for (let i = from; i < from + 5; i++){
-          addresses.push((await objects.ledger.getAddress(`${derivationPath}/${i}`)).address);
-        }
-        resolve(addresses);
-      } catch(e) {
-        reject(e);
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!objects.ledger) {
+        objects.ledger = await createLedgerTransport();
       }
-    }, e => reject(e));
+      const addresses = [];
+      for (let i = from; i < from + 5; i++){
+        addresses.push((await objects.ledger.getAddress(`${derivationPath}/${i}`)).address);
+      }
+      resolve(addresses);
+    } catch(e) {
+      reject(e);
+    }
   });
 }
 

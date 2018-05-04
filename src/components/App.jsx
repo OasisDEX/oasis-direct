@@ -1081,7 +1081,7 @@ class App extends Component {
       Blockchain.loadLedgerAddresses(this.state.hw.derivationPath, this.state.hw.addresses.length).then(addresses => {
         this.setState(prevState => {
           const hw = {...prevState.hw};
-          hw.addresses = hw.concat(addresses);
+          hw.addresses = hw.addresses.concat(addresses);
           return {hw};
         }, () => {
           console.log('Ledger connected', 'Addresses were loaded')
@@ -1092,7 +1092,7 @@ class App extends Component {
       Blockchain.loadTrezorAddress(this.state.hw.derivationPath, this.state.hw.addresses.length).then(address => {
         this.setState(prevState => {
           const hw = {...prevState.hw};
-          hw.addresses = hw.concat([address]);
+          hw.addresses = hw.addresses.concat([address]);
           return {hw};
         }, () => {
           console.log('Trezor connected', 'Addresses were loaded')
@@ -1180,6 +1180,7 @@ class App extends Component {
                         showHW={ this.showHW }
                         loadHWAddresses={ this.loadHWAddresses }
                         selectHWAddress={ this.selectHWAddress }
+                        loadMoreHwAddresses={ this.loadMoreHwAddresses }
                         importAddress={ this.importAddress } />
               </main>
             </section>
