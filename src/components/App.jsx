@@ -541,8 +541,8 @@ class App extends Component {
             trade.txs = 3;
             return {trade};
           }, () => {
-            if (this.state.network.isHw && this.state.hw.option === 'ledger') {
-              Blockchain.signTransactionLedger(`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyRegistry.address, proxyRegistry.build.getData(), 0, gasPrice).then(tx => {
+            if (this.state.network.isHw) {
+              Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyRegistry.address, proxyRegistry.build.getData(), 0, gasPrice).then(tx => {
                 log(null, tx);
               }, e => {
                 log(e, null);
@@ -587,8 +587,8 @@ class App extends Component {
                   this.logTransactionRejected('approval');
                 }
               }
-              if (this.state.network.isHw && this.state.hw.option === 'ledger') {
-                Blockchain.signTransactionLedger(`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, tokenObj.address, tokenObj.approve.getData(...params), 0, gasPrice).then(tx => {
+              if (this.state.network.isHw) {
+                Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, tokenObj.address, tokenObj.approve.getData(...params), 0, gasPrice).then(tx => {
                   log(null, tx);
                 }, e => {
                   log(e, null);
@@ -619,8 +619,8 @@ class App extends Component {
             this.logTransactionRejected('trade');
           }
         }
-        if (this.state.network.isHw && this.state.hw.option === 'ledger') {
-          Blockchain.signTransactionLedger(`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxy.address, proxy.execute['address,bytes'].getData(...params), data.value, gasPrice).then(tx => {
+        if (this.state.network.isHw) {
+          Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxy.address, proxy.execute['address,bytes'].getData(...params), data.value, gasPrice).then(tx => {
             log(null, tx);
           }, e => {
             log(e, null);
@@ -646,8 +646,8 @@ class App extends Component {
           }
         }
 
-        if (this.state.network.isHw && this.state.hw.option === 'ledger') {
-          Blockchain.signTransactionLedger(`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyCreateAndExecute.address, proxyCreateAndExecute[data.method].getData(...data.params), data.value, gasPrice).then(tx => {
+        if (this.state.network.isHw) {
+          Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyCreateAndExecute.address, proxyCreateAndExecute[data.method].getData(...data.params), data.value, gasPrice).then(tx => {
             log(null, tx);
           }, e => {
             log(e, null);
@@ -1061,6 +1061,16 @@ class App extends Component {
             console.log('Ledger connected', 'Addresses were loaded')
           });
         }, e => console.log('Error connecting Ledger', e.message));
+      } else if (this.state.hw.option === 'trezor') {
+        Blockchain.loadTrezorAddress(derivationPath, 0).then(address => {
+          this.setState(prevState => {
+            const hw = {...prevState.hw};
+            hw.addresses = [address];
+            return {hw};
+          }, () => {
+            console.log('Trezor connected', 'Address was loaded')
+          });
+        }, e => console.log('Error connecting Trezor', e));
       }
     });
   }
@@ -1077,6 +1087,17 @@ class App extends Component {
           console.log('Ledger connected', 'Addresses were loaded')
         });
       }, e => console.log('Error connecting Ledger', e.message));
+    } else if (this.state.hw.option === 'trezor') {
+      console.log('Connecting to Trezor', 'Getting more addresses...');
+      Blockchain.loadTrezorAddress(this.state.hw.derivationPath, this.state.hw.addresses.length).then(address => {
+        this.setState(prevState => {
+          const hw = {...prevState.hw};
+          hw.addresses = hw.concat([address]);
+          return {hw};
+        }, () => {
+          console.log('Trezor connected', 'Addresses were loaded')
+        });
+      }, e => console.log('Error connecting Trezor', e));
     }
   }
 

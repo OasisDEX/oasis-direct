@@ -4,6 +4,7 @@ import { toBytes32, addressToBytes32, toWei, methodSig, toHex } from './helpers'
 import Transport from "@ledgerhq/hw-transport-u2f";
 import Eth from "@ledgerhq/hw-app-eth";
 import Tx from 'ethereumjs-tx';
+import { TrezorConnect } from './trezor.js';
 
 const settings = require('./settings');
 const promisify = Promise.promisify;
@@ -193,18 +194,22 @@ export const loadLedgerAddresses = (derivationPath, from) => {
   });
 }
 
-export const signTransactionLedger = (derivationPathWithAccount, account, to, data, value, gasPrice = null) => {
+const buildTransaction = async (account, to, data, value, gasPrice) => {
+  return new Tx({
+    nonce: toHex(await getTransactionCount(account)),
+    gasPrice: toHex(gasPrice ? gasPrice.toNumber() : (await getGasPrice())),
+    gasLimit: parseInt(await estimateGas(to, data, value, account) * 1.5, 10),
+    to,
+    value: toHex(value),
+    data,
+    v: parseInt(await getNetwork(), 10)
+  });
+}
+
+export const signTransactionLedger = async (derivationPathWithAccount, account, to, data, value, gasPrice = null) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const tx = new Tx({
-        nonce: toHex(await getTransactionCount(account)),
-        gasPrice: toHex(gasPrice ? gasPrice.toNumber() : (await getGasPrice())),
-        gasLimit: parseInt(await estimateGas(to, data, value, account) * 1.5, 10),
-        to,
-        value: toHex(value),
-        data,
-        v: parseInt(await getNetwork(), 10)
-      });
+      const tx = await buildTransaction(account, to, data, value, gasPrice);
       objects.ledger.signTransaction(derivationPathWithAccount, tx.serialize().toString('hex')).then(sig => {
         tx.v = "0x" + sig['v'];
         tx.r = "0x" + sig['r'];
@@ -220,5 +225,45 @@ export const signTransactionLedger = (derivationPathWithAccount, account, to, da
     } catch(e) {
       reject(e);
     }
+  });
+}
+
+export const loadTrezorAddress = (derivationPath, i = 0) => {
+  return new Promise((resolve, reject) => {
+    TrezorConnect.setCurrency('ETH');
+    TrezorConnect.getXPubKey(`${derivationPath}/${i}`, result => {
+      if (result.success) {
+        resolve(result.xpubkey);
+      } else {
+        reject(result.error);
+      }
+    });
+  });
+}
+
+export const signTransactionTrezor = (derivationPathWithAccount, account, to, data, value, gasPrice = null) => {
+  return new Promise(async (resolve, reject) => {
+    const tx = await buildTransaction(account, to, data, value, gasPrice);
+    TrezorConnect.ethereumSignTx(
+      derivationPathWithAccount,
+      tx.nonce,
+      tx.gasPrice,
+      tx.gasLimit,
+      tx.to,
+      tx.value,
+      tx.data,
+      tx.v,
+      sig => {
+        tx.v = "0x" + sig['v'];
+        tx.r = "0x" + sig['r'];
+        tx.s = "0x" + sig['s'];
+        web3.eth.sendRawTransaction("0x" + tx.serialize().toString('hex'), (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
+          }
+        });
+    });
   });
 }
