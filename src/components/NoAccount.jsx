@@ -20,7 +20,7 @@ const NoAccount = props => {
             </div>
           }
           <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('ledger') } }>Connect to Ledger</a>
-          {/* <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('trezor') } }>Connect to Trezor</a> */}
+          <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('trezor') } }>Connect to Trezor</a>
         </section>
     </div>
   )

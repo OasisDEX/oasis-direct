@@ -1070,7 +1070,7 @@ class App extends Component {
           }, () => {
             console.log('Trezor connected', 'Address was loaded')
           });
-        }, e => console.log('Error connecting Trezor', e));
+        }, e => console.log('Error connecting Trezor', e.message));
       }
     });
   }

@@ -179,8 +179,7 @@ export const getActionCreateProxyAndSellETH = (network, operation, to, amount, l
 const createLedgerTransport = () => {
   return Transport.create().then(transport => {
     transport.exchangeTimeout = 10000;
-    const result = new Eth(transport);
-    return result;
+    return new Eth(transport);
   }, e => e);
 }
 
@@ -242,7 +241,7 @@ export const loadTrezorAddress = (derivationPath, i = 0) => {
       if (result.success) {
         resolve(result.xpubkey);
       } else {
-        reject(result.error);
+        reject(new Error(result.error));
       }
     });
   });

@@ -2,6 +2,7 @@ import React from 'react';
 
 class HardWallet extends React.Component {
   selectAccount = e => {
+    e.preventDefault();
     this.props.selectHWAddress(e.target.value);
   }
 
@@ -13,11 +14,11 @@ class HardWallet extends React.Component {
         <ul style={ {padding:'0px', margin: '0px', listStyle: 'none'} }>
           <li style={ {padding:'0px', margin: '0px'} }>
             { defaultDerivationPath } (default)&nbsp;
-            <a href="#action" onClick={ e => this.props.loadHWAddresses(defaultDerivationPath) }>Load</a>
+            <a href="#action" onClick={ e => {  e.preventDefault(); this.props.loadHWAddresses(defaultDerivationPath) } }>Load</a>
           </li>
           <li style={ {padding:'0px', margin: '0px'} }>
             <input type="text" style={ {width: '120px'} } ref={input => this.derivationPath = input}/>&nbsp;
-            <a href="#action" onClick={ e => this.props.loadHWAddresses(this.derivationPath.value) }>Load</a>
+            <a href="#action" onClick={ e => {  e.preventDefault(); this.props.loadHWAddresses(this.derivationPath.value) } }>Load</a>
           </li>
         </ul>
         {
