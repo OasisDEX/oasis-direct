@@ -143,13 +143,13 @@ class SetTrade extends Component {
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
           <div className="info-box-row">
             {
-              this.props.trade.errorOrders &&
+              this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="label">
                 No orders available to {this.props.trade.errorOrders.type}  <strong>{ this.props.trade.errorOrders.amount} { this.props.trade.errorOrders.token }</strong>
               </span>
             }
             {
-              !this.props.trade.errorOrders && this.props.trade.errorInputSell &&
+              this.props.trade.errorInputSell &&
               (
                 this.props.trade.errorInputSell === 'funds'
                 ?

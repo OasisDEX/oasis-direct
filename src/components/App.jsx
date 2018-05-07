@@ -609,7 +609,7 @@ class App extends Component {
   }
 
   cleanInputs = () => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
       trade.amountBuy = toBigNumber(0);
       trade.amountPay = toBigNumber(0);
@@ -624,7 +624,7 @@ class App extends Component {
   }
 
   calculateBuyAmount = (from, to, amount) => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
@@ -662,29 +662,9 @@ class App extends Component {
         toWei(amount),
         (e, r) => {
           if (!e) {
-            /*
-            * Even thought the user entered how much he wants to pay
-            * we still must calculate if what he will receive is higher than
-            * the min value for the receive token.
-            *
-            * If the amount of the calculated buying value is under the min value
-            * an error message is displayed for violating min value.
-            *
-            * */
             const calculatedReceiveValue = fromWei(toBigNumber(r));
-            const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
 
-            if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
-              this.setState((prevState) => {
-                const trade = {...prevState.trade};
-                trade.amountBuyInput = calculatedReceiveValue.valueOf();
-                trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
-                return {trade};
-              });
-              return;
-            }
-
-            this.setState((prevState, props) => {
+            this.setState((prevState) => {
               const trade = {...prevState.trade};
               trade.amountBuy = calculatedReceiveValue;
               trade.amountBuyInput = trade.amountBuy.valueOf();
@@ -711,6 +691,27 @@ class App extends Component {
                   const trade = {...prevState.trade};
                   trade.errorInputSell = errorInputSell;
                   trade.errorOrders = errorOrders;
+                  return {trade};
+                });
+                return;
+              }
+
+              /*
+              * Even thought the user entered how much he wants to pay
+              * we still must calculate if what he will receive is higher than
+              * the min value for the receive token.
+              *
+              * If the amount of the calculated buying value is under the min value
+              * an error message is displayed for violating min value.
+              *
+              * */
+              const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
+
+              if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
+                this.setState((prevState) => {
+                  const trade = {...prevState.trade};
+                  trade.amountBuyInput = calculatedReceiveValue.valueOf();
+                  trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
                   return {trade};
                 });
                 return;
@@ -767,7 +768,7 @@ class App extends Component {
   }
 
   calculatePayAmount = (from, to, amount) => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
@@ -805,29 +806,9 @@ class App extends Component {
         toWei(amount),
         (e, r) => {
           if (!e) {
-            /*
-            * Even thought the user entered how much he wants to receive
-            * we still must calculate if what he has to pay is higher than
-            * the min value for the pay token.
-            *
-            * If the amount of the calculated selling  value is under the min value
-            * an error message is displayed for violating min value.
-            *
-            * */
             const calculatedPayValue = fromWei(toBigNumber(r));
-            const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
 
-            if(calculatedPayValue.lt(calculatePayValueMin)) {
-              this.setState((prevState) => {
-                const trade = {...prevState.trade};
-                trade.amountPayInput = calculatedPayValue.valueOf();
-                trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
-                return {trade};
-              });
-              return;
-            }
-
-            this.setState((prevState, props) => {
+            this.setState((prevState) => {
               const trade = {...prevState.trade};
               trade.amountPay = calculatedPayValue;
               trade.amountPayInput = trade.amountPay.valueOf();
@@ -854,6 +835,28 @@ class App extends Component {
                   const trade = {...prevState.trade};
                   trade.errorInputSell = errorInputSell;
                   trade.errorOrders = errorOrders;
+                  return {trade};
+                });
+                return;
+              }
+
+
+              /*
+              * Even thought the user entered how much he wants to receive
+              * we still must calculate if what he has to pay is higher than
+              * the min value for the pay token.
+              *
+              * If the amount of the calculated selling  value is under the min value
+              * an error message is displayed for violating min value.
+              *
+              * */
+              const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
+
+              if(calculatedPayValue.lt(calculatePayValueMin)) {
+                this.setState((prevState) => {
+                  const trade = {...prevState.trade};
+                  trade.amountPayInput = calculatedPayValue.valueOf();
+                  trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
                   return {trade};
                 });
                 return;
