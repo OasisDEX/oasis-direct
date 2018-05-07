@@ -176,6 +176,7 @@ class App extends Component {
         this.setState((prevState, props) => {
           return {proxy: r[0]};
         }, () => {
+          Blockchain.loadObject('dsproxy', this.state.proxy, 'proxy');
           this.setUpToken('weth');
           this.setUpToken('mkr');
           this.setUpToken('dai');
@@ -609,7 +610,7 @@ class App extends Component {
     const data = Blockchain.getCallDataAndValue(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
     this.logRequestTransaction('trade').then(() => {
       this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-        const proxy = Blockchain.loadObject('dsproxy', this.state.proxy);
+        const proxy = Blockchain.objects.proxy;
         const params = [settings.chain[this.state.network.network].proxyContracts.oasisDirect, data.calldata];
         const log = (e, tx) => {
           if (!e) {
