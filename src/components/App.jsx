@@ -986,7 +986,7 @@ class App extends Component {
               <a href="/"> <Logo/> </a>
             </div>
             <div className={'NavigationLinks'}>
-              <a href="/#" style={{color: 'white'}}>Marketplace</a>
+              <a href="/#" style={{color: 'white'}}>Trade</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
             </div>
           </header>
