@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import web3 from '../web3';
 import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
-import TokenAmount from "./TokenAmount";
+import TokenAmount from './TokenAmount';
+import { toWei } from '../helpers'
 
 const settings = require('../settings');
 
@@ -31,7 +31,7 @@ class SetTrade extends Component {
     this.state = {
       from: this.props.trade.from,
       to: this.props.trade.to,
-      selectedToken: null,
+      selectedSide: null,
       shouldDisplayTokenSelector: false,
       hasAcceptedTerms: false,
     }
@@ -39,18 +39,45 @@ class SetTrade extends Component {
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
   pickToken = (tokenType) => {
-    this.setState({shouldDisplayTokenSelector: true, selectedToken: tokenType});
-    this.props.cleanInputs();
+    this.setState({shouldDisplayTokenSelector: true, selectedSide: tokenType});
   }
 
-  select = (token) => {
-    const side = this.state.selectedToken === 'from' ? 'to' : 'from';
-    if (token === this.state[side]) {
-      this.swapTokens()
-    } else {
-      this.setState({[this.state.selectedToken]: token});
+  closeTokenPicker = () => {
+    this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false});
+  };
+
+  select = (selectedToken) => {
+    const oppositeSide = this.state.selectedSide === 'from' ? 'to' : 'from';
+    const tokenOnTheOppositeSide = this.state[oppositeSide];
+
+    // We we have selected ETH as DEPOSIT token and we open again DEPOSIT token-picker and select ETH again
+    // nothing should happen except closing the token selector.
+    if(this.state[this.state.selectedSide] === selectedToken) {
+      this.closeTokenPicker();
+      return;
     }
-    this.setState({shouldDisplayTokenSelector: false, hasAcceptedTerms: false})
+
+
+    // If we have ETH / DAI for DEPOSIT / RECEIVE respectively  and we click on
+    // DEPOSIT token and select DAI -> we swap the pair so it has DAI / ETH for
+    // DEPOSIT / RECEIVE respectively. Close the token-picker.
+    if (selectedToken === tokenOnTheOppositeSide) {
+      this.swapTokens();
+      this.closeTokenPicker();
+      return;
+    }
+
+    // If we change the RECEIVE token and we have some amount  for the DEPOSIT token
+    // then we just recalculate what the user will receive with the new RECEIVE token.
+    this.setState({[this.state.selectedSide]: selectedToken}, () => {
+      if(this.state.selectedSide === 'to' && this.props.trade.amountBuy.gt(0) ) {
+        this.calculateBuyAmount();
+      } else {
+        this.props.cleanInputs();
+      }
+    });
+
+    this.closeTokenPicker();
   }
 
   swapTokens = () => {
@@ -66,11 +93,19 @@ class SetTrade extends Component {
   }
 
   calculateBuyAmount = () => {
-    this.props.calculateBuyAmount(this.state.from, this.state.to, this.amountPay.value);
+    const amountToPay = this.amountPay.value;
+    const decimals = amountToPay.split(".")[1];
+    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+      this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
+    }
   }
 
   calculatePayAmount = () => {
-    this.props.calculatePayAmount(this.state.from, this.state.to, this.amountBuy.value);
+    const amountToBuy = this.amountBuy.value;
+    const decimals = amountToBuy.split(".")[1];
+    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+      this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
+    }
   }
 
   hasDetails = () => {
@@ -108,13 +143,13 @@ class SetTrade extends Component {
         <div className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
           <div className="info-box-row">
             {
-              this.props.trade.errorOrders &&
+              this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="label">
                 No orders available to {this.props.trade.errorOrders.type}  <strong>{ this.props.trade.errorOrders.amount} { this.props.trade.errorOrders.token }</strong>
               </span>
             }
             {
-              !this.props.trade.errorOrders && this.props.trade.errorInputSell &&
+              this.props.trade.errorInputSell &&
               (
                 this.props.trade.errorInputSell === 'funds'
                 ?
@@ -137,7 +172,7 @@ class SetTrade extends Component {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder">
                 <span className="label">Price </span>
-                <TokenAmount number={web3.toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
+                <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
                                token={`${tokens[this.props.trade.to].symbol}/${tokens[this.props.trade.from].symbol}`}/>
               </span>
             }
@@ -147,7 +182,7 @@ class SetTrade extends Component {
                 <span className="label">Gas Cost </span>
                 {
                   this.props.trade.txCost.gt(0)
-                    ? <TokenAmount number={web3.toWei(this.props.trade.txCost)} token={'ETH'}/>
+                    ? <TokenAmount number={toWei(this.props.trade.txCost)} token={'ETH'}/>
                     : <Spinner/>
                 }
               </span>

@@ -1,10 +1,10 @@
 import React from 'react';
-import web3 from  '../web3';
+import { isMetamask } from '../blockchainHandler';
 import '../styles/NoConnection.css'
 
 
 const NoConnection = () => {
-  const metamask = web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+  const metamask = isMetamask();
   return (
     <div className="frame no-account">
         <div className="heading">

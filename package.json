@@ -4,9 +4,10 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "create-react-class": "^15.6.2",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^16.3.1",
+    "react-dom": "^16.3.1",
     "react-scripts": "1.0.14",
     "web3": "^0.20.2"
   },

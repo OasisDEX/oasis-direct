@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Spinner from './Spinner';
-import web3 from '../web3';
-import config from "../exporter-config.json";
+import config from '../exporter-config.json';
+import * as Blockchain from '../blockchainHandler';
+import { fromWei, isAddress } from '../helpers';
 
-import matchingmarket from '../abi/matchingmarket.json';
 import { ZeroExExchangesLogo, EtherDeltaExchangeLogo, OasisExchangeLogo } from "./Icons";
 
 const EXCHANGES = [
@@ -24,7 +24,7 @@ const EXCHANGES = [
   },
 ]
 
-class TaxExporter extends Component {
+class TaxWidget extends Component {
   constructor(props) {
     super();
     this.props = props;
@@ -57,7 +57,7 @@ class TaxExporter extends Component {
     event.preventDefault();
     const address = (this.state.newAddress || "").trim();
 
-    if (web3.isAddress(address)) {
+    if (isAddress(address)) {
       const accounts = [...this.state.accounts];
 
       if (!accounts.includes(address)) {
@@ -73,25 +73,21 @@ class TaxExporter extends Component {
 
   getPossibleProxies = address => {
     return new Promise((resolve, reject) => {
-      this.props.proxyRegistryObj.proxiesCount(address, async (e, r) => {
-        if (!e) {
-          const proxies = [];
-          if (r.gt(0)) {
-            for (let i = r.toNumber() - 1; i >= 0; i--) {
-              proxies.push(await this.props.getProxy(i));
-            }
+      Blockchain.getProxiesCount(address).then(async r => {
+        const proxies = [];
+        if (r.gt(0)) {
+          for (let i = r.toNumber() - 1; i >= 0; i--) {
+            proxies.push(await Blockchain.getProxy(address, i));
           }
-          resolve(proxies);
-        } else {
-          reject(e);
         }
-      });
+        resolve(proxies);
+      }, e => reject(e));
     });
   }
 
   fetchOasisTradesFromAccount = (contract, filter) => {
     return new Promise((resolve, reject) => {
-      web3.eth.contract(matchingmarket.abi).at(contract.address).LogTake(filter, {
+      Blockchain.loadObject('matchingmarket', contract.address).LogTake(filter, {
         fromBlock: contract.block_start,
         toBlock: contract.block_end
       }).get((error, logs) => {
@@ -106,25 +102,19 @@ class TaxExporter extends Component {
 
   getOwnerTransaction = tx => {
     return new Promise((resolve, reject) => {
-      web3.eth.getTransactionReceipt(tx, (e, r) => {
-        if (!e) {
-          resolve(r.from);
-        } else {
-          reject(e);
-        }
-      })
+      Blockchain.getTransactionReceipt(tx).then(r => resolve(r.from), e => reject(e));
     });
   }
 
   fetchOasisMakeTrades = (contract, address) => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.fetchOasisTradesFromAccount(contract, {maker: address})).then(logs => {
+      this.fetchOasisTradesFromAccount(contract, {maker: address}).then(logs => {
         const promises = [];
         logs.forEach(log => {
           promises.push(this.addOasisTradeFor(address, 'maker', log.args));
         });
         Promise.all(promises).then(() => resolve(true));
-      }).catch(() => {
+      }, () => {
         reject();
       })
     });
@@ -153,7 +143,7 @@ class TaxExporter extends Component {
           }
         }
         Promise.all(promises2).then(() => resolve(true));
-      }).catch(() => {
+      }, () => {
         reject();
       })
     });
@@ -225,8 +215,8 @@ class TaxExporter extends Component {
 
   addOasisTradeFor = (address, side, log) => {
     return new Promise((resolve, reject) => {
-      const sellAmount = web3.fromWei(side === 'maker' ? log.take_amt : log.give_amt).toString(10);
-      const buyAmount = web3.fromWei(side === 'maker' ? log.give_amt : log.take_amt).toString(10);
+      const sellAmount = fromWei(side === 'maker' ? log.take_amt : log.give_amt).toString(10);
+      const buyAmount = fromWei(side === 'maker' ? log.give_amt : log.take_amt).toString(10);
       const sellTokenAddress = side === 'maker' ? log.pay_gem : log.buy_gem;
       const buyTokenAddress = side === 'maker' ? log.buy_gem : log.pay_gem;
       const sellToken = config.tokens[this.props.network][sellTokenAddress];
@@ -247,14 +237,14 @@ class TaxExporter extends Component {
       };
 
       //add trade to CSV
-      Promise.resolve(this.addTradeToCSV(trade)).then(() => resolve(true));
+      this.addTradeToCSV(trade).then(() => resolve(true));
     });
   }
 
   addOasisLegacyTradeFor = (address, side, log) => {
     return new Promise((resolve, reject) => {
-      const sellAmount = web3.fromWei(`0x${side === 'maker' ? log.takeAmount : log.giveAmount}`).toString(10);
-      const buyAmount = web3.fromWei(`0x${side === 'maker' ? log.giveAmount : log.takeAmount}`).toString(10);
+      const sellAmount = fromWei(`0x${side === 'maker' ? log.takeAmount : log.giveAmount}`).toString(10);
+      const buyAmount = fromWei(`0x${side === 'maker' ? log.giveAmount : log.takeAmount}`).toString(10);
       const sellTokenAddress = `0x${side === 'maker' ? log.haveToken : log.wantToken}`;
       const buyTokenAddress = `0x${side === 'maker' ? log.wantToken : log.haveToken}`;
       const sellToken = config.tokens[this.props.network][sellTokenAddress];
@@ -275,7 +265,7 @@ class TaxExporter extends Component {
       };
 
       //add trade to CSV
-      Promise.resolve(this.addTradeToCSV(trade)).then(() => resolve(true));
+      this.addTradeToCSV(trade).then(() => resolve(true));
     });
   }
 
@@ -365,7 +355,7 @@ class TaxExporter extends Component {
           </div>
           <div className="exchanges">
             <div className="heading">
-              <h2>Choose Exchanges</h2>
+              <h2>Choose Marketplace</h2>
             </div>
             <div style={{marginBottom: '24px'}}>
               <ul className="list">
@@ -398,4 +388,4 @@ class TaxExporter extends Component {
   }
 }
 
-export default TaxExporter;
+export default TaxWidget;

@@ -1,24 +1,14 @@
-import React, { Component } from 'react';
-import web3, { initWeb3 } from '../web3';
-import NoConnection from './NoConnection';
-import NoAccount from './NoAccount';
-import { toBytes32, addressToBytes32, methodSig } from '../helpers';
-import SetTrade from './SetTrade';
-import DoTrade from './DoTrade';
-import TaxExporter from './TaxExporter';
+import React, {Component} from 'react';
+import {initWeb3} from '../web3';
+import * as Blockchain from "../blockchainHandler";
+import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
+import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
 
 const settings = require('../settings');
 
-const dstoken = require('../abi/dstoken');
-const dsethtoken = require('../abi/dsethtoken');
-const proxyregistry = require('../abi/proxyregistry');
-// const dsproxyfactory = require('../abi/dsproxyfactory');
-const dsproxy = require('../abi/dsproxy');
-const matchingmarket = require('../abi/matchingmarket');
-const proxycreateandexecute = require('../abi/proxycreateandexecute');
-window.dsproxy = dsproxy;
+window.Blockchain = Blockchain;
 
 class App extends Component {
   constructor() {
@@ -28,9 +18,6 @@ class App extends Component {
       ...initialState,
       network: {},
       section: 'exchange',
-      ui: {
-        isDropdownCollapsed: false
-      }
     }
     this.txInterval = {};
   }
@@ -44,11 +31,11 @@ class App extends Component {
         operation: '',
         from: 'eth',
         to: 'dai',
-        amountPay: web3.toBigNumber(0),
-        amountBuy: web3.toBigNumber(0),
+        amountPay: toBigNumber(0),
+        amountBuy: toBigNumber(0),
         amountPayInput: '',
         amountBuyInput: '',
-        txCost: web3.toBigNumber(0),
+        txCost: toBigNumber(0),
         errorInputSell: null,
         errorInputBuy: null,
         errorOrders: null,
@@ -59,48 +46,51 @@ class App extends Component {
   }
 
   checkNetwork = () => {
-    web3.version.getNode(error => {
-      const isConnected = !error;
+    let isConnected = null;
+    Blockchain.getNode().then(r => {
+      isConnected = true;
+      Blockchain.getBlock('latest').then(res => {
+        if (typeof(res) === 'undefined') {
+          console.debug('YIKES! getBlock returned undefined!');
+        }
+        if (res.number >= this.state.network.latestBlock) {
+          const networkState = {...this.state.network};
+          networkState.latestBlock = res.number;
+          networkState.outOfSync = ((new Date().getTime() / 1000) - res.timestamp) > 600;
+          this.setState({network: networkState});
+        } else {
+          // XXX MetaMask frequently returns old blocks
+          // https://github.com/MetaMask/metamask-plugin/issues/504
+          console.debug('Skipping old block');
+        }
+      });
 
-      // Check if we are synced
-      if (isConnected) {
-        web3.eth.getBlock('latest', (e, res) => {
-          if (typeof(res) === 'undefined') {
-            console.debug('YIKES! getBlock returned undefined!');
-          }
-          if (res.number >= this.state.network.latestBlock) {
-            const networkState = {...this.state.network};
-            networkState.latestBlock = res.number;
-            networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
-            this.setState({network: networkState});
-          } else {
-            // XXX MetaMask frequently returns old blocks
-            // https://github.com/MetaMask/metamask-plugin/issues/504
-            console.debug('Skipping old block');
-          }
-        });
-      }
-
-      // Check which network are we connected to
-      // https://github.com/ethereum/meteor-dapp-wallet/blob/90ad8148d042ef7c28610115e97acfa6449442e3/app/client/lib/ethereum/walletInterface.js#L32-L46
+      // because you have another then after this.
+      // The best way to handle is to return isConnect;
+      return null;
+    }, () => {
+      isConnected = false;
+    }).then(() => {
       if (this.state.network.isConnected !== isConnected) {
         if (isConnected === true) {
-          web3.eth.getBlock(0, (e, res) => {
-            let network = false;
-            if (!e) {
-              switch (res.hash) {
-                case '0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9':
-                  network = 'kovan';
-                  break;
-                case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
-                  network = 'main';
-                  break;
-                default:
-                  console.log('setting network to private');
-                  console.log('res.hash:', res.hash);
-                  network = 'private';
-              }
+          let network = false;
+          Blockchain.getBlock(0).then(res => {
+            switch (res.hash) {
+              case '0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9':
+                network = 'kovan';
+                break;
+              case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
+                network = 'main';
+                break;
+              default:
+                console.log('setting network to private');
+                console.log('res.hash:', res.hash);
+                network = 'private';
             }
+            if (this.state.network.network !== network) {
+              this.initNetwork(network);
+            }
+          }, () => {
             if (this.state.network.network !== network) {
               this.initNetwork(network);
             }
@@ -127,20 +117,18 @@ class App extends Component {
   }
 
   checkAccounts = () => {
-    web3.eth.getAccounts((error, accounts) => {
-      if (!error) {
-        const networkState = {...this.state.network};
-        networkState.accounts = accounts;
-        const oldDefaultAccount = networkState.defaultAccount;
-        networkState.defaultAccount = accounts[0];
-        web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({network: networkState}, () => {
-          if (oldDefaultAccount !== networkState.defaultAccount) {
-            this.initContracts();
-          }
-        });
-      }
-    });
+    Blockchain.getAccounts().then(accounts => {
+      const networkState = {...this.state.network};
+      networkState.accounts = accounts;
+      const oldDefaultAccount = networkState.defaultAccount;
+      networkState.defaultAccount = accounts[0];
+      Blockchain.setDefaultAccount(networkState.defaultAccount);
+      this.setState({network: networkState}, () => {
+        if (oldDefaultAccount !== networkState.defaultAccount) {
+          this.initContracts();
+        }
+      });
+    }, () => {});
   }
 
   componentDidMount = () => {
@@ -150,41 +138,6 @@ class App extends Component {
   componentWillUnmount = () => {
     clearInterval(this.checkAccountsInterval);
     clearInterval(this.checkNetworkInterval);
-    clearInterval(this.checkWeb3Provider);
-  }
-
-  getFromDirectoryService = (conditions = {}, sort = {}) => {
-    const p = new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      let conditionsString = '';
-      let sortString = '';
-      Object.keys(conditions).map(key => {
-        conditionsString += `${key}:${conditions[key]}`;
-        conditionsString += Object.keys(conditions).pop() !== key ? '&' : '';
-        return false;
-      });
-      conditionsString = conditionsString !== '' ? `/conditions=${conditionsString}` : '';
-      Object.keys(sort).map(key => {
-        sortString += `${key}:${sort[key]}`;
-        sortString += Object.keys(sort).pop() !== key ? '&' : '';
-        return false;
-      });
-      sortString = sortString !== '' ? `/sort=${sortString}` : '';
-      let serviceURL = settings.chain[this.state.network.network].proxyDirectoryService;
-      serviceURL = serviceURL.slice(-1) === '/' ? serviceURL.substring(0, serviceURL.length - 1) : serviceURL;
-      const url = `${serviceURL}${conditionsString}${sortString}`;
-      xhr.open('GET', url, true);
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          resolve(response);
-        } else if (xhr.readyState === 4 && xhr.status !== 200) {
-          reject(xhr.status);
-        }
-      }
-      xhr.send();
-    });
-    return p;
   }
 
   init = () => {
@@ -193,7 +146,7 @@ class App extends Component {
       this.setHashSection();
     }
 
-    initWeb3(web3);
+    initWeb3();
     this.checkNetwork();
     this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -204,23 +157,19 @@ class App extends Component {
     this.setState({section});
   }
 
-  loadObject = (abi, address) => {
-    return web3.eth.contract(abi).at(address);
-  }
-
   initContracts = () => {
-    web3.reset(true);
+    Blockchain.resetFilters(true);
     if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
     this.setState({
       ...initialState
     }, () => {
       const addrs = settings.chain[this.state.network.network];
-      // window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
-      window.proxyRegistryObj = this.proxyRegistryObj = this.loadObject(proxyregistry.abi, addrs.proxyRegistry);
+      Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
 
-      const setUpPromises = [this.getProxyAddress()];
+      const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
+        console.log('proxy', r[0]);
         this.setState((prevState, props) => {
           return {proxy: r[0]};
         }, () => {
@@ -240,162 +189,41 @@ class App extends Component {
     }, 5000);
   }
 
-  getProxyOwner = (proxy) => {
-    return new Promise((resolve, reject) => {
-      this.loadObject(dsproxy.abi, proxy).owner((e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
-  getProxy = (i) => {
-    return new Promise((resolve, reject) => {
-      this.proxyRegistryObj.proxies(this.state.network.defaultAccount, i, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
-  getProxyAddressFromChain = (blockNumber = 0, proxies = []) => {
-    const network = this.state.network;
-    const me = this;
-    return new Promise((resolve, reject) => {
-      // me.proxyFactoryObj.Created({sender: network.defaultAccount}, {fromBlock: blockNumber}).get(async (e, r) => {
-      //   if (!e) {
-      //     const allProxies = proxies.concat(r.map(val => val.args));
-      //     if (allProxies.length > 0) {
-      //       for (let i = allProxies.length - 1; i >= 0; i--) {
-      //         if (await me.getProxyOwner(allProxies[i].proxy) === network.defaultAccount) {
-      //           resolve(allProxies[i].proxy);
-      //           break;
-      //         }
-      //       }
-      //       resolve(null);
-      //     } else {
-      //       resolve(null);
-      //     }
-      //   } else {
-      //     reject(e);
-      //   }
-      // });
-      me.proxyRegistryObj.proxiesCount(network.defaultAccount, async (e, r) => {
-        if (!e) {
-          if (r.gt(0)) {
-            for (let i = r.toNumber() - 1; i >= 0; i--) {
-              const proxyAddr = await this.getProxy(i);
-              if (await me.getProxyOwner(proxyAddr) === network.defaultAccount) {
-                resolve(proxyAddr);
-                break;
-              }
-            }
-            resolve(null);
-          } else {
-            resolve(null);
-          }
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
-  getProxyAddress = () => {
-    const network = this.state.network;
-    const addrs = settings.chain[network.network];
-    const me = this;
-    return new Promise((resolve, reject) => {
-      if (addrs.proxyDirectoryService) {
-        Promise.resolve(me.getFromDirectoryService({owner: network.defaultAccount}, {blockNumber: 'asc'})).then(r => {
-          Promise.resolve(me.getProxyAddressFromChain(r.lastBlockNumber + 1, r.results)).then(r2 => {
-            resolve(r2);
-          }).catch(e2 => {
-            reject(e2);
-          });
-        }).catch(e => {
-          Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
-            resolve(r2);
-          }).catch(e2 => {
-            reject(e2);
-          });
-        });
-      } else {
-        Promise.resolve(me.getProxyAddressFromChain(addrs.fromBlock)).then(r2 => {
-          console.log('getProxyAddressFromChain', r2);
-          resolve(r2);
-        }).catch(e2 => {
-          reject(e2);
-        });
-      }
-    });
-  }
-
   setProxyAddress = () => {
-    Promise.resolve(this.getProxyAddress()).then(proxy => {
-      this.setState((prevState, props) => {
+    Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
+      console.log('proxy', proxy);
+      this.setState(() => {
         return {proxy};
       });
-    });
+    }, () => {});
   }
 
   saveBalance = token => {
     if (token === 'weth') {
-      Promise.resolve(this.ethBalanceOf(this.state.network.defaultAccount)).then(r => {
+      Blockchain.getEthBalanceOf(this.state.network.defaultAccount).then(r => {
         this.setState((prevState) => {
           const balances = {...prevState.balances};
           balances.eth = r;
           return {balances};
         });
-      });
+      }, () => {});
     } else {
-      Promise.resolve(this.tokenBalanceOf(token, this.state.network.defaultAccount)).then(r => {
+      Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
         this.setState((prevState) => {
           const balances = {...prevState.balances};
           balances[token] = r;
           return {balances};
         });
-      });
+      }, () => {});
     }
   }
 
   setUpToken = token => {
-    window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'weth' ? dsethtoken.abi : dstoken.abi, settings.chain[this.state.network.network].tokens[token].address);
+    Blockchain.loadObject(token === 'weth' ? 'dsethtoken' : 'dstoken', settings.chain[this.state.network.network].tokens[token].address, token);
     setInterval(() => {
       this.saveBalance(token);
     }, 5000);
     this.saveBalance(token);
-    this.setFilterToken(token);
-  }
-
-  setFilterToken = token => {
-    const filters = ['Transfer'];
-
-    if (token === 'gem') {
-      filters.push('Deposit');
-      filters.push('Withdrawal');
-    } else {
-      filters.push('Mint');
-      filters.push('Burn');
-      filters.push('Trust');
-    }
-
-    for (let i = 0; i < filters.length; i++) {
-      const conditions = {};
-      if (this[`${token}Obj`][filters[i]]) {
-        this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
-          if (!e) {
-            //this.logTransactionConfirmed(r.transactionHash);
-          }
-        });
-      }
-    }
   }
   //
 
@@ -447,8 +275,8 @@ class App extends Component {
     const transactions = {...this.state.transactions};
     Object.keys(transactions).map(type => {
       if (transactions[type].pending) {
-        web3.eth.getTransactionReceipt(transactions[type].tx, (e, r) => {
-          if (!e && r !== null) {
+        Blockchain.getTransactionReceipt(transactions[type].tx).then(r => {
+          if (r !== null) {
             if (r.logs.length === 0) {
               this.logTransactionFailed(transactions[type].tx);
             } else if (r.blockNumber) {
@@ -457,24 +285,21 @@ class App extends Component {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            web3.eth.filter({
-              fromBlock: transactions[type].checkFromBlock,
-              address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-            }).get((e, r) => {
-              if (!e) {
-                r.forEach(v => {
-                  web3.eth.getTransaction(v.transactionHash, (e2, r2) => {
-                    if (!e2 &&
-                      r2.from === this.state.network.defaultAccount &&
-                      r2.nonce === transactions[type].nonce) {
-                      this.saveReplacedTransaction(type, v.transactionHash);
-                    }
-                  });
-                });
-              }
-            });
+            Blockchain.setFilter(
+              transactions[type].checkFromBlock,
+              settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
+            ).then(r => {
+              r.forEach(v => {
+                Blockchain.getTransaction(v.transactionHash).then(r2 => {
+                  if (r2.from === this.state.network.defaultAccount &&
+                    r2.nonce === transactions[type].nonce) {
+                    this.saveReplacedTransaction(type, v.transactionHash);
+                  }
+                })
+              });
+            }, () => {});
             // Using Etherscan API (backup)
-            Promise.resolve(this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock)).then(r => {
+            this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
                 r.result.forEach(v => {
                   if (parseInt(v.nonce, 10) === parseInt(transactions[type].nonce, 10)) {
@@ -482,45 +307,37 @@ class App extends Component {
                   }
                 });
               }
-            });
+            }, () => {});
           }
-        });
+        }, () => {});
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
-          web3.eth.filter({
-            fromBlock: transactions[type].checkFromBlock,
-            address: settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-          }).get((e, logs) => {
-            if (!e) {
-              this.saveTradedValue('sell', logs);
-            }
-          });
+          Blockchain.setFilter(
+            transactions[type].checkFromBlock,
+            settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
+          ).then(logs => this.saveTradedValue('sell', logs), () => {});
           // Using Etherscan API (backup)
-          Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
-            transactions[type].checkFromBlock)).then(logs => {
+          this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
+          transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
             }
-          });
+          }, () => {});
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
-          web3.eth.filter({
-            fromBlock: transactions[type].checkFromBlock,
-            address: settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
-          }).get((e, logs) => {
-            if (!e) {
-              this.saveTradedValue('buy', logs);
-            }
-          });
+          Blockchain.setFilter(
+            transactions[type].checkFromBlock,
+            settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
+          ).then(logs => this.saveTradedValue('buy', logs), () => {}, () => {});
           // Using Etherscan API (backup)
-          Promise.resolve(this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
-            transactions[type].checkFromBlock)).then(logs => {
+          this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
+          transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
-          });
+          }, () => {});
         }
       }
       return false;
@@ -541,26 +358,26 @@ class App extends Component {
   }
 
   saveTradedValue = (operation, logs) => {
-    let value = web3.toBigNumber(0);
+    let value = toBigNumber(0);
     logs.forEach(log => {
       if (log.transactionHash === this.state.transactions.trade.tx) {
         if (this.state.trade[operation === 'buy' ? 'to' : 'from'] !== 'eth' &&
           log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.state.network.defaultAccount) &&
           log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
           // No ETH, src or dst is user's address and Transfer Event
-          value = value.add(web3.toBigNumber(log.data));
+          value = value.add(toBigNumber(log.data));
         } else if (this.state.trade[operation === 'buy' ? 'to' : 'from'] === 'eth') {
           if (log.topics[0] === '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c') {
             // Deposit (only can come when selling ETH)
-            value = value.add(web3.toBigNumber(log.data));
+            value = value.add(toBigNumber(log.data));
           } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65') {
             // Withdrawal
             if (operation === 'buy') {
               // If buying, the withdrawal shows amount the user is receiving
-              value = value.add(web3.toBigNumber(log.data));
+              value = value.add(toBigNumber(log.data));
             } else {
               // If selling, the withdrawal shows part of the amount sent that is refunded
-              value = value.minus(web3.toBigNumber(log.data));
+              value = value.minus(toBigNumber(log.data));
             }
           }
         }
@@ -586,46 +403,22 @@ class App extends Component {
     });
   }
 
-  getTransactionCount = address => {
-    return new Promise((resolve, reject) => {
-      web3.eth.getTransactionCount(address, 'pending', (e, r) => {
-        if (!e) {
-          resolve(r - 1);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
-  getBlock = (block) => {
-    return new Promise((resolve, reject) => {
-      web3.eth.getBlock(block, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
   logPendingTransaction = async (tx, type, callbacks = []) => {
     this.txInterval[tx] = setTimeout(() => {
       this.setState(prevState => {
         return {showTxMessage: true}
       })
     }, 60000);
-    const nonce = await this.getTransactionCount(this.state.network.defaultAccount);
-    const checkFromBlock = (await this.getBlock('latest')).number;
+    const nonce = await Blockchain.getTransactionCount(this.state.network.defaultAccount);
+    const checkFromBlock = (await Blockchain.getBlock('latest')).number;
     console.log('nonce', nonce);
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
     transactions[type] = {tx, pending: true, error: false, nonce, checkFromBlock, callbacks}
     if (type === 'trade') {
-      transactions[type].amountSell = web3.toBigNumber(-1);
-      transactions[type].amountBuy = web3.toBigNumber(-1);
+      transactions[type].amountSell = toBigNumber(-1);
+      transactions[type].amountBuy = toBigNumber(-1);
     }
     this.setState({transactions});
     console.log(msgTemp.replace('TX', tx));
@@ -649,8 +442,8 @@ class App extends Component {
       transactions[type].gasUsed = parseInt(gasUsed, 10);
       this.setState({transactions}, () => {
         console.log(msgTemp.replace('TX', tx));
-        web3.eth.getTransaction(tx, (e, r) => {
-          if (!e && r) {
+        Blockchain.getTransaction(tx).then(r => {
+          if (r) {
             this.setState((prevState, props) => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
@@ -658,7 +451,7 @@ class App extends Component {
               return {transactions, showTxMessage: false};
             });
           }
-        });
+        }, () => {});
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -730,9 +523,9 @@ class App extends Component {
         }, 2000);
       });
     } else {
-      const valueObj = web3.toBigNumber(web3.toWei(value));
+      const valueObj = toBigNumber(toWei(value));
 
-      Promise.resolve(this.getTokenAllowance(token, this.state.network.defaultAccount, dst)).then(r => {
+      Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
         if (r.gte(valueObj)) {
           this.setState((prevState, props) => {
             const trade = {...prevState.trade};
@@ -752,129 +545,55 @@ class App extends Component {
             return {trade};
           }, () => {
             setTimeout(() => {
-              this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-                Promise.resolve(this.logRequestTransaction('approval'))
+              this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+                this.logRequestTransaction('approval')
                   .then(() => {
-                    this[`${token}Obj`].approve(dst, -1, {gasPrice}, (e, tx) => {
-                      if (!e) {
-                        this.logPendingTransaction(tx, 'approval', callbacks);
-                      } else {
-                        this.logTransactionRejected('approval');
-                      }
-                    });
-                  })
-                  .catch((e) => {
+                    Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
+                      this.logPendingTransaction(tx, 'approval', callbacks);
+                    }, () => this.logTransactionRejected('approval'));
+                  }, e => {
                     console.debug("Couldn't calculate gas price because of", e);
                   });
               });
             }, 2000);
           });
         }
-      });
+      }, () => {});
     }
-  }
-
-  getCallDataAndValue = (operation, from, to, amount, limit) => {
-    const result = {};
-    const otcBytes32 = addressToBytes32(settings.chain[this.state.network.network].otc, false);
-    const fromAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address, false);
-    const toAddrBytes32 = addressToBytes32(settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address, false);
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.calldata = `${methodSig('sellAllAmountPayEth(address,address,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
-        result.value = web3.toWei(amount);
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('sellAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('sellAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${fromAddrBytes32}${toBytes32(web3.toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    } else {
-      if (from === "eth") {
-        result.calldata = `${methodSig('buyAllAmountPayEth(address,address,uint256,address)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}`;
-        result.value = limit;
-      } else if (to === "eth") {
-        result.calldata = `${methodSig('buyAllAmountBuyEth(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      } else {
-        result.calldata = `${methodSig('buyAllAmount(address,address,uint256,address,uint256)')}` +
-          `${otcBytes32}${toAddrBytes32}${toBytes32(web3.toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-      }
-    }
-    return result;
   }
 
   executeProxyTx = (amount, limit) => {
-    const params = this.getCallDataAndValue(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-      Promise.resolve(this.callProxyTx(this.state.proxy, 'sendTransaction', params.calldata, params.value)).then(tx => {
-        this.logPendingTransaction(tx, 'trade');
-      }, e => {
-        console.log(e);
-        this.logTransactionRejected('trade');
-      });
-    });
-  }
-
-  getActionCreateAndExecute = (operation, from, to, amount, limit) => {
-    const addrFrom = settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address;
-    const addrTo = settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address;
-    const result = {};
-    if (operation === 'sellAll') {
-      if (from === "eth") {
-        result.method = 'createAndSellAllAmountPayEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, limit];
-        result.value = web3.toWei(amount);
-      } else if (to === "eth") {
-        result.method = 'createAndSellAllAmountBuyEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), limit];
-      } else {
-        result.method = 'createAndSellAllAmount';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrFrom, web3.toWei(amount), addrTo, limit];
-      }
-    } else {
-      if (from === "eth") {
-        result.method = 'createAndBuyAllAmountPayEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount)];
-        result.value = limit;
-      } else if (to === "eth") {
-        result.method = 'createAndBuyAllAmountBuyEth';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, web3.toWei(amount), addrFrom, limit];
-      } else {
-        result.method = 'createAndBuyAllAmount';
-        result.params = [this.proxyRegistryObj.address, settings.chain[this.state.network.network].otc, addrTo, web3.toWei(amount), addrFrom, limit];
-      }
-    }
-    return result;
+    const params = Blockchain.getCallDataAndValue(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    this.logRequestTransaction('trade').then(() => {
+      this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+        Blockchain.proxyExecute(this.state.proxy, settings.chain[this.state.network.network].proxyContracts.oasisDirect, params.calldata, gasPrice, params.value).then(tx => {
+          this.logPendingTransaction(tx, 'trade');
+        }, e => {
+          console.log(e);
+          this.logTransactionRejected('trade');
+        });
+      }, () => {});
+    }, () => {});
   }
 
   executeProxyCreateAndExecute = (amount, limit) => {
-    const action = this.getActionCreateAndExecute(this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-        Promise.resolve(this.logRequestTransaction('trade')).then(() => {
-          this.loadObject(proxycreateandexecute.abi, settings.chain[this.state.network.network].proxyCreationAndExecute)[action.method](...action.params, {
-            value: action.value,
-            gasPrice
-          }, (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-            } else {
-              console.log(e);
-              this.logTransactionRejected('trade');
-            }
-          });
+    const action = Blockchain.getActionCreateAndExecute(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+      this.logRequestTransaction('trade').then(() => {
+        Blockchain.proxyCreateAndExecute(settings.chain[this.state.network.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
+          this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+        }, e => {
+          console.log(e);
+          this.logTransactionRejected('trade');
         });
-      })
-      .catch(error => console.debug("Couldn't calculate gas price because of:", error));
+      }, () => {});
+    }, e => console.debug("Couldn't calculate gas price because of:", e));
   }
 
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
     const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
-    const limit = web3.toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
+    const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
     if (this.state.proxy) {
       this.checkAllowance(this.state.trade.from,
         this.state.proxy,
@@ -889,38 +608,14 @@ class App extends Component {
     }
   }
 
-  getTokenTrusted = (token, from, to) => {
-    return new Promise((resolve, reject) => {
-      this[`${token}Obj`].allowance.call(from, to, (e, r) => {
-        if (!e) {
-          resolve(r.eq(web3.toBigNumber(2).pow(256).minus(1))); // uint(-1)
-        } else {
-          resolve(e);
-        }
-      })
-    });
-  }
-
-  getTokenAllowance = (token, from, to) => {
-    return new Promise((resolve, reject) => {
-      this[`${token}Obj`].allowance.call(from, to, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          resolve(e);
-        }
-      })
-    });
-  }
-
   cleanInputs = () => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
-      trade.amountBuy = web3.toBigNumber(0);
-      trade.amountPay = web3.toBigNumber(0);
+      trade.amountBuy = toBigNumber(0);
+      trade.amountPay = toBigNumber(0);
       trade.amountBuyInput = '';
       trade.amountPayInput = '';
-      trade.txCost = web3.toBigNumber(0);
+      trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
       trade.errorInputBuy = null;
       trade.errorOrders = null;
@@ -928,50 +623,26 @@ class App extends Component {
     });
   }
 
-  ethBalanceOf = addr => {
-    return new Promise((resolve, reject) => {
-      web3.eth.getBalance(addr, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
-  tokenBalanceOf = (token, addr) => {
-    return new Promise((resolve, reject) => {
-      this[`${token}Obj`].balanceOf(addr, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
   calculateBuyAmount = (from, to, amount) => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
-      trade.amountBuy = web3.toBigNumber(0);
-      trade.amountPay = web3.toBigNumber(amount);
+      trade.amountBuy = toBigNumber(0);
+      trade.amountPay = toBigNumber(amount);
       trade.amountBuyInput = '';
       trade.amountPayInput = amount;
       trade.operation = 'sellAll';
-      trade.txCost = web3.toBigNumber(0);
+      trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
       trade.errorInputBuy = null;
       trade.errorOrders = null;
       return {trade};
     }, () => {
-      if (web3.toBigNumber(amount).eq(0)) {
+      if (toBigNumber(amount).eq(0)) {
         this.setState((prevState, props) => {
           const trade = {...prevState.trade};
-          trade.amountBuy = web3.fromWei(web3.toBigNumber(0));
+          trade.amountBuy = fromWei(toBigNumber(0));
           trade.amountBuyInput = '';
         });
         return;
@@ -980,47 +651,27 @@ class App extends Component {
       if (this.state.trade.amountPay.lt(minValue)) {
         this.setState((prevState, props) => {
           const trade = {...prevState.trade};
-          trade.errorInputSell = `minValue:${minValue}`;
+          trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
           return {trade};
         });
         return;
       }
-      this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getBuyAmount(
+      Blockchain.loadObject('matchingmarket', settings.chain[this.state.network.network].otc).getBuyAmount(
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
-        web3.toWei(amount),
+        toWei(amount),
         (e, r) => {
           if (!e) {
-            /*
-            * Even thought the user entered how much he wants to pay
-            * we still must calculate if what he will receive is higher than
-            * the min value for the receive token.
-            *
-            * If the amount of the calculated buying value is under the min value
-            * an error message is displayed for violating min value.
-            *
-            * */
-            const calculatedReceiveValue = web3.fromWei(web3.toBigNumber(r));
-            const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
+            const calculatedReceiveValue = fromWei(toBigNumber(r));
 
-            if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
-              this.setState((prevState) => {
-                const trade = {...prevState.trade};
-                trade.amountBuyInput = calculatedReceiveValue.valueOf();
-                trade.errorInputBuy = `minValue:${calculatedReceiveValueMin.valueOf()}`;
-                return {trade};
-              });
-              return;
-            }
-
-            this.setState((prevState, props) => {
+            this.setState((prevState) => {
               const trade = {...prevState.trade};
               trade.amountBuy = calculatedReceiveValue;
               trade.amountBuyInput = trade.amountBuy.valueOf();
               return {trade};
             }, async () => {
-              const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-              const errorInputSell = balance.lt(web3.toWei(amount))
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
+              const errorInputSell = balance.lt(toWei(amount))
                 ?
                 // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
                 'funds'
@@ -1045,6 +696,27 @@ class App extends Component {
                 return;
               }
 
+              /*
+              * Even thought the user entered how much he wants to pay
+              * we still must calculate if what he will receive is higher than
+              * the min value for the receive token.
+              *
+              * If the amount of the calculated buying value is under the min value
+              * an error message is displayed for violating min value.
+              *
+              * */
+              const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
+
+              if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
+                this.setState((prevState) => {
+                  const trade = {...prevState.trade};
+                  trade.amountBuyInput = calculatedReceiveValue.valueOf();
+                  trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
+                  return {trade};
+                });
+                return;
+              }
+
               let hasAllowance = false;
               let action = null;
               let data = null;
@@ -1054,12 +726,12 @@ class App extends Component {
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                  await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(amount)));
+                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = this.getCallDataAndValue('sellAll', from, to, amount, 0);
-                data = this.loadObject(dsproxy.abi, target).execute['address,bytes'].getData(
+                action = Blockchain.getCallDataAndValue(this.state.network.network, 'sellAll', from, to, amount, 0);
+                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.state.network.network].proxyContracts.oasisDirect,
                   action.calldata
                 );
@@ -1067,19 +739,19 @@ class App extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                  await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(amount)));
+                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(amount)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = this.getActionCreateAndExecute('sellAll', from, to, amount, 0);
-                data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
+                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'sellAll', from, to, amount, 0);
+                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
-                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
+                const dataAllowance = Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
                   this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
                   -1
                 );
                 txs.push({
-                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
+                  to: Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
                   data: dataAllowance,
                   value: 0,
                   from: this.state.network.defaultAccount
@@ -1096,25 +768,25 @@ class App extends Component {
   }
 
   calculatePayAmount = (from, to, amount) => {
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       const trade = {...prevState.trade};
       trade.from = from;
       trade.to = to;
-      trade.amountBuy = web3.toBigNumber(amount);
-      trade.amountPay = web3.toBigNumber(0);
+      trade.amountBuy = toBigNumber(amount);
+      trade.amountPay = toBigNumber(0);
       trade.amountBuyInput = amount;
       trade.amountPayInput = '';
       trade.operation = 'buyAll';
-      trade.txCost = web3.toBigNumber(0);
+      trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
       trade.errorInputBuy = null;
       trade.errorOrders = null;
       return {trade};
     }, () => {
-      if (web3.toBigNumber(amount).eq(0)) {
+      if (toBigNumber(amount).eq(0)) {
         this.setState((prevState, props) => {
           const trade = {...prevState.trade};
-          trade.amountPay = web3.fromWei(web3.toBigNumber(0));
+          trade.amountPay = fromWei(toBigNumber(0));
           trade.amountPayInput = '';
         });
         return;
@@ -1123,47 +795,27 @@ class App extends Component {
       if (this.state.trade.amountBuy.lt(minValue)) {
         this.setState((prevState) => {
           const trade = {...prevState.trade};
-          trade.errorInputBuy = `minValue:${minValue}`;
+          trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
           return {trade};
         });
         return;
       }
-      this.loadObject(matchingmarket.abi, settings.chain[this.state.network.network].otc).getPayAmount(
+      Blockchain.loadObject('matchingmarket', settings.chain[this.state.network.network].otc).getPayAmount(
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
-        web3.toWei(amount),
+        toWei(amount),
         (e, r) => {
           if (!e) {
-            /*
-            * Even thought the user entered how much he wants to receive
-            * we still must calculate if what he has to pay is higher than
-            * the min value for the pay token.
-            *
-            * If the amount of the calculated selling  value is under the min value
-            * an error message is displayed for violating min value.
-            *
-            * */
-            const calculatedPayValue = web3.fromWei(web3.toBigNumber(r));
-            const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
+            const calculatedPayValue = fromWei(toBigNumber(r));
 
-            if(calculatedPayValue.lt(calculatePayValueMin)) {
-              this.setState((prevState) => {
-                const trade = {...prevState.trade};
-                trade.amountPayInput = calculatedPayValue.valueOf();
-                trade.errorInputSell = `minValue:${calculatePayValueMin}`;
-                return {trade};
-              });
-              return;
-            }
-
-            this.setState((prevState, props) => {
+            this.setState((prevState) => {
               const trade = {...prevState.trade};
               trade.amountPay = calculatedPayValue;
               trade.amountPayInput = trade.amountPay.valueOf();
               return {trade};
             }, async () => {
-              const balance = from === 'eth' ? await this.ethBalanceOf(this.state.network.defaultAccount) : await this.tokenBalanceOf(from, this.state.network.defaultAccount);
-              const errorInputSell = balance.lt(web3.toWei(this.state.trade.amountPay))
+              const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
+              const errorInputSell = balance.lt(toWei(this.state.trade.amountPay))
                 ?
                 // `Not enough balance to sell ${this.state.trade.amountPay} ${from.toUpperCase()}`
                 'funds'
@@ -1188,6 +840,28 @@ class App extends Component {
                 return;
               }
 
+
+              /*
+              * Even thought the user entered how much he wants to receive
+              * we still must calculate if what he has to pay is higher than
+              * the min value for the pay token.
+              *
+              * If the amount of the calculated selling  value is under the min value
+              * an error message is displayed for violating min value.
+              *
+              * */
+              const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
+
+              if(calculatedPayValue.lt(calculatePayValueMin)) {
+                this.setState((prevState) => {
+                  const trade = {...prevState.trade};
+                  trade.amountPayInput = calculatedPayValue.valueOf();
+                  trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
+                  return {trade};
+                });
+                return;
+              }
+
               let hasAllowance = false;
               let action = null;
               let data = null;
@@ -1197,12 +871,12 @@ class App extends Component {
               if (this.state.proxy) {
                 // Calculate cost of proxy execute
                 hasAllowance = (from === 'eth' ||
-                  await this.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(web3.toWei(this.state.trade.amountPay)));
+                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
                 target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = this.getCallDataAndValue('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
-                data = this.loadObject(dsproxy.abi, target).execute['address,bytes'].getData(
+                action = Blockchain.getCallDataAndValue(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
+                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
                   settings.chain[this.state.network.network].proxyContracts.oasisDirect,
                   action.calldata
                 );
@@ -1210,11 +884,11 @@ class App extends Component {
                 // Calculate cost of proxy creation and execution
                 target = settings.chain[this.state.network.network].proxyCreationAndExecute;
                 hasAllowance = (from === 'eth' ||
-                  await this.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await this.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(web3.toWei(this.state.trade.amountPay)));
+                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
+                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(this.state.trade.amountPay)));
                 addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = this.getActionCreateAndExecute('buyAll', from, to, amount, web3.toWei(this.state.trade.amountPay));
-                data = this.loadObject(proxycreateandexecute.abi, target)[action.method].getData(...action.params);
+                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
+                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
               }
               if (!hasAllowance) {
                 const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
@@ -1238,28 +912,9 @@ class App extends Component {
     });
   }
 
-  callProxyTx = (proxyAddr, type, calldata, value = 0, from) => {
-    return this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then((gasPrice) => {
-      return new Promise((resolve, reject) => {
-        this.loadObject(dsproxy.abi, proxyAddr).execute['address,bytes']['sendTransaction'](settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-          calldata,
-          {value, from, gasPrice},
-          (e, r) => {
-            if (!e) {
-              resolve(r);
-            } else {
-              reject(e);
-            }
-          }
-        );
-      });
-    });
-
-  }
-
   saveCost = (txs = []) => {
     const promises = [];
-    let total = web3.toBigNumber(0);
+    let total = toBigNumber(0);
     txs.forEach(tx => {
       promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
     });
@@ -1269,7 +924,7 @@ class App extends Component {
       });
       this.setState((prevState, props) => {
         const trade = {...prevState.trade};
-        trade.txCost = web3.fromWei(total);
+        trade.txCost = fromWei(total);
         return {trade};
       });
     })
@@ -1278,42 +933,13 @@ class App extends Component {
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
       console.log("Calculating cost...");
-      Promise.all([this.estimateGas(to, data, value, from), this.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
+      Promise.all([Blockchain.estimateGas(to, data, value, from), this.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
         console.log(to, data, value, from);
         console.log(r[0], r[1].valueOf());
         resolve(r[1].times(r[0]));
       }, e => {
         reject(e);
       });
-    });
-  }
-
-  estimateGas = (to, data, value, from) => {
-    return new Promise((resolve, reject) => {
-      web3.eth.estimateGas(
-        {to, data, value, from},
-        (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
-          }
-        }
-      );
-    });
-  }
-
-  getNativeGasPrice = () => {
-    return new Promise((resolve, reject) => {
-      web3.eth.getGasPrice(
-        (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
-          }
-        }
-      );
     });
   }
 
@@ -1326,9 +952,9 @@ class App extends Component {
       fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
         stream.json().then(price => {
           clearTimeout(timeout);
-          resolve(web3.toWei(price.average / 10, "gwei"));
+          resolve(toWei(price.average / 10, "gwei"));
         })
-      }).catch(e => {
+      }, e => {
         clearTimeout(timeout);
         reject(e);
       });
@@ -1338,58 +964,17 @@ class App extends Component {
   getGasPrice = () => {
     return new Promise((resolve, reject) => {
       this.getGasPriceFromETHGasStation()
-        .then(estimation => resolve(estimation))
-        .catch(_ => {
-          this.getNativeGasPrice()
-            .then(estimation => resolve(estimation))
-            .catch(error => reject(error));
+        .then(estimation => resolve(estimation), () => {
+          Blockchain.getGasPrice()
+            .then(estimation => resolve(estimation), error => reject(error));
         });
     });
   };
 
   fasterGasPrice(increaseInGwei) {
     return this.getGasPrice().then(price => {
-      return web3.toBigNumber(price).add(web3.toBigNumber(web3.toWei(increaseInGwei, "gwei")));
+      return toBigNumber(price).add(toBigNumber(toWei(increaseInGwei, "gwei")));
     })
-  }
-
-  toggle = () => {
-    const isDropdownCollapsed = this.state.ui.isDropdownCollapsed;
-    this.setState({ui: {isDropdownCollapsed: !isDropdownCollapsed}})
-  }
-
-  contractDropdownList = () => {
-    this.setState({ui: {isDropdownCollapsed: false}})
-  }
-
-  switchAccount = (newAccount) => {
-    this.setState((prevState) => {
-      const network = {...prevState.network};
-      network.defaultAccount = newAccount;
-
-      const ui = {...prevState.ui};
-      ui.isDropdownCollapsed = false;
-
-      return {ui, network};
-    });
-  }
-
-  renderMain = () => {
-    return (
-      <div>
-        {
-          this.state.trade.step === 1
-            ?
-            <SetTrade cleanInputs={this.cleanInputs} calculateBuyAmount={this.calculateBuyAmount}
-                      calculatePayAmount={this.calculatePayAmount} doTrade={this.doTrade}
-                      trade={this.state.trade} network={this.state.network.network}
-                      balances={this.state.balances}/>
-            :
-            <DoTrade trade={this.state.trade} transactions={this.state.transactions}
-                     network={this.state.network.network} reset={this.reset} showTxMessage={this.state.showTxMessage}/>
-        }
-      </div>
-    )
   }
 
   render = () => {
@@ -1401,34 +986,9 @@ class App extends Component {
               <a href="/"> <Logo/> </a>
             </div>
             <div className={'NavigationLinks'}>
-              <a href="/#" style={{color: 'white'}}>Exchange</a>
+              <a href="/#" style={{color: 'white'}}>Marketplace</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
             </div>
-            {
-              false &&
-              <div onBlur={this.contractDropdownList} className="Dropdown" tabIndex={-1} title="Select an account">
-                <div className="DropdownToggle" onClick={this.toggle}>
-                <span data-selected className="DropdownSelected">
-                  {
-                    this.state.network.defaultAccount
-                  }
-                </span>
-                  <span className="DropdownArrow"><i className="fa fa-caret-down" aria-hidden="true"/>
-                </span>
-                </div>
-                <div className={`DropdownList ${this.state.ui.isDropdownCollapsed ? 'DropdownList--visible' : ''}`}>
-                  <div className="DropdownListWrapper">
-                    <ul>
-                      {
-                        this.state.network.accounts && this.state.network.accounts.map((account, index) => <li
-                          onClick={(event) => this.switchAccount(event.target.innerText)}
-                          key={index}>{account}</li>)
-                      }
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            }
           </header>
         </section>
         {
@@ -1438,35 +998,29 @@ class App extends Component {
               <main className="Container">
                 <div>
                   <div className="MainHeading">
-                    <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+                    <h1>THE FIRST DECENTRALIZED INSTANT MARKETPLACE</h1>
                   </div>
                   <div className="SecondaryHeading">
                     <h2>No Registration. No Fees.</h2>
                   </div>
                 </div>
-                <div className="Widget">
-                  {
-                    this.state.network.isConnected
-                      ?
-                      this.state.network.defaultAccount && web3.isAddress(this.state.network.defaultAccount)
-                        ?
-                        <div>
-                          {
-                            this.state.section === 'tax-exporter'
-                              ?
-                              <TaxExporter account={this.state.network.defaultAccount}
-                                           network={this.state.network.network}
-                                           proxyRegistryObj={this.proxyRegistryObj} getProxy={this.getProxy}/>
-                              :
-                              this.renderMain()
-                          }
-                        </div>
-                        :
-                        <NoAccount/>
-                      :
-                      <NoConnection/>
-                  }
-                </div>
+                <Widget isConnected={this.state.network.isConnected}
+                        section={this.state.section}
+                        network={this.state.network.network}
+                        account={this.state.network.defaultAccount}
+                        proxy={this.state.proxy}
+                        trade={this.state.trade}
+                        balances={this.state.balances}
+                        showTxMessage={this.state.showTxMessage}
+                        transactions={this.state.transactions}
+                        setMainState={this.setMainState}
+                        fasterGasPrice={this.fasterGasPrice}
+                        doTrade={this.doTrade}
+                        reset={this.reset}
+                        getProxy={this.getProxy}
+                        calculateBuyAmount={this.calculateBuyAmount}
+                        calculatePayAmount={this.calculatePayAmount}
+                        cleanInputs={this.cleanInputs} />
               </main>
             </section>
         }
