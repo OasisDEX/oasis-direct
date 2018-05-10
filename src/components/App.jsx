@@ -986,7 +986,7 @@ class App extends Component {
               <a href="/"> <Logo/> </a>
             </div>
             <div className={'NavigationLinks'}>
-              <a href="/#" style={{color: 'white'}}>Exchange</a>
+              <a href="/#" style={{color: 'white'}}>Marketplace</a>
               <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
             </div>
           </header>
@@ -998,7 +998,7 @@ class App extends Component {
               <main className="Container">
                 <div>
                   <div className="MainHeading">
-                    <h1>THE FIRST DECENTRALIZED INSTANT EXCHANGE</h1>
+                    <h1>THE FIRST DECENTRALIZED INSTANT MARKETPLACE</h1>
                   </div>
                   <div className="SecondaryHeading">
                     <h2>No Registration. No Fees.</h2>

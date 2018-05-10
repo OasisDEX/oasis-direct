@@ -355,7 +355,7 @@ class TaxWidget extends Component {
           </div>
           <div className="exchanges">
             <div className="heading">
-              <h2>Choose Exchanges</h2>
+              <h2>Choose Marketplace</h2>
             </div>
             <div style={{marginBottom: '24px'}}>
               <ul className="list">
