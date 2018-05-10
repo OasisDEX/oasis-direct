@@ -4,7 +4,9 @@ import { toBytes32, addressToBytes32, toWei, methodSig, toHex } from './helpers'
 import Transport from "@ledgerhq/hw-transport-u2f";
 import Eth from "@ledgerhq/hw-app-eth";
 import Tx from 'ethereumjs-tx';
-import { TrezorConnect } from './trezor.js';
+import TrezorConnect from './vendor/trezor-connect.js';
+
+console.log(TrezorConnect);
 
 const settings = require('./settings');
 const promisify = Promise.promisify;
