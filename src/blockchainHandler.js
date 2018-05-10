@@ -277,19 +277,24 @@ export const signTransactionTrezor = (derivationPathWithAccount, account, to, da
     const tx = await buildTransaction(account, to, data, value, gasPrice);
     TrezorConnect.ethereumSignTx(
       derivationPathWithAccount,
-      tx.nonce,
-      tx.gasPrice,
-      tx.gasLimit,
-      tx.to,
-      tx.value,
-      tx.data,
-      tx.v,
+      buf2hex(tx.nonce),
+      buf2hex(tx.gasPrice),
+      buf2hex(tx.gasLimit),
+      to,
+      buf2hex(tx.value),
+      data,
+      buf2hex(tx.v),
       result => {
         if (result.success) {
-          sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
+          console.log(result);
+          // sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
         } else {
           reject(new Error(result.error));
         }
     });
   });
+}
+
+export const buf2hex = buffer => { // buffer is an ArrayBuffer
+  return `0x${Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('')}`;
 }
