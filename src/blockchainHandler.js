@@ -244,21 +244,27 @@ const buildTransaction = async (account, to, data, value, gasPrice) => {
   });
 }
 
+const sendTransaction = (tx, sig) => {
+  return new Promise((resolve, reject) => {
+    tx.v = "0x" + sig['v'];
+    tx.r = "0x" + sig['r'];
+    tx.s = "0x" + sig['s'];
+    web3.eth.sendRawTransaction(`0x${tx.serialize().toString('hex')}`, (e, r) => {
+      if (!e) {
+        resolve(r);
+      } else {
+        reject(e);
+      }
+    });
+  });
+}
+
 export const signTransactionLedger = async (derivationPathWithAccount, account, to, data, value, gasPrice = null) => {
   return new Promise(async (resolve, reject) => {
     try {
       const tx = await buildTransaction(account, to, data, value, gasPrice);
       objects.ledger.signTransaction(derivationPathWithAccount, tx.serialize().toString('hex')).then(sig => {
-        tx.v = "0x" + sig['v'];
-        tx.r = "0x" + sig['r'];
-        tx.s = "0x" + sig['s'];
-        web3.eth.sendRawTransaction("0x" + tx.serialize().toString('hex'), (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
-          }
-        });
+        sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
       }, e => reject(e));
     } catch(e) {
       reject(e);
@@ -278,17 +284,12 @@ export const signTransactionTrezor = (derivationPathWithAccount, account, to, da
       tx.value,
       tx.data,
       tx.v,
-      sig => {
-        tx.v = "0x" + sig['v'];
-        tx.r = "0x" + sig['r'];
-        tx.s = "0x" + sig['s'];
-        web3.eth.sendRawTransaction("0x" + tx.serialize().toString('hex'), (e, r) => {
-          if (!e) {
-            resolve(r);
-          } else {
-            reject(e);
-          }
-        });
+      result => {
+        if (result.success) {
+          sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
+        } else {
+          reject(new Error(result.error));
+        }
     });
   });
 }
