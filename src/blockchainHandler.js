@@ -189,10 +189,41 @@ export const loadLedgerAddresses = (derivationPath, from) => {
     try {
       if (!objects.ledger) {
         objects.ledger = await createLedgerTransport();
+        objects.addressGenerator = new AddressGenerator(await objects.ledger.getAddress(derivationPath, false, true));
       }
       const addresses = [];
       for (let i = from; i < from + 5; i++){
-        addresses.push((await objects.ledger.getAddress(`${derivationPath}/${i}`)).address);
+        addresses.push(objects.addressGenerator.getAddressString(i));
+      }
+      resolve(addresses);
+    } catch(e) {
+      reject(e);
+    }
+  });
+}
+
+const createAddressGeneratorFromTrezor = derivationPath => {
+  return new Promise((resolve, reject) => {
+    TrezorConnect.setCurrency('ETH');
+    TrezorConnect.getXPubKey(derivationPath, result => {
+      if (result.success) {
+        resolve(new AddressGenerator(result));
+      } else {
+        reject(new Error(result.error));
+      }
+    });
+  });
+}
+
+export const loadTrezorAddresses = (derivationPath, from = 0) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!objects.addressGenerator) {
+        objects.addressGenerator = await createAddressGeneratorFromTrezor(derivationPath);
+      }
+      const addresses = [];
+      for (let i = from; i < from + 5; i++){
+        addresses.push(objects.addressGenerator.getAddressString(i));
       }
       resolve(addresses);
     } catch(e) {
@@ -229,36 +260,6 @@ export const signTransactionLedger = async (derivationPathWithAccount, account, 
           }
         });
       }, e => reject(e));
-    } catch(e) {
-      reject(e);
-    }
-  });
-}
-
-const createAddressGeneratorFromTrezor = derivationPath => {
-  return new Promise((resolve, reject) => {
-    TrezorConnect.setCurrency('ETH');
-    TrezorConnect.getXPubKey(derivationPath, result => {
-      if (result.success) {
-        resolve(new AddressGenerator(result));
-      } else {
-        reject(new Error(result.error));
-      }
-    });
-  });
-}
-
-export const loadTrezorAddresses = (derivationPath, from = 0) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (!objects.addressGenerator) {
-        objects.addressGenerator = await createAddressGeneratorFromTrezor(derivationPath);
-      }
-      const addresses = [];
-      for (let i = from; i < from + 5; i++){
-        addresses.push(objects.addressGenerator.getAddressString(i));
-      }
-      resolve(addresses);
     } catch(e) {
       reject(e);
     }
