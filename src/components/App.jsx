@@ -1063,10 +1063,10 @@ class App extends Component {
           });
         }, e => console.log('Error connecting Ledger', e.message));
       } else if (this.state.hw.option === 'trezor') {
-        Blockchain.loadTrezorAddress(derivationPath, 0).then(address => {
+        Blockchain.loadTrezorAddresses(derivationPath, 0).then(addresses => {
           this.setState(prevState => {
             const hw = {...prevState.hw};
-            hw.addresses = [address];
+            hw.addresses = addresses;
             return {hw};
           }, () => {
             console.log('Trezor connected', 'Address was loaded')
@@ -1090,10 +1090,10 @@ class App extends Component {
       }, e => console.log('Error connecting Ledger', e.message));
     } else if (this.state.hw.option === 'trezor') {
       console.log('Connecting to Trezor', 'Getting more addresses...');
-      Blockchain.loadTrezorAddress(this.state.hw.derivationPath, this.state.hw.addresses.length).then(address => {
+      Blockchain.loadTrezorAddresses(this.state.hw.derivationPath, this.state.hw.addresses.length).then(addresses => {
         this.setState(prevState => {
           const hw = {...prevState.hw};
-          hw.addresses = hw.addresses.concat([address]);
+          hw.addresses = hw.addresses.concat(addresses);
           return {hw};
         }, () => {
           console.log('Trezor connected', 'Addresses were loaded')

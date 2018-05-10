@@ -4,9 +4,8 @@ import { toBytes32, addressToBytes32, toWei, methodSig, toHex } from './helpers'
 import Transport from "@ledgerhq/hw-transport-u2f";
 import Eth from "@ledgerhq/hw-app-eth";
 import Tx from 'ethereumjs-tx';
-import TrezorConnect from './vendor/trezor-connect.js';
-
-console.log(TrezorConnect);
+import TrezorConnect from './vendor/trezor-connect';
+import AddressGenerator from './address-generator';
 
 const settings = require('./settings');
 const promisify = Promise.promisify;
@@ -236,12 +235,17 @@ export const signTransactionLedger = async (derivationPathWithAccount, account, 
   });
 }
 
-export const loadTrezorAddress = (derivationPath, i = 0) => {
+export const loadTrezorAddresses = (derivationPath, from = 0) => {
   return new Promise((resolve, reject) => {
     TrezorConnect.setCurrency('ETH');
-    TrezorConnect.getXPubKey(`${derivationPath}/${i}`, result => {
+    TrezorConnect.getXPubKey(derivationPath, result => {
       if (result.success) {
-        resolve(result.xpubkey);
+        objects.trezor = new AddressGenerator(result);
+        const addresses = [];
+        for (let i = from; i < from + 5; i++){
+          addresses.push(objects.trezor.getAddressString(i));
+        }
+        resolve(addresses);
       } else {
         reject(new Error(result.error));
       }
