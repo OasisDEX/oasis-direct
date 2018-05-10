@@ -235,7 +235,7 @@ export const signTransactionLedger = async (derivationPathWithAccount, account, 
   });
 }
 
-const createAddressGenerator = derivationPath => {
+const createAddressGeneratorFromTrezor = derivationPath => {
   return new Promise((resolve, reject) => {
     TrezorConnect.setCurrency('ETH');
     TrezorConnect.getXPubKey(derivationPath, result => {
@@ -248,11 +248,11 @@ const createAddressGenerator = derivationPath => {
   });
 }
 
-export const loadTrezorAddresses = async (derivationPath, from = 0) => {
-  return new Promise((resolve, reject) => {
+export const loadTrezorAddresses = (derivationPath, from = 0) => {
+  return new Promise(async (resolve, reject) => {
     try {
       if (!objects.addressGenerator) {
-        objects.addressGenerator = await createAddressGenerator(derivationPath);
+        objects.addressGenerator = await createAddressGeneratorFromTrezor(derivationPath);
       }
       const addresses = [];
       for (let i = from; i < from + 5; i++){
