@@ -235,21 +235,33 @@ export const signTransactionLedger = async (derivationPathWithAccount, account, 
   });
 }
 
-export const loadTrezorAddresses = (derivationPath, from = 0) => {
+const createAddressGenerator = derivationPath => {
   return new Promise((resolve, reject) => {
     TrezorConnect.setCurrency('ETH');
     TrezorConnect.getXPubKey(derivationPath, result => {
       if (result.success) {
-        objects.trezor = new AddressGenerator(result);
-        const addresses = [];
-        for (let i = from; i < from + 5; i++){
-          addresses.push(objects.trezor.getAddressString(i));
-        }
-        resolve(addresses);
+        resolve(new AddressGenerator(result));
       } else {
         reject(new Error(result.error));
       }
     });
+  });
+}
+
+export const loadTrezorAddresses = async (derivationPath, from = 0) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!objects.addressGenerator) {
+        objects.addressGenerator = await createAddressGenerator(derivationPath);
+      }
+      const addresses = [];
+      for (let i = from; i < from + 5; i++){
+        addresses.push(objects.addressGenerator.getAddressString(i));
+      }
+      resolve(addresses);
+    } catch(e) {
+      reject(e);
+    }
   });
 }
 
