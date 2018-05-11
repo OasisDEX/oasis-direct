@@ -41,7 +41,7 @@ class Widget extends Component {
                 }
               </div>
             :
-              this.props.hw.show
+              this.props.hw.showModal
               ?
                 <HardWallet hw={ this.props.hw }
                             loadHWAddresses={ this.props.loadHWAddresses }

@@ -17,7 +17,7 @@ class App extends Component {
     this.state = {
       ...initialState,
       network: {},
-      hw: {show: false, option: null, derivationPath: null, addresses: [], addressIndex: null},
+      hw: {active: false, showModal: false, option: null, derivationPath: null, addresses: [], addressIndex: null},
       section: 'exchange',
     }
     this.txInterval = {};
@@ -123,10 +123,10 @@ class App extends Component {
       const networkState = {...this.state.network};
       networkState.accounts = accounts;
       const oldDefaultAccount = networkState.defaultAccount;
-      // if (!this.state.network.isHw) {
-      //   networkState.defaultAccount = accounts[0];
-      //   Blockchain.setDefaultAccount(networkState.defaultAccount);
-      // }
+      if (!this.state.hw.active) {
+        networkState.defaultAccount = accounts[0];
+        Blockchain.setDefaultAccount(networkState.defaultAccount);
+      }
       this.setState({network: networkState}, () => {
         if (oldDefaultAccount !== networkState.defaultAccount) {
           this.initContracts();
@@ -1002,7 +1002,7 @@ class App extends Component {
     this.setState(prevState => {
       const hw = {...prevState.hw};
       hw.option = option;
-      hw.show = true;
+      hw.showModal = true;
       return {hw};
     });
   }
@@ -1010,6 +1010,7 @@ class App extends Component {
   loadHWAddresses = derivationPath => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
+      hw.active = true;
       hw.derivationPath = derivationPath;
       return {hw};
     }, async () => {
@@ -1058,21 +1059,11 @@ class App extends Component {
       const hw = {...prevState.hw};
       const network = {...prevState.network};
       network.defaultAccount = hw.addresses[hw.addressIndex].toLowerCase();
-      network.isHw = true;
-      hw.show = false;
+      hw.showModal = false;
       return {hw, network};
     }, () => {
       Blockchain.setDefaultAccount(this.state.network.defaultAccount);
       this.initContracts();
-    });
-  }
-
-  stopHw = async () => {
-    this.setState(prevState => {
-      const network = {...prevState.network};
-      network.defaultAccount = network.accounts[0];
-      network.isHw = false;
-      return {network};
     });
   }
   //
