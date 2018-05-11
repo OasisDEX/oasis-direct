@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {initWeb3} from '../web3';
+import {initWeb3, setHWProvider} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
@@ -123,10 +123,10 @@ class App extends Component {
       const networkState = {...this.state.network};
       networkState.accounts = accounts;
       const oldDefaultAccount = networkState.defaultAccount;
-      if (!this.state.network.isHw) {
-        networkState.defaultAccount = accounts[0];
-      }
-      Blockchain.setDefaultAccount(networkState.defaultAccount);
+      // if (!this.state.network.isHw) {
+      //   networkState.defaultAccount = accounts[0];
+      //   Blockchain.setDefaultAccount(networkState.defaultAccount);
+      // }
       this.setState({network: networkState}, () => {
         if (oldDefaultAccount !== networkState.defaultAccount) {
           this.initContracts();
@@ -144,13 +144,13 @@ class App extends Component {
     clearInterval(this.checkNetworkInterval);
   }
 
-  init = () => {
+  init = async () => {
     this.setHashSection();
     window.onhashchange = () => {
       this.setHashSection();
     }
 
-    initWeb3();
+    await initWeb3();
     this.checkNetwork();
     this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -528,29 +528,19 @@ class App extends Component {
         this.logRequestTransaction('proxy').then(() => {
           const proxyRegistry = Blockchain.objects.proxyRegistry;
           callbacks = [['setProxyAddress', callbacks]];
-          const log = (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, 'proxy', callbacks);
-            } else {
-              this.logTransactionRejected('proxy');
-            }
-          }
-
           this.setState((prevState, props) => {
             const trade = {...prevState.trade};
             trade.step = 2;
             trade.txs = 3;
             return {trade};
           }, () => {
-            if (this.state.network.isHw) {
-              Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyRegistry.address, proxyRegistry.build.getData(), 0, gasPrice).then(tx => {
-                log(null, tx);
-              }, e => {
-                log(e, null);
-              });
-            } else {
-              proxyRegistry.build({gasPrice}, log);
-            }
+            proxyRegistry.build({gasPrice}, (e, tx) => {
+              if (!e) {
+                this.logPendingTransaction(tx, 'proxy', callbacks);
+              } else {
+                this.logTransactionRejected('proxy');
+              }
+            });
           });
         });
       });
@@ -581,22 +571,13 @@ class App extends Component {
             this.logRequestTransaction('approval').then(() => {
               const tokenObj = Blockchain.objects[token];
               const params = [dst, -1];
-              const log = (e, tx) => {
+              tokenObj.approve(...params.concat([{gasPrice}, (e, tx) => {
                 if (!e) {
                   this.logPendingTransaction(tx, 'approval', callbacks);
                 } else {
                   this.logTransactionRejected('approval');
                 }
-              }
-              if (this.state.network.isHw) {
-                Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, tokenObj.address, tokenObj.approve.getData(...params), 0, gasPrice).then(tx => {
-                  log(null, tx);
-                }, e => {
-                  log(e, null);
-                });
-              } else {
-                tokenObj.approve(...params.concat([{gasPrice}, log]));
-              }
+              }]));
             }, e => {
               console.debug("Couldn't calculate gas price because of", e);
             });
@@ -612,23 +593,14 @@ class App extends Component {
       this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
         const proxy = Blockchain.objects.proxy;
         const params = [settings.chain[this.state.network.network].proxyContracts.oasisDirect, data.calldata];
-        const log = (e, tx) => {
+        proxy.execute['address,bytes'](...params.concat([{value: data.value, gasPrice}, (e, tx) => {
           if (!e) {
             this.logPendingTransaction(tx, 'trade');
           } else {
             console.log(e);
             this.logTransactionRejected('trade');
           }
-        }
-        if (this.state.network.isHw) {
-          Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxy.address, proxy.execute['address,bytes'].getData(...params), data.value, gasPrice).then(tx => {
-            log(null, tx);
-          }, e => {
-            log(e, null);
-          });
-        } else {
-          proxy.execute['address,bytes'](...params.concat([{value: data.value, gasPrice}, log]));
-        }
+        }]));
       }, () => {});
     }, () => {});
   }
@@ -638,24 +610,14 @@ class App extends Component {
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.logRequestTransaction('trade').then(() => {
         const proxyCreateAndExecute = Blockchain.loadObject('proxycreateandexecute', settings.chain[this.state.network.network].proxyCreationAndExecute);
-        const log = (e, tx) => {
+        proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
           if (!e) {
             this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
           } else {
             console.log(e);
             this.logTransactionRejected('trade');
           }
-        }
-
-        if (this.state.network.isHw) {
-          Blockchain[`signTransaction${this.state.hw.option.replace(/\b\w/g, l => l.toUpperCase())}`](`${this.state.hw.derivationPath}/${this.state.hw.addressIndex}`, this.state.network.defaultAccount, proxyCreateAndExecute.address, proxyCreateAndExecute[data.method].getData(...data.params), data.value, gasPrice).then(tx => {
-            log(null, tx);
-          }, e => {
-            log(e, null);
-          });
-        } else {
-          proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, log]));
-        }
+        }]));
       }, () => {});
     }, e => console.debug("Couldn't calculate gas price because of:", e));
   }
@@ -1050,62 +1012,43 @@ class App extends Component {
       const hw = {...prevState.hw};
       hw.derivationPath = derivationPath;
       return {hw};
-    }, () => {
-      if (this.state.hw.option === 'ledger') {
-        console.log('Connecting to Ledger', 'Getting addresses...');
-        Blockchain.loadLedgerAddresses(derivationPath, 0).then(addresses => {
-          this.setState(prevState => {
-            const hw = {...prevState.hw};
-            hw.addresses = addresses;
-            return {hw};
-          }, () => {
-            console.log('Ledger connected', 'Addresses were loaded')
-          });
-        }, e => console.log('Error connecting Ledger', e.message));
-      } else if (this.state.hw.option === 'trezor') {
-        Blockchain.loadTrezorAddresses(derivationPath, 0).then(addresses => {
-          this.setState(prevState => {
-            const hw = {...prevState.hw};
-            hw.addresses = addresses;
-            return {hw};
-          }, () => {
-            console.log('Trezor connected', 'Address was loaded')
-          });
-        }, e => console.log('Error connecting Trezor', e.message));
+    }, async () => {
+      try {
+        await setHWProvider(this.state.hw.option, await Blockchain.getNetwork(), `${derivationPath.replace('m/', '')}/0`, 0, 5);
+        const accounts = await Blockchain.getAccounts();
+        this.setState(prevState => {
+          const hw = {...prevState.hw};
+          hw.addresses = accounts;
+          return {hw};
+        }, () => {
+          console.log(`${this.state.hw.option} connected`, 'Addresses were loaded')
+        });
+      } catch(e) {
+        console.log(`Error connecting ${this.state.hw.option}`, e.message);
       }
     });
   }
 
-  loadMoreHwAddresses = () => {
-    if (this.state.hw.option === 'ledger') {
-      console.log('Connecting to Ledger', 'Getting more addresses...');
-      Blockchain.loadLedgerAddresses(this.state.hw.derivationPath, this.state.hw.addresses.length).then(addresses => {
-        this.setState(prevState => {
-          const hw = {...prevState.hw};
-          hw.addresses = hw.addresses.concat(addresses);
-          return {hw};
-        }, () => {
-          console.log('Ledger connected', 'Addresses were loaded')
-        });
-      }, e => console.log('Error connecting Ledger', e.message));
-    } else if (this.state.hw.option === 'trezor') {
-      console.log('Connecting to Trezor', 'Getting more addresses...');
-      Blockchain.loadTrezorAddresses(this.state.hw.derivationPath, this.state.hw.addresses.length).then(addresses => {
-        this.setState(prevState => {
-          const hw = {...prevState.hw};
-          hw.addresses = hw.addresses.concat(addresses);
-          return {hw};
-        }, () => {
-          console.log('Trezor connected', 'Addresses were loaded')
-        });
-      }, e => console.log('Error connecting Trezor', e));
+  loadMoreHwAddresses = async () => {
+    try {
+      await setHWProvider(this.state.hw.option, await Blockchain.getNetwork(), `${this.state.hw.derivationPath.replace('m/', '')}/0`, this.state.hw.addresses.length, 5);
+      const accounts = await Blockchain.getAccounts();
+      this.setState(prevState => {
+        const hw = {...prevState.hw};
+        hw.addresses = accounts;
+        return {hw};
+      }, () => {
+        console.log(`${this.state.hw.option} connected`, 'Addresses were loaded')
+      });
+    } catch(e) {
+      console.log(`Error connecting ${this.state.hw.option}`, e.message);
     }
   }
 
   selectHWAddress = address => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
-      hw.addressIndex = hw.addresses.indexOf(address);;
+      hw.addressIndex = hw.addresses.indexOf(address);
       return {hw};
     });
   }
@@ -1119,6 +1062,7 @@ class App extends Component {
       hw.show = false;
       return {hw, network};
     }, () => {
+      Blockchain.setDefaultAccount(this.state.network.defaultAccount);
       this.initContracts();
     });
   }
