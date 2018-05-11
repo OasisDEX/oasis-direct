@@ -280,21 +280,21 @@ export const signTransactionTrezor = (derivationPathWithAccount, account, to, da
       buf2hex(tx.nonce),
       buf2hex(tx.gasPrice),
       buf2hex(tx.gasLimit),
-      to,
+      to.slice(2),
       buf2hex(tx.value),
-      data,
+      data.slice(2).length % 2 ? `0${data.slice(2)}` : data.slice(2),
       buf2hex(tx.v),
-      result => {
-        if (result.success) {
-          console.log(result);
-          // sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
+      sig => {
+        if (sig.success) {
+          sendTransaction(tx, sig).then(r => resolve(r), e => reject(e));
         } else {
-          reject(new Error(result.error));
+          reject(new Error(sig.error));
         }
     });
   });
 }
 
-export const buf2hex = buffer => { // buffer is an ArrayBuffer
-  return `0x${Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('')}`;
+export const buf2hex = buffer => {
+  const hex = Array.prototype.map.call(new Uint8Array(buffer), x => (`00${x.toString(16)}`).slice(-2)).join('');
+  return hex.length % 2 ? `0${hex}` : hex;
 }
