@@ -93,7 +93,7 @@ export default function createTrezorSubprovider(
     try {
       if (!alreadyOpenTrezorModal) {
         alreadyOpenTrezorModal = true;
-        const addressGenerator = await new AddressGenerator(await createAddressGenerator(`m/${path}`));
+        const addressGenerator = await createAddressGenerator(`m/${pathComponents.basePath.slice(0, pathComponents.basePath.length - 1)}`);
 
         const addresses = {};
         for (let i = accountsOffset; i < accountsOffset + accountsLength; i++){
@@ -130,11 +130,11 @@ export default function createTrezorSubprovider(
         path,
         sanitizeParam(txData.nonce),
         sanitizeParam(txData.gasPrice),
-        sanitizeParam(txData.gasLimit),
+        sanitizeParam(txData.gas),
         txData.to.slice(2),
-        sanitizeParam(txData.value),
+        txData.value ? sanitizeParam(txData.value) : "",
         txData.data ? sanitizeParam(txData.data) : "",
-        sanitizeParam(parseInt(networkId, 10).toString(16)),
+        parseInt(networkId, 10),
         result => {
           if (result.success) {
             resolve(result)
@@ -152,7 +152,7 @@ export default function createTrezorSubprovider(
       const tx = new EthereumTx(txData);
       const result = await trezorSign(path, txData);
 
-      tx.v = Buffer.from(result.v, "hex");
+      tx.v = Buffer.from(result.v.toString(16), "hex");
       tx.r = Buffer.from(result.r, "hex");
       tx.s = Buffer.from(result.s, "hex");
 
