@@ -28,8 +28,18 @@ export const loadObject = (type, address, label = null) => {
   return object;
 }
 
-export const setDefaultAccount = account => {
-  web3.eth.defaultAccount = account;
+export const getDefaultAccount = () => {
+  return web3.eth.defaultAccount;
+}
+
+export const setDefaultAccountByIndex = async index => {
+  try {
+    const accounts = await getAccounts();
+    console.log(`Address ${accounts[index]} loaded`);
+    web3.eth.defaultAccount = accounts[index];
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 export const getNetwork = () => {

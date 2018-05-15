@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {initWeb3, setHWProvider} from '../web3';
+import {setWebClientProvider, setHWProvider} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
@@ -121,12 +121,11 @@ class App extends Component {
   checkAccounts = () => {
     Blockchain.getAccounts().then(accounts => {
       const networkState = {...this.state.network};
-      networkState.accounts = accounts;
       const oldDefaultAccount = networkState.defaultAccount;
-      if (!this.state.hw.active) {
-        networkState.defaultAccount = accounts[0];
-        Blockchain.setDefaultAccount(networkState.defaultAccount);
+      if (!this.state.hw.active && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
+        Blockchain.setDefaultAccountByIndex(0);
       }
+      networkState.defaultAccount = Blockchain.getDefaultAccount();
       this.setState({network: networkState}, () => {
         if (oldDefaultAccount !== networkState.defaultAccount) {
           this.initContracts();
@@ -144,16 +143,11 @@ class App extends Component {
     clearInterval(this.checkNetworkInterval);
   }
 
-  init = async () => {
+  init = () => {
     this.setHashSection();
     window.onhashchange = () => {
       this.setHashSection();
     }
-
-    await initWeb3();
-    this.checkNetwork();
-    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
-    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
   setHashSection = () => {
@@ -997,6 +991,14 @@ class App extends Component {
     })
   }
 
+  // Web3 web client
+  setWeb3WebClient = async () => {
+    await setWebClientProvider();
+    this.checkNetwork();
+    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+  }
+
   // Hardwallets
   showHW = option => {
     this.setState(prevState => {
@@ -1007,7 +1009,7 @@ class App extends Component {
     });
   }
 
-  loadHWAddresses = derivationPath => {
+  loadHWAddresses = (network, derivationPath = this.state.hw.derivationPath) => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
       hw.active = true;
@@ -1015,7 +1017,7 @@ class App extends Component {
       return {hw};
     }, async () => {
       try {
-        await setHWProvider(this.state.hw.option, await Blockchain.getNetwork(), `${derivationPath.replace('m/', '')}/0`, 0, 5);
+        await setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
         const accounts = await Blockchain.getAccounts();
         this.setState(prevState => {
           const hw = {...prevState.hw};
@@ -1030,22 +1032,6 @@ class App extends Component {
     });
   }
 
-  loadMoreHwAddresses = async () => {
-    try {
-      await setHWProvider(this.state.hw.option, await Blockchain.getNetwork(), `${this.state.hw.derivationPath.replace('m/', '')}/0`, this.state.hw.addresses.length, 5);
-      const accounts = await Blockchain.getAccounts();
-      this.setState(prevState => {
-        const hw = {...prevState.hw};
-        hw.addresses = accounts;
-        return {hw};
-      }, () => {
-        console.log(`${this.state.hw.option} connected`, 'Addresses were loaded')
-      });
-    } catch(e) {
-      console.log(`Error connecting ${this.state.hw.option}`, e.message);
-    }
-  }
-
   selectHWAddress = address => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
@@ -1057,13 +1043,13 @@ class App extends Component {
   importAddress = () => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
-      const network = {...prevState.network};
-      network.defaultAccount = hw.addresses[hw.addressIndex].toLowerCase();
       hw.showModal = false;
-      return {hw, network};
+      return {hw};
     }, () => {
-      Blockchain.setDefaultAccount(this.state.network.defaultAccount);
-      this.initContracts();
+      Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
+      this.checkNetwork();
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
     });
   }
   //
@@ -1095,28 +1081,28 @@ class App extends Component {
                     <h2>No Registration. No Fees.</h2>
                   </div>
                 </div>
-                <Widget isConnected={this.state.network.isConnected}
-                        section={this.state.section}
-                        network={this.state.network.network}
-                        account={this.state.network.defaultAccount}
-                        proxy={this.state.proxy}
-                        trade={this.state.trade}
-                        balances={this.state.balances}
-                        showTxMessage={this.state.showTxMessage}
-                        transactions={this.state.transactions}
-                        setMainState={this.setMainState}
-                        fasterGasPrice={this.fasterGasPrice}
-                        doTrade={this.doTrade}
-                        reset={this.reset}
-                        getProxy={this.getProxy}
-                        calculateBuyAmount={this.calculateBuyAmount}
-                        calculatePayAmount={this.calculatePayAmount}
-                        cleanInputs={this.cleanInputs}
+                <Widget isConnected={ this.state.network.isConnected }
+                        section={ this.state.section }
+                        network={ this.state.network.network }
+                        account={ this.state.network.defaultAccount }
+                        proxy={ this.state.proxy }
+                        trade={ this.state.trade }
+                        balances={ this.state.balances }
+                        showTxMessage={ this.state.showTxMessage }
+                        transactions={ this.state.transactions }
+                        setMainState={ this.setMainState }
+                        fasterGasPrice={ this.fasterGasPrice }
+                        doTrade={ this.doTrade }
+                        reset={ this.reset }
+                        getProxy={ this.getProxy }
+                        calculateBuyAmount={ this.calculateBuyAmount }
+                        calculatePayAmount={ this.calculatePayAmount }
+                        cleanInputs={ this.cleanInputs }
+                        setWeb3WebClient={ this.setWeb3WebClient }
                         hw={ this.state.hw }
                         showHW={ this.showHW }
                         loadHWAddresses={ this.loadHWAddresses }
                         selectHWAddress={ this.selectHWAddress }
-                        loadMoreHwAddresses={ this.loadMoreHwAddresses }
                         importAddress={ this.importAddress } />
               </main>
             </section>

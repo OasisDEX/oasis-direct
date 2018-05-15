@@ -10,7 +10,7 @@ class Web3ClientChoice extends React.Component {
         <section className="content">
           <a href="#action" onClick={ e => { e.preventDefault(); this.props.showHW('ledger') } }>Connect to Ledger</a>
           <a href="#action" onClick={ e => { e.preventDefault(); this.props.showHW('trezor') } }>Connect to Trezor</a>
-          <a href="#action" onClick={ e => { e.preventDefault(); } }>Connect to WebClient (Metamask/Parity/Mist)</a>
+          <a href="#action" onClick={ e => { e.preventDefault(); this.props.setWeb3WebClient() } }>Connect to WebClient (Metamask/Parity/Mist)</a>
         </section>
       </div>
     )
