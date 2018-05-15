@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TradeWidget from './TradeWidget';
 import TaxWidget from './TaxWidget';
 
+import Web3ClientChoice from './Web3ClientChoice';
 import NoConnection from './NoConnection';
 import NoAccount from './NoAccount';
 import {isAddress} from '../helpers';

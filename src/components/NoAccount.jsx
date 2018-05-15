@@ -19,8 +19,6 @@ const NoAccount = props => {
               <h3>Unlock your Account on the Extension.</h3>
             </div>
           }
-          <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('ledger') } }>Connect to Ledger</a>
-          <a href="#action" onClick={ e => { e.preventDefault(); props.showHW('trezor') } }>Connect to Trezor</a>
         </section>
     </div>
   )
