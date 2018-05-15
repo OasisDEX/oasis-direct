@@ -1,6 +1,6 @@
 import Web3 from 'web3';
-import * as Web3ProviderEngine from 'web3-provider-engine';
-import * as RpcSource from 'web3-provider-engine/subproviders/rpc';
+import * as Web3ProviderEngine from 'web3-provider-engine/dist/es5';
+import * as RpcSource from 'web3-provider-engine/dist/es5/subproviders/rpc';
 import Transport from "@ledgerhq/hw-transport-u2f";
 import LedgerSubProvider from './vendor/ledger-subprovider';
 import TrezorSubProvider from './vendor/trezor-subprovider';
