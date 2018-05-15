@@ -191,6 +191,7 @@ class App extends Component {
     Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
       this.setState(() => {
+        Blockchain.loadObject('dsproxy', proxy, 'proxy');
         return {proxy};
       }, () => {
         callbacks.forEach(callback => this.executeCallback(callback));
