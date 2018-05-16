@@ -10,6 +10,8 @@ const settings = require('./settings');
 const web3 = new Web3();
 export default web3;
 
+window.web3Provider = web3;
+
 export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -37,7 +39,6 @@ export const setWebClientProvider = () => {
         alert('error');
       }
 
-      window.web3 = web3;
       web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
       resolve(web3);
     } catch(e) {

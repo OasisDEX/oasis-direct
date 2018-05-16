@@ -18,10 +18,7 @@ function obtainPathComponentsFromDerivationPath(derivationPath) {
   const regExp = /^(44'\/(?:1|60|61)'\/\d+'\/\d+?\/)(\d+)$/;
   const matchResult = regExp.exec(derivationPath);
   if (matchResult === null) {
-    throw makeError(
-      "To get multiple accounts your derivation path must follow pattern 44'/60|61'/x'/n ",
-      "InvalidDerivationPath"
-    );
+    throw makeError("To get multiple accounts your derivation path must follow pattern 44'/60|61'/x'/n ", "InvalidDerivationPath");
   }
   return { basePath: matchResult[1], index: parseInt(matchResult[2], 10) };
 }
@@ -33,8 +30,6 @@ type SubproviderOptions = {
   networkId: number,
   // derivation path
   path?: string,
-  // should use actively validate on the device
-  askConfirm?: boolean,
   // number of accounts to derivate
   accountsLength?: number,
   // offset index to use to start derivating the accounts
@@ -44,7 +39,6 @@ type SubproviderOptions = {
 const defaultOptions = {
   networkId: 1, // mainnet
   path: "44'/60'/0'/0/0", // trezor default derivation path
-  askConfirm: false,
   accountsLength: 1,
   accountsOffset: 0
 };
@@ -60,14 +54,7 @@ export default function createTrezorSubprovider(
     ...options
   };
   if (!allowedHdPaths.some(hdPref => path.startsWith(hdPref))) {
-    throw makeError(
-      "Ledger derivation path allowed are " +
-        allowedHdPaths.join(", ") +
-        ". " +
-        path +
-        " is not supported",
-      "InvalidDerivationPath"
-    );
+    throw makeError(`Trezor derivation path allowed are ${allowedHdPaths.join(", ")}. ${path} is not supported`, "InvalidDerivationPath");
   }
 
   const pathComponents = obtainPathComponentsFromDerivationPath(path);
@@ -115,16 +102,44 @@ export default function createTrezorSubprovider(
     }
   }
 
-  // async function signPersonalMessage(msgData) {
-    
-  // }
+  function trezorSignMessage(path, msgData) {
+    return new Promise((resolve, reject) => {
+      TrezorConnect.ethereumSignMessage(
+        path,
+        msgData.data,
+        result => {
+          if (result.success) {
+            resolve(result);
+          } else {
+            reject(new Error(result.error));
+          }
+        }
+      )
+    });
+  }
+
+  async function signPersonalMessage(msgData) {
+    const path = addressToPathMap[msgData.from.toLowerCase()];
+    if (!path) throw new Error(`address unknown '${msgData.from}'`);
+    try {
+      const result = await trezorSignMessage(path, msgData);
+      const v = parseInt(result.v, 10) - 27;
+      let vHex = v.toString(16);
+      if (vHex.length < 2) {
+        vHex = `0${v}`;
+      }
+      return `0x${result.r}${result.s}${vHex}`;
+    } catch (e) {
+      throw makeError(e);
+    }
+  }
 
   function sanitizeParam(val) {
     const hex = val.slice(2);
     return hex.length % 2 ? `0${hex}` : hex;
   }
 
-  function trezorSign(path, txData) {
+  function trezorSignTransaction(path, txData) {
     return new Promise((resolve, reject) => {
       TrezorConnect.ethereumSignTx(
         path,
@@ -137,7 +152,7 @@ export default function createTrezorSubprovider(
         parseInt(networkId, 10),
         result => {
           if (result.success) {
-            resolve(result)
+            resolve(result);
           } else {
             reject(new Error(result.error));
           }
@@ -147,10 +162,10 @@ export default function createTrezorSubprovider(
 
   async function signTransaction(txData) {
     const path = `m/${addressToPathMap[txData.from.toLowerCase()]}`;
-    if (!path) throw new Error("address unknown '" + txData.from + "'");
+    if (!path) throw new Error(`address unknown '${txData.from}'`);
     try {
       const tx = new EthereumTx(txData);
-      const result = await trezorSign(path, txData);
+      const result = await trezorSignTransaction(path, txData);
 
       tx.v = Buffer.from(result.v.toString(16), "hex");
       tx.r = Buffer.from(result.r, "hex");
@@ -160,13 +175,7 @@ export default function createTrezorSubprovider(
       const signedChainId = Math.floor((tx.v[0] - 35) / 2);
       const validChainId = networkId & 0xff; // FIXME this is to fixed a current workaround that app don't support > 0xff
       if (signedChainId !== validChainId) {
-        throw makeError(
-          "Invalid networkId signature returned. Expected: " +
-            networkId +
-            ", Got: " +
-            signedChainId,
-          "InvalidNetworkId"
-        );
+        throw makeError(`Invalid networkId signature returned. Expected: ${networkId}, Got: ${signedChainId}`, "InvalidNetworkId");
       }
       return `0x${tx.serialize().toString("hex")}`;
     } catch (e) {
@@ -180,11 +189,11 @@ export default function createTrezorSubprovider(
         .then(res => callback(null, Object.values(res)))
         .catch(err => callback(err, null));
     },
-    // signPersonalMessage: (txData, callback) => {
-    //   signPersonalMessage(txData)
-    //     .then(res => callback(null, res))
-    //     .catch(err => callback(err, null));
-    // },
+    signPersonalMessage: (txData, callback) => {
+      signPersonalMessage(txData)
+        .then(res => callback(null, res))
+        .catch(err => callback(err, null));
+    },
     signTransaction: (txData, callback) => {
       signTransaction(txData)
         .then(res => callback(null, res))
