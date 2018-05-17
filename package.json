@@ -9,6 +9,7 @@
     "bluebird": "^3.5.1",
     "create-react-class": "^15.6.2",
     "hdkey": "^0.8.0",
+    "identicon.js": "^2.3.2",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-scripts": "1.0.14",

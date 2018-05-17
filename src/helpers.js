@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from './web3';
-
+import Identicon from 'identicon.js';
 
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
@@ -102,5 +102,24 @@ export const etherscanToken = (network, text, token, holder = false) => {
 export const methodSig = method => {
   return web3.sha3(method).substring(0, 10)
 }
+
+export const generateIcon = (address) => {
+  return new Identicon(address, {
+    foreground: [
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+    ],
+    background: [
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+    ],
+    margin: 0.2,
+    size: 28,
+  });
+};
 
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;

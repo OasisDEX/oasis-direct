@@ -1,6 +1,5 @@
 import React from 'react';
 import { isMetamask } from '../blockchainHandler';
-import '../styles/NoConnection.css'
 
 
 const NoAccount = props => {

@@ -1,3 +1,6 @@
+@import './Wallets.css';
+@import '../ui-components/Product.css';
+
 .notify-container {
   display: flex;
   flex-direction: column;
@@ -52,7 +55,7 @@
   position: relative;
 
   box-sizing: border-box;
-  width: 470px;
+  width: 490px;
   height: 420px;
   padding: 23px;
 
@@ -65,7 +68,6 @@
 
 .heading {
   text-align: center;
-  margin: 8px 0;
   color: rgba(73, 73, 74, 0.90);
 }
 
