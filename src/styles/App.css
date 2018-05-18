@@ -1,4 +1,5 @@
 @import './Wallets.css';
+@import './HardWallet.css';
 @import '../ui-components/Product.css';
 
 .notify-container {
@@ -696,10 +697,6 @@ button[disabled] {
   position: absolute;
   margin-right: 14px;
   right: 0;
-}
-
-.spinner {
-  height: 14px;
 }
 
 .swap-tokens {

@@ -15,6 +15,7 @@ class Widget extends Component {
           this.props.hw.showModal
           ?
             <HardWallet hw={ this.props.hw }
+                        onBack = { this.props.showClientChoice }
                         loadHWAddresses={ this.props.loadHWAddresses }
                         selectHWAddress={ this.props.selectHWAddress }
                         importAddress={ this.props.importAddress } />

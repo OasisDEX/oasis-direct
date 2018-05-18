@@ -122,7 +122,7 @@ class App extends Component {
     Blockchain.getAccounts().then(accounts => {
       const networkState = {...this.state.network};
       const oldDefaultAccount = networkState.defaultAccount;
-      if (!this.state.hw.active && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
+      if (!this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
         Blockchain.setDefaultAccountByIndex(0);
       }
       networkState.defaultAccount = Blockchain.getDefaultAccount();
@@ -135,7 +135,7 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    setTimeout(this.init, 500);
+    setTimeout(this.listenOnHashChange, 500);
   }
 
   componentWillUnmount = () => {
@@ -143,8 +143,7 @@ class App extends Component {
     clearInterval(this.checkNetworkInterval);
   }
 
-  init = () => {
-    this.setHashSection();
+  listenOnHashChange = () => {
     window.onhashchange = () => {
       this.setHashSection();
     }
@@ -1010,27 +1009,35 @@ class App extends Component {
     });
   }
 
-  loadHWAddresses = (network, derivationPath = this.state.hw.derivationPath) => {
+  showClientChoice = () => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
-      hw.active = true;
-      hw.derivationPath = derivationPath;
+      hw.option = null;
+      hw.showModal = false;
       return {hw};
-    }, async () => {
+    })
+  }
+
+  loadHWAddresses = async (network, derivationPath = this.state.hw.derivationPath) => {
       try {
         await setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
         const accounts = await Blockchain.getAccounts();
         this.setState(prevState => {
           const hw = {...prevState.hw};
           hw.addresses = accounts;
+          hw.derivationPath = derivationPath;
+          hw.isConnected = true;
           return {hw};
-        }, () => {
-          console.log(`${this.state.hw.option} connected`, 'Addresses were loaded')
         });
+        return {
+          error: null
+        }
       } catch(e) {
         console.log(`Error connecting ${this.state.hw.option}`, e.message);
+        return {
+          error: e
+        }
       }
-    });
   }
 
   selectHWAddress = address => {
@@ -1102,6 +1109,7 @@ class App extends Component {
                         setWeb3WebClient={ this.setWeb3WebClient }
                         hw={ this.state.hw }
                         showHW={ this.showHW }
+                        showClientChoice = { this.showClientChoice }
                         loadHWAddresses={ this.loadHWAddresses }
                         selectHWAddress={ this.selectHWAddress }
                         importAddress={ this.importAddress } />

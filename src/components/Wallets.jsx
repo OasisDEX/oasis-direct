@@ -1,6 +1,6 @@
 import React from 'react';
 import Product from '../ui-components/Product';
-import { IdentityIcon, LedgerIcon, TrezorIcon, CircleBackIcon, MetamaskIcon } from "./Icons";
+import { IdentityIcon, LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon } from "./Icons";
 import { generateIcon } from '../helpers';
 
 
@@ -11,7 +11,7 @@ class Web3ClientChoice extends React.Component {
 
     this.state = {
       hasProvider: false,
-      shouldDisplayAvailableClients: true //change it to false before commit!!!
+      shouldDisplayAvailableClients: false
     }
   }
 
@@ -42,8 +42,8 @@ class Web3ClientChoice extends React.Component {
       {
         this.state.shouldDisplayAvailableClients
           ? <section className="frame wallets">
-            <div style={{position: "relative", zIndex: 2}} onClick={this.getToClientSelection}>
-              <CircleBackIcon/>
+            <div style={{position: "absolute", zIndex: 2, top:"18px"}} onClick={this.getToClientSelection}>
+              <Circle><BackIcon/></Circle>
             </div>
             <div className="decorator">
               <ul className="list">
