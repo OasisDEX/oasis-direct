@@ -8,7 +8,10 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 const settings = require('./settings');
 
 const web3 = new Web3();
+web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
 export default web3;
+
+window.web3Provider = web3;
 
 export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
   stop();
@@ -45,9 +48,7 @@ export const setWebClientProvider = () => {
       } else {
         alert('error');
       }
-
-      window.web3 = web3;
-      web3.BigNumber.config({EXPONENTIAL_AT: [-18, 21]});
+      
       resolve(web3);
     } catch (e) {
       reject(e);

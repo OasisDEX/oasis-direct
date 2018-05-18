@@ -119,11 +119,11 @@ class App extends Component {
   }
 
   checkAccounts = () => {
-    Blockchain.getAccounts().then(accounts => {
+    Blockchain.getAccounts().then(async accounts => {
       const networkState = {...this.state.network};
       const oldDefaultAccount = networkState.defaultAccount;
       if (!this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
-        Blockchain.setDefaultAccountByIndex(0);
+        await Blockchain.setDefaultAccountByIndex(0);
       }
       networkState.defaultAccount = Blockchain.getDefaultAccount();
       this.setState({network: networkState}, () => {
@@ -1054,8 +1054,8 @@ class App extends Component {
       const hw = {...prevState.hw};
       hw.showModal = false;
       return {hw};
-    }, () => {
-      Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
+    }, async () => {
+      await Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
