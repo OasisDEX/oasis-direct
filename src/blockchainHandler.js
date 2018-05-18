@@ -136,6 +136,18 @@ export const getProxyOwner = proxy => {
 
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
 
+export const stopProvider = () => {
+  web3.stop();
+}
+
+export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
+  return web3.setHWProvider(device, network, path, accountsOffset = 0, accountsLength = 1);
+}
+
+export const setWebClientProvider = () => {
+  return web3.setWebClientProvider();
+}
+
 export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
   const result = {};
   const otcBytes32 = addressToBytes32(settings.chain[network].otc, false);

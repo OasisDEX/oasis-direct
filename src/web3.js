@@ -7,51 +7,55 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 
 const settings = require('./settings');
 
-const web3 = new Web3();
-web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
-export default web3;
-
-window.web3Provider = web3;
-
-export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
-  stop();
-  return new Promise(async (resolve, reject) => {
-    try {
-      const networkId = network === 'main' ? 1 : (network === 'kovan' ? 42 : '');
-      web3.setProvider(new Web3ProviderEngine());
-      const hwWalletSubProvider = device === 'ledger'
-        ? LedgerSubProvider(async () => await Transport.create(), {networkId, path, accountsOffset, accountsLength})
-        : TrezorSubProvider({networkId, path, accountsOffset, accountsLength});
-      web3.currentProvider.addProvider(hwWalletSubProvider);
-      web3.currentProvider.addProvider(new RpcSource({rpcUrl: settings.chain[network].nodeURL}));
-      web3.currentProvider.start();
-      resolve(true);
-    } catch (e) {
-      console.log(e);
-      reject(e);
+class Web3Extended extends Web3 {
+  stop = () => {
+    if (this.currentProvider) {
+      this.currentProvider.stop();
     }
-  });
-}
+  }
 
-export const stop = () => {
-  if(web3.currentProvider) {
-    web3.currentProvider.stop();
+  setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
+    this.stop();
+    return new Promise(async (resolve, reject) => {
+      try {
+        const networkId = network === 'main' ? 1 : (network === 'kovan' ? 42 : '');
+        this.setProvider(new Web3ProviderEngine());
+        const hwWalletSubProvider = device === 'ledger'
+                                    ? LedgerSubProvider(async () => await Transport.create(), {networkId, path, accountsOffset, accountsLength})
+                                    : TrezorSubProvider({networkId, path, accountsOffset, accountsLength});
+        this.currentProvider.name = device;
+        this.currentProvider.addProvider(hwWalletSubProvider);
+        this.currentProvider.addProvider(new RpcSource({rpcUrl: settings.chain[network].nodeURL}));
+        this.currentProvider.start();
+        this.useLogs = false;
+        resolve(true);
+      } catch(e) {
+        reject(e);
+      }
+    });
+  }
+
+  setWebClientProvider = () => {
+    this.stop();
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (window.web3) {
+          this.setProvider(window.web3.currentProvider);
+        } else {
+          alert('error');
+        }
+        this.useLogs = true;
+        this.currentProvider.name = this.currentProvider.isMetaMask || this.currentProvider.constructor.name === 'MetamaskInpageProvider' ? 'metamask' : 'other';
+        resolve(true);
+      } catch(e) {
+        reject(e);
+      }
+    });
   }
 }
 
-export const setWebClientProvider = () => {
-  this.stop();
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (window.web3) {
-        web3.setProvider(window.web3.currentProvider);
-      } else {
-        alert('error');
-      }
-      
-      resolve(web3);
-    } catch (e) {
-      reject(e);
-    }
-  });
-}
+const web3 = new Web3Extended();
+web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
+window.web3Provider = web3;
+
+export default web3;

@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {setWebClientProvider, setHWProvider, stop} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
@@ -993,7 +992,7 @@ class App extends Component {
 
   // Web3 web client
   setWeb3WebClient = async () => {
-    await setWebClientProvider();
+    await Blockchain.setWebClientProvider();
     this.checkNetwork();
     this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -1020,7 +1019,7 @@ class App extends Component {
 
   loadHWAddresses = async (network, derivationPath = this.state.hw.derivationPath) => {
       try {
-        await setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
+        await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
         const accounts = await Blockchain.getAccounts();
         this.setState(prevState => {
           const hw = {...prevState.hw};
@@ -1033,7 +1032,7 @@ class App extends Component {
           error: null
         }
       } catch(e) {
-        stop();
+        Blockchain.stopProvider();
         console.log(`Error connecting ${this.state.hw.option}`, e.message);
         return {
           error: e
