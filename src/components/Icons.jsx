@@ -417,6 +417,25 @@ export const ApplicationSettingsIcon = () => (
   </svg>
 );
 
+export const LockOpenIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path fill="rgba(73,73,74,0.70)" d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>
+  </svg>
+);
+
+export const PicInPicIcon = () => (
+  <svg width='22' height='18' viewBox='0 0 22 18' xmlns='http://www.w3.org/2000/svg'>
+    <g id='Page-1' fill='none' fillRule='evenodd'>
+      <g id='baseline-picture_in_picture-24px' transform='translate(-1 -3)'>
+        <path d='M16,9 L8,9 L8,15 L16,15 L16,9 Z M21,3 L3,3 C1.9,3 1,3.9 1,5 L1,19 C1,20.1 1.9,20.98 3,20.98 L21,20.98 C22.1,20.98 23,20.1 23,19 L23,5 C23,3.9 22.1,3 21,3 Z M21,19.01 L3,19.01 L3,4.98 L21,4.98 L21,19.01 Z'
+              id='Shape' fill="rgba(73,73,74,0.70)" fillRule='nonzero' />
+        <polygon id='Shape' points='0 0 24 0 24 24 0 24' />
+      </g>
+    </g>
+  </svg>
+);
+
 //TODO: Use Decorating Component
 export const Circle = (props) => {
 

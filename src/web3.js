@@ -11,24 +11,33 @@ const web3 = new Web3();
 export default web3;
 
 export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
+  stop();
   return new Promise(async (resolve, reject) => {
     try {
       const networkId = network === 'main' ? 1 : (network === 'kovan' ? 42 : '');
       web3.setProvider(new Web3ProviderEngine());
       const hwWalletSubProvider = device === 'ledger'
-                                  ? LedgerSubProvider(async () => await Transport.create(), {networkId, path, accountsOffset, accountsLength})
-                                  : TrezorSubProvider({networkId, path, accountsOffset, accountsLength});
+        ? LedgerSubProvider(async () => await Transport.create(), {networkId, path, accountsOffset, accountsLength})
+        : TrezorSubProvider({networkId, path, accountsOffset, accountsLength});
       web3.currentProvider.addProvider(hwWalletSubProvider);
       web3.currentProvider.addProvider(new RpcSource({rpcUrl: settings.chain[network].nodeURL}));
       web3.currentProvider.start();
       resolve(true);
-    } catch(e) {
+    } catch (e) {
+      console.log(e);
       reject(e);
     }
   });
 }
 
+export const stop = () => {
+  if(web3.currentProvider) {
+    web3.currentProvider.stop();
+  }
+}
+
 export const setWebClientProvider = () => {
+  this.stop();
   return new Promise(async (resolve, reject) => {
     try {
       if (window.web3) {
@@ -38,9 +47,9 @@ export const setWebClientProvider = () => {
       }
 
       window.web3 = web3;
-      web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
+      web3.BigNumber.config({EXPONENTIAL_AT: [-18, 21]});
       resolve(web3);
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });

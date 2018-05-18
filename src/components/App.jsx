@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {setWebClientProvider, setHWProvider} from '../web3';
+import {setWebClientProvider, setHWProvider, stop} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
@@ -1033,6 +1033,7 @@ class App extends Component {
           error: null
         }
       } catch(e) {
+        stop();
         console.log(`Error connecting ${this.state.hw.option}`, e.message);
         return {
           error: e

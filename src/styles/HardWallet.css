@@ -20,7 +20,7 @@
   justify-items: center;
 
   height: 34px;
-  width: 169px;
+  width: 176px;
 
   border: 1px solid #F0F0F0;
   border-radius: 4px;
@@ -29,11 +29,14 @@
 }
 
 .hard-wallet .progress .label {
-  margin-left: 16px;
+  width: 100%;
+  margin-left: 0;
 
   font-family: Montserrat, sans-serif;
   font-weight: 500;
   font-size: 14px;
+
+  text-align: center;
 
   color: #777778;
   letter-spacing: 0.88px;
@@ -68,7 +71,9 @@
 }
 
 .hard-wallet .guidelines .text {
+  max-width: 270px;
   font-size: 12px;
   color: #969697;
   letter-spacing: 1px;
+  text-align: left;
 }
