@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from './web3';
-import Identicon from 'identicon.js';
+import jazzicon from 'jazzicon';
 
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
@@ -104,22 +104,7 @@ export const methodSig = method => {
 }
 
 export const generateIcon = (address) => {
-  return new Identicon(address, {
-    foreground: [
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-    ],
-    background: [
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-    ],
-    margin: 0.2,
-    size: 28,
-  });
-};
+  return jazzicon(28, address.substr(0,20));
+}
 
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;

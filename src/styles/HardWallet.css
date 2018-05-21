@@ -77,3 +77,9 @@
   letter-spacing: 1px;
   text-align: left;
 }
+
+.hard-wallet button.close {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+}

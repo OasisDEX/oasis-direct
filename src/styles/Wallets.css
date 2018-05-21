@@ -93,7 +93,9 @@
 }
 
 .wallets .list .list-item .browser-wallet .client-summary {
-  display: flex;
+  display: inline-flex;
+  text-transform: capitalize;
+  align-items: center;
 }
 
 .wallets .list .list-item .browser-wallet .client-summary div {
@@ -113,6 +115,7 @@
 
 .wallets .list .list-item .browser-wallet .label {
   font-size: 14px;
+  line-height: 14px;
   font-weight: 500;
   color: #5B5B5C;
   letter-spacing: 0.4px;

@@ -123,6 +123,39 @@ class HardWallet extends React.Component {
           this.props.hw.addresses.length > 0
             ? (
               <section className='frame hard-wallet'>
+                <div className="heading">
+                  <h2>Select Wallet on your Ledger</h2>
+                </div>
+                <button className="close"/>
+
+                <div className="content">
+                  <ul style={{padding: '0px', margin: '0px', listStyle: 'none', height: '200px', overflowY: 'scroll'}}>
+                    {
+                      this.props.hw.addresses.map(key =>
+                        <li key={key} style={{padding: '0px', margin: '0px'}}>
+                          <label>
+                            <input type="radio" style={{padding: '0px', margin: '0px', width: '25px'}}
+                                   checked={key === this.props.hw.addresses[this.props.hw.addressIndex]} value={key}
+                                   onChange={e => this.props.selectHWAddress(e.target.value)}/>{key}
+                          </label>
+                        </li>
+                      )
+                    }
+                  </ul>
+                  {
+                    this.props.hw.addressIndex !== null &&
+                    <div>
+                      <button onClick={this.props.importAddress}>Import Address</button>
+                    </div>
+                  }
+                  <div>
+                    <button onClick={() => this.props.loadHWAddresses(this.network.value)}>Load more addresses</button>
+                  </div>
+                </div>
+              </section>
+            )
+            : (
+              <section className='frame hard-wallet'>
                 <div style={backButtonStyle} onClick={this.props.onBack}>
                   <Circle><BackIcon/></Circle>
                 </div>
@@ -149,33 +182,6 @@ class HardWallet extends React.Component {
                   </div>
                   <Guidelines steps={steps[this.props.hw.option]}/>
                 </div>
-              </section>
-            )
-            : (
-              <section>
-                Choose Address:
-                <div>
-                  <button onClick={() => this.props.loadHWAddresses(this.network.value)}>Load more addresses</button>
-                </div>
-                <ul style={{padding: '0px', margin: '0px', listStyle: 'none', height: '200px', overflowY: 'scroll'}}>
-                  {
-                    this.props.hw.addresses.map(key =>
-                      <li key={key} style={{padding: '0px', margin: '0px'}}>
-                        <label>
-                          <input type="radio" style={{padding: '0px', margin: '0px', width: '25px'}}
-                                 checked={key === this.props.hw.addresses[this.props.hw.addressIndex]} value={key}
-                                 onChange={e => this.props.selectHWAddress(e.target.value)}/>{key}
-                        </label>
-                      </li>
-                    )
-                  }
-                </ul>
-                {
-                  this.props.hw.addressIndex !== null &&
-                  <div>
-                    <button onClick={this.props.importAddress}>Import Address</button>
-                  </div>
-                }
               </section>
             )
         }
