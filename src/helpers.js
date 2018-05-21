@@ -107,4 +107,14 @@ export const generateIcon = (address) => {
   return jazzicon(28, address.substr(0,20));
 }
 
+export const fetchETHPriceInUSD = () => {
+  return fetch("https://api.coinmarketcap.com/v2/ticker/1027/")
+    .then(data => {
+      return data.json();
+    })
+    .then((json) => {
+      return json.data.quotes.USD.price;
+    });
+}
+
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;

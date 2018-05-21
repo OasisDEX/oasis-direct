@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Ether, MKR, DAI, SwapArrows, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { toWei } from '../helpers'
+import { fetchETHPriceInUSD, toWei } from '../helpers'
 
 const settings = require('../settings');
 
@@ -25,6 +25,8 @@ const tokens = {
   },
 }
 
+const everyFiveMinutes = 3000000; // update time of the CMC api
+
 class SetTrade extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,22 @@ class SetTrade extends Component {
       selectedSide: null,
       shouldDisplayTokenSelector: false,
       hasAcceptedTerms: false,
+      priceInUSD: 0
     }
+  }
+
+  componentWillMount() {
+    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, everyFiveMinutes));
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.priceTickerInterval);
+  }
+
+  fetchPriceInUSD = () => {
+    fetchETHPriceInUSD().then((price) => {
+      this.setState({priceInUSD: price})
+    })
   }
 
   //Whether it's 'from' or 'to'. Probably better name should be chosen
@@ -182,7 +199,7 @@ class SetTrade extends Component {
                 <span className="label">Gas Cost </span>
                 {
                   this.props.trade.txCost.gt(0)
-                    ? <TokenAmount number={toWei(this.props.trade.txCost)} token={'ETH'}/>
+                    ? <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} token={'USD'}/>
                     : <Spinner/>
                 }
               </span>

@@ -962,7 +962,13 @@ class App extends Component {
         reject("Request timed out!");
       }, 3000);
 
-      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
+      fetch("https://ethgasstation.info/json/ethgasAPI.json",{
+        mode: 'cors',
+        headers: {
+          'Access-Control-Request-Headers':'Content-Type',
+          'Content-Type': 'text/plain',
+        }
+      }).then(stream => {
         stream.json().then(price => {
           clearTimeout(timeout);
           resolve(toWei(price.average / 10, "gwei"));
