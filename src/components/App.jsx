@@ -921,8 +921,8 @@ class App extends Component {
       value: action.value ? action.value : 0,
       from: addrFrom
     });
-    console.log(txs);
-    this.saveCost(txs);
+
+    return await this.saveCost(txs);
   }
 
   saveCost = (txs = []) => {
@@ -931,7 +931,7 @@ class App extends Component {
     txs.forEach(tx => {
       promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
     });
-    Promise.all(promises).then(costs => {
+    return Promise.all(promises).then(costs => {
       costs.forEach(cost => {
         total = total.add(cost);
       });
@@ -940,6 +940,8 @@ class App extends Component {
         trade.txCost = fromWei(total);
         return {trade};
       });
+      
+      return total;
     })
   }
 
@@ -1017,6 +1019,7 @@ class App extends Component {
   showClientChoice = () => {
     this.setState(prevState => {
       const hw = {...prevState.hw};
+      hw.addresses = [];
       hw.option = null;
       hw.showModal = false;
       return {hw};
@@ -1035,13 +1038,15 @@ class App extends Component {
           return {hw};
         });
         return {
+          addresses: accounts,
           error: null
         }
       } catch(e) {
         Blockchain.stopProvider();
         console.log(`Error connecting ${this.state.hw.option}`, e.message);
         return {
-          error: e
+          addresses:[],
+          error: e,
         }
       }
   }

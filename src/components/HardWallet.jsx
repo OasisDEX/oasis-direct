@@ -1,9 +1,11 @@
 import React from 'react';
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
-  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon
+  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
 } from "./Icons";
 import Spinner from "./Spinner";
+import { getEthBalanceOf } from "../blockchainHandler";
+import { fromWei } from "../helpers";
 
 const backButtonStyle = {
   position: "absolute",
@@ -19,7 +21,7 @@ const spinnerStyle = {
   height: "18px"
 }
 
-const retryButtonStyle = {
+const circularButtonStyle = {
   width: "32px",
   height: "32px",
   padding: "5px",
@@ -84,6 +86,33 @@ class Guidelines extends React.Component {
   )
 }
 
+
+class Address extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      address: props.address,
+    }
+  }
+
+  componentDidMount() {
+    getEthBalanceOf(this.state.address).then((balance) => {
+      this.setState({balance: fromWei(balance.valueOf())});
+    })
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <span className="address">{this.state.address}</span>
+        <span className="balance">{this.state.balance} ETH</span>
+      </React.Fragment>
+    )
+  }
+}
+
+
 // TODO: Extract each hw device as separate component and they will be composed in HardWallet component
 class HardWallet extends React.Component {
 
@@ -91,6 +120,7 @@ class HardWallet extends React.Component {
     super(props);
 
     this.state = {
+      addresses: [],
       connectivityError: false
     }
   }
@@ -98,16 +128,23 @@ class HardWallet extends React.Component {
   componentWillMount() {
     this.derivationPath = this.props.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
 
-    if (!this.props.hw.isConnected) {
-      this.waitForDeviceToConnect(this.derivationPath);
-    }
+    this.waitForDeviceToConnect(this.derivationPath);
   }
 
   waitForDeviceToConnect = async (derivationPath) => {
-    const {error} = await this.props.loadHWAddresses("main", derivationPath);
+    // TODO: probably have a dropdown with the networks?
+    const {error, addresses} = await this.props.loadHWAddresses("kovan", derivationPath);
+
     if (error) {
       this.setState({connectivityError: true})
     }
+
+    this.page = {
+      start: 0,
+      end: 5
+    };
+
+    this.setState({addresses});
   }
 
   retry = () => {
@@ -116,41 +153,75 @@ class HardWallet extends React.Component {
     });
   }
 
+  //TODO; create pagination component
+  next = async (pageSize) => {
+    const addresses = this.props.hw.addresses;
+    const page = {
+      start: this.page.end,
+      end: this.page.end + pageSize
+    };
+
+    if (this.page.end === addresses.length) {
+      const {error} = await this.props.loadHWAddresses("kovan", this.derivationPath);
+      if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box?
+
+      page.end = this.props.hw.addresses.length;
+    }
+
+    this.page = page;
+    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+  };
+
+  previous = (pageSize) => {
+    if (this.page.start - pageSize < 0) return;
+
+    this.page = {
+      start: this.page.start - pageSize,
+      end: this.page.start
+    };
+
+    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+  };
+
+
   render() {
     return (
       <React.Fragment>
         {
           this.props.hw.addresses.length > 0
             ? (
-              <section className='frame hard-wallet'>
+              <section className='frame hard-wallet-addresses'>
                 <div className="heading">
                   <h2>Select Wallet on your Ledger</h2>
                 </div>
-                <button className="close"/>
+                <button className="close" onClick={this.props.onBack}/>
 
                 <div className="content">
-                  <ul style={{padding: '0px', margin: '0px', listStyle: 'none', height: '200px', overflowY: 'scroll'}}>
+
+                  <ul className="list">
                     {
-                      this.props.hw.addresses.map(key =>
-                        <li key={key} style={{padding: '0px', margin: '0px'}}>
-                          <label>
-                            <input type="radio" style={{padding: '0px', margin: '0px', width: '25px'}}
-                                   checked={key === this.props.hw.addresses[this.props.hw.addressIndex]} value={key}
-                                   onChange={e => this.props.selectHWAddress(e.target.value)}/>{key}
-                          </label>
+                      this.state.addresses.map(address =>
+                        <li key={address} className={`list-item ${this.selectedAddress === address ? 'selected' : ''} `}
+                            onClick={() => {
+                              this.selectedAddress = address;
+                              this.props.selectHWAddress(address)
+                            }}>
+                          <Address address={address}/>
                         </li>
                       )
                     }
                   </ul>
-                  {
-                    this.props.hw.addressIndex !== null &&
-                    <div>
-                      <button onClick={this.props.importAddress}>Import Address</button>
-                    </div>
-                  }
-                  <div>
-                    <button onClick={() => this.props.loadHWAddresses(this.network.value)}>Load more addresses</button>
+
+                  <div className="pagination">
+                    <span onClick={() => this.previous(5)}>
+                      <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
+                    </span>
+                    <span onClick={() => this.next(5)}>
+                      <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
+                    </span>
                   </div>
+
+                  <button onClick={this.props.importAddress}> UNLOCK WALLET</button>
                 </div>
               </section>
             )
@@ -177,7 +248,7 @@ class HardWallet extends React.Component {
                     <div>
                     </div>
                     <div onClick={this.retry}>
-                      <Circle styles={retryButtonStyle}><RetryIcon/></Circle>
+                      <Circle styles={circularButtonStyle}><RetryIcon/></Circle>
                     </div>
                   </div>
                   <Guidelines steps={steps[this.props.hw.option]}/>

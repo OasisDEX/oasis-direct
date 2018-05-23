@@ -1,7 +1,55 @@
-.hard-wallet .content {
+.hard-wallet .content, .hard-wallet-addresses .content {
   justify-items: center;
   align-items: center;
   flex-direction: column;
+}
+
+.hard-wallet-addresses .content {
+  margin-top: 36px;
+  height: 100%;
+}
+
+.hard-wallet-addresses .content .list {
+  width: 100%;
+  border: 1px solid #DEE4F4;
+  border-radius: 4px;
+}
+
+.hard-wallet-addresses .content .list-item {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  height: 44px;
+  color: #777778;
+  border-color: #DEE4F4;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+
+.hard-wallet-addresses .content .list-item:hover,
+.hard-wallet-addresses .content .list-item.selected {
+  background: rgba(222, 228, 244, 0.08);
+}
+
+.hard-wallet-addresses .content .list-item:hover .balance,
+.hard-wallet-addresses .content .list-item:hover .address,
+.hard-wallet-addresses .content .list-item.selected .balance,
+.hard-wallet-addresses .content .list-item.selected .address {
+  color: #656566;
+}
+
+.hard-wallet-addresses .content .list-item .balance {
+  color: #969697;
+}
+
+.hard-wallet-addresses .content .list-item:last-child {
+  border-bottom: 0;
+}
+
+.hard-wallet-addresses .content .pagination {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .hard-wallet .progress {
@@ -78,8 +126,12 @@
   text-align: left;
 }
 
-.hard-wallet button.close {
+.hard-wallet button.close, .hard-wallet-addresses button.close {
   position: absolute;
   top: 18px;
-  right: 24px;
+  right: 23px;
+}
+
+.hard-wallet-addresses .content button {
+  margin-top: auto;
 }

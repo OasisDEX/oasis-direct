@@ -141,7 +141,7 @@ export const stopProvider = () => {
 }
 
 export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
-  return web3.setHWProvider(device, network, path, accountsOffset = 0, accountsLength = 1);
+  return web3.setHWProvider(device, network, path, accountsOffset, accountsLength);
 }
 
 export const setWebClientProvider = () => {
