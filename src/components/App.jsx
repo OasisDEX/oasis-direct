@@ -1021,6 +1021,7 @@ class App extends Component {
       const hw = {...prevState.hw};
       hw.addresses = [];
       hw.option = null;
+      hw.isConnected = false;
       hw.showModal = false;
       return {hw};
     })
