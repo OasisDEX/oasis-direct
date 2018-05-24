@@ -756,12 +756,16 @@ class App extends Component {
               }
 
 
-              const gasCost = await this.estimateAllGasCosts('sellAll', from, to, amount);
+              let expenses = await this.estimateAllGasCosts('sellAll', from, to, amount);
+              let ethBalance = balance;
 
               if(this.state.trade.from === 'eth'){
-                this.checkIfOneCanPayForGas(balance, toWei(this.state.trade.amountPay), gasCost);
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
+              } else {
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
 
+              this.checkIfOneCanPayForGas(ethBalance, expenses);
             });
           } else {
             console.log(e);
@@ -865,11 +869,16 @@ class App extends Component {
                 return;
               }
 
-              const gasCost = await this.estimateAllGasCosts('buyAll', from, to, amount);
+              let expenses = await this.estimateAllGasCosts('buyAll', from, to, amount);
+              let ethBalance = balance;
 
               if(this.state.trade.from === 'eth'){
-                this.checkIfOneCanPayForGas(balance, toWei(this.state.trade.amountPay), gasCost);
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
+              } else {
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
+
+              this.checkIfOneCanPayForGas(ethBalance, expenses);
             });
           } else {
             console.log(e);
@@ -878,8 +887,8 @@ class App extends Component {
     });
   }
 
-  checkIfOneCanPayForGas = (balance, amountOfEthToSell, gasCost) => {
-    if(balance.lte(amountOfEthToSell.add(gasCost))){
+  checkIfOneCanPayForGas = (balance, expenses) => {
+    if(balance.lte(expenses)){
       this.setState((prevState) => {
         const trade = {...prevState.trade};
         trade.errorInputSell = 'gasCost';
