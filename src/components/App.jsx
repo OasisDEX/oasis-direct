@@ -755,7 +755,13 @@ class App extends Component {
                 return;
               }
 
-              this.estimateAllGasCosts('sellAll', from, to, amount);
+
+              const gasCost = await this.estimateAllGasCosts('sellAll', from, to, amount);
+
+              if(this.state.trade.from === 'eth'){
+                this.checkIfOneCanPayForGas(balance, toWei(this.state.trade.amountPay), gasCost);
+              }
+
             });
           } else {
             console.log(e);
@@ -859,7 +865,11 @@ class App extends Component {
                 return;
               }
 
-              this.estimateAllGasCosts('buyAll', from, to, amount);
+              const gasCost = await this.estimateAllGasCosts('buyAll', from, to, amount);
+
+              if(this.state.trade.from === 'eth'){
+                this.checkIfOneCanPayForGas(balance, toWei(this.state.trade.amountPay), gasCost);
+              }
             });
           } else {
             console.log(e);
@@ -867,6 +877,16 @@ class App extends Component {
         });
     });
   }
+
+  checkIfOneCanPayForGas = (balance, amountOfEthToSell, gasCost) => {
+    if(balance.lte(amountOfEthToSell.add(gasCost))){
+      this.setState((prevState) => {
+        const trade = {...prevState.trade};
+        trade.errorInputSell = 'gasCost';
+        return {trade};
+      });
+    }
+  };
 
   estimateAllGasCosts = async (operation, from, to, amount) => {
     let hasAllowance = true;

@@ -172,7 +172,9 @@ class SetTrade extends Component {
                 ?
                   <span className="label"> You don't have enough <strong>{ tokens[this.props.trade.from].name } </strong> in your Wallet</span>
                 :
-                  <span className="label"> { tokens[this.props.trade.from].symbol } Minimum Value: { this.props.trade.errorInputSell.replace('minValue:', '') }</span>
+                  this.props.trade.errorInputSell === 'gasCost'
+                  ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
+                  : <span className="label"> { tokens[this.props.trade.from].symbol } Minimum Value: { this.props.trade.errorInputSell.replace('minValue:', '') }</span>
               )
             }
             {
