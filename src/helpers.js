@@ -46,7 +46,8 @@ export const formatNumber = (number, decimals = false, isWei = true) => {
   }
 
   const parts = object.toString().split('.');
-  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? `.${parseInt(parts[1])}` : '');
+  const decimalsWithoutTrailingZeros = parts[1] ? parts[1].replace(/[0]+$/,"") : "";
+  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (decimalsWithoutTrailingZeros ? `.${decimalsWithoutTrailingZeros}` : '');
 }
 
 export const formatDate = timestamp => {
@@ -104,7 +105,7 @@ export const methodSig = method => {
 }
 
 export const generateIcon = (address) => {
-  return jazzicon(28, address.substr(0,20));
+  return jazzicon(28, address.substr(0,10));
 }
 
 export const fetchETHPriceInUSD = () => {

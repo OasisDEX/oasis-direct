@@ -2,7 +2,7 @@ import React from 'react';
 import { isMetamask } from '../blockchainHandler';
 
 
-const NoAccount = props => {
+const LockedAccount = props => {
   const metamask = isMetamask();
   return (
     <div className="frame no-account">
@@ -23,4 +23,4 @@ const NoAccount = props => {
   )
 }
 
-export default NoAccount;
+export default LockedAccount;

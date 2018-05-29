@@ -64,11 +64,6 @@ const steps = {
 }
 
 class Guidelines extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
   render = () => (
     <div className="guidelines">
       <ul className="list">

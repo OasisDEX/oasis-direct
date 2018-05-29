@@ -134,7 +134,9 @@ export const getProxyOwner = proxy => {
   return promisify(loadObject('dsproxy', proxy).owner)();
 }
 
-export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+export const isMetamask = () => window.web3 && ( window.web3.currentProvider.isMetaMask || window.web3.currentProvider.constructor.name === 'MetamaskInpageProvider');
+
+export const isAccountLocked = () => isMetamask() && !window.web3.eth.defaultAccount;
 
 export const stopProvider = () => {
   web3.stop();

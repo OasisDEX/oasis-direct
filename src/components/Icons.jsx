@@ -95,7 +95,7 @@ export class QuestionMark extends PureComponent {
 export class Done extends PureComponent {
   render() {
     return (
-      <svg fill="white" height="10" viewBox="0 0 24 24" width="10" xmlns="http://www.w3.org/2000/svg">
+      <svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 0h24v24H0z" fill="none"/>
         <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
       </svg>
@@ -456,7 +456,16 @@ export const ArrowLeft = () => (
     <path fill="rgba(73,73,74,0.70)" d='M15.41,16.59L10.83,12l4.58-4.59L14,6l-6,6l6,6L15.41,16.59z' />
     <path fill='none' d='M0,0h24v24H0V0z' />
   </svg>
-)
+);
+
+export const AccountIcon = () =>(
+  <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+    <g fill='none'>
+      <path d='M12,0 C5.376,0 0,5.376 0,12 C0,18.624 5.376,24 12,24 C18.624,24 24,18.624 24,12 C24,5.376 18.624,0 12,0 Z M12,3.6 C13.992,3.6 15.6,5.208 15.6,7.2 C15.6,9.192 13.992,10.8 12,10.8 C10.008,10.8 8.4,9.192 8.4,7.2 C8.4,5.208 10.008,3.6 12,3.6 Z M12,20.64 C9,20.64 6.348,19.104 4.8,16.776 C4.836,14.388 9.6,13.08 12,13.08 C14.388,13.08 19.164,14.388 19.2,16.776 C17.652,19.104 15,20.64 12,20.64 Z'
+            id='Account' fill='#9E9E9E' />
+    </g>
+  </svg>
+);
 
 //TODO: Use Decorating Component
 export const Circle = (props) => {
