@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {
-  Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle, MetamaskIcon,
+  Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle, /*MetamaskIcon,*/
   LedgerIcon, TrezorIcon
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { fetchETHPriceInUSD, fromWei, toWei } from '../helpers'
+import { fetchETHPriceInUSD, toWei } from '../helpers'
 import { getCurrentProviderName } from "../blockchainHandler";
 import * as Blockchain from "../blockchainHandler";
 import Product from "../ui-components/Product";
@@ -319,8 +319,8 @@ class SetTrade extends Component {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <span className="holder">
                 <span className="label">Price </span>
-                <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
-                             token={`${tokens[this.props.trade.to].symbol}/${tokens[this.props.trade.from].symbol}`}/>
+                <TokenAmount number={toWei(this.props.trade.price)}
+                             token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
               </span>
             }
             {

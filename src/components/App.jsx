@@ -35,6 +35,8 @@ class App extends Component {
         amountBuy: toBigNumber(0),
         amountPayInput: '',
         amountBuyInput: '',
+        price: toBigNumber(0),
+        priceUnit: '',
         txCost: toBigNumber(0),
         errorInputSell: null,
         errorInputBuy: null,
@@ -661,6 +663,14 @@ class App extends Component {
     });
   }
 
+  calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
+    return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
+            ?
+              { price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}${tokenSell}` }
+            :
+              { price: amountBuy.div(amountSell), priceUnit: `${tokenSell}${tokenBuy}` };
+  }
+
   calculateBuyAmount = (from, to, amount) => {
     this.setState((prevState) => {
       const trade = {...prevState.trade};
@@ -670,6 +680,8 @@ class App extends Component {
       trade.amountPay = toBigNumber(amount);
       trade.amountBuyInput = '';
       trade.amountPayInput = amount;
+      trade.price = toBigNumber(0);
+      trade.priceUnit = '';
       trade.operation = 'sellAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -703,9 +715,10 @@ class App extends Component {
             const calculatedReceiveValue = fromWei(toBigNumber(r));
 
             this.setState((prevState) => {
-              const trade = {...prevState.trade};
+              let trade = {...prevState.trade};
               trade.amountBuy = calculatedReceiveValue;
               trade.amountBuyInput = trade.amountBuy.valueOf();
+              trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -783,6 +796,8 @@ class App extends Component {
       trade.amountPay = toBigNumber(0);
       trade.amountBuyInput = amount;
       trade.amountPayInput = '';
+      trade.price = toBigNumber(0);
+      trade.priceUnit = '';
       trade.operation = 'buyAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -816,9 +831,10 @@ class App extends Component {
             const calculatedPayValue = fromWei(toBigNumber(r));
 
             this.setState((prevState) => {
-              const trade = {...prevState.trade};
+              let trade = {...prevState.trade};
               trade.amountPay = calculatedPayValue;
               trade.amountPayInput = trade.amountPay.valueOf();
+              trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);

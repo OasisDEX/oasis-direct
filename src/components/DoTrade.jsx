@@ -68,8 +68,8 @@ class DoTrade extends Component {
               <span className="label">
               Current Estimated Price
               </span>
-              <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
-                           token={`${tokens[this.props.trade.from].symbol}/${tokens[this.props.trade.to].symbol}`}/>
+              <TokenAmount number={toWei(this.props.trade.price)}
+                             token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
             </span>
           </div>
         </div>
