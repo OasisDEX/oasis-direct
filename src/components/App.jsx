@@ -1104,7 +1104,7 @@ class App extends Component {
       this.setState((prevState) => {
         const network = {...prevState.network};
         network.defaultAccount = Blockchain.getDefaultAccount();
-        return network;
+        return {network};
       });
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
