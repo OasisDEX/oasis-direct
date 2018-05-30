@@ -1061,9 +1061,9 @@ class App extends Component {
     })
   }
 
-  loadHWAddresses = async (network, derivationPath = this.state.hw.derivationPath) => {
+  loadHWAddresses = async (network, amount, derivationPath = this.state.hw.derivationPath) => {
       try {
-        await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
+        await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, amount);
         const accounts = await Blockchain.getAccounts();
         this.setState(prevState => {
           const hw = {...prevState.hw};

@@ -123,7 +123,7 @@ class HardWallet extends React.Component {
 
   waitForDeviceToConnect = async (derivationPath) => {
     // TODO: probably have a dropdown with the networks?
-    const {error, addresses} = await this.props.loadHWAddresses("kovan", derivationPath);
+    const {error, addresses} = await this.props.loadHWAddresses("kovan", 5, derivationPath);
 
     if (error) {
       this.setState({connectivityError: true})
@@ -152,7 +152,7 @@ class HardWallet extends React.Component {
     };
 
     if (this.page.end === addresses.length) {
-      const {error} = await this.props.loadHWAddresses("kovan", this.derivationPath);
+      const {error} = await this.props.loadHWAddresses("kovan", this.page.end + 5, this.derivationPath);
       if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box?
 
       page.end = this.props.hw.addresses.length;
