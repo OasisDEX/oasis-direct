@@ -591,16 +591,79 @@ input.has-errors {
   background: rgba(248, 147, 140, 0.10);
 }
 
-.token-selector {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  z-index: 100;
-
+.token-selector, .wallet-settings {
   width: 100%;
   height: 100%;
   background: white;
+}
+
+.wallet-settings .content {
+  flex-direction: column;
+}
+
+.wallet-settings .wallet-details {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+
+  margin-top: 24px;
+  padding: 18px;
+}
+
+.wallet-settings .wallet-details > div {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  margin-bottom: 14px;
+}
+
+.wallet-settings .wallet-details > div:last-child {
+  margin-bottom: 0;
+}
+
+.wallet-settings .wallet-details .icon {
+  width: 24px !important;
+  height: 24px !important;
+  margin-right: 12px !important;
+}
+
+.wallet-settings .wallet-details .label, .wallet-settings .wallet-details .value, .wallet-settings .wallet-details a {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.4px
+}
+
+.wallet-settings .wallet-details .label {
+  color: #5B5B5C;
+  margin-right: auto;
+  text-transform: capitalize;
+}
+
+.wallet-settings .wallet-details .value {
+  color: #969697;
+}
+
+.wallet-settings. .wallet-details .address {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallet-settings .wallet-details a {
+  color: #2C88FF;
+
+  text-decoration: none;
+}
+
+.wallet-settings .wallets {
+  margin-top: 32px;
 }
 
 .token-selector .frame {
@@ -625,7 +688,16 @@ button.close {
 
   background: transparent url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyMHB4IiBoZWlnaHQ9IjIwcHgiIHZpZXdCb3g9IjAgMCAyMCAyMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBzdHlsZT0iYmFja2dyb3VuZDogI0ZGRkZGRjsiPiAgICAgICAgPHRpdGxlPmljb24tY2xvc2U8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iaWNvbi1jbG9zZSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+ICAgICAgICA8Y2lyY2xlIGlkPSJPdmFsIiBzdHJva2U9IiNGRjgwQUIiIGN4PSIxMCIgY3k9IjEwIiByPSI5LjUiPjwvY2lyY2xlPiAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBmaWxsPSIjRkY4MEFCIiBmaWxsLXJ1bGU9Im5vbnplcm8iIHBvaW50cz0iMTMuMzMzMzMzMyA3LjMzODA5NTI0IDEyLjY2MTkwNDggNi42NjY2NjY2NyAxMCA5LjMyODU3MTQzIDcuMzM4MDk1MjQgNi42NjY2NjY2NyA2LjY2NjY2NjY3IDcuMzM4MDk1MjQgOS4zMjg1NzE0MyAxMCA2LjY2NjY2NjY3IDEyLjY2MTkwNDggNy4zMzgwOTUyNCAxMy4zMzMzMzMzIDEwIDEwLjY3MTQyODYgMTIuNjYxOTA0OCAxMy4zMzMzMzMzIDEzLjMzMzMzMzMgMTIuNjYxOTA0OCAxMC42NzE0Mjg2IDEwIj48L3BvbHlnb24+ICAgIDwvZz48L3N2Zz4=) no-repeat 50% 50%;
   background-size: contain;
+}
 
+button.back {
+  height: auto;
+  width: auto;
+
+  padding: 0;
+
+  background: transparent;
+  border: transparent;
 }
 
 button {
@@ -705,10 +777,16 @@ button[disabled] {
   border-radius: 8px;
 }
 
+.frame button.back {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+}
+
 .token-selector button.close {
   position: absolute;
-  margin-right: 14px;
-  right: 0;
+  top: 18px;
+  right: 22px;
 }
 
 .swap-tokens {
@@ -865,6 +943,7 @@ button[disabled] {
   border-radius: 50%;
   background: #9E9E9E;
 }
+
 .show {
   visibility: visible;
 }
@@ -880,7 +959,6 @@ button[disabled] {
 .success #Account {
   fill: #66bb66
 }
-
 
 .error {
   color: #EF5350;

@@ -1,8 +1,17 @@
 import React from 'react';
 import Product from '../ui-components/Product';
-import { IdentityIcon, LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon } from "./Icons";
+import {
+  LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
+  StatusIcon, DefaultLogo
+} from "./Icons";
 import { getCurrentProviderName } from '../blockchainHandler';
 
+
+const logos = {
+  metamask : <MetamaskIcon/>,
+  parity : <ParityIcon/>,
+  toshi: <ToshiIcon/>,
+}
 
 class Web3ClientChoice extends React.Component {
 
@@ -17,14 +26,9 @@ class Web3ClientChoice extends React.Component {
   }
 
   componentWillMount = () => {
-    // This will wait for the web3 to be attached to the window object.
-    // If we use straight check we risk having this piece of code executed before
-    // web3 being loaded
-    setTimeout(() => {
-      if (window.web3) {
-        this.setState({hasProvider: true, provider: getCurrentProviderName()});
-      }
-    }, 250);
+    if (window.web3) {
+      this.setState({hasProvider: true, provider: getCurrentProviderName()});
+    }
   }
 
   switchToAvailableClientsView = () => {
@@ -41,6 +45,12 @@ class Web3ClientChoice extends React.Component {
 
   getToClientSelection = () => {
     this.setState({shouldDisplayAvailableClients: false});
+  }
+
+  logoFor = (provider) => {
+    const logo = logos[provider];
+    if(logo) return logo;
+    return <DefaultLogo/>;
   }
 
   render() {
@@ -62,7 +72,7 @@ class Web3ClientChoice extends React.Component {
                       <Product label="Metamask" logo={MetamaskIcon}/>
                     </a>
                     <a href="https://www.parity.io/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Parity" logo={MetamaskIcon}/>
+                      <Product label="Parity" logo={ParityIcon}/>
                     </a>
                   </div>
                 </li>
@@ -72,10 +82,10 @@ class Web3ClientChoice extends React.Component {
                   </div>
                   <div className="row-flex">
                     <a href="https://status.im/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Status" logo={MetamaskIcon}/>
+                      <Product label="Status" logo={StatusIcon}/>
                     </a>
                     <a href="https://toshi.org/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Toshi" logo={MetamaskIcon}/>
+                      <Product label="Toshi" logo={ToshiIcon}/>
                     </a>
                   </div>
                 </li>
@@ -95,7 +105,7 @@ class Web3ClientChoice extends React.Component {
                         this.state.hasProvider
                           ? <React.Fragment>
                             <div className="client-summary">
-                              <IdentityIcon address={window.web3.eth.defaultAccount}/>
+                              {this.logoFor(getCurrentProviderName())}
                               <div>
                                 <span className="label status">Connected</span>
                                 <span className="label">{this.state.provider}</span>

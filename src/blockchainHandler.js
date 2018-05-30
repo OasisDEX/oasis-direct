@@ -13,8 +13,7 @@ schema.dsproxy = require('./abi/dsproxy');
 schema.matchingmarket = require('./abi/matchingmarket');
 schema.proxycreateandexecute = require('./abi/proxycreateandexecute');
 
-export const objects = {
-}
+export const objects = {}
 
 export const getAccounts = () => {
   return promisify(web3.eth.getAccounts)();
@@ -100,7 +99,7 @@ export const getTokenAllowance = (token, from, to) => {
 
 export const getTokenTrusted = (token, from, to) => {
   return promisify(objects[token].allowance.call)(from, to)
-        .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
+    .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
 /*
@@ -134,9 +133,7 @@ export const getProxyOwner = proxy => {
   return promisify(loadObject('dsproxy', proxy).owner)();
 }
 
-export const isMetamask = () => window.web3 && ( window.web3.currentProvider.isMetaMask || window.web3.currentProvider.constructor.name === 'MetamaskInpageProvider');
-
-export const isAccountLocked = () => isMetamask() && !window.web3.eth.defaultAccount;
+export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
 
 export const stopProvider = () => {
   web3.stop();

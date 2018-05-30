@@ -7,11 +7,6 @@ import Spinner from "./Spinner";
 import { getEthBalanceOf } from "../blockchainHandler";
 import { fromWei } from "../helpers";
 
-const backButtonStyle = {
-  position: "absolute",
-  zIndex: 2, top: "18px"
-}
-
 const hwNameStyle = {
   textTransform: "capitalize"
 }
@@ -222,9 +217,9 @@ class HardWallet extends React.Component {
             )
             : (
               <section className='frame hard-wallet'>
-                <div style={backButtonStyle} onClick={this.props.onBack}>
+                <button className="back" onClick={this.props.onBack}>
                   <Circle><BackIcon/></Circle>
-                </div>
+                </button>
                 <div className="heading">
                   <h2>Connect your <span style={hwNameStyle}>{this.props.hw.option}</span> Wallet</h2>
                 </div>
