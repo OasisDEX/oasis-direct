@@ -1,3 +1,7 @@
+@import './Wallets.css';
+@import './HardWallet.css';
+@import '../ui-components/Product.css';
+
 .notify-container {
   display: flex;
   flex-direction: column;
@@ -52,8 +56,8 @@
   position: relative;
 
   box-sizing: border-box;
-  width: 470px;
-  height: 420px;
+  width: 490px;
+  height: 430px;
   padding: 23px;
 
   border: 1px solid rgba(182, 182, 183, 0.05);
@@ -65,7 +69,6 @@
 
 .heading {
   text-align: center;
-  margin: 8px 0;
   color: rgba(73, 73, 74, 0.90);
 }
 
@@ -129,6 +132,18 @@
 
 .frame.finalize .more-info, .frame.finalize .transaction-result {
   order: 4;
+}
+
+.frame.finalize .info-box {
+  margin-top: 24px;
+}
+
+.frame.finalize .content {
+  flex-direction: column;
+}
+
+.frame.finalize button {
+  margin-top: auto;
 }
 
 .frame > .info-box.more-info {
@@ -371,7 +386,7 @@
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
-  height: 30px;
+  height: 32px;
 
   padding: 7px 16px;
 }
@@ -576,16 +591,79 @@ input.has-errors {
   background: rgba(248, 147, 140, 0.10);
 }
 
-.token-selector {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  z-index: 100;
-
+.token-selector, .wallet-settings {
   width: 100%;
   height: 100%;
   background: white;
+}
+
+.wallet-settings .content {
+  flex-direction: column;
+}
+
+.wallet-settings .wallet-details {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+
+  margin-top: 24px;
+  padding: 18px;
+}
+
+.wallet-settings .wallet-details > div {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  margin-bottom: 14px;
+}
+
+.wallet-settings .wallet-details > div:last-child {
+  margin-bottom: 0;
+}
+
+.wallet-settings .wallet-details .icon {
+  width: 24px !important;
+  height: 24px !important;
+  margin-right: 12px !important;
+}
+
+.wallet-settings .wallet-details .label, .wallet-settings .wallet-details .value, .wallet-settings .wallet-details a {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.4px
+}
+
+.wallet-settings .wallet-details .label {
+  color: #5B5B5C;
+  margin-right: auto;
+  text-transform: capitalize;
+}
+
+.wallet-settings .wallet-details .value {
+  color: #969697;
+}
+
+.wallet-settings. .wallet-details .address {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallet-settings .wallet-details a {
+  color: #2C88FF;
+
+  text-decoration: none;
+}
+
+.wallet-settings .wallets {
+  margin-top: 32px;
 }
 
 .token-selector .frame {
@@ -610,7 +688,16 @@ button.close {
 
   background: transparent url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyMHB4IiBoZWlnaHQ9IjIwcHgiIHZpZXdCb3g9IjAgMCAyMCAyMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBzdHlsZT0iYmFja2dyb3VuZDogI0ZGRkZGRjsiPiAgICAgICAgPHRpdGxlPmljb24tY2xvc2U8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iaWNvbi1jbG9zZSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+ICAgICAgICA8Y2lyY2xlIGlkPSJPdmFsIiBzdHJva2U9IiNGRjgwQUIiIGN4PSIxMCIgY3k9IjEwIiByPSI5LjUiPjwvY2lyY2xlPiAgICAgICAgPHBvbHlnb24gaWQ9IlNoYXBlIiBmaWxsPSIjRkY4MEFCIiBmaWxsLXJ1bGU9Im5vbnplcm8iIHBvaW50cz0iMTMuMzMzMzMzMyA3LjMzODA5NTI0IDEyLjY2MTkwNDggNi42NjY2NjY2NyAxMCA5LjMyODU3MTQzIDcuMzM4MDk1MjQgNi42NjY2NjY2NyA2LjY2NjY2NjY3IDcuMzM4MDk1MjQgOS4zMjg1NzE0MyAxMCA2LjY2NjY2NjY3IDEyLjY2MTkwNDggNy4zMzgwOTUyNCAxMy4zMzMzMzMzIDEwIDEwLjY3MTQyODYgMTIuNjYxOTA0OCAxMy4zMzMzMzMzIDEzLjMzMzMzMzMgMTIuNjYxOTA0OCAxMC42NzE0Mjg2IDEwIj48L3BvbHlnb24+ICAgIDwvZz48L3N2Zz4=) no-repeat 50% 50%;
   background-size: contain;
+}
 
+button.back {
+  height: auto;
+  width: auto;
+
+  padding: 0;
+
+  background: transparent;
+  border: transparent;
 }
 
 button {
@@ -690,14 +777,16 @@ button[disabled] {
   border-radius: 8px;
 }
 
-.token-selector button.close {
+.frame button.back {
   position: absolute;
-  margin-right: 14px;
-  right: 0;
+  top: 18px;
+  left: 22px;
 }
 
-.spinner {
-  height: 14px;
+.token-selector button.close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
 }
 
 .swap-tokens {
@@ -725,33 +814,33 @@ button[disabled] {
   background: #FFFFFF;
   border: 1px solid rgba(230, 230, 230, 0.60);
   border-radius: 4px;
+
+  margin-bottom: 14px;
 }
 
-.transaction-info-box.success {
-  border-color: #66bb6a;
+.transaction-info-box.collapse {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 1px solid #F7F7F8;
+  margin-bottom: 0;
 }
 
-.transaction-info-box.half {
-  width: 180px;
-  height: auto;
-  vertical-align: top;
+.transaction-info-box.collapse + * {
+  border-top: none;
+  border-color: #f0f0f0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .transaction-info-box .operation {
-  height: 55px;
-  width: 50%;
+  width: 100%;
 
   display: inline-flex;
   justify-content: flex-start;
   align-items: center;
+  flex-wrap: wrap;
 
-  border-bottom: 1px solid rgba(230, 230, 230, 0.60);
-  border-right: 1px solid rgba(230, 230, 230, 0.60);
-}
-
-.transaction-info-box.half .operation {
-  width: 100%;
-  border-right: none;
+  padding: 16px 24px;
 }
 
 .operation:last-of-type {
@@ -759,9 +848,10 @@ button[disabled] {
 }
 
 .transaction-info-box .operation .icon {
-  height: 32px;
-  width: 32px;
-  margin: 0 12px 0 24px;
+  height: 24px;
+  width: 24px;
+
+  margin-right: 16px;
 }
 
 .arrow-separator {
@@ -773,29 +863,26 @@ button[disabled] {
   vertical-align: top;
 }
 
-.transaction-info-box .status {
-  height: 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.transaction-info-box .status .spinner {
-  margin-right: 12px;
-}
-
-.transaction-info-box.half .status .spinner {
-  margin-right: 12px;
-}
-
 .transaction-info-box .operation .details {
-  height: 28px;
-
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: flex-start;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  padding: 8px 0;
+}
+
+.transaction-info-box .operation .details > .value {
+  margin-left: 16px;
+}
+
+.transaction-info-box .operation .details:first-child {
+  padding-top: 0;
+}
+
+.transaction-info-box .operation .details:last-child {
+  padding-bottom: 0;
 }
 
 .transaction-info-box .operation .icon svg {
@@ -806,8 +893,9 @@ button[disabled] {
 .transaction-info-box .label {
   font-family: Montserrat, sans-serif;
   font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 1px;
+  font-weight: 500;
+
+  letter-spacing: 0.7px;
 
   color: rgba(73, 73, 74, 0.90);
 }
@@ -822,15 +910,15 @@ button[disabled] {
 
 .transaction-info-box .value {
   font-family: Montserrat, sans-serif;
-  font-size: 10px;
   font-weight: 400;
-  padding-top: 4px;
-  letter-spacing: 0.83px;
-  color: #9C9C9D;
+  font-size: 12px;
+  color: #969697;
+  letter-spacing: 0.5px;
+  text-align: right;
 }
 
-.transaction-info-box .status .label {
-  font-size: 10px;
+.transaction-info-box .status.label {
+  margin-left: auto;
 }
 
 .content {
@@ -844,21 +932,7 @@ button[disabled] {
   text-decoration: none;
 }
 
-.done-placeholder {
-  position: absolute;
-  visibility: hidden;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  top: -10px;
-  right: -10px;
-  width: 20px;
-  height: 20px;
-  background: white;
-}
-
 .done {
-
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -867,7 +941,7 @@ button[disabled] {
   height: 14px;
   border: 1px solid transparent;
   border-radius: 50%;
-  background: #66bb6a;
+  background: #9E9E9E;
 }
 
 .show {
@@ -876,6 +950,14 @@ button[disabled] {
 
 .success {
   color: rgba(81, 163, 81, 0.9);
+}
+
+.done.success {
+  background: #66bb66;
+}
+
+.success #Account {
+  fill: #66bb66
 }
 
 .error {
@@ -949,21 +1031,23 @@ a.no-pointer {
 .transaction-result {
   border: 1px solid rgba(156, 156, 157, 0.08);
   border-radius: 6px;
-  height: 90px;
 
-  margin-top: auto;
   margin-bottom: auto;
 
-  padding: 12px 16px;
+  padding: 16px 24px;
 }
 
 .transaction-result .heading {
-  opacity: 0.9;
-  font-family: 'Raleway', sans-serif;
-  font-size: 14px;
-  text-align: left;
+  display: inline-flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
   color: #5B5B5C;
-  letter-spacing: 1.02px;
+  letter-spacing: 0.5px;
   margin: 0 0 12px;
 }
 
@@ -978,17 +1062,22 @@ a.no-pointer {
   vertical-align: middle;
 }
 
-.transaction-result .content {
-  align-items: center;
-  text-align: left;
-}
-
 .transaction-result .value {
   white-space: nowrap;
 }
 
 .transaction-result .label, .transaction-result .value {
-  font-size: 11px;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+}
+
+.transaction-result .status.label {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #448AFF;
+  letter-spacing: 0.7px;
+  text-align: right;
 }
 
 .metamask--big {

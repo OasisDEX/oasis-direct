@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {setWebClientProvider, setHWProvider} from '../web3';
 import * as Blockchain from "../blockchainHandler";
 import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
 import Widget from './Widget';
@@ -122,7 +121,7 @@ class App extends Component {
     Blockchain.getAccounts().then(async accounts => {
       const networkState = {...this.state.network};
       const oldDefaultAccount = networkState.defaultAccount;
-      if (!this.state.hw.active && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
+      if (!this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
         await Blockchain.setDefaultAccountByIndex(0);
       }
       networkState.defaultAccount = Blockchain.getDefaultAccount();
@@ -135,7 +134,7 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    setTimeout(this.init, 500);
+    setTimeout(this.listenOnHashChange, 500);
   }
 
   componentWillUnmount = () => {
@@ -143,8 +142,7 @@ class App extends Component {
     clearInterval(this.checkNetworkInterval);
   }
 
-  init = () => {
-    this.setHashSection();
+  listenOnHashChange = () => {
     window.onhashchange = () => {
       this.setHashSection();
     }
@@ -757,7 +755,17 @@ class App extends Component {
                 return;
               }
 
-              this.estimateAllGasCosts('sellAll', from, to, amount);
+
+              let expenses = await this.estimateAllGasCosts('sellAll', from, to, amount);
+              let ethBalance = balance;
+
+              if(this.state.trade.from === 'eth'){
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
+              } else {
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
+              }
+
+              this.checkIfOneCanPayForGas(ethBalance, expenses);
             });
           } else {
             console.log(e);
@@ -861,7 +869,16 @@ class App extends Component {
                 return;
               }
 
-              this.estimateAllGasCosts('buyAll', from, to, amount);
+              let expenses = await this.estimateAllGasCosts('buyAll', from, to, amount);
+              let ethBalance = balance;
+
+              if(this.state.trade.from === 'eth'){
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
+              } else {
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
+              }
+
+              this.checkIfOneCanPayForGas(ethBalance, expenses);
             });
           } else {
             console.log(e);
@@ -869,6 +886,16 @@ class App extends Component {
         });
     });
   }
+
+  checkIfOneCanPayForGas = (balance, expenses) => {
+    if(balance.lte(expenses)){
+      this.setState((prevState) => {
+        const trade = {...prevState.trade};
+        trade.errorInputSell = 'gasCost';
+        return {trade};
+      });
+    }
+  };
 
   estimateAllGasCosts = async (operation, from, to, amount) => {
     let hasAllowance = true;
@@ -923,8 +950,8 @@ class App extends Component {
       value: action.value ? action.value : 0,
       from: addrFrom
     });
-    console.log(txs);
-    this.saveCost(txs);
+
+    return await this.saveCost(txs);
   }
 
   saveCost = (txs = []) => {
@@ -933,7 +960,7 @@ class App extends Component {
     txs.forEach(tx => {
       promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
     });
-    Promise.all(promises).then(costs => {
+    return Promise.all(promises).then(costs => {
       costs.forEach(cost => {
         total = total.add(cost);
       });
@@ -942,6 +969,8 @@ class App extends Component {
         trade.txCost = fromWei(total);
         return {trade};
       });
+      
+      return total;
     })
   }
 
@@ -964,7 +993,13 @@ class App extends Component {
         reject("Request timed out!");
       }, 3000);
 
-      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
+      fetch("https://ethgasstation.info/json/ethgasAPI.json",{
+        mode: 'cors',
+        headers: {
+          'Access-Control-Request-Headers':'Content-Type',
+          'Content-Type': 'text/plain',
+        }
+      }).then(stream => {
         stream.json().then(price => {
           clearTimeout(timeout);
           resolve(toWei(price.average / 10, "gwei"));
@@ -994,7 +1029,7 @@ class App extends Component {
 
   // Web3 web client
   setWeb3WebClient = async () => {
-    await setWebClientProvider();
+    await Blockchain.setWebClientProvider();
     this.checkNetwork();
     this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -1010,27 +1045,45 @@ class App extends Component {
     });
   }
 
-  loadHWAddresses = (network, derivationPath = this.state.hw.derivationPath) => {
+  showClientChoice = () => {
+    clearInterval(this.checkAccountsInterval);
+    clearInterval(this.checkNetworkInterval);
+
     this.setState(prevState => {
       const hw = {...prevState.hw};
-      hw.active = true;
-      hw.derivationPath = derivationPath;
-      return {hw};
-    }, async () => {
+      const network = {};
+      network.isConnected = false;
+      hw.addresses = [];
+      hw.option = null;
+      hw.isConnected = false;
+      hw.showModal = false;
+      return {hw, network};
+    })
+  }
+
+  loadHWAddresses = async (network, amount, derivationPath = this.state.hw.derivationPath) => {
       try {
-        await setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, this.state.hw.addresses.length + 5);
+        await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, amount);
         const accounts = await Blockchain.getAccounts();
         this.setState(prevState => {
           const hw = {...prevState.hw};
           hw.addresses = accounts;
+          hw.derivationPath = derivationPath;
+          hw.isConnected = true;
           return {hw};
-        }, () => {
-          console.log(`${this.state.hw.option} connected`, 'Addresses were loaded')
         });
+        return {
+          addresses: accounts,
+          error: null
+        }
       } catch(e) {
+        Blockchain.stopProvider();
         console.log(`Error connecting ${this.state.hw.option}`, e.message);
+        return {
+          addresses:[],
+          error: e,
+        }
       }
-    });
   }
 
   selectHWAddress = address => {
@@ -1048,6 +1101,11 @@ class App extends Component {
       return {hw};
     }, async () => {
       await Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
+      this.setState((prevState) => {
+        const network = {...prevState.network};
+        network.defaultAccount = Blockchain.getDefaultAccount();
+        return {network};
+      });
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -1102,6 +1160,7 @@ class App extends Component {
                         setWeb3WebClient={ this.setWeb3WebClient }
                         hw={ this.state.hw }
                         showHW={ this.showHW }
+                        showClientChoice = { this.showClientChoice }
                         loadHWAddresses={ this.loadHWAddresses }
                         selectHWAddress={ this.selectHWAddress }
                         importAddress={ this.importAddress } />

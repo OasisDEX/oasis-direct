@@ -1,51 +1,252 @@
 import React from 'react';
+import {
+  Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
+  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
+} from "./Icons";
+import Spinner from "./Spinner";
+import { getEthBalanceOf } from "../blockchainHandler";
+import { fromWei } from "../helpers";
 
-class HardWallet extends React.Component {
-  render() {
-    const defaultDerivationPath = this.props.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
-    return (
-      <div className="frame no-account" style={ {fontSize: '14px'} }>
-        Select Network:
-        <select ref={input => this.network = input}>
-          <option value="kovan">Kovan</option>
-          <option value="main">Mainnet</option>
-        </select>
-        Select Derivation Path:
-        <ul style={ {padding:'0px', margin: '0px', listStyle: 'none'} }>
-          <li style={ {padding:'0px', margin: '0px'} }>
-            { defaultDerivationPath } (default)&nbsp;
-            <a href="#action" onClick={ e => {  e.preventDefault(); this.props.loadHWAddresses(this.network.value, defaultDerivationPath) } }>Load</a>
-          </li>
-          <li style={ {padding:'0px', margin: '0px'} }>
-            <input type="text" style={ {width: '120px'} } ref={input => this.derivationPath = input} />&nbsp;
-            <a href="#action" onClick={ e => {  e.preventDefault(); this.props.loadHWAddresses(this.network.value, this.derivationPath.value) } }>Load</a>
-          </li>
-        </ul>
+const hwNameStyle = {
+  textTransform: "capitalize"
+}
+
+const spinnerStyle = {
+  width: "18px",
+  height: "18px"
+}
+
+const circularButtonStyle = {
+  width: "32px",
+  height: "32px",
+  padding: "5px",
+  marginLeft: "16px"
+};
+
+const steps = {
+  "ledger": [
+    {
+      "icon": <USBIcon/>,
+      "text": "Connect your Ledger to begin"
+    },
+    {
+      "icon": <SmartphoneIcon/>,
+      "text": "Open the Ethereum app on the Ledger"
+    },
+    {
+      "icon": <ApplicationSettingsIcon/>,
+      "text": "Ensure the Browser Support is enabled in Settings"
+    },
+    {
+      "icon": <SmartphoneUpdateIcon/>,
+      "text": "You may need to update the firmware if Browser Support is not available"
+    },
+  ],
+  "trezor": [
+    {
+      "icon": <USBIcon/>,
+      "text": "Connect your TREZOR Wallet to begin"
+    },
+    {
+      "icon": <PicInPicIcon/>,
+      "text": "When to popop asks if you want to export the public key, select export"
+    },
+    {
+      "icon": <LockOpenIcon/>,
+      "text": "If required, enter your pin or password to unlock the TREZOR"
+    },
+  ],
+}
+
+class Guidelines extends React.Component {
+  render = () => (
+    <div className="guidelines">
+      <ul className="list">
         {
-          this.props.hw.addresses.length > 0 &&
-          <React.Fragment>
-            Choose Address:
-            <div><button onClick={ () => this.props.loadHWAddresses(this.network.value) }>Load more addresses</button></div>
-            <ul style={ {padding:'0px', margin: '0px', listStyle: 'none', height: '200px', overflowY: 'scroll'} }>
-              {
-                this.props.hw.addresses.map(key => 
-                  <li key={ key } style={ {padding:'0px', margin: '0px'} }>
-                    <label>
-                      <input type="radio" style={ {padding:'0px', margin: '0px', width: '25px'} } checked={ key === this.props.hw.addresses[this.props.hw.addressIndex] } value={ key } onChange={ e => this.props.selectHWAddress(e.target.value) } />{ key }
-                    </label>
-                  </li>
-                )
-              }
-            </ul>
-            {
-              this.props.hw.addressIndex !== null &&
-              <div>
-                <button onClick={ this.props.importAddress }>Import Address</button>
-              </div>
-            }
-          </React.Fragment>
+          this.props.steps.map((step, index) => (
+            <li key={index} className="list-item">
+              {step.icon}
+              <span className="bullet-number">{index + 1}</span>
+              <span className="text">{step.text}</span>
+            </li>
+          ))
         }
-      </div>
+      </ul>
+    </div>
+  )
+}
+
+
+class Address extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      address: props.address,
+    }
+  }
+
+  componentDidMount() {
+    getEthBalanceOf(this.state.address).then((balance) => {
+      this.setState({balance: fromWei(balance.valueOf())});
+    })
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <span className="address">{this.state.address}</span>
+        <span className="balance">{this.state.balance} ETH</span>
+      </React.Fragment>
+    )
+  }
+}
+
+
+// TODO: Extract each hw device as separate component and they will be composed in HardWallet component
+class HardWallet extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      addresses: [],
+      connectivityError: false
+    }
+  }
+
+  componentWillMount() {
+    this.derivationPath = this.props.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
+
+    this.waitForDeviceToConnect(this.derivationPath);
+  }
+
+  waitForDeviceToConnect = async (derivationPath) => {
+    // TODO: probably have a dropdown with the networks?
+    const {error, addresses} = await this.props.loadHWAddresses("kovan", 5, derivationPath);
+
+    if (error) {
+      this.setState({connectivityError: true})
+    }
+
+    this.page = {
+      start: 0,
+      end: 5
+    };
+
+    this.setState({addresses});
+  }
+
+  retry = () => {
+    this.setState({connectivityError: false}, () => {
+      this.waitForDeviceToConnect(this.derivationPath);
+    });
+  }
+
+  //TODO; create pagination component
+  next = async (pageSize) => {
+    const addresses = this.props.hw.addresses;
+    const page = {
+      start: this.page.end,
+      end: this.page.end + pageSize
+    };
+
+    if (this.page.end === addresses.length) {
+      const {error} = await this.props.loadHWAddresses("kovan", this.page.end + 5, this.derivationPath);
+      if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box?
+
+      page.end = this.props.hw.addresses.length;
+    }
+
+    this.page = page;
+    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+  };
+
+  previous = (pageSize) => {
+    if (this.page.start - pageSize < 0) return;
+
+    this.page = {
+      start: this.page.start - pageSize,
+      end: this.page.start
+    };
+
+    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+  };
+
+
+  render() {
+    return (
+      <React.Fragment>
+        {
+          this.props.hw.addresses.length > 0
+            ? (
+              <section className='frame hard-wallet-addresses'>
+                <div className="heading">
+                  <h2>Select Wallet on your Ledger</h2>
+                </div>
+                <button className="close" onClick={this.props.onBack}/>
+
+                <div className="content">
+
+                  <ul className="list">
+                    {
+                      this.state.addresses.map(address =>
+                        <li key={address} className={`list-item ${this.selectedAddress === address ? 'selected' : ''} `}
+                            onClick={() => {
+                              this.selectedAddress = address;
+                              this.props.selectHWAddress(address)
+                            }}>
+                          <Address address={address}/>
+                        </li>
+                      )
+                    }
+                  </ul>
+
+                  <div className="pagination">
+                    <span onClick={() => this.previous(5)}>
+                      <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
+                    </span>
+                    <span onClick={() => this.next(5)}>
+                      <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
+                    </span>
+                  </div>
+
+                  <button onClick={this.props.importAddress}> UNLOCK WALLET</button>
+                </div>
+              </section>
+            )
+            : (
+              <section className='frame hard-wallet'>
+                <button className="back" onClick={this.props.onBack}>
+                  <Circle><BackIcon/></Circle>
+                </button>
+                <div className="heading">
+                  <h2>Connect your <span style={hwNameStyle}>{this.props.hw.option}</span> Wallet</h2>
+                </div>
+                <div className="content">
+                  <div className="progress">
+                    <div className="status">
+                      {
+                        this.state.connectivityError
+                          ? <span className="label"> Couldn't connect</span>
+                          : <React.Fragment>
+                            <Spinner styles={spinnerStyle}/>
+                            <span className="label"> Connecting </span>
+                          </React.Fragment>
+                      }
+                    </div>
+                    <div>
+                    </div>
+                    <div onClick={this.retry}>
+                      <Circle styles={circularButtonStyle}><RetryIcon/></Circle>
+                    </div>
+                  </div>
+                  <Guidelines steps={steps[this.props.hw.option]}/>
+                </div>
+              </section>
+            )
+        }
+      </React.Fragment>
     )
   }
 }
