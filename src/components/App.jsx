@@ -37,6 +37,7 @@ class App extends Component {
         amountBuyInput: '',
         price: toBigNumber(0),
         priceUnit: '',
+        bestPriceOffer: toBigNumber(0),
         txCost: toBigNumber(0),
         errorInputSell: null,
         errorInputBuy: null,
@@ -664,11 +665,37 @@ class App extends Component {
   }
 
   calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
+    // console.log(amountSell.valueOf(), amountBuy.valueOf())
     return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
             ?
               { price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}${tokenSell}` }
             :
               { price: amountBuy.div(amountSell), priceUnit: `${tokenSell}${tokenBuy}` };
+  }
+
+  getBestPriceOffer = (tokenSell, tokenBuy) => {
+    const offerTokenSell = settings.chain[this.state.network.network].tokens[tokenBuy.replace('eth', 'weth')].address;
+    const offerTokenBuy = settings.chain[this.state.network.network].tokens[tokenSell.replace('eth', 'weth')].address;
+    const otc = Blockchain.loadObject('matchingmarket', settings.chain[this.state.network.network].otc);
+    return new Promise((resolve, reject) => {
+      otc.getBestOffer(offerTokenSell, offerTokenBuy, (e, r) => {
+        if (!e) {
+          otc.offers(r, (e2, r2) => {
+            if (!e2) {
+              resolve((tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
+                      ?
+                        r2[2].div(r2[0])
+                      :
+                        r2[0].div(r2[2]));
+            } else {
+              reject(e2);
+            }
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
   }
 
   calculateBuyAmount = (from, to, amount) => {
@@ -682,6 +709,7 @@ class App extends Component {
       trade.amountPayInput = amount;
       trade.price = toBigNumber(0);
       trade.priceUnit = '';
+      trade.bestPriceOffer = toBigNumber(0);
       trade.operation = 'sellAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -710,15 +738,17 @@ class App extends Component {
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         toWei(amount),
-        (e, r) => {
+        async (e, r) => {
           if (!e) {
             const calculatedReceiveValue = fromWei(toBigNumber(r));
+            const bestPriceOffer = await this.getBestPriceOffer(this.state.trade.from, this.state.trade.to);
 
-            this.setState((prevState) => {
+            this.setState(prevState => {
               let trade = {...prevState.trade};
               trade.amountBuy = calculatedReceiveValue;
               trade.amountBuyInput = trade.amountBuy.valueOf();
               trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+              trade.bestPriceOffer = bestPriceOffer;
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -798,6 +828,7 @@ class App extends Component {
       trade.amountPayInput = '';
       trade.price = toBigNumber(0);
       trade.priceUnit = '';
+      trade.bestPriceOffer = toBigNumber(0);
       trade.operation = 'buyAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -826,15 +857,17 @@ class App extends Component {
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         toWei(amount),
-        (e, r) => {
+        async (e, r) => {
           if (!e) {
             const calculatedPayValue = fromWei(toBigNumber(r));
+            const bestPriceOffer = await this.getBestPriceOffer(this.state.trade.from, this.state.trade.to);
 
             this.setState((prevState) => {
               let trade = {...prevState.trade};
               trade.amountPay = calculatedPayValue;
               trade.amountPayInput = trade.amountPay.valueOf();
               trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+              trade.bestPriceOffer = bestPriceOffer;
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);

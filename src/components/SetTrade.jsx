@@ -286,8 +286,7 @@ class SetTrade extends Component {
             {
               this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="label">
-                No orders available to {this.props.trade.errorOrders.type}
-                <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
+                No orders available to {this.props.trade.errorOrders.type} <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
               </span>
             }
             {
@@ -321,6 +320,13 @@ class SetTrade extends Component {
                 <span className="label">Price </span>
                 <TokenAmount number={toWei(this.props.trade.price)}
                              token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+              </span>
+            }
+            {
+              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
+              <span className="holder">
+                <span className="label">Price Impact </span>
+                <span className='value'>{ this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf() }%</span>
               </span>
             }
             {
