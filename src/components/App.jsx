@@ -668,9 +668,9 @@ class App extends Component {
     // console.log(amountSell.valueOf(), amountBuy.valueOf())
     return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
             ?
-              { price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}${tokenSell}` }
+              { price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}:${tokenSell}` }
             :
-              { price: amountBuy.div(amountSell), priceUnit: `${tokenSell}${tokenBuy}` };
+              { price: amountBuy.div(amountSell), priceUnit: `${tokenSell}:${tokenBuy}` };
   }
 
   getBestPriceOffer = (tokenSell, tokenBuy) => {
