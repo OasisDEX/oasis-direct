@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { Ether, MKR, DAI, Done, AccountIcon } from './Icons';
+import React, {Component} from 'react';
+import {Ether, MKR, DAI, Done, AccountIcon} from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
-import { etherscanUrl, toBigNumber, toWei } from '../helpers';
+import {etherscanUrl, toBigNumber, toWei} from '../helpers';
 
 const settings = require('../settings');
 

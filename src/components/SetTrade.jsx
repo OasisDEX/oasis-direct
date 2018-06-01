@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle, /*MetamaskIcon,*/
   LedgerIcon, TrezorIcon
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { fetchETHPriceInUSD, toWei } from '../helpers'
-import { getCurrentProviderName } from "../blockchainHandler";
+import {fetchETHPriceInUSD, toWei} from '../helpers'
+import {getCurrentProviderName} from "../blockchainHandler";
 import * as Blockchain from "../blockchainHandler";
 import Product from "../ui-components/Product";
 
@@ -37,8 +37,6 @@ const tokens = {
   },
 }
 
-const everyFiveMinutes = 3000000; // update time of the CMC api
-
 class SetTrade extends Component {
   constructor(props) {
     super(props);
@@ -55,10 +53,10 @@ class SetTrade extends Component {
   }
 
   componentDidMount() {
-    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, everyFiveMinutes));
+    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
     Blockchain.getEthBalanceOf(this.props.account).then((balance) => {
       this.setState({ethBalance: balance.valueOf()});
-    })
+    });
   }
 
   componentWillUnmount() {
@@ -66,8 +64,8 @@ class SetTrade extends Component {
   }
 
   fetchPriceInUSD = () => {
-    fetchETHPriceInUSD().then((price) => {
-      this.setState({priceInUSD: price})
+    fetchETHPriceInUSD().then(price => {
+      this.setState({priceInUSD: price});
     })
   }
 

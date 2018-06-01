@@ -1,8 +1,30 @@
 import React, { Component } from 'react'
 import TokenAmount from "./TokenAmount";
 import Spinner from "./Spinner";
+import {fetchETHPriceInUSD} from '../helpers';
 
 class Congratulation extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      priceInUSD: 0
+    }
+  }
+
+  fetchPriceInUSD = () => {
+    fetchETHPriceInUSD().then(price => {
+      this.setState({priceInUSD: price});
+    })
+  }
+
+  componentDidMount() {
+    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.priceTickerInterval);
+  }
+
   render = () => (
     <div className="transaction-result">
       <h3 className="heading">
@@ -27,7 +49,7 @@ class Congratulation extends Component {
                   {
                     this.props.isCalculatingGas
                       ? <span><Spinner/></span>
-                      : <TokenAmount number={this.props.gas} token={'ETH'}/>
+                      : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={'USD'}/>
                   }
                     &nbsp;
                   </span>
