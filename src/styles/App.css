@@ -683,7 +683,7 @@ button.start {
 button.disconnect {
   background-color: transparent;
   border-color: #F0F0F0;
-  color: red;
+  color: #FF7575;
 }
 
 button.close {
