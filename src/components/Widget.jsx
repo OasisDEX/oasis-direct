@@ -44,7 +44,9 @@ class Widget extends Component {
                                  calculateBuyAmount={this.props.calculateBuyAmount}
                                  calculatePayAmount={this.props.calculatePayAmount}
                                  cleanInputs={this.props.cleanInputs}
-                                 showHW={this.props.showHW}/>
+                                 showHW={this.props.showHW}
+                                 onDisconnect = {this.props.showClientChoice}/>
+
                 }
               </div>
               // Create a decorator Component that returns a component which is wrapped into element with only back function passed as argument

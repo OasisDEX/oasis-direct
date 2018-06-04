@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
 import {
-  Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle, /*MetamaskIcon,*/
-  LedgerIcon, TrezorIcon
+  Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import {fetchETHPriceInUSD, toWei} from '../helpers'
 import * as Blockchain from "../blockchainHandler";
-import Product from "../ui-components/Product";
 import web3 from "../web3"
 
 const settings = require('../settings');
@@ -186,21 +184,11 @@ class SetTrade extends Component {
                   <a target="_blank" rel="noopener noreferrer" href={`https://etherscan.io/address/${this.props.account}`}>{this.props.account}</a>
                 </div>
               </div>
-              <div className="wallets">
-                <ul className="list">
-                  <li className="list-item column-flex clients">
-                    <div className="heading">
-                      <h2>Connect Hardware Wallet</h2>
-                    </div>
-                    <div className="row-flex">
-                      <Product label="Ledger" logo={LedgerIcon} onClick={this.connectLedger}/>
-                      <Product label="Trezor" logo={TrezorIcon} onClick={this.connectTrezor}/>
-                    </div>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
+          <button type="button" value="Disconnect" className="disconnect" onClick={this.props.onDisconnect}>
+            DISCONNECT
+          </button>
         </div>
       );
 

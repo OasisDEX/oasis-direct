@@ -21,7 +21,8 @@ class TradeWidget extends Component {
                       calculateBuyAmount={this.props.calculateBuyAmount}
                       calculatePayAmount={this.props.calculatePayAmount}
                       cleanInputs={this.props.cleanInputs}
-                      showHW={this.props.showHW}/>
+                      showHW={this.props.showHW}
+                      onDisconnect={this.props.onDisconnect}/>
             :
             <DoTrade network={this.props.network}
                       account={this.props.account}
