@@ -263,7 +263,7 @@ class DoTrade extends Component {
                                    token={tokens[this.props.trade.from].symbol}/>
                     </span>
                     {
-                      ((this.props.trade.proxy && this.props.trade.txs === 1) || this.props.trade.txs > 1) &&
+                      ((this.props.proxy && this.props.trade.txs === 1) || this.props.trade.txs > 1) &&
                       <React.Fragment>
                         {
                           typeof this.props.transactions.trade === 'undefined'
