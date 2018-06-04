@@ -8,7 +8,7 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 const settings = require('./settings');
 
 export const getCurrentProviderName = () => {
-  if (window.web3.currentProvider.isMetaMask || this.currentProvider.constructor.name === 'MetamaskInpageProvider')
+  if (window.web3.currentProvider.isMetaMask)
     return 'metamask';
 
   if (window.web3.currentProvider.isTrust)
