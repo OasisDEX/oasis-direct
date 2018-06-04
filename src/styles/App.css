@@ -680,6 +680,12 @@ button.start {
   margin-top: auto;
 }
 
+button.disconnect {
+  background-color: transparent;
+  border-color: #F0F0F0;
+  color: #FF7575;
+}
+
 button.close {
   height: 28px;
   width: 28px;
