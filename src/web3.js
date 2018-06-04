@@ -7,12 +7,40 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 
 const settings = require('./settings');
 
+export const getCurrentProviderName = () => {
+  if (window.web3.currentProvider.isMetaMask || this.currentProvider.constructor.name === 'MetamaskInpageProvider')
+    return 'metamask';
+
+  if (window.web3.currentProvider.isTrust)
+    return 'trust';
+
+  if (typeof window.SOFA !== 'undefined')
+    return 'toshi';
+
+  if (typeof window.__CIPHER__ !== 'undefined')
+    return 'cipher';
+
+  if (window.web3.currentProvider.constructor.name === 'EthereumProvider')
+    return 'mist';
+
+  if (window.web3.currentProvider.constructor.name === 'Web3FrameProvider')
+    return 'parity';
+
+  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('infura') !== -1)
+    return 'infura';
+
+  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('localhost') !== -1)
+    return 'localhost';
+
+  return 'other';
+};
+
 class Web3Extended extends Web3 {
   stop = () => {
     if (this.currentProvider && typeof this.currentProvider.stop === 'function') {
       this.currentProvider.stop();
     }
-  }
+  };
 
   setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
     this.stop();
@@ -45,7 +73,7 @@ class Web3Extended extends Web3 {
           alert('error');
         }
         this.useLogs = true;
-        this.currentProvider.name = this.currentProvider.isMetaMask || this.currentProvider.constructor.name === 'MetamaskInpageProvider' ? 'metamask' : 'other';
+        this.currentProvider.name = getCurrentProviderName();
         resolve(true);
       } catch(e) {
         reject(e);
