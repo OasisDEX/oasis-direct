@@ -2,15 +2,16 @@ import React from 'react';
 import Product from '../ui-components/Product';
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
-  StatusIcon, DefaultLogo
+  StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
 } from "./Icons";
 import { getCurrentProviderName } from '../blockchainHandler';
 
 
 const logos = {
-  metamask : <MetamaskIcon/>,
-  parity : <ParityIcon/>,
+  metamask: <MetamaskIcon/>,
+  parity: <ParityIcon/>,
   toshi: <ToshiIcon/>,
+  status: <StatusIcon/>
 }
 
 class Web3ClientChoice extends React.Component {
@@ -49,8 +50,16 @@ class Web3ClientChoice extends React.Component {
 
   logoFor = (provider) => {
     const logo = logos[provider];
-    if(logo) return logo;
-    return <DefaultLogo/>;
+    if (logo) return logo;
+    return <EthereumIcon/>;
+  };
+
+  grayScale = (Logo) => {
+    return class extends React.Component {
+      render = () => (
+        <Grayscale><Logo/></Grayscale>
+      )
+    }
   }
 
   render() {
@@ -69,10 +78,10 @@ class Web3ClientChoice extends React.Component {
                   </div>
                   <div className="row-flex">
                     <a href="https://metamask.io/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Metamask" logo={MetamaskIcon}/>
+                      <Product label="Metamask" logo={GrayMetamaskIcon}/>
                     </a>
                     <a href="https://www.parity.io/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Parity" logo={ParityIcon}/>
+                      <Product label="Parity" logo={this.grayScale(ParityIcon)}/>
                     </a>
                   </div>
                 </li>
@@ -82,10 +91,10 @@ class Web3ClientChoice extends React.Component {
                   </div>
                   <div className="row-flex">
                     <a href="https://status.im/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Status" logo={StatusIcon}/>
+                      <Product label="Status" logo={this.grayScale(StatusIcon)}/>
                     </a>
                     <a href="https://toshi.org/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Toshi" logo={ToshiIcon}/>
+                      <Product label="Toshi" logo={this.grayScale(ToshiIcon)}/>
                     </a>
                   </div>
                 </li>
