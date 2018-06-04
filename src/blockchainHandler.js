@@ -147,34 +147,6 @@ export const setWebClientProvider = () => {
   return web3.setWebClientProvider();
 }
 
-export function getCurrentProviderName() {
-  if (window.web3.currentProvider.isMetaMask)
-    return 'metamask';
-
-  if (window.web3.currentProvider.isTrust)
-    return 'trust';
-
-  if (typeof window.SOFA !== 'undefined')
-    return 'toshi';
-
-  if (typeof window.__CIPHER__ !== 'undefined')
-    return 'cipher';
-
-  if (window.web3.currentProvider.constructor.name === 'EthereumProvider')
-    return 'mist';
-
-  if (window.web3.currentProvider.constructor.name === 'Web3FrameProvider')
-    return 'parity';
-
-  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('infura') !== -1)
-    return 'infura';
-
-  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('localhost') !== -1)
-    return 'localhost';
-
-  return 'unknown';
-}
-
 export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
   const result = {};
   const otcBytes32 = addressToBytes32(settings.chain[network].otc, false);

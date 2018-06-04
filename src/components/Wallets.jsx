@@ -4,7 +4,7 @@ import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
 } from "./Icons";
-import { getCurrentProviderName } from '../blockchainHandler';
+import { getCurrentProviderName } from '../web3';
 
 
 const logos = {

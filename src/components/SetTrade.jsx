@@ -6,9 +6,9 @@ import {
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import {fetchETHPriceInUSD, toWei} from '../helpers'
-import {getCurrentProviderName} from "../blockchainHandler";
 import * as Blockchain from "../blockchainHandler";
 import Product from "../ui-components/Product";
+import web3 from "../web3"
 
 const settings = require('../settings');
 
@@ -179,7 +179,7 @@ class SetTrade extends Component {
               <div className="wallet-details">
                 <div>
                   <IdentityIcon address={this.props.account}/>
-                  <span className="label">{getCurrentProviderName()}</span>
+                  <span className="label">{web3.currentProvider.name}</span>
                   <TokenAmount number={this.state.ethBalance} decimal={5} token={"ETH"}/>
                 </div>
                 <div className="address">
