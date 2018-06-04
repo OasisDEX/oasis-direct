@@ -2,7 +2,7 @@ import React from 'react';
 import Product from '../ui-components/Product';
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
-  StatusIcon, DefaultLogo, EthereumIcon
+  StatusIcon, EthereumIcon
 } from "./Icons";
 import { getCurrentProviderName } from '../blockchainHandler';
 
