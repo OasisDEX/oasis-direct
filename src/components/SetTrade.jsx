@@ -152,14 +152,6 @@ class SetTrade extends Component {
     return value;
   }
 
-  connectLedger = () => {
-    this.props.showHW('ledger');
-  }
-
-  connectTrezor = () => {
-    this.props.showHW('trezor');
-  }
-
   render() {
 
     // TODO: Extract as separate component

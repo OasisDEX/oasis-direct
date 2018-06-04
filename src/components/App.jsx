@@ -129,7 +129,7 @@ class App extends Component {
       }
       networkState.defaultAccount = Blockchain.getDefaultAccount();
       this.setState({network: networkState}, () => {
-        if (oldDefaultAccount !== networkState.defaultAccount) {
+        if (networkState.defaultAccount && oldDefaultAccount !== networkState.defaultAccount) {
           this.initContracts();
         }
       });
@@ -1201,7 +1201,6 @@ class App extends Component {
                   </div>
                 </div>
                 <Widget isConnected={this.state.network.isConnected}
-                        onDisconnect={this.disconnect}
                         section={this.state.section}
                         network={this.state.network.network}
                         account={this.state.network.defaultAccount}
