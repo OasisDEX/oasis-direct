@@ -2,7 +2,7 @@ import React from 'react';
 import Product from '../ui-components/Product';
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
-  StatusIcon, DefaultLogo
+  StatusIcon, DefaultLogo, EthereumIcon
 } from "./Icons";
 import { getCurrentProviderName } from '../blockchainHandler';
 
@@ -11,6 +11,7 @@ const logos = {
   metamask : <MetamaskIcon/>,
   parity : <ParityIcon/>,
   toshi: <ToshiIcon/>,
+  status: <StatusIcon/>
 }
 
 class Web3ClientChoice extends React.Component {
@@ -50,8 +51,8 @@ class Web3ClientChoice extends React.Component {
   logoFor = (provider) => {
     const logo = logos[provider];
     if(logo) return logo;
-    return <DefaultLogo/>;
-  }
+    return <EthereumIcon/>;
+  };
 
   render() {
     return <React.Fragment>
