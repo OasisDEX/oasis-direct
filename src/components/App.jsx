@@ -1150,11 +1150,6 @@ class App extends Component {
       return {hw};
     }, async () => {
       await Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
-      this.setState((prevState) => {
-        const network = {...prevState.network};
-        network.defaultAccount = Blockchain.getDefaultAccount();
-        return {network};
-      });
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
