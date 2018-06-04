@@ -39,12 +39,9 @@ class Congratulation extends Component {
       <div className="content">
         <pre>
                 <span className="label">
-                  You bought&nbsp;
-                  <TokenAmount number={this.props.bought} decimal={5} token={this.props.base.toUpperCase()}/>
-                  &nbsp;with&nbsp;
+                  You have sold&nbsp;
                   <TokenAmount number={this.props.sold} decimal={5} token={this.props.quote.toUpperCase()}/>
-                  <br/>
-                  by paying&nbsp;
+                  &nbsp;by paying&nbsp;
                   <span className="value">
                   {
                     this.props.isCalculatingGas
