@@ -182,7 +182,7 @@ class HardWallet extends React.Component {
             ? (
               <section className='frame hard-wallet-addresses'>
                 <div className="heading">
-                  <h2>Select Wallet on your Ledger</h2>
+                  <h2>Select Address on your <span style={hwNameStyle}>{this.props.hw.option}</span></h2>
                 </div>
                 <button className="close" onClick={this.props.onBack}/>
 
