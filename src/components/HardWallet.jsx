@@ -5,7 +5,7 @@ import {
 } from "./Icons";
 import Spinner from "./Spinner";
 import { getEthBalanceOf } from "../blockchainHandler";
-import { fromWei } from "../helpers";
+import TokenAmount from "./TokenAmount";
 
 const hwNameStyle = {
   textTransform: "capitalize"
@@ -88,7 +88,7 @@ class Address extends React.Component {
 
   componentDidMount() {
     getEthBalanceOf(this.state.address).then((balance) => {
-      this.setState({balance: fromWei(balance.valueOf())});
+      this.setState({balance: balance.valueOf()});
     })
   }
 
@@ -96,7 +96,9 @@ class Address extends React.Component {
     return (
       <React.Fragment>
         <span className="address">{this.state.address}</span>
-        <span className="balance">{this.state.balance} ETH</span>
+        <span className="balance">
+          <TokenAmount number={this.state.balance} decimal={5} token={"ETH"}/>
+        </span>
       </React.Fragment>
     )
   }
@@ -153,7 +155,7 @@ class HardWallet extends React.Component {
 
     if (this.page.end === addresses.length) {
       const {error} = await this.props.loadHWAddresses("kovan", this.page.end + 5, this.derivationPath);
-      if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box?
+      if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box? This happen with TREZOR.
 
       page.end = this.props.hw.addresses.length;
     }
@@ -182,7 +184,7 @@ class HardWallet extends React.Component {
             ? (
               <section className='frame hard-wallet-addresses'>
                 <div className="heading">
-                  <h2>Select Wallet on your Ledger</h2>
+                  <h2>Select Address on your <span style={hwNameStyle}>{this.props.hw.option}</span></h2>
                 </div>
                 <button className="close" onClick={this.props.onBack}/>
 
@@ -211,7 +213,7 @@ class HardWallet extends React.Component {
                     </span>
                   </div>
 
-                  <button onClick={this.props.importAddress}> UNLOCK WALLET</button>
+                  <button disabled={!this.selectedAddress} onClick={this.props.importAddress}> UNLOCK WALLET</button>
                 </div>
               </section>
             )
