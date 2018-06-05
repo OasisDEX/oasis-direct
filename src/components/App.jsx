@@ -58,17 +58,18 @@ class App extends Component {
           console.debug('YIKES! getBlock returned undefined!');
         }
         if (res.number >= this.state.network.latestBlock) {
-          const networkState = {...this.state.network};
-          networkState.latestBlock = res.number;
-          networkState.outOfSync = ((new Date().getTime() / 1000) - res.timestamp) > 600;
-          this.setState({network: networkState});
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.latestBlock = res.number;
+            networkState.outOfSync = ((new Date().getTime() / 1000) - res.timestamp) > 600;
+            return {network: networkState};
+          });
         } else {
           // XXX MetaMask frequently returns old blocks
           // https://github.com/MetaMask/metamask-plugin/issues/504
           console.debug('Skipping old block');
         }
       });
-
       // because you have another then after this.
       // The best way to handle is to return isConnect;
       return null;
@@ -100,36 +101,45 @@ class App extends Component {
             }
           });
         } else {
-          const networkState = {...this.state.network};
-          networkState.isConnected = isConnected;
-          networkState.network = false;
-          networkState.latestBlock = 0;
-          this.setState({network: networkState});
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.isConnected = isConnected;
+            networkState.network = false;
+            networkState.latestBlock = 0;
+            return {network: networkState};
+          });
         }
       }
     });
   }
 
   initNetwork = newNetwork => {
-    const networkState = {...this.state.network};
-    networkState.network = newNetwork;
-    networkState.isConnected = true;
-    networkState.latestBlock = 0;
-    this.setState({network: networkState}, () => {
+    this.setState(prevState => {
+      const networkState = {...prevState.network};
+      networkState.network = newNetwork;
+      networkState.isConnected = true;
+      networkState.latestBlock = 0;
+      return {network: networkState};
+    }, () => {
       this.checkAccounts();
     });
   }
 
   checkAccounts = () => {
     Blockchain.getAccounts().then(async accounts => {
-      const networkState = {...this.state.network};
-      const oldDefaultAccount = networkState.defaultAccount;
       if (!this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
         await Blockchain.setDefaultAccountByIndex(0);
       }
-      networkState.defaultAccount = Blockchain.getDefaultAccount();
-      this.setState({network: networkState}, () => {
-        if (networkState.defaultAccount && oldDefaultAccount !== networkState.defaultAccount) {
+      let oldDefaultAccount = null;
+      this.setState(prevState => {
+        const networkState = {...prevState.network};
+        oldDefaultAccount = networkState.defaultAccount;
+        if (networkState.network) { // This is to avoid a race condition (we make sure is still connected to a network)
+          networkState.defaultAccount = Blockchain.getDefaultAccount();
+        }
+        return {network: networkState};
+      }, () => {
+        if (this.state.network.defaultAccount && oldDefaultAccount !== this.state.network.defaultAccount) {
           this.initContracts();
         }
       });
@@ -681,7 +691,6 @@ class App extends Component {
   }
 
   calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
-    // console.log(amountSell.valueOf(), amountBuy.valueOf())
     return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
       ?
       {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}:${tokenSell}`}
@@ -1111,6 +1120,7 @@ class App extends Component {
   }
 
   showClientChoice = () => {
+    Blockchain.stopProvider();
     clearInterval(this.checkAccountsInterval);
     clearInterval(this.checkNetworkInterval);
 
@@ -1123,7 +1133,7 @@ class App extends Component {
       hw.isConnected = false;
       hw.showModal = false;
       return {hw, network};
-    })
+    });
   }
 
   loadHWAddresses = async (network, amount, derivationPath = this.state.hw.derivationPath) => {
