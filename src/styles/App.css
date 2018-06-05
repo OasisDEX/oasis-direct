@@ -345,8 +345,8 @@
   border: 1px solid rgba(156, 156, 157, 0.08);
   border-radius: 6px;
 
-  margin-top: 8px;
-  margin-bottom: 12px;
+  margin-top: 20px;
+  margin-bottom: 16px;
 }
 
 .info-box.disclaimer {
@@ -386,9 +386,39 @@
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
-  height: 32px;
+  min-height: 64px;
 
-  padding: 7px 16px;
+  padding: 14px 16px;
+}
+
+.info-box-row .holder:nth-child(even) {
+  padding-left: 12px;
+}
+
+.info-box-row .holder:nth-child(odd) {
+  padding-right: 12px;
+}
+
+.info-box .info-box-row.wrap {
+  flex-wrap: wrap;
+}
+
+.info-box .info-box-row .holder .label {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #6E6E70;
+  opacity: 0.6;
+  letter-spacing: 1.1px;
+}
+
+.info-box .info-box-row .holder .value {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 1.09px;
+  text-align: right;
+  line-height: 15px;
 }
 
 .info-box .info-box-row--left {
@@ -418,8 +448,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 102px;
-  height: 92px;
+  width: 124px;
+  height: 100px;
   padding: 16px;
   margin: 0 auto;
   border: 1px solid #DEE4F4;
@@ -441,11 +471,11 @@
 
 .token-name {
   font-family: 'Montserrat', sans-serif;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 500;
 
   letter-spacing: 1.2px;
-  color: #6B6B6C;
+  color: #80838C;
 
   user-select: none;
   -moz-user-select: none;
@@ -670,12 +700,6 @@ input.has-errors {
   padding: 14px;
 }
 
-.token-selector .tokens .token-list .token-name {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-}
-
 button.start {
   margin-top: auto;
 }
@@ -762,10 +786,6 @@ button[disabled] {
 }
 
 .token-selector .tokens .token {
-  flex-direction: column;
-  justify-content: space-between;
-  width: 124px;
-  height: 115px;
   margin: 4px;
 }
 
@@ -979,7 +999,7 @@ a.no-pointer {
 }
 
 .terms-and-conditions {
-  height: 48px;
+  height: 42px;
   margin-top: auto;
   margin-bottom: 0;
   flex-direction: row;
@@ -1032,6 +1052,14 @@ a.no-pointer {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+}
+
+.holder--spread {
+  justify-content: space-between;
+}
+
+.half {
+  width: 50%;
 }
 
 .transaction-result {
@@ -1096,6 +1124,6 @@ a.no-pointer {
   background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MyA0MyI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTh7ZmlsbDpub25lO30uY2xzLTF7c3Ryb2tlOiNkZWU0ZjQ7fS5jbHMtMntmaWxsOiNmZjdlMDA7fS5jbHMtM3tmaWxsOiNmMzZmMDA7fS5jbHMtNHtmaWxsOiNjY2QyZTA7fS5jbHMtNXtmaWxsOiM0NDNjM2E7fS5jbHMtNntmaWxsOiNmMTZmMDA7fS5jbHMtN3tmaWxsOiM3ZTNhMDY7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5vZF9tZXRhbWFzazI8L3RpdGxlPjxjaXJjbGUgY2xhc3M9ImNscy0xIiBjeD0iMjEuNSIgY3k9IjIxLjUiIHI9IjIxIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMjIsMTQuODRoMy4xM2w3LjEzLTMuMzRMMzMuNTYsMTUsMzMsMTguNTlsLjU4LjQyLS43My41Ni41OC40Mi0uNzMuNTYuNDQuMjgtMSwxLjI1LDEuODksNUwzMi42OSwzMi41LDI3LDMwLjU1bC0xLjE2LjU2LTIuMTEuM0gyMC4yNmwtMi4xMS0uM0wxNywzMC41NSwxMS4zMSwzMi41LDEwLDI3LjA4bDEuODktNS0xLTEuMjUuNDQtLjI4TDEwLjU4LDIwbC41OC0uNDJMMTAuNDQsMTlsLjU4LS40MkwxMC40NCwxNWwxLjMxLTMuNDgsNy4xMywzLjM0WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMyIgcG9pbnRzPSIyMS44NiAzMC45MSAxOS43NiAzMC45MSAxNy42NCAzMC42MSAxNi40OCAzMC4wNSAxMC44MSAzMiA5LjUgMjYuNTggMTQuMDEgMjYuMDIgMTcuMDYgMjUuODggMTkuOTcgMjYuODUgMjAuNTUgMjYuMyAyMS44NiAyNi4zIDIxLjg2IDMwLjkxIi8+PHBvbHlnb24gY2xhc3M9ImNscy0zIiBwb2ludHM9IjIxLjE0IDMwLjkxIDIzLjI0IDMwLjkxIDI1LjM1IDMwLjYxIDI2LjUyIDMwLjA1IDMyLjE5IDMyIDMzLjUgMjYuNTggMjguOTkgMjYuMDIgMjUuOTQgMjUuODggMjMuMDMgMjYuODUgMjIuNDUgMjYuMyAyMS4xNCAyNi4zIDIxLjE0IDMwLjkxIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjIsMjdoLjk1bC41OC41NmEyOSwyOSwwLDAsMCwuMzMsMy4xNkEyNi43NywyNi43NywwLDAsMCwyNywzMC41NWwtMS4xNi43Ni0yLjExLjNIMjAuMjZsLTIuMTEtLjNMMTcsMzAuNTVhMjYuNzcsMjYuNzcsMCwwLDAsMy4xNi4xNywyOSwyOSwwLDAsMCwuMzMtMy4xNmwuNTgtLjU2WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTAuNSAtMC41KSIvPjxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTIyLDI5LjE2aDEuMzlsLjQzLjU2LS4yOS0yLjM2LS41OC0uNTZIMjEuMDVsLS41OC41Ni0uMjksMi4zNi40My0uNTZaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMC41IC0wLjUpIi8+PHBvbHlnb24gY2xhc3M9ImNscy02IiBwb2ludHM9IjI2LjY2IDIwLjMyIDMxLjYxIDIxLjU3IDMyLjYzIDIwLjMyIDMyLjE5IDIwLjA0IDMyLjkyIDE5LjQ4IDMyLjM0IDE5LjA3IDMzLjA2IDE4LjUxIDMyLjQ4IDE4LjA5IDMzLjA2IDE0LjQ4IDMxLjc1IDExIDI0LjYzIDE0LjM0IDIzLjE3IDE3LjQgMjIuNTkgMjUuODggMjMuMTcgMjQuNDkgMjUuOTQgMjMuOTMgMjUuOTQgMjUuNDYgMjcuOTcgMjEuODUgMjYuNjYgMjAuMzIiLz48cG9seWdvbiBjbGFzcz0iY2xzLTYiIHBvaW50cz0iMTYuMzQgMjAuMzIgMTEuMzkgMjEuNTcgMTAuMzcgMjAuMzIgMTAuODEgMjAuMDQgMTAuMDggMTkuNDggMTAuNjYgMTkuMDcgOS45NCAxOC41MSAxMC41MiAxOC4wOSA5Ljk0IDE0LjQ4IDExLjI0IDExIDE4LjM3IDE0LjM0IDE5LjgzIDE3LjQgMjAuNDEgMjUuODggMTkuODMgMjQuNDkgMTcuMDYgMjMuOTMgMTcuMDYgMjUuNDYgMTUuMDMgMjEuODUgMTYuMzQgMjAuMzIiLz48cG9seWdvbiBjbGFzcz0iY2xzLTYiIHBvaW50cz0iMjAuMTIgMjEuODUgMTkuODMgMjQuNDkgMTcuMDYgMjMuOTMgMTcuMDYgMjUuNDYgMTUuMDMgMjEuODUgMjAuMTIgMjEuODUiLz48cG9seWdvbiBjbGFzcz0iY2xzLTYiIHBvaW50cz0iMjIuODggMjEuODUgMjMuMTcgMjQuNDkgMjUuOTQgMjMuOTMgMjUuOTQgMjUuNDYgMjcuOTcgMjEuODUgMjIuODggMjEuODUiLz48cG9seWdvbiBjbGFzcz0iY2xzLTUiIHBvaW50cz0iMjQuMTkgMjIuOTYgMjMuMTcgMjQuNDkgMjYuMjMgMjMuOTMgMjQuMTkgMjIuOTYiLz48cG9seWdvbiBjbGFzcz0iY2xzLTciIHBvaW50cz0iMzEuNjEgMjEuNTcgMzIuNjMgMjAuMzIgMzIuMTkgMjAuMDQgMzIuOTIgMTkuNDggMzIuMzQgMTkuMDcgMzMuMDYgMTguNTEgMzIuNDggMTguMDkgMzMuMDYgMTQuNDggMzEuNzUgMTEgMjMuMTcgMTcuNCAyNi42NiAyMC4zMiAzMS42MSAyMS41NyIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtOCIgcG9pbnRzPSIyNi41MiAzMC4wNSAyOC45OSAyNi4wMiAyNS45NCAyNS44OCAyNi41MiAzMC4wNSIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtOCIgcG9pbnRzPSIxNi40OCAzMC4wNSAxNC4wMSAyNi4wMiAxNy4wNiAyNS44OCAxNi40OCAzMC4wNSIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtNSIgcG9pbnRzPSIxOC44MSAyMi45NiAxOS44MyAyNC40OSAxNi43NyAyMy45MyAxOC44MSAyMi45NiIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtNyIgcG9pbnRzPSIxMS4zOSAyMS41NyAxMC4zNyAyMC4zMiAxMC44MSAyMC4wNCAxMC4wOCAxOS40OCAxMC42NiAxOS4wNyA5Ljk0IDE4LjUxIDEwLjUyIDE4LjA5IDkuOTQgMTQuNDggMTEuMjQgMTEgMTkuODMgMTcuNCAxNi4zNCAyMC4zMiAxMS4zOSAyMS41NyIvPjwvc3ZnPg==) no-repeat center;
 }
 
-.grayscale-icon svg g{
+.grayscale-icon svg g {
   fill: #969697;
 }

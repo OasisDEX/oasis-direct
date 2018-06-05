@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import {fetchETHPriceInUSD, toWei} from '../helpers'
+import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
 import web3 from "../web3"
 
@@ -198,14 +198,12 @@ class SetTrade extends Component {
                     this.select('eth')
                   }}>
                     <span className="token-icon">{tokens.eth.icon}</span>
-                    <span className="token-name">{tokens.eth.name}</span>
-                    <span className="token-balance">
-                          {
-                            this.props.balances.eth
-                              ? <TokenAmount number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"}/>
-                              : <Spinner/>
-                          }
-                        </span>
+                    {
+                      this.props.balances.eth
+                        ? <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3}
+                                       token={"ETH"}/>
+                        : <Spinner/>
+                    }
                   </div>
                   {
                     ['mkr', 'dai'].map((token, index) => {
@@ -214,15 +212,12 @@ class SetTrade extends Component {
                           this.select(token)
                         }}>
                           <span className="token-icon">{tokens[token].icon}</span>
-                          <span className="token-name">{tokens[token].name}</span>
-                          <span className="token-balance">
-                                {
-                                  this.props.balances[token]
-                                    ? <TokenAmount number={this.props.balances[token].valueOf()} decimal={3}
-                                                   token={token.toUpperCase()}/>
-                                    : <Spinner/>
-                                }
-                                </span>
+                          {
+                            this.props.balances[token]
+                              ? <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3}
+                                             token={token.toUpperCase()}/>
+                              : <Spinner/>
+                          }
                         </div>
                       )
                     })
@@ -246,25 +241,14 @@ class SetTrade extends Component {
           </span>
           <h2>Enter Order Details</h2>
         </div>
-        <div className={'info-box info-box--no-borders disclaimer'}>
-          <div className="info-box-row">
-            <span className="holder">
-              <span className="icon">
-                <Attention/>
-              </span>
-              <span className="label">
-                Order details are estimations and may vary {settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%
-              </span>
-            </span>
-          </div>
-        </div>
         <div
           className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
-          <div className="info-box-row">
+          <div className="info-box-row wrap">
             {
               this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
               <span className="label">
-                No orders available to {this.props.trade.errorOrders.type} <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
+                No orders available to {this.props.trade.errorOrders.type}&nbsp;
+                <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
               </span>
             }
             {
@@ -277,46 +261,46 @@ class SetTrade extends Component {
                   :
                   this.props.trade.errorInputSell === 'gasCost'
                     ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
-                    : <span className="label"> {tokens[this.props.trade.from].symbol}
-                      Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}</span>
+                    : <span className="label">
+                        {tokens[this.props.trade.from].symbol}&nbsp;
+                        Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}
+                      </span>
               )
             }
             {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
-              <span className="label">{tokens[this.props.trade.to].symbol}
-                Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}</span>
-            }
-            {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-              <span className="holder desktop">
-                <span className='value'>OasisDex</span>
+              <span className="label">
+                {tokens[this.props.trade.to].symbol}&nbsp;
+                Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}
               </span>
             }
             {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-              <span className="holder">
-                <span className="label">Price </span>
-                <TokenAmount number={toWei(this.props.trade.price)}
-                             token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
-              </span>
-            }
-            {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-              <span className="holder">
-                <span className="label">Price Impact </span>
-                <span className='value'>{ this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf() }%</span>
-              </span>
-            }
-            {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-              <span className="holder">
-                <span className="label">Gas Cost </span>
-                {
-                  this.props.trade.txCost.gt(0)
-                    ? <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} token={'USD'}/>
-                    : <Spinner/>
-                }
-              </span>
+              <React.Fragment>
+                <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                  <span className="label">Price </span>
+                  <span  style={{lineHeight: 1}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
+                               token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+                  </span>
+                </span>
+                <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                  <span className="label">Slippage Limit </span>
+                  <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                </span>
+                <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                <span className="label">Gas cost</span>
+                  {
+                    this.props.trade.txCost.gt(0)
+                      ? <span style={{lineHeight: 1}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
+                      : <Spinner/>
+                  }
+                </span>
+                <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                <span className="label">Impact </span>
+                <span
+                  className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf()}%</span>
+                </span>
+              </React.Fragment>
             }
           </div>
         </div>
@@ -327,7 +311,13 @@ class SetTrade extends Component {
                 this.pickToken('from')
               }}>
                 <span className="token-icon">{tokens[this.state.from].icon}</span>
-                <span className="token-name">{tokens[this.state.from].symbol}</span>
+                {
+                  !this.props.balances[tokens[this.state.from].symbol.toLowerCase()]
+                    ? <Spinner/>
+                    : <TokenAmount className="token-name" number={this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                                   decimal={3}
+                                   token={tokens[this.state.from].symbol}/>
+                }
               </div>
               <div>
                 <input type="number"
@@ -347,7 +337,14 @@ class SetTrade extends Component {
                 this.pickToken('to');
               }}>
                 <span className="token-icon">{tokens[this.state.to].icon}</span>
-                <span className="token-name">{tokens[this.state.to].symbol}</span>
+                {
+                  !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
+                    ? <Spinner/>
+                    : <TokenAmount className="token-name"
+                                   number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                   decimal={3}
+                                   token={tokens[this.state.to].symbol}/>
+                }
               </div>
               <div>
                 <input type="number"
