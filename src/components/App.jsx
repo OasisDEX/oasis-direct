@@ -127,14 +127,17 @@ class App extends Component {
 
   checkAccounts = () => {
     Blockchain.getAccounts().then(async accounts => {
-      if (!this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
-        await Blockchain.setDefaultAccountByIndex(0);
+      if (this.state.network.network && !this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
+        const account = await Blockchain.getDefaultAccountByIndex(0);
+        if (this.state.network.network && !this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) { // To avoid race condition (we make sure nothing changed after getting the account)
+          Blockchain.setDefaultAccount(account);
+        }
       }
       let oldDefaultAccount = null;
       this.setState(prevState => {
         const networkState = {...prevState.network};
         oldDefaultAccount = networkState.defaultAccount;
-        if (networkState.network) { // This is to avoid a race condition (we make sure is still connected to a network)
+        if (networkState.network) { // To avoid race condition (we make sure is still connected to a network)
           networkState.defaultAccount = Blockchain.getDefaultAccount();
         }
         return {network: networkState};
@@ -1175,7 +1178,8 @@ class App extends Component {
       hw.showModal = false;
       return {hw};
     }, async () => {
-      await Blockchain.setDefaultAccountByIndex(this.state.hw.addressIndex);
+      const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
+      Blockchain.setDefaultAccount(account);
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);

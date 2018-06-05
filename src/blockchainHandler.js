@@ -31,18 +31,21 @@ export const getDefaultAccount = () => {
   return web3.eth.defaultAccount;
 }
 
-export const setDefaultAccountByIndex = index => {
+export const getDefaultAccountByIndex = index => {
   return new Promise(async (resolve, reject) => {
     try {
       const accounts = await getAccounts();
-      console.log(`Address ${accounts[index]} loaded`);
-      web3.eth.defaultAccount = accounts[index];
-      resolve(true);
+      resolve(accounts[index]);
     } catch (e) {
       console.log(e);
       resolve(false);
     }
   });
+}
+
+export const setDefaultAccount = account => {
+  web3.eth.defaultAccount = account;
+  console.log(`Address ${account} loaded`);
 }
 
 export const getNetwork = () => {
