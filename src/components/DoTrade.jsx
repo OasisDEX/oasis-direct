@@ -3,7 +3,7 @@ import {Ether, MKR, DAI, Done, AccountIcon} from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
-import {etherscanUrl, toBigNumber, toWei} from '../helpers';
+import { etherscanUrl, quotation, toBigNumber, toWei } from '../helpers';
 
 const settings = require('../settings');
 
@@ -349,8 +349,7 @@ class DoTrade extends Component {
                                 }
                                 bought={this.props.transactions.trade.amountBuy}
                                 sold={this.props.transactions.trade.amountSell}
-                                base={this.props.trade.to}
-                                quote={this.props.trade.from}
+                                quotation={quotation(this.props.trade.from,this.props.trade.to)}
                                 gas={
                                   (
                                     typeof this.props.transactions.approval !== 'undefined'
