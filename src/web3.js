@@ -40,6 +40,7 @@ export const getCurrentProviderName = () => {
 
 class Web3Extended extends Web3 {
   stop = () => {
+    this.reset();
     if (this.currentProvider && typeof this.currentProvider.stop === 'function') {
       this.currentProvider.stop();
     }
