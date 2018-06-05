@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import TokenAmount from "./TokenAmount";
 import Spinner from "./Spinner";
-import {fetchETHPriceInUSD} from '../helpers';
+import { fetchETHPriceInUSD } from '../helpers';
 
 class Congratulation extends Component {
   constructor(props) {
@@ -39,9 +39,13 @@ class Congratulation extends Component {
       <div className="content">
         <pre>
                 <span className="label">
-                  You have sold&nbsp;
-                  <TokenAmount number={this.props.sold} decimal={5} token={this.props.quote.toUpperCase()}/>
-                  &nbsp;by paying&nbsp;
+                  You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;
+                  <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
+                               token={this.props.quotation.base.toUpperCase()}/>&nbsp;
+                  {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
+                  <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
+                               token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
+                  by paying&nbsp;
                   <span className="value">
                   {
                     this.props.isCalculatingGas

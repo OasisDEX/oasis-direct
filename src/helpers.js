@@ -118,4 +118,23 @@ export const fetchETHPriceInUSD = () => {
     });
 }
 
+//TODO: eventually find a better solution
+export const quotation = (from, to) => {
+  if (to === "dai" || from === "dai") {
+    const quote = "dai";
+    const base = to === "dai" ? from : to;
+    const isCounter = from !== "dai";
+
+    return {base, quote, isCounter};
+  }
+
+  if (to === "eth" || from === "eth") {
+    const quote = "eth";
+    const base = to === "eth" ? from : to;
+    const isCounter = from !== "eth";
+
+    return {base, quote, isCounter};
+  }
+};
+
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;
