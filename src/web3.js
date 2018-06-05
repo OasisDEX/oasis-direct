@@ -8,6 +8,9 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 const settings = require('./settings');
 
 export const getCurrentProviderName = () => {
+  if (!window.web3 || typeof window.web3.currentProvider === 'undefined')
+    return false;
+
   if (window.web3.currentProvider.isMetaMask)
     return 'metamask';
 
