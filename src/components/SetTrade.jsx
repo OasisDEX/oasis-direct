@@ -279,7 +279,7 @@ class SetTrade extends Component {
               <React.Fragment>
                 <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
                   <span className="label">Price </span>
-                  <span  style={{lineHeight: 1}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
+                  <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
                                token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
                   </span>
                 </span>
@@ -291,7 +291,7 @@ class SetTrade extends Component {
                 <span className="label">Gas cost</span>
                   {
                     this.props.trade.txCost.gt(0)
-                      ? <span style={{lineHeight: 1}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
+                      ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
                       : <Spinner/>
                   }
                 </span>
