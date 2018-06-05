@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TradeWidget from './TradeWidget';
 import TaxWidget from './TaxWidget';
 
-import Web3ClientChoice from './Wallets';
+import Wallets from './Wallets';
 import LockedAccount from './LockedAccount';
 import { isAddress } from '../helpers';
 import HardWallet from "./HardWallet";
@@ -13,13 +13,14 @@ class Widget extends Component {
       <div className="Widget">
         {
           this.props.hw.showModal
-            ? <HardWallet hw={this.props.hw}
+            ? <HardWallet loadingAddress={this.props.loadingAddress}
+                          hw={this.props.hw}
                           onBack={this.props.showClientChoice}
                           loadHWAddresses={this.props.loadHWAddresses}
                           selectHWAddress={this.props.selectHWAddress}
                           importAddress={this.props.importAddress}/>
             : !this.props.isConnected
-            ? <Web3ClientChoice setWeb3WebClient={this.props.setWeb3WebClient} showHW={this.props.showHW}/>
+            ? <Wallets setWeb3WebClient={this.props.setWeb3WebClient} showHW={this.props.showHW} loadingAddress={this.props.loadingAddress} />
             : this.props.account && isAddress(this.props.account)
 
               ? <div>

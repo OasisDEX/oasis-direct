@@ -213,7 +213,7 @@ class HardWallet extends React.Component {
                     </span>
                   </div>
 
-                  <button disabled={!this.selectedAddress} onClick={this.props.importAddress}> UNLOCK WALLET</button>
+                  <button disabled={!this.selectedAddress || this.props.loadingAddress} onClick={this.props.importAddress}> UNLOCK WALLET {this.props.loadingAddress ? <Spinner /> : ''}</button>
                 </div>
               </section>
             )

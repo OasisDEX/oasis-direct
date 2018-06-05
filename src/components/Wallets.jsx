@@ -4,6 +4,7 @@ import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
 } from "./Icons";
+import Spinner from "./Spinner";
 import { getCurrentProviderName } from '../web3';
 
 
@@ -14,7 +15,7 @@ const logos = {
   status: <StatusIcon/>
 }
 
-class Web3ClientChoice extends React.Component {
+class Wallets extends React.Component {
 
   constructor() {
     super();
@@ -120,7 +121,7 @@ class Web3ClientChoice extends React.Component {
                                 <span className="label">{this.state.provider}</span>
                               </div>
                             </div>
-                            <button type="button" onClick={() => this.props.setWeb3WebClient()}> Continue</button>
+                            <button type="button" onClick={() => this.props.setWeb3WebClient()} disabled={this.props.loadingAddress}> Continue {this.props.loadingAddress ? <Spinner /> : ''}</button>
                           </React.Fragment>
                           : <React.Fragment>
                             <div className="client-summary">
@@ -147,4 +148,4 @@ class Web3ClientChoice extends React.Component {
   }
 }
 
-export default Web3ClientChoice;
+export default Wallets;

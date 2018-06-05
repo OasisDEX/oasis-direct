@@ -16,7 +16,7 @@ class App extends Component {
     this.state = {
       ...initialState,
       network: {},
-      hw: {active: false, showModal: false, option: null, derivationPath: null, addresses: [], addressIndex: null},
+      hw: {isConnected: false, showModal: false, option: null, derivationPath: null, addresses: [], addressIndex: null},
       section: 'exchange',
     }
     this.txInterval = {};
@@ -181,8 +181,12 @@ class App extends Component {
       const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
         console.log('proxy', r[0]);
-        this.setState((prevState, props) => {
-          return {proxy: r[0]};
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          const hw = {...prevState.hw};
+          network.loadingAddress = false;
+          hw.showModal = false;
+          return {network, hw, proxy: r[0]};
         }, () => {
           Blockchain.loadObject('dsproxy', this.state.proxy, 'proxy');
           this.setUpToken('weth');
@@ -1105,11 +1109,17 @@ class App extends Component {
   }
 
   // Web3 web client
-  setWeb3WebClient = async () => {
-    await Blockchain.setWebClientProvider();
-    this.checkNetwork();
-    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
-    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+  setWeb3WebClient = () => {
+    this.setState(prevState => {
+      const network = {...prevState.network};
+      network.loadingAddress = true;
+      return {network};
+    }, async () => {
+      await Blockchain.setWebClientProvider();
+      this.checkNetwork();
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+    });
   }
 
   // Hardwallets
@@ -1174,9 +1184,9 @@ class App extends Component {
 
   importAddress = () => {
     this.setState(prevState => {
-      const hw = {...prevState.hw};
-      hw.showModal = false;
-      return {hw};
+      const network = {...prevState.network};
+      network.loadingAddress = true;
+      return {network};
     }, async () => {
       const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
       Blockchain.setDefaultAccount(account);
@@ -1217,6 +1227,7 @@ class App extends Component {
                 <Widget isConnected={this.state.network.isConnected}
                         section={this.state.section}
                         network={this.state.network.network}
+                        loadingAddress={this.state.network.loadingAddress}
                         account={this.state.network.defaultAccount}
                         proxy={this.state.proxy}
                         trade={this.state.trade}

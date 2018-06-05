@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  Ether, MKR, DAI, SwapArrows, Attention, IdentityIcon, BackIcon, Circle,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon, BackIcon, Circle,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
