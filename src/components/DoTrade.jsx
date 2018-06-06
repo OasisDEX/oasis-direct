@@ -231,7 +231,7 @@ class DoTrade extends Component {
                                 this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                                   ?
                                   <React.Fragment>
-                                      <span className="status label info">Loading data...</span><Spinner/>
+                                      <span className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
                                   </React.Fragment>
                                   :
                                   <span className="status label info">Confirmed</span>
@@ -304,7 +304,7 @@ class DoTrade extends Component {
                                       ?
                                       <React.Fragment>
                                       <span
-                                        className="status label info">Loading data...</span><Spinner/>
+                                        className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
                                       </React.Fragment>
                                       :
                                       <React.Fragment/>
