@@ -37,8 +37,7 @@ export const getDefaultAccountByIndex = index => {
       const accounts = await getAccounts();
       resolve(accounts[index]);
     } catch (e) {
-      console.log(e);
-      resolve(false);
+      reject(new Error(e));
     }
   });
 }

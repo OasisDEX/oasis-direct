@@ -7,6 +7,8 @@ import Spinner from "./Spinner";
 import { getEthBalanceOf } from "../blockchainHandler";
 import TokenAmount from "./TokenAmount";
 
+const settings = require('../settings');
+
 const hwNameStyle = {
   textTransform: "capitalize"
 }
@@ -125,18 +127,16 @@ class HardWallet extends React.Component {
 
   waitForDeviceToConnect = async (derivationPath) => {
     // TODO: probably have a dropdown with the networks?
-    const {error, addresses} = await this.props.loadHWAddresses("kovan", 5, derivationPath);
+    const addresses = await this.props.loadHWAddresses(settings.hwNetwork, 100, derivationPath);
 
-    if (error) {
-      this.setState({connectivityError: true})
-    }
+    this.setState({connectivityError: true});
 
     this.page = {
       start: 0,
       end: 5
     };
 
-    this.setState({addresses});
+    this.setState({addresses: addresses.slice(0,5)});
   }
 
   retry = () => {
@@ -154,7 +154,7 @@ class HardWallet extends React.Component {
     };
 
     if (this.page.end === addresses.length) {
-      const {error} = await this.props.loadHWAddresses("kovan", this.page.end + 5, this.derivationPath);
+      const {error} = await this.props.loadHWAddresses(settings.hwNetwork, this.page.end + 5, this.derivationPath);
       if (error) {
         console.log("Error connecting with the device");
         return;
@@ -208,14 +208,13 @@ class HardWallet extends React.Component {
                   </ul>
 
                   <div className="pagination">
-                    <span onClick={() => this.previous(5)}>
+                    <span onClick={() => this.previous(5)} disabled={this.props.loadingAddress}>
                       <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
                     </span>
-                    <span onClick={() => this.next(5)}>
+                    <span onClick={() => this.next(5)} disabled={this.props.loadingAddress}>
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-
                   <button disabled={!this.selectedAddress || this.props.loadingAddress} onClick={this.props.importAddress}> UNLOCK WALLET {this.props.loadingAddress ? <Spinner /> : ''}</button>
                 </div>
               </section>

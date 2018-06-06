@@ -1162,17 +1162,11 @@ class App extends Component {
         hw.isConnected = true;
         return {hw};
       });
-      return {
-        addresses: accounts,
-        error: null
-      }
+      return accounts;
     } catch (e) {
       Blockchain.stopProvider();
       console.log(`Error connecting ${this.state.hw.option}`, e.message);
-      return {
-        addresses: [],
-        error: e,
-      }
+      return [];
     }
   }
 
@@ -1190,11 +1184,21 @@ class App extends Component {
       network.loadingAddress = true;
       return {network};
     }, async () => {
-      const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
-      Blockchain.setDefaultAccount(account);
-      this.checkNetwork();
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
-      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+      try {
+        const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
+        Blockchain.setDefaultAccount(account);
+        this.checkNetwork();
+        this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+        this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+      } catch (e) {
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          const hw = {...prevState.hw};
+          network.loadingAddress = false;
+          hw.addresses = [];
+          return {network, hw};
+        });
+      }
     });
   }
   //
