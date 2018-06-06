@@ -92,7 +92,8 @@ class App extends Component {
                 console.log('res.hash:', res.hash);
                 network = 'private';
             }
-            if (this.state.network.network !== network) {
+            if (!this.state.network.stopIntervals // To avoid race condition
+                && this.state.network.network !== network) {
               this.initNetwork(network);
             }
           }, () => {
@@ -129,7 +130,7 @@ class App extends Component {
     Blockchain.getAccounts().then(async accounts => {
       if (this.state.network.network && !this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
         const account = await Blockchain.getDefaultAccountByIndex(0);
-        if (this.state.network.network && !this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) { // To avoid race condition (we make sure nothing changed after getting the account)
+        if (!this.state.network.stopIntervals) { // To avoid race condition
           Blockchain.setDefaultAccount(account);
         }
       }
@@ -137,7 +138,7 @@ class App extends Component {
       this.setState(prevState => {
         const networkState = {...prevState.network};
         oldDefaultAccount = networkState.defaultAccount;
-        if (networkState.network) { // To avoid race condition (we make sure is still connected to a network)
+        if (!networkState.stopIntervals) { // To avoid race condition
           networkState.defaultAccount = Blockchain.getDefaultAccount();
         }
         return {network: networkState};
@@ -1141,6 +1142,7 @@ class App extends Component {
     this.setState(prevState => {
       const network = {...prevState.network};
       network.loadingAddress = true;
+      network.stopIntervals = false;
       return {network};
     }, async () => {
       await Blockchain.setWebClientProvider();
@@ -1168,6 +1170,7 @@ class App extends Component {
     this.setState(prevState => {
       const hw = {...prevState.hw};
       const network = {};
+      network.stopIntervals = true;
       network.isConnected = false;
       hw.addresses = [];
       hw.option = null;
@@ -1208,6 +1211,7 @@ class App extends Component {
     this.setState(prevState => {
       const network = {...prevState.network};
       network.loadingAddress = true;
+      network.stopIntervals = false;
       return {network};
     }, async () => {
       try {
