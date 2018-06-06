@@ -46,14 +46,15 @@ class DoTrade extends Component {
 
   showTradeAgainButton = () => {
     return (typeof this.props.transactions.proxy !== 'undefined' &&
-      (this.props.transactions.proxy.error || this.props.transactions.proxy.rejected)) ||
+      (this.props.transactions.proxy.error || this.props.transactions.proxy.rejected || this.props.transactions.proxy.errorDevice)) ||
       (typeof this.props.transactions.approval !== 'undefined' &&
-        (this.props.transactions.approval.error || this.props.transactions.approval.rejected)) ||
+        (this.props.transactions.approval.error || this.props.transactions.approval.rejected || this.props.transactions.approval.errorDevice)) ||
       (typeof this.props.transactions.trade !== 'undefined' &&
         !this.props.transactions.trade.requested &&
         (this.hasTxCompleted('trade')
           || this.props.transactions.trade.error
-          || this.props.transactions.trade.rejected));
+          || this.props.transactions.trade.rejected
+          || this.props.transactions.trade.errorDevice));
   }
 
   render() {
@@ -99,27 +100,31 @@ class DoTrade extends Component {
                         <span className="status label">Initiating transaction...</span><Spinner/>
                       </React.Fragment>
                       :
-                      this.props.transactions.proxy.rejected
+                      this.props.transactions.proxy.errorDevice
                         ?
-                        <span className="status label error">Rejected</span>
+                        <span className="status label error">Error connecting device</span>
                         :
-                        this.props.transactions.proxy.requested
+                        this.props.transactions.proxy.rejected
                           ?
-                          <React.Fragment>
-                            <span className="status label info">Sign transaction</span><Spinner/>
-                          </React.Fragment>
+                          <span className="status label error">Rejected</span>
                           :
-                          this.props.transactions.proxy.pending
+                          this.props.transactions.proxy.requested
                             ?
                             <React.Fragment>
-                              <span className="status label info">View on Etherscan</span><Spinner/>
+                              <span className="status label info">Sign transaction</span><Spinner/>
                             </React.Fragment>
                             :
-                            this.props.transactions.proxy.error
+                            this.props.transactions.proxy.pending
                               ?
-                              <span className="status label error">Failed</span>
+                              <React.Fragment>
+                                <span className="status label info">View on Etherscan</span><Spinner/>
+                              </React.Fragment>
                               :
-                              <span className="status label info">Confirmed</span>
+                              this.props.transactions.proxy.error
+                                ?
+                                <span className="status label error">Failed</span>
+                                :
+                                <span className="status label info">Confirmed</span>
                   }
                 </div>
               </div>
@@ -157,27 +162,31 @@ class DoTrade extends Component {
                           <span className="status label">Waiting</span>
                         </React.Fragment>
                       :
-                      this.props.transactions.approval.rejected
+                      this.props.transactions.approval.errorDevice
                         ?
-                        <span className="status label error">Rejected</span>
+                        <span className="status label error">Error connecting device</span>
                         :
-                        this.props.transactions.approval.requested
+                        this.props.transactions.approval.rejected
                           ?
-                          <React.Fragment>
-                            <span className="status label info">Signing transaction</span><Spinner/>
-                          </React.Fragment>
+                          <span className="status label error">Rejected</span>
                           :
-                          this.props.transactions.approval.pending
+                          this.props.transactions.approval.requested
                             ?
                             <React.Fragment>
-                              <span className="status label info">View on Etherscan</span><Spinner/>
+                              <span className="status label info">Signing transaction</span><Spinner/>
                             </React.Fragment>
                             :
-                            this.props.transactions.approval.error
+                            this.props.transactions.approval.pending
                               ?
-                              <span className="status label error">Failed</span>
+                              <React.Fragment>
+                                <span className="status label info">View on Etherscan</span><Spinner/>
+                              </React.Fragment>
                               :
-                              <span className="status label info">Confirmed</span>
+                              this.props.transactions.approval.error
+                                ?
+                                <span className="status label error">Failed</span>
+                                :
+                                <span className="status label info">Confirmed</span>
                   }
                 </div>
               </div>
@@ -206,35 +215,39 @@ class DoTrade extends Component {
                             <span className="status label">Waiting</span>
                           </React.Fragment>
                         :
-                        this.props.transactions.trade.rejected
-                          ?
-                          <React.Fragment>
-                            <span className="status label error">Rejected</span>
-                          </React.Fragment>
-                          :
-                          this.props.transactions.trade.requested
+                        this.props.transactions.trade.errorDevice
+                        ?
+                        <span className="status label error">Error connecting device</span>
+                        :
+                          this.props.transactions.trade.rejected
                             ?
                             <React.Fragment>
-                              <span className="status label">Signing transaction</span><Spinner/>
+                              <span className="status label error">Rejected</span>
                             </React.Fragment>
                             :
-                            this.props.transactions.trade.pending
+                            this.props.transactions.trade.requested
                               ?
                               <React.Fragment>
-                                <span className="status label info">View on Etherscan</span><Spinner/>
+                                <span className="status label">Signing transaction</span><Spinner/>
                               </React.Fragment>
                               :
-                              this.props.transactions.trade.error
+                              this.props.transactions.trade.pending
                                 ?
-                                <span className="status label error">Failed</span>
+                                <React.Fragment>
+                                  <span className="status label info">View on Etherscan</span><Spinner/>
+                                </React.Fragment>
                                 :
-                                this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                this.props.transactions.trade.error
                                   ?
-                                  <React.Fragment>
-                                      <span className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
-                                  </React.Fragment>
+                                  <span className="status label error">Failed</span>
                                   :
-                                  <span className="status label info">Confirmed</span>
+                                  this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                    ?
+                                    <React.Fragment>
+                                        <span className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
+                                    </React.Fragment>
+                                    :
+                                    <span className="status label info">Confirmed</span>
                     }
                   </React.Fragment>
                 </div>
@@ -278,36 +291,40 @@ class DoTrade extends Component {
                                 <span className="status label">Waiting</span>
                               </React.Fragment>
                             :
-                            this.props.transactions.trade.rejected
-                              ?
-                              <React.Fragment>
-                                <span className="status label error">Rejected</span>
-                              </React.Fragment>
-                              :
-                              this.props.transactions.trade.requested
+                            this.props.transactions.trade.errorDevice
+                            ?
+                            <span className="status label error">Error connecting device</span>
+                            :
+                              this.props.transactions.trade.rejected
                                 ?
                                 <React.Fragment>
-                                  <span className="status label">Signing transaction</span><Spinner/>
+                                  <span className="status label error">Rejected</span>
                                 </React.Fragment>
                                 :
-                                this.props.transactions.trade.pending
+                                this.props.transactions.trade.requested
                                   ?
                                   <React.Fragment>
-                                    <span className="status label info">View on Etherscan</span><Spinner/>
+                                    <span className="status label">Signing transaction</span><Spinner/>
                                   </React.Fragment>
                                   :
-                                  this.props.transactions.trade.error
+                                  this.props.transactions.trade.pending
                                     ?
-                                    <span className="status label error">Failed</span>
+                                    <React.Fragment>
+                                      <span className="status label info">View on Etherscan</span><Spinner/>
+                                    </React.Fragment>
                                     :
-                                    this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                    this.props.transactions.trade.error
                                       ?
-                                      <React.Fragment>
-                                      <span
-                                        className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
-                                      </React.Fragment>
+                                      <span className="status label error">Failed</span>
                                       :
-                                      <React.Fragment/>
+                                      this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                        ?
+                                        <React.Fragment>
+                                        <span
+                                          className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
+                                        </React.Fragment>
+                                        :
+                                        <React.Fragment/>
                         }
                       </React.Fragment>
                     }

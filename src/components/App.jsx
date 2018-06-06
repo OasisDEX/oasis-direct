@@ -445,7 +445,7 @@ class App extends Component {
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = {tx, pending: true, error: false, nonce, checkFromBlock, callbacks}
+    transactions[type] = {tx, pending: true, error: false, errorDevice: false, nonce, checkFromBlock, callbacks}
     if (type === 'trade') {
       transactions[type].amountSell = toBigNumber(-1);
       transactions[type].amountBuy = toBigNumber(-1);
@@ -515,10 +515,20 @@ class App extends Component {
     }
   }
 
+  logTransactionErrorDevice = type => {
+    const transactions = {...this.state.transactions};
+    transactions[type] = {errorDevice: true}
+    this.setState({transactions});
+  }
+
   logTransactionRejected = type => {
     const transactions = {...this.state.transactions};
     transactions[type] = {rejected: true}
     this.setState({transactions});
+  }
+
+  isErrorDevice = e => {
+    return e.message === 'invalid transport instance' || e.message === 'Error: Window closed';
   }
 
   returnToSetTrade = () => {
@@ -565,7 +575,11 @@ class App extends Component {
               if (!e) {
                 this.logPendingTransaction(tx, 'proxy', callbacks);
               } else {
-                this.logTransactionRejected('proxy');
+                if (this.isErrorDevice(e)) {
+                  this.logTransactionErrorDevice('proxy');
+                } else {
+                  this.logTransactionRejected('proxy');
+                }
               }
             });
           });
@@ -602,7 +616,11 @@ class App extends Component {
                 if (!e) {
                   this.logPendingTransaction(tx, 'approval', callbacks);
                 } else {
-                  this.logTransactionRejected('approval');
+                  if (this.isErrorDevice(e)) {
+                    this.logTransactionErrorDevice('approval');
+                  } else {
+                    this.logTransactionRejected('approval');
+                  }
                 }
               }]));
             }, e => {
@@ -626,7 +644,11 @@ class App extends Component {
             this.logPendingTransaction(tx, 'trade');
           } else {
             console.log(e);
-            this.logTransactionRejected('trade');
+            if (this.isErrorDevice(e)) {
+              this.logTransactionErrorDevice('trade');
+            } else {
+              this.logTransactionRejected('trade');
+            }
           }
         }]));
       }, () => {
@@ -645,7 +667,11 @@ class App extends Component {
             this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
           } else {
             console.log(e);
-            this.logTransactionRejected('trade');
+            if (this.isErrorDevice(e)) {
+              this.logTransactionErrorDevice('trade');
+            } else {
+              this.logTransactionRejected('trade');
+            }
           }
         }]));
       }, () => {
