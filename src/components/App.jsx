@@ -482,7 +482,7 @@ class App extends Component {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
               // The next line is to decrease the chances to have a wrong block height (infura nodes)
-              transactions[type].checkFromBlock = r.blockNumber && r.blockNumber < transactions[type].checkFromBlock;
+              transactions[type].checkFromBlock = r.blockNumber && r.blockNumber < transactions[type].checkFromBlock ? r.blockNumber : transactions[type].checkFromBlock;
               clearInterval(this.txInterval[tx]);
               return {transactions, showTxMessage: false};
             });
