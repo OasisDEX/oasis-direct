@@ -481,7 +481,6 @@ class App extends Component {
             this.setState((prevState, props) => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
-              transactions[type].checkFromBlock = r.blockNumber;
               clearInterval(this.txInterval[tx]);
               return {transactions, showTxMessage: false};
             });
