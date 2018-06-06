@@ -155,7 +155,10 @@ class HardWallet extends React.Component {
 
     if (this.page.end === addresses.length) {
       const {error} = await this.props.loadHWAddresses("kovan", this.page.end + 5, this.derivationPath);
-      if (error) console.log("Error connecting with the device"); //TODO: handle it somehow - probably some notification box? This happen with TREZOR.
+      if (error) {
+        console.log("Error connecting with the device");
+        return;
+      } //TODO: handle it somehow - probably some notification box? This happen with TREZOR.
 
       page.end = this.props.hw.addresses.length;
     }
