@@ -481,6 +481,8 @@ class App extends Component {
             this.setState((prevState, props) => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
+              // The next line is to decrease the chances to have a wrong block height (infura nodes)
+              transactions[type].checkFromBlock = r.blockNumber && r.blockNumber < transactions[type].checkFromBlock;
               clearInterval(this.txInterval[tx]);
               return {transactions, showTxMessage: false};
             });
