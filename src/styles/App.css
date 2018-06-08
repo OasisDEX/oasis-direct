@@ -342,7 +342,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(156, 156, 157, 0.08);
+  border: 1px solid #F0F0F0;
   border-radius: 6px;
 
   margin-top: 20px;
@@ -386,7 +386,7 @@
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
-  min-height: 64px;
+  min-height: 66px;
 
   padding: 14px 16px;
 }

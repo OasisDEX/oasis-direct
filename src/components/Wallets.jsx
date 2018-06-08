@@ -104,7 +104,7 @@ class Wallets extends React.Component {
           </section>
           : <section className="frame wallets">
             <div className="heading">
-              <h2>Select the Wallet you'd like to use</h2>
+              <h2>Select Wallet Client</h2>
             </div>
             <div className="decorator">
               <div className="content">
