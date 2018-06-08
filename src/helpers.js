@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from './web3';
-
+import jazzicon from 'jazzicon';
 
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
@@ -46,7 +46,8 @@ export const formatNumber = (number, decimals = false, isWei = true) => {
   }
 
   const parts = object.toString().split('.');
-  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? `.${parts[1]}` : '');
+  const decimalsWithoutTrailingZeros = parts[1] ? parts[1].replace(/[0]+$/,"") : "";
+  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (decimalsWithoutTrailingZeros ? `.${decimalsWithoutTrailingZeros}` : '');
 }
 
 export const formatDate = timestamp => {
@@ -103,4 +104,37 @@ export const methodSig = method => {
   return web3.sha3(method).substring(0, 10)
 }
 
-export const {toBigNumber , toWei, fromWei, isAddress, BigNumber} = web3;
+export const generateIcon = (address) => {
+  return jazzicon(28, address.substr(0,10));
+}
+
+export const fetchETHPriceInUSD = () => {
+  return fetch("https://api.coinmarketcap.com/v2/ticker/1027/")
+    .then(data => {
+      return data.json();
+    })
+    .then((json) => {
+      return json.data.quotes.USD.price;
+    });
+}
+
+//TODO: eventually find a better solution
+export const quotation = (from, to) => {
+  if (to === "dai" || from === "dai") {
+    const quote = "dai";
+    const base = to === "dai" ? from : to;
+    const isCounter = from !== "dai";
+
+    return {base, quote, isCounter};
+  }
+
+  if (to === "eth" || from === "eth") {
+    const quote = "eth";
+    const base = to === "eth" ? from : to;
+    const isCounter = from !== "eth";
+
+    return {base, quote, isCounter};
+  }
+};
+
+export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;
