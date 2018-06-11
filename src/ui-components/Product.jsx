@@ -5,7 +5,7 @@ export default class extends Component {
     const Logo = this.props.logo;
 
     return (
-      <div className="product-cover" onClick={this.props.onClick}>
+      <div className={`product-cover ${this.props.className}`} onClick={this.props.onClick}>
         <span className="logo"><Logo/></span>
         <span className="label">{this.props.label}</span>
       </div>

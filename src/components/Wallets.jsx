@@ -134,8 +134,8 @@ class Wallets extends React.Component {
                   </li>
                   <li className="list-item">
                     <div className="row-flex">
-                      <Product label="Ledger" logo={LedgerIcon} onClick={this.connectLedger}/>
-                      <Product label="Trezor" logo={TrezorIcon} onClick={this.connectTrezor}/>
+                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} onClick={this.connectLedger}/>
+                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} onClick={this.connectTrezor}/>
                     </div>
                   </li>
                 </ul>

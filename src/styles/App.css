@@ -386,7 +386,6 @@
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
-  min-height: 66px;
 
   padding: 14px 16px;
 }
@@ -487,6 +486,18 @@
   height: 38px;
 }
 
+.identicon {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #DEE4F4;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.identicon:hover {
+  border-color: #D1D6E6;
+}
+
 .token-balance {
   font-family: 'Open Sans', sans-serif;
   font-size: 10px;
@@ -571,6 +582,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .info-box.has-errors {
   border: 1px solid rgba(239, 83, 80, 0.20);
+  min-height: 74px;
 }
 
 .has-errors .label {
@@ -945,6 +957,7 @@ button[disabled] {
 
 .transaction-info-box .status.label {
   margin-left: auto;
+  margin-right: 8px;
 }
 
 .content {
@@ -1083,6 +1096,10 @@ a.no-pointer {
   color: #5B5B5C;
   letter-spacing: 0.5px;
   margin: 0 0 12px;
+}
+
+.transaction-result .content {
+  text-align: left;
 }
 
 .transaction-result .icon {

@@ -2,7 +2,7 @@ import React from 'react';
 
 const Spinner = (props) => {
 
-  const style = Object.assign({height: "14px", width:"14px"}, props.styles);
+  const style = Object.assign({height: "18px", width:"18px"}, props.styles);
 
 
   return (
