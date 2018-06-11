@@ -386,7 +386,6 @@
   border-bottom: 1px solid rgba(156, 156, 157, 0.08);
 
   width: 100%;
-  min-height: 66px;
 
   padding: 14px 16px;
 }
@@ -583,6 +582,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .info-box.has-errors {
   border: 1px solid rgba(239, 83, 80, 0.20);
+  min-height: 66px;
 }
 
 .has-errors .label {
