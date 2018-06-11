@@ -1097,6 +1097,10 @@ a.no-pointer {
   margin: 0 0 12px;
 }
 
+.transaction-result .content {
+  text-align: left;
+}
+
 .transaction-result .icon {
   display: inline-block;
   margin-right: 12px;
