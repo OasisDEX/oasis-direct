@@ -957,6 +957,7 @@ button[disabled] {
 
 .transaction-info-box .status.label {
   margin-left: auto;
+  margin-right: 8px;
 }
 
 .content {
