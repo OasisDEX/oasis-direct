@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import AccountSettings from './AccountSettings';
+import TokensSelector from './TokensSelector';
 import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon, BackIcon, Circle,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
-import web3 from "../web3"
 
 const settings = require('../settings');
 
@@ -153,230 +154,161 @@ class SetTrade extends Component {
   }
 
   render() {
-
-    // TODO: Extract as separate component
-    if (this.state.shouldDisplayWalletSelector)
-      return (
-        <div className="frame">
-          <div className="wallet-settings">
-            <button className="back" onClick={() => this.setState({shouldDisplayWalletSelector: false})}>
-              <Circle><BackIcon/></Circle>
-            </button>
-            <div className="heading">
-              <h2>Wallet Settings</h2>
-            </div>
-            <div className="content">
-              <div className="wallet-details">
-                <div>
-                  <IdentityIcon address={this.props.account}/>
-                  <span className="label">{web3.currentProvider.name}</span>
-                  <TokenAmount number={this.state.ethBalance} decimal={5} token={"ETH"}/>
-                </div>
-                <div className="address">
-                  <a target="_blank" rel="noopener noreferrer" href={`https://etherscan.io/address/${this.props.account}`}>{this.props.account}</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <button type="button" value="Disconnect" className="disconnect" onClick={this.props.onDisconnect}>
-            DISCONNECT
-          </button>
-        </div>
-      );
-
-    //TODO: Extract as separate component
-
-    if (this.state.shouldDisplayTokenSelector)
-      return (
-        <div className="frame">
-          <div className="token-selector">
-            <button className="close" onClick={() => this.setState({shouldDisplayTokenSelector: false})}/>
-            <div className="tokens-container">
-              <div className="tokens">
-                <div className="token-list">
-                  <div className='token' onClick={() => {
-                    this.select('eth')
+    return (
+      this.state.shouldDisplayWalletSelector
+      ?
+      <AccountSettings account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayWalletSelector: false})} onDisconnect={this.props.onDisconnect} />
+      :
+      this.state.shouldDisplayTokenSelector
+        ?
+        <TokensSelector tokens={tokens} balances={this.props.balances} select={this.select} back={() => this.setState({shouldDisplayTokenSelector: false})} />
+        :
+        <section className="frame">
+          <div className="heading">
+            <span style={identiconPlaceholderStyle}
+                  onClick={() => {
+                    this.setState({shouldDisplayWalletSelector: true});
                   }}>
-                    <span className="token-icon">{tokens.eth.icon}</span>
+              <IdentityIcon address={this.props.account}/>
+            </span>
+            <h2>Enter Order Details</h2>
+          </div>
+          <div
+            className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
+            <div className="info-box-row wrap">
+              {
+                this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
+                <span className="label">
+                  No orders available to {this.props.trade.errorOrders.type}&nbsp;
+                  <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
+                </span>
+              }
+              {
+                this.props.trade.errorInputSell &&
+                (
+                  this.props.trade.errorInputSell === 'funds'
+                    ?
+                    <span
+                      className="label"> You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet</span>
+                    :
+                    this.props.trade.errorInputSell === 'gasCost'
+                      ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
+                      : <span className="label">
+                          {tokens[this.props.trade.from].symbol}&nbsp;
+                          Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}
+                        </span>
+                )
+              }
+              {
+                !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
+                <span className="label">
+                  {tokens[this.props.trade.to].symbol}&nbsp;
+                  Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}
+                </span>
+              }
+              {
+                !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
+                <React.Fragment>
+                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                    <span className="label">Price </span>
+                    <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
+                                token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+                    </span>
+                  </span>
+                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                    <span className="label">Slippage Limit </span>
+                    <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                  </span>
+                  <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                  <span className="label">Gas cost</span>
                     {
-                      this.props.balances.eth
-                        ? <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3}
-                                       token={"ETH"}/>
+                      this.props.trade.txCost.gt(0)
+                        ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
                         : <Spinner/>
                     }
-                  </div>
+                  </span>
+                  <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                  <span className="label">Impact </span>
+                  <span
+                    className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf()}%</span>
+                  </span>
+                </React.Fragment>
+              }
+            </div>
+          </div>
+          <div className="content">
+            <form className="trade">
+              <div className="selected-token">
+                <div className="token" onClick={() => {
+                  this.pickToken('from')
+                }}>
+                  <span className="token-icon">{tokens[this.state.from].icon}</span>
                   {
-                    ['mkr', 'dai'].map((token, index) => {
-                      return (
-                        <div key={index} className='token' onClick={() => {
-                          this.select(token)
-                        }}>
-                          <span className="token-icon">{tokens[token].icon}</span>
-                          {
-                            this.props.balances[token]
-                              ? <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3}
-                                             token={token.toUpperCase()}/>
-                              : <Spinner/>
-                          }
-                        </div>
-                      )
-                    })
+                    !this.props.balances[tokens[this.state.from].symbol.toLowerCase()]
+                      ? <Spinner/>
+                      : <TokenAmount className="token-name" number={this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                                    decimal={3}
+                                    token={tokens[this.state.from].symbol}/>
                   }
                 </div>
+                <div>
+                  <input type="number"
+                        className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                        ref={(input) => this.amountPay = input}
+                        value={this.props.trade.amountPayInput || ''}
+                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
+                </div>
               </div>
-            </div>
-          </div>
-
-        </div>
-      );
-
-    return (
-      <section className="frame">
-        <div className="heading">
-          <span style={identiconPlaceholderStyle}
-                onClick={() => {
-                  this.setState({shouldDisplayWalletSelector: true});
+              <div className='separator'>
+                <span className="swap-tokens" onClick={this.swapTokens}>
+                  <SwapArrows/>
+                </span>
+              </div>
+              <div className="selected-token">
+                <div className="token" onClick={() => {
+                  this.pickToken('to');
                 }}>
-            <IdentityIcon address={this.props.account}/>
-          </span>
-          <h2>Enter Order Details</h2>
-        </div>
-        <div
-          className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
-          <div className="info-box-row wrap">
-            {
-              this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
-              <span className="label">
-                No orders available to {this.props.trade.errorOrders.type}&nbsp;
-                <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
-              </span>
-            }
-            {
-              this.props.trade.errorInputSell &&
-              (
-                this.props.trade.errorInputSell === 'funds'
-                  ?
-                  <span
-                    className="label"> You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet</span>
-                  :
-                  this.props.trade.errorInputSell === 'gasCost'
-                    ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
-                    : <span className="label">
-                        {tokens[this.props.trade.from].symbol}&nbsp;
-                        Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}
-                      </span>
-              )
-            }
-            {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
-              <span className="label">
-                {tokens[this.props.trade.to].symbol}&nbsp;
-                Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}
-              </span>
-            }
-            {
-              !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-              <React.Fragment>
-                <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
-                  <span className="label">Price </span>
-                  <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
-                               token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
-                  </span>
-                </span>
-                <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
-                  <span className="label">Slippage Limit </span>
-                  <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
-                </span>
-                <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
-                <span className="label">Gas cost</span>
+                  <span className="token-icon">{tokens[this.state.to].icon}</span>
                   {
-                    this.props.trade.txCost.gt(0)
-                      ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
-                      : <Spinner/>
+                    !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
+                      ? <Spinner/>
+                      : <TokenAmount className="token-name"
+                                    number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                    decimal={3}
+                                    token={tokens[this.state.to].symbol}/>
                   }
-                </span>
-                <span style={{paddingTop: "4px"}} className="holder half holder--spread">
-                <span className="label">Impact </span>
-                <span
-                  className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf()}%</span>
-                </span>
-              </React.Fragment>
-            }
+                </div>
+                <div>
+                  <input type="number"
+                        className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                        ref={(input) => this.amountBuy = input}
+                        value={this.props.trade.amountBuyInput || ''}
+                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
+                </div>
+              </div>
+            </form>
           </div>
-        </div>
-        <div className="content">
-          <form className="trade">
-            <div className="selected-token">
-              <div className="token" onClick={() => {
-                this.pickToken('from')
-              }}>
-                <span className="token-icon">{tokens[this.state.from].icon}</span>
-                {
-                  !this.props.balances[tokens[this.state.from].symbol.toLowerCase()]
-                    ? <Spinner/>
-                    : <TokenAmount className="token-name" number={this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
-                                   decimal={3}
-                                   token={tokens[this.state.from].symbol}/>
-                }
-              </div>
-              <div>
-                <input type="number"
-                       className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                       ref={(input) => this.amountPay = input}
-                       value={this.props.trade.amountPayInput || ''}
-                       onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
-              </div>
-            </div>
-            <div className='separator'>
-              <span className="swap-tokens" onClick={this.swapTokens}>
-                <SwapArrows/>
-              </span>
-            </div>
-            <div className="selected-token">
-              <div className="token" onClick={() => {
-                this.pickToken('to');
-              }}>
-                <span className="token-icon">{tokens[this.state.to].icon}</span>
-                {
-                  !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
-                    ? <Spinner/>
-                    : <TokenAmount className="token-name"
-                                   number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
-                                   decimal={3}
-                                   token={tokens[this.state.to].symbol}/>
-                }
-              </div>
-              <div>
-                <input type="number"
-                       className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                       ref={(input) => this.amountBuy = input}
-                       value={this.props.trade.amountBuyInput || ''}
-                       onChange={this.calculatePayAmount} placeholder="receive amount"/>
-              </div>
-            </div>
-          </form>
-        </div>
-        {
-          this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
-          <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
-               onClick={this.acceptTermsAndConditions}>
-            <div className="info-box-row">
-                <span>
-                  <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
-                  <span className="label">
-                    I agree to the <a href="OasisToS.pdf" target="_blank" onClick={(e) => {
-                    e.stopPropagation()
-                  }}>Terms of Service</a>
+          {
+            this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
+            <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
+                onClick={this.acceptTermsAndConditions}>
+              <div className="info-box-row">
+                  <span>
+                    <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
+                    <span className="label">
+                      I agree to the <a href="OasisToS.pdf" target="_blank" onClick={(e) => {
+                      e.stopPropagation()
+                    }}>Terms of Service</a>
+                    </span>
                   </span>
-                </span>
+              </div>
             </div>
-          </div>
-        }
-        <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
-                disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
-          START TRANSACTION
-        </button>
-      </section>
+          }
+          <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
+                  disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
+            START TRANSACTION
+          </button>
+        </section>
     )
   }
 }

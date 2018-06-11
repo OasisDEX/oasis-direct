@@ -31,6 +31,10 @@ export const getDefaultAccount = () => {
   return web3.eth.defaultAccount;
 }
 
+export const getCurrentProviderName = () => {
+  return web3.currentProvider.name;
+}
+
 export const getDefaultAccountByIndex = index => {
   return new Promise(async (resolve, reject) => {
     try {
