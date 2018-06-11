@@ -286,7 +286,7 @@ export class TrezorIcon extends PureComponent {
 
 export class IdentityIcon extends PureComponent {
   render = () => {
-    return <div className="icon" style={{width: "28px", height: "28px", borderRadius: "100%", overflow: "hidden"}}
+    return <div className="icon identicon"
                 dangerouslySetInnerHTML={{__html: generateIcon(this.props.address).innerHTML}}/>;
   }
 }

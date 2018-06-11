@@ -487,6 +487,18 @@
   height: 38px;
 }
 
+.identicon {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #DEE4F4;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.identicon:hover {
+  border-color: #D1D6E6;
+}
+
 .token-balance {
   font-family: 'Open Sans', sans-serif;
   font-size: 10px;
