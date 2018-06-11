@@ -93,7 +93,7 @@
   margin: 0;
 }
 
-.wallets .list .list-item .browser-wallet {
+.wallets .browser-wallet {
   display: flex;
   flex: 1 1 100%;
   justify-content: space-between;
@@ -105,19 +105,19 @@
   margin-bottom: 24px;
 }
 
-.wallets .list .list-item .browser-wallet .client-summary {
+.wallets .client-summary {
   display: inline-flex;
   text-transform: capitalize;
   align-items: center;
 }
 
-.wallets .list .list-item .browser-wallet .client-summary div {
+.wallets .browser-wallet .client-summary div {
   margin-left: 12px;
   display: inline-flex;
   flex-direction: column;
 }
 
-.wallets .list .list-item .browser-wallet .label.status {
+.wallets .browser-wallet .label.status {
   font-family: Montserrat, sans-serif;
   font-weight: 500;
   font-size: 10px;
@@ -126,7 +126,7 @@
   opacity: 0.4;
 }
 
-.wallets .list .list-item .browser-wallet .label {
+.wallets .browser-wallet .label {
   font-size: 14px;
   line-height: 14px;
   font-weight: 500;
@@ -134,7 +134,7 @@
   letter-spacing: 0.4px;
 }
 
-.wallets .list .list-item .browser-wallet button {
+.wallets .browser-wallet button {
   width: auto;
   padding: 0 15px;
   max-height: 28px;
@@ -145,7 +145,7 @@
   letter-spacing: 0.2px;
 }
 
-.wallets .list .list-item .browser-wallet button:hover {
+.wallets .browser-wallet button:hover {
   background-color: #4385F7;
   border: 1px solid #356AC4;
   box-shadow: 0 0 2px 0 rgba(0,0,0,0.25);
