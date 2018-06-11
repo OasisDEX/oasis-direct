@@ -10,7 +10,7 @@ import HardWallet from "./HardWallet";
 class Widget extends Component {
   render() {
     return (
-      <div className="Widget">
+      <div className={`Widget ${this.props.section}`}>
         {
           this.props.hw.showModal
             ? <HardWallet loadingAddress={this.props.loadingAddress}

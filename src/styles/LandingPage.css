@@ -13,8 +13,6 @@ body {
 
   height: 100%;
   width: 100%;
-
-  background: #3F51B5;
 }
 
 header {
@@ -29,6 +27,10 @@ header {
 
   padding-top: 50px;
   padding-bottom: 50px;
+}
+
+.bg-section {
+  background: #3F51B5;
 }
 
 .List {
