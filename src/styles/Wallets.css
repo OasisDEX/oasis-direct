@@ -61,6 +61,18 @@
   width: 100%;
 }
 
+.wallets .hw-wallet:hover {
+  border-color: #D1D6E6;
+}
+
+.wallets .hw-wallet:hover .label {
+  color: #8B8B8C;
+}
+
+.wallets .hw-wallet:hover .logo  svg *{
+  fill: #8B8B8C;
+}
+
 .wallets .list .list-item {
   padding: 0;
   border: 0;
