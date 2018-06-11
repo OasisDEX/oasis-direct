@@ -582,7 +582,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .info-box.has-errors {
   border: 1px solid rgba(239, 83, 80, 0.20);
-  min-height: 66px;
+  min-height: 74px;
 }
 
 .has-errors .label {

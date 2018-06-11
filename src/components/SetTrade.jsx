@@ -277,17 +277,17 @@ class SetTrade extends Component {
             {
               !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
               <React.Fragment>
-                <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                   <span className="label">Price </span>
                   <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
                                token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
                   </span>
                 </span>
-                <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                   <span className="label">Slippage Limit </span>
                   <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
                 </span>
-                <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                 <span className="label">Gas cost</span>
                   {
                     this.props.trade.txCost.gt(0)
