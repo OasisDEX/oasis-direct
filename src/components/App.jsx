@@ -223,7 +223,7 @@ class App extends Component {
   saveBalance = token => {
     if (token === 'weth') {
       Blockchain.getEthBalanceOf(this.state.network.defaultAccount).then(r => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const balances = {...prevState.balances};
           balances.eth = r;
           return {balances};
@@ -232,7 +232,7 @@ class App extends Component {
       });
     } else {
       Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const balances = {...prevState.balances};
           balances[token] = r;
           return {balances};
@@ -380,7 +380,7 @@ class App extends Component {
     if (this.state.transactions[type].tx !== newTx) {
       console.log(`Transaction ${this.state.transactions[type].tx} was replaced by ${newTx}.`);
     }
-    this.setState((prevState, props) => {
+    this.setState(prevState => {
       const transactions = {...prevState.transactions};
       transactions[type].tx = newTx;
       return {transactions};
@@ -416,7 +416,7 @@ class App extends Component {
       }
     });
     if (value.gt(0)) {
-      this.setState((prevState, props) => {
+      this.setState(prevState => {
         const transactions = {...prevState.transactions};
         transactions.trade[operation === 'buy' ? 'amountBuy' : 'amountSell'] = value;
         return {transactions};
@@ -480,7 +480,7 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         Blockchain.getTransaction(tx).then(r => {
           if (r) {
-            this.setState((prevState, props) => {
+            this.setState(prevState => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
               // The next line is to decrease the chances to have a wrong block height (infura nodes)
@@ -534,7 +534,7 @@ class App extends Component {
   }
 
   returnToSetTrade = () => {
-    this.setState((prevState, props) => {
+    this.setState(prevState => {
       const trade = {...prevState.trade};
       const transactions = {};
       trade.step = 1;
@@ -567,7 +567,7 @@ class App extends Component {
         this.logRequestTransaction('proxy').then(() => {
           const proxyRegistry = Blockchain.objects.proxyRegistry;
           callbacks = [['setProxyAddress', callbacks]];
-          this.setState((prevState, props) => {
+          this.setState(prevState => {
             const trade = {...prevState.trade};
             trade.step = 2;
             trade.txs = 3;
@@ -595,7 +595,7 @@ class App extends Component {
     const valueObj = toBigNumber(toWei(value));
     Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
       if (r.gte(valueObj)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
           trade.step = 2;
           trade.txs = trade.txs ? trade.txs : 1;
@@ -604,7 +604,7 @@ class App extends Component {
           callbacks.forEach(callback => this.executeCallback(callback));
         });
       } else {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
           trade.step = 2;
           trade.txs = trade.txs ? trade.txs : 2;
@@ -686,7 +686,7 @@ class App extends Component {
     const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
     const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
     if (this.state.trade.from === 'eth') {
-      this.setState((prevState, props) => {
+      this.setState(prevState => {
         const trade = {...prevState.trade};
         trade.step = 2;
         trade.txs = 1;
@@ -713,7 +713,7 @@ class App extends Component {
   }
 
   cleanInputs = () => {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const trade = {...prevState.trade};
       trade.amountBuy = toBigNumber(0);
       trade.amountPay = toBigNumber(0);
@@ -838,7 +838,7 @@ class App extends Component {
                 :
                 null;
               if (errorInputSell || errorOrders) {
-                this.setState((prevState, props) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
                   if (trade.rand === rand) {
                     trade.errorInputSell = errorInputSell;
@@ -861,7 +861,7 @@ class App extends Component {
               const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
 
               if (calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
-                this.setState((prevState) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
                   if (trade.rand === rand) {
                     trade.amountBuyInput = calculatedReceiveValue.valueOf();
@@ -893,7 +893,7 @@ class App extends Component {
 
   calculatePayAmount = (from, to, amount) => {
     const rand = Math.random();
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const trade = {...prevState.trade};
       trade.rand = rand;
       trade.from = from;
@@ -1024,7 +1024,7 @@ class App extends Component {
 
   checkIfOneCanPayForGas = (balance, expenses, rand) => {
     if (balance.lte(expenses)) {
-      this.setState((prevState) => {
+      this.setState(prevState => {
         const trade = {...prevState.trade};
         if (trade.rand === rand) {
           trade.errorInputSell = 'gasCost';
