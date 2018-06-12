@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import AccountSettings from './AccountSettings';
+import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
   Ether, MKR, DAI, SwapArrows, IdentityIcon,
@@ -45,7 +45,7 @@ class SetTrade extends Component {
       to: this.props.trade.to,
       selectedSide: null,
       shouldDisplayTokenSelector: false,
-      shouldDisplayWalletSelector: false,
+      shouldDisplayActiveConnectionDetails: false,
       hasAcceptedTerms: false,
       priceInUSD: 0
     }
@@ -155,9 +155,9 @@ class SetTrade extends Component {
 
   render() {
     return (
-      this.state.shouldDisplayWalletSelector
+      this.state.shouldDisplayActiveConnectionDetails
       ?
-      <AccountSettings account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayWalletSelector: false})} onDisconnect={this.props.onDisconnect} />
+      <ActiveConnection account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} onDisconnect={this.props.onDisconnect} />
       :
       this.state.shouldDisplayTokenSelector
         ?
@@ -167,7 +167,7 @@ class SetTrade extends Component {
           <div className="heading">
             <span style={identiconPlaceholderStyle}
                   onClick={() => {
-                    this.setState({shouldDisplayWalletSelector: true});
+                    this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>
               <IdentityIcon address={this.props.account}/>
             </span>

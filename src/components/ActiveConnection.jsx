@@ -6,7 +6,7 @@ import TokenAmount from './TokenAmount';
 import * as Blockchain from "../blockchainHandler";
 import { etherscanAddress } from '../helpers';
 
-class AccountSettings extends React.Component {
+class ActiveConnection extends React.Component {
   render() {
     return (
       <div className="frame">
@@ -15,7 +15,7 @@ class AccountSettings extends React.Component {
             <Circle><BackIcon/></Circle>
           </button>
           <div className="heading">
-            <h2>Wallet Settings</h2>
+            <h2>Active Wallet Connection</h2>
           </div>
           <div className="content">
             <div className="wallet-details">
@@ -38,4 +38,4 @@ class AccountSettings extends React.Component {
   }
 }
 
-export default AccountSettings;
+export default ActiveConnection;
