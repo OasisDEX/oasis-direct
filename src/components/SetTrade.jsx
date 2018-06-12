@@ -11,13 +11,6 @@ import * as Blockchain from "../blockchainHandler";
 
 const settings = require('../settings');
 
-const identiconPlaceholderStyle = {
-  cursor: 'pointer',
-  position: "absolute",
-  top: "18px",
-  left: "22px"
-}
-
 //TODO: make this bound to the token selector.
 const tokens = {
   eth: {
@@ -174,7 +167,7 @@ class SetTrade extends Component {
         :
         <section className="frame">
           <div className="heading">
-            <span style={identiconPlaceholderStyle}
+            <span className="identicon-placeholder"
                   onClick={() => {
                     this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>

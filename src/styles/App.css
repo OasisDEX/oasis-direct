@@ -491,6 +491,13 @@
   height: 38px;
 }
 
+.identicon-placeholder {
+  position: absolute;
+  cursor: pointer;
+  top: 18px;
+  left: 22px;
+}
+
 .identicon {
   height: 100%;
   width: 100%;
@@ -695,11 +702,12 @@ input.has-errors {
   color: #969697;
 }
 
-.wallet-settings. .wallet-details .address {
-  display: inline-block;
-  white-space: nowrap;
+.address {
+  width: 100%;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: left;
 }
 
 .wallet-settings .wallet-details a {

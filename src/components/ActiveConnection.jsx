@@ -24,9 +24,7 @@ class ActiveConnection extends React.Component {
                 <span className="label">{Blockchain.getCurrentProviderName()} on {this.props.network}</span>
                 <TokenAmount number={this.props.ethBalance} decimal={5} token={"ETH"}/>
               </div>
-              <div className="address">
-                {etherscanAddress(this.props.network, this.props.account, this.props.account)}
-              </div>
+              {etherscanAddress(this.props.network, this.props.account, this.props.account)}
             </div>
           </div>
         </div>

@@ -89,7 +89,7 @@ export const etherscanUrl = network => {
 }
 
 export const etherscanAddress = (network, text, address) => {
-  return <a href={ `${etherscanUrl(network)}/address/${address}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+  return <a className="address" href={ `${etherscanUrl(network)}/address/${address}` } target="_blank" rel="noopener noreferrer">{ text }</a>
 }
 
 export const etherscanTx = (network, text, tx) => {
