@@ -149,6 +149,14 @@ class SetTrade extends Component {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
   }
 
+  priceImpact = () => this.props.trade.bestPriceOffer
+    .minus(this.props.trade.price)
+    .abs()
+    .div(this.props.trade.bestPriceOffer)
+    .times(100)
+    .round(2)
+    .valueOf();
+
   debug = (value) => {
     console.log(value);
     return value;
@@ -230,8 +238,8 @@ class SetTrade extends Component {
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Price Impact</span>
-                  <span
-                    className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(2).valueOf()}%</span>
+                  <span style={{color:this.priceImpact() > 5 ? "#E53935" : "inherit"}}
+                    className='value'>{this.priceImpact()}%</span>
                   </span>
                 </React.Fragment>
               }
