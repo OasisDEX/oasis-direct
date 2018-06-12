@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
@@ -12,7 +12,8 @@ import * as Blockchain from "../blockchainHandler";
 const settings = require('../settings');
 
 const identiconPlaceholderStyle = {
-  cursor: 'pointer', position: "absolute",
+  cursor: 'pointer',
+  position: "absolute",
   top: "18px",
   left: "22px"
 }
@@ -169,7 +170,7 @@ class SetTrade extends Component {
                   onClick={() => {
                     this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>
-              <IdentityIcon address={this.props.account}/>
+              <Circle><IdentityIcon address={this.props.account}/></Circle>
             </span>
             <h2>Enter Order Details</h2>
           </div>

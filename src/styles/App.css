@@ -487,9 +487,8 @@
 }
 
 .identicon {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #DEE4F4;
+  height: 100%;
+  width: 100%;
   border-radius: 100%;
   overflow: hidden;
 }
@@ -669,8 +668,8 @@ input.has-errors {
 }
 
 .wallet-settings .wallet-details .icon {
-  width: 24px !important;
-  height: 24px !important;
+  width: 24px;
+  height: 24px;
   margin-right: 12px !important;
 }
 
