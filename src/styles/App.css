@@ -138,6 +138,12 @@
   margin-top: 24px;
 }
 
+.frame.finalize .info-box .info-box-row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 16px;
+}
+
 .frame.finalize .content {
   flex-direction: column;
 }
@@ -852,7 +858,7 @@ button[disabled] {
   border: 1px solid rgba(230, 230, 230, 0.60);
   border-radius: 4px;
 
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .transaction-info-box.collapse {
