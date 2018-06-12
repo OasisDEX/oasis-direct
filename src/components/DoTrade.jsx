@@ -92,7 +92,7 @@ class DoTrade extends Component {
                   <span className={`icon ${this.hasTxCompleted('proxy') ? 'success' : ''}`}>
                     <AccountIcon/>
                   </span>
-                  <span className="label">Create Account</span>
+                  <span className="label">Create Proxy</span>
                   {
                     typeof this.props.transactions.proxy === 'undefined'
                       ?
@@ -200,7 +200,7 @@ class DoTrade extends Component {
                       <span className={`icon ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
                         <AccountIcon/>
                       </span>
-                  <span className="label">Create Account</span>
+                  <span className="label">Create Proxy</span>
                   <React.Fragment>
                     {
                       typeof this.props.transactions.trade === 'undefined'
