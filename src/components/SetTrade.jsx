@@ -228,9 +228,9 @@ class SetTrade extends Component {
                     }
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
-                  <span className="label">Impact </span>
+                  <span className="label">Price Impact</span>
                   <span
-                    className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(3).valueOf()}%</span>
+                    className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(2).valueOf()}%</span>
                   </span>
                 </React.Fragment>
               }
