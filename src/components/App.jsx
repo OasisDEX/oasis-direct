@@ -760,8 +760,10 @@ class App extends Component {
   }
 
   calculateBuyAmount = (from, to, amount) => {
-    this.setState((prevState) => {
+    const rand = Math.random();
+    this.setState(prevState => {
       const trade = {...prevState.trade};
+      trade.rand = rand;
       trade.from = from;
       trade.to = to;
       trade.amountBuy = toBigNumber(0);
@@ -779,18 +781,22 @@ class App extends Component {
       return {trade};
     }, () => {
       if (toBigNumber(amount).eq(0)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.amountBuy = fromWei(toBigNumber(0));
-          trade.amountBuyInput = '';
+          if (trade.rand === rand) {
+            trade.amountBuy = fromWei(toBigNumber(0));
+            trade.amountBuyInput = '';
+          }
         });
         return;
       }
       const minValue = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
       if (this.state.trade.amountPay.lt(minValue)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
+          if (trade.rand === rand) {
+            trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
+          }
           return {trade};
         });
         return;
@@ -806,10 +812,12 @@ class App extends Component {
 
             this.setState(prevState => {
               let trade = {...prevState.trade};
-              trade.amountBuy = calculatedReceiveValue;
-              trade.amountBuyInput = trade.amountBuy.valueOf();
-              trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
-              trade.bestPriceOffer = bestPriceOffer;
+              if (trade.rand === rand) {
+                trade.amountBuy = calculatedReceiveValue;
+                trade.amountBuyInput = trade.amountBuy.valueOf();
+                trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade.bestPriceOffer = bestPriceOffer;
+              }
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -831,8 +839,10 @@ class App extends Component {
               if (errorInputSell || errorOrders) {
                 this.setState((prevState, props) => {
                   const trade = {...prevState.trade};
-                  trade.errorInputSell = errorInputSell;
-                  trade.errorOrders = errorOrders;
+                  if (trade.rand === rand) {
+                    trade.errorInputSell = errorInputSell;
+                    trade.errorOrders = errorOrders;
+                  }
                   return {trade};
                 });
                 return;
@@ -852,15 +862,17 @@ class App extends Component {
               if (calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
                 this.setState((prevState) => {
                   const trade = {...prevState.trade};
-                  trade.amountBuyInput = calculatedReceiveValue.valueOf();
-                  trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
+                  if (trade.rand === rand) {
+                    trade.amountBuyInput = calculatedReceiveValue.valueOf();
+                    trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
+                  }
                   return {trade};
                 });
                 return;
               }
 
 
-              let expenses = await this.estimateAllGasCosts('sellAll', from, to, amount);
+              let expenses = await this.estimateAllGasCosts('sellAll', from, to, amount, rand);
               let ethBalance = balance;
 
               if (this.state.trade.from === 'eth') {
@@ -869,7 +881,7 @@ class App extends Component {
                 ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
 
-              this.checkIfOneCanPayForGas(ethBalance, expenses);
+              this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
             });
           } else {
             console.log(e);
@@ -879,8 +891,10 @@ class App extends Component {
   }
 
   calculatePayAmount = (from, to, amount) => {
+    const rand = Math.random();
     this.setState((prevState) => {
       const trade = {...prevState.trade};
+      trade.rand = rand;
       trade.from = from;
       trade.to = to;
       trade.amountBuy = toBigNumber(amount);
@@ -898,18 +912,22 @@ class App extends Component {
       return {trade};
     }, () => {
       if (toBigNumber(amount).eq(0)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.amountPay = fromWei(toBigNumber(0));
-          trade.amountPayInput = '';
+          if (trade.rand === rand) {
+            trade.amountPay = fromWei(toBigNumber(0));
+            trade.amountPayInput = '';
+          }
         });
         return;
       }
       const minValue = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
       if (this.state.trade.amountBuy.lt(minValue)) {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
+          if (trade.rand === rand) {
+            trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
+          }
           return {trade};
         });
         return;
@@ -923,12 +941,14 @@ class App extends Component {
             const calculatedPayValue = fromWei(toBigNumber(r));
             const bestPriceOffer = await this.getBestPriceOffer(this.state.trade.from, this.state.trade.to);
 
-            this.setState((prevState) => {
+            this.setState(prevState => {
               let trade = {...prevState.trade};
-              trade.amountPay = calculatedPayValue;
-              trade.amountPayInput = trade.amountPay.valueOf();
-              trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
-              trade.bestPriceOffer = bestPriceOffer;
+              if (trade.rand === rand) {
+                trade.amountPay = calculatedPayValue;
+                trade.amountPayInput = trade.amountPay.valueOf();
+                trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade.bestPriceOffer = bestPriceOffer;
+              }
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -948,10 +968,12 @@ class App extends Component {
                 :
                 null;
               if (errorInputSell || errorOrders) {
-                this.setState((prevState, props) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.errorInputSell = errorInputSell;
-                  trade.errorOrders = errorOrders;
+                  if (trade.rand === rand) {
+                    trade.errorInputSell = errorInputSell;
+                    trade.errorOrders = errorOrders;
+                  }
                   return {trade};
                 });
                 return;
@@ -970,16 +992,18 @@ class App extends Component {
               const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
 
               if (calculatedPayValue.lt(calculatePayValueMin)) {
-                this.setState((prevState) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.amountPayInput = calculatedPayValue.valueOf();
-                  trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
+                  if (trade.rand === rand) {
+                    trade.amountPayInput = calculatedPayValue.valueOf();
+                    trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
+                  }
                   return {trade};
                 });
                 return;
               }
 
-              let expenses = await this.estimateAllGasCosts('buyAll', from, to, amount);
+              let expenses = await this.estimateAllGasCosts('buyAll', from, to, amount, rand);
               let ethBalance = balance;
 
               if (this.state.trade.from === 'eth') {
@@ -988,7 +1012,7 @@ class App extends Component {
                 ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
 
-              this.checkIfOneCanPayForGas(ethBalance, expenses);
+              this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
             });
           } else {
             console.log(e);
@@ -997,17 +1021,19 @@ class App extends Component {
     });
   }
 
-  checkIfOneCanPayForGas = (balance, expenses) => {
+  checkIfOneCanPayForGas = (balance, expenses, rand) => {
     if (balance.lte(expenses)) {
       this.setState((prevState) => {
         const trade = {...prevState.trade};
-        trade.errorInputSell = 'gasCost';
+        if (trade.rand === rand) {
+          trade.errorInputSell = 'gasCost';
+        }
         return {trade};
       });
     }
   };
 
-  estimateAllGasCosts = async (operation, from, to, amount) => {
+  estimateAllGasCosts = async (operation, from, to, amount, rand) => {
     let hasAllowance = true;
     let action = null;
     let data = null;
@@ -1061,10 +1087,10 @@ class App extends Component {
       from: addrFrom
     });
 
-    return await this.saveCost(txs);
+    return await this.saveCost(txs, rand);
   }
 
-  saveCost = (txs = []) => {
+  saveCost = (txs = [], rand) => {
     const promises = [];
     let total = toBigNumber(0);
     txs.forEach(tx => {
@@ -1074,12 +1100,13 @@ class App extends Component {
       costs.forEach(cost => {
         total = total.add(cost);
       });
-      this.setState((prevState, props) => {
+      this.setState(prevState => {
         const trade = {...prevState.trade};
-        trade.txCost = fromWei(total);
+        if (trade.rand === rand) {
+          trade.txCost = fromWei(total);
+        }
         return {trade};
       });
-
       return total;
     })
   }
