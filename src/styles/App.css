@@ -143,6 +143,10 @@
   padding-bottom: 8px;
 }
 
+.frame.finalize .info-box .info-box-row .holder {
+  padding: 0;
+}
+
 .frame.finalize .content {
   flex-direction: column;
 }
