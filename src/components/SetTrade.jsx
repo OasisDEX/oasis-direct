@@ -238,7 +238,7 @@ class SetTrade extends Component {
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Price Impact</span>
-                  <span style={{color:this.priceImpact() > 5 ? "#E53935" : "inherit"}}
+                  <span style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}
                     className='value'>{this.priceImpact()}%</span>
                   </span>
                 </React.Fragment>

@@ -1128,6 +1128,7 @@ a.no-pointer {
   color: #448AFF;
   letter-spacing: 0.7px;
   text-align: right;
+  margin-right: 8px;
 }
 
 .metamask--big {
