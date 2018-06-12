@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import AccountSettings from './AccountSettings';
+import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
@@ -10,12 +10,6 @@ import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
 
 const settings = require('../settings');
-
-const identiconPlaceholderStyle = {
-  cursor: 'pointer', position: "absolute",
-  top: "18px",
-  left: "22px"
-}
 
 //TODO: make this bound to the token selector.
 const tokens = {
@@ -45,7 +39,7 @@ class SetTrade extends Component {
       to: this.props.trade.to,
       selectedSide: null,
       shouldDisplayTokenSelector: false,
-      shouldDisplayWalletSelector: false,
+      shouldDisplayActiveConnectionDetails: false,
       hasAcceptedTerms: false,
       priceInUSD: 0
     }
@@ -148,6 +142,14 @@ class SetTrade extends Component {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
   }
 
+  priceImpact = () => this.props.trade.bestPriceOffer
+    .minus(this.props.trade.price)
+    .abs()
+    .div(this.props.trade.bestPriceOffer)
+    .times(100)
+    .round(2)
+    .valueOf();
+
   debug = (value) => {
     console.log(value);
     return value;
@@ -155,9 +157,9 @@ class SetTrade extends Component {
 
   render() {
     return (
-      this.state.shouldDisplayWalletSelector
+      this.state.shouldDisplayActiveConnectionDetails
       ?
-      <AccountSettings account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayWalletSelector: false})} onDisconnect={this.props.onDisconnect} />
+      <ActiveConnection account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} onDisconnect={this.props.onDisconnect} />
       :
       this.state.shouldDisplayTokenSelector
         ?
@@ -165,11 +167,11 @@ class SetTrade extends Component {
         :
         <section className="frame">
           <div className="heading">
-            <span style={identiconPlaceholderStyle}
+            <span className="identicon-placeholder"
                   onClick={() => {
-                    this.setState({shouldDisplayWalletSelector: true});
+                    this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>
-              <IdentityIcon address={this.props.account}/>
+              <Circle><IdentityIcon address={this.props.account}/></Circle>
             </span>
             <h2>Enter Order Details</h2>
           </div>
@@ -229,8 +231,8 @@ class SetTrade extends Component {
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Price Impact</span>
-                  <span
-                    className='value'>{this.props.trade.bestPriceOffer.minus(this.props.trade.price).abs().div(this.props.trade.bestPriceOffer).times(100).round(2).valueOf()}%</span>
+                  <span style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}
+                    className='value'>{this.priceImpact()}%</span>
                   </span>
                 </React.Fragment>
               }

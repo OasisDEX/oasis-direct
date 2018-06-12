@@ -27,14 +27,14 @@
 
 .hard-wallet-addresses .content .list-item:hover,
 .hard-wallet-addresses .content .list-item.selected {
-  background: rgba(222, 228, 244, 0.08);
+  background: #F7FAFF;
 }
 
 .hard-wallet-addresses .content .list-item:hover .balance,
 .hard-wallet-addresses .content .list-item:hover .address,
 .hard-wallet-addresses .content .list-item.selected .balance,
 .hard-wallet-addresses .content .list-item.selected .address {
-  color: #656566;
+  color: #3F3F40;
 }
 
 .hard-wallet-addresses .content .list-item .balance {

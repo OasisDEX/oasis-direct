@@ -37,26 +37,24 @@ class Congratulation extends Component {
 
       </h3>
       <div className="content">
-        <pre>
-                <span className="label">
-                  You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;
-                  <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
-                               token={this.props.quotation.base.toUpperCase()}/>&nbsp;
-                  {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
-                  <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
-                               token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
-                  by paying&nbsp;
-                  <span className="value">
-                  {
-                    this.props.isCalculatingGas
-                      ? <span><Spinner/></span>
-                      : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={'USD'}/>
-                  }
-                    &nbsp;
-                  </span>
-                  gas cost
-                </span>
-        </pre>
+        <span className="label">
+          You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;
+          <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
+                       token={this.props.quotation.base.toUpperCase()}/>&nbsp;
+          {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
+          <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
+                       token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
+          <br/>
+          by paying&nbsp;
+          <span className="value">
+            {
+              this.props.isCalculatingGas
+                ? <span><Spinner/></span>
+                : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={'USD'}/>
+            }&nbsp;
+          </span>
+          gas cost
+        </span>
       </div>
     </div>
   )

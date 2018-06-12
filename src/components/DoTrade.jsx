@@ -244,7 +244,7 @@ class DoTrade extends Component {
                                   this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                                     ?
                                     <React.Fragment>
-                                        <span className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
+                                        <span className="status label info">Success.<br/>Loading data...</span><Spinner/>
                                     </React.Fragment>
                                     :
                                     <span className="status label info">Confirmed</span>
@@ -276,7 +276,7 @@ class DoTrade extends Component {
                                    token={tokens[this.props.trade.from].symbol}/>
                     </span>
                     {
-                      ((this.props.proxy && this.props.trade.txs === 1) || this.props.trade.txs > 1) &&
+                      (this.props.trade.proxy || this.props.trade.from !=="eth") &&
                       <React.Fragment>
                         {
                           typeof this.props.transactions.trade === 'undefined'
@@ -321,7 +321,7 @@ class DoTrade extends Component {
                                         ?
                                         <React.Fragment>
                                         <span
-                                          className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
+                                          className="status label info">Success.<br/>Loading data...</span><Spinner/>
                                         </React.Fragment>
                                         :
                                         <React.Fragment/>
@@ -358,8 +358,9 @@ class DoTrade extends Component {
                 </span>
                 </div>
               </div>
+
               : <React.Fragment/>
-              : <Congratulation hasStatus={((this.props.trade.proxy && this.props.trade.txs === 1) || this.props.trade.txs > 1)}
+              : <Congratulation hasStatus={this.props.trade.proxy || this.props.trade.from !=="eth"} //THIS IS A FRICKIN HACK!
                                 isCalculatingGas={
                                   (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined')
                                   || typeof this.props.transactions.trade.gasPrice === 'undefined'
