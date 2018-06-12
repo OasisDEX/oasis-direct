@@ -57,6 +57,14 @@ class DoTrade extends Component {
           || this.props.transactions.trade.errorDevice));
   }
 
+  priceImpact = () =>  this.props.trade.bestPriceOffer
+    .minus(this.props.trade.price)
+    .abs()
+    .div(this.props.trade.bestPriceOffer)
+    .times(100)
+    .round(2)
+    .valueOf();
+
   render() {
     return (
       <section className="frame finalize">
@@ -67,10 +75,31 @@ class DoTrade extends Component {
           <div className="info-box-row">
             <span className="holder">
               <span className="label">
-              Current Estimated Price
+                Price
               </span>
               <TokenAmount number={toWei(this.props.trade.price)}
                              token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+
+            </span>
+            <span className="holder">
+              <span className="label">
+                Impact
+              </span>
+              <span className="value" style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}>
+                {
+                 this.priceImpact()
+                }%
+              </span>
+            </span>
+            <span className="holder">
+              <span className="label">
+                Slippage
+              </span>
+              <span className="value">
+                {
+                  settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort((a, b) => a > b).join('')]
+                }%
+              </span>
             </span>
           </div>
         </div>
