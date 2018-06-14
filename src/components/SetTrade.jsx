@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
@@ -167,12 +168,15 @@ class SetTrade extends Component {
         :
         <section className="frame">
           <div className="heading">
-            <span className="identicon-placeholder"
+            <span data-tip className="identicon-placeholder"
                   onClick={() => {
                     this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>
               <Circle><IdentityIcon address={this.props.account}/></Circle>
             </span>
+            <ReactTooltip className="tooltip-theme ">
+              {this.props.network}
+            </ReactTooltip>
             <h2>Enter Order Details</h2>
           </div>
           <div

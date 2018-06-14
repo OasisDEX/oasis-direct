@@ -721,6 +721,10 @@ input.has-errors {
   text-decoration: none;
 }
 
+.wallet-settings .wallet-details .address {
+  max-width: min-content;
+}
+
 .wallet-settings .wallets {
   margin-top: 32px;
 }
@@ -760,6 +764,10 @@ button.back {
 }
 
 button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
   background-color: #448AFF;
   color: white;
   border: 1px solid #3E7BE6;
