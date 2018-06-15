@@ -144,7 +144,11 @@ class App extends Component {
         return {network: networkState};
       }, () => {
         if (this.state.network.defaultAccount && oldDefaultAccount !== this.state.network.defaultAccount) {
-          this.initContracts();
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.loadingAddress = true;
+            return {network: networkState};
+          }, () => this.initContracts());
         }
       });
     }, () => {});

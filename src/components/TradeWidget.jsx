@@ -6,12 +6,13 @@ import DoTrade from './DoTrade';
 class TradeWidget extends Component {
   render() {
     return (
-      <div>
+      <div style={ {position: 'relative'} }>
         {
           this.props.trade.step === 1
             ?
             <SetTrade network={this.props.network}
                       account={this.props.account}
+                      loadingAddress={this.props.loadingAddress}
                       proxy={this.props.proxy}
                       setMainState={this.props.setMainState}
                       fasterGasPrice={this.props.fasterGasPrice}
@@ -22,7 +23,7 @@ class TradeWidget extends Component {
                       calculatePayAmount={this.props.calculatePayAmount}
                       cleanInputs={this.props.cleanInputs}
                       showHW={this.props.showHW}
-                      onDisconnect={this.props.onDisconnect}/>
+                      onDisconnect={this.props.onDisconnect} />
             :
             <DoTrade network={this.props.network}
                       account={this.props.account}

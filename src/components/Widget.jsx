@@ -32,6 +32,7 @@ class Widget extends Component {
                                getProxy={this.props.getProxy}/>
                     :
                     <TradeWidget network={this.props.network}
+                                 loadingAddress={this.props.loadingAddress}
                                  account={this.props.account}
                                  proxy={this.props.proxy}
                                  trade={this.props.trade}
