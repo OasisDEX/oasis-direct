@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {Ether, MKR, DAI, Done, AccountIcon} from './Icons';
+import ReactTooltip from 'react-tooltip';
+import { Ether, MKR, DAI, Done, AccountIcon, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
@@ -121,7 +122,15 @@ class DoTrade extends Component {
                   <span className={`icon ${this.hasTxCompleted('proxy') ? 'success' : ''}`}>
                     <AccountIcon/>
                   </span>
-                  <span className="label">Create Proxy</span>
+                  <span className="label vertical-align">
+                    Create Proxy
+                    <Attention data-tip data-for="proxy-tooltip" style={{marginLeft:"4px"}}/>
+                    <ReactTooltip id="proxy-tooltip">
+                      Proxy is a unique address which allows you
+                      <br/>
+                      to operate on all Maker products and save gas costs.
+                    </ReactTooltip>
+                  </span>
                   {
                     typeof this.props.transactions.proxy === 'undefined'
                       ?
@@ -176,7 +185,15 @@ class DoTrade extends Component {
                   <span className={`icon done ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
                     <Done/>
                   </span>
-                  <span className="label"> Enable {tokens[this.props.trade.from].symbol} Trading</span>
+                  <span className="label vertical-align">
+                    Enable {tokens[this.props.trade.from].symbol} Trading
+                    <Attention data-tip data-for="allowance-tooltip" style={{marginLeft:"4px"}}/>
+                    <ReactTooltip id="allowance-tooltip">
+                       Enabling over token means giving
+                      <br/>
+                      allowance to your proxy
+                    </ReactTooltip>
+                  </span>
                   {
                     typeof this.props.transactions.approval === 'undefined'
                       ?
@@ -229,7 +246,15 @@ class DoTrade extends Component {
                       <span className={`icon ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
                         <AccountIcon/>
                       </span>
-                  <span className="label">Create Proxy</span>
+                  <span className="label vertical-align">
+                    Create Proxy
+                    <Attention data-tip data-for="proxy-tooltip" style={{marginLeft:"4px"}}/>
+                    <ReactTooltip id="proxy-tooltip">
+                      Proxy is a unique address which allows you
+                      <br/>
+                      to operate on all Maker products and save gas costs.
+                    </ReactTooltip>
+                  </span>
                   <React.Fragment>
                     {
                       typeof this.props.transactions.trade === 'undefined'
@@ -273,7 +298,7 @@ class DoTrade extends Component {
                                   this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
                                     ?
                                     <React.Fragment>
-                                        <span className="status label info">Success.<br/>Loading data...</span><Spinner/>
+                                        <span className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
                                     </React.Fragment>
                                     :
                                     <span className="status label info">Confirmed</span>
@@ -350,7 +375,7 @@ class DoTrade extends Component {
                                         ?
                                         <React.Fragment>
                                         <span
-                                          className="status label info">Success.<br/>Loading data...</span><Spinner/>
+                                          className="status label info">Confirmed.<br/>Loading data...</span><Spinner/>
                                         </React.Fragment>
                                         :
                                         <React.Fragment/>

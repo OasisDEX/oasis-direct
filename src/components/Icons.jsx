@@ -49,9 +49,12 @@ export class Arrow extends PureComponent {
 
 export class Attention extends PureComponent {
   render() {
+    let styling = {...this.props.style};
+    styling.background = "#fff";
+
     return (
-      <svg width='18' height='18' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'
-           style={{backgroundColor: '#fff'}}>
+      <svg width='14' height='14' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'
+           style={styling} {...this.props}>
         <g id='Page-1-Copy' fill='none' fillRule='evenodd'>
           <g id='oasis-direct-finalize-copy-2'>
             <polygon id='Shape' points='-1 -1 21 -1 21 21 -1 21'/>
@@ -95,9 +98,13 @@ export class QuestionMark extends PureComponent {
 export class Done extends PureComponent {
   render() {
     return (
-      <svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0h24v24H0z" fill="none"/>
-        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+      <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+        <g id='old' fill='none' fillRule='evenodd'>
+          <g id='Artboard-3' fill='#9E9E9E' fillRule='nonzero'>
+            <path d='M12,0 C18.624,0 24,5.376 24,12 C24,18.624 18.624,24 12,24 C5.376,24 0,18.624 0,12 C0,5.376 5.376,0 12,0 Z M9.85714286,15 L6.85714286,12 L5.85714286,13 L9.85714286,17 L18.4285714,8.42857143 L17.4285714,7.42857143 L9.85714286,15 Z'
+                  id='Combined-Shape' />
+          </g>
+        </g>
       </svg>
     )
   }
