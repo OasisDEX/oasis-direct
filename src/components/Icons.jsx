@@ -49,9 +49,12 @@ export class Arrow extends PureComponent {
 
 export class Attention extends PureComponent {
   render() {
+    let styling = {...this.props.style};
+    styling.background = "#fff";
+
     return (
-      <svg width='18' height='18' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'
-           style={{backgroundColor: '#fff'}}>
+      <svg width='14' height='14' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'
+           style={styling} {...this.props}>
         <g id='Page-1-Copy' fill='none' fillRule='evenodd'>
           <g id='oasis-direct-finalize-copy-2'>
             <polygon id='Shape' points='-1 -1 21 -1 21 21 -1 21'/>

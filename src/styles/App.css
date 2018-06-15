@@ -49,6 +49,11 @@
   font-weight: 700;
 }
 
+.vertical-align {
+  display: inline-flex;;
+  align-items: center;
+}
+
 .frame {
   display: flex;
   flex-direction: column;

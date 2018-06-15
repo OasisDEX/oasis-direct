@@ -3,7 +3,7 @@ import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
@@ -168,15 +168,12 @@ class SetTrade extends Component {
         :
         <section className="frame">
           <div className="heading">
-            <span data-tip className="identicon-placeholder"
+            <span className="identicon-placeholder"
                   onClick={() => {
                     this.setState({shouldDisplayActiveConnectionDetails: true});
                   }}>
               <Circle><IdentityIcon address={this.props.account}/></Circle>
             </span>
-            <ReactTooltip className="tooltip-theme ">
-              {this.props.network}
-            </ReactTooltip>
             <h2>Enter Order Details</h2>
           </div>
           <div
@@ -216,13 +213,33 @@ class SetTrade extends Component {
                 !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
                 <React.Fragment>
                   <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
-                    <span className="label">Price </span>
+                    <span className="label vertical-align">
+                      Price
+                      <Attention data-tip data-for="price-tooltip" style={{marginLeft:"4px"}}/>
+                      <ReactTooltip id="price-tooltip">
+                        <p>
+                          Price is based on the depth of orders
+                          <br/>
+                          needed to fill your order.
+                        </p>
+                      </ReactTooltip>
+                    </span>
                     <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
                                 token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
                     </span>
                   </span>
                   <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
-                    <span className="label">Slippage Limit </span>
+                    <span className="label vertical-align">
+                      Slippage Limit
+                      <Attention data-tip data-for="slippage-tooltip" style={{marginLeft:"4px"}}/>
+                      <ReactTooltip id="slippage-tooltip">
+                        <p>
+                          The difference between the expected price of a trade
+                          <br/>
+                          and the price at which the trade is actually executed.
+                        </p>
+                      </ReactTooltip>
+                    </span>
                     <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
                   </span>
                   <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
@@ -234,7 +251,17 @@ class SetTrade extends Component {
                     }
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
-                  <span className="label">Price Impact</span>
+                  <span className="label vertical-align">
+                    Price Impact
+                    <Attention data-tip data-for="price-impact-tooltip" style={{marginLeft:"4px"}}/>
+                    <ReactTooltip id="price-impact-tooltip">
+                        <p>
+                           The correlation between an incoming order (to buy or to sell)
+                          <br/>
+                           and the subsequent price change
+                        </p>
+                      </ReactTooltip>
+                  </span>
                   <span style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}
                     className='value'>{this.priceImpact()}%</span>
                   </span>
