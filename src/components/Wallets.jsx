@@ -121,7 +121,7 @@ class Wallets extends React.Component {
                                 <span className="label">{this.state.provider}</span>
                               </div>
                             </div>
-                            <button type="button" onClick={() => this.props.setWeb3WebClient()} disabled={this.props.loadingAddress}> Continue {this.props.loadingAddress ? <Spinner /> : ''}</button>
+                            <button type="button" onClick={() => this.props.setWeb3WebClient()} disabled={this.props.loadingAddress}>{this.props.loadingAddress ? <Spinner /> : 'Continue'}</button>
                           </React.Fragment>
                           : <React.Fragment>
                             <div className="client-summary">
@@ -134,8 +134,8 @@ class Wallets extends React.Component {
                   </li>
                   <li className="list-item">
                     <div className="row-flex">
-                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} onClick={this.connectLedger}/>
-                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} onClick={this.connectTrezor}/>
+                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} disabled={this.props.loadingAddress} onClick={this.connectLedger}/>
+                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} disabled={this.props.loadingAddress} onClick={this.connectTrezor}/>
                     </div>
                   </li>
                 </ul>
