@@ -530,7 +530,7 @@ class App extends Component {
   }
 
   isErrorDevice = e => {
-    return e.message === 'invalid transport instance' || e.message === 'Error: Window closed';
+    return e.message === 'invalid transport instance' || e.message.indexOf('Ledger device: UNKNOWN_ERROR') !== -1 || e.message === 'Error: Window closed';
   }
 
   returnToSetTrade = () => {
