@@ -619,7 +619,7 @@ input.has-errors {
 
 .separator svg {
   position: relative;
-  bottom: 30px;
+  bottom: 24px;
 }
 
 .trade-errors {
@@ -1001,11 +1001,10 @@ button[disabled] {
   justify-content: center;
   align-items: center;
 
-  width: 14px;
-  height: 14px;
+  width: 26px !important;
+  height: 26px !important;
   border: 1px solid transparent;
   border-radius: 50%;
-  background: #9E9E9E;
 }
 
 .show {
@@ -1016,8 +1015,8 @@ button[disabled] {
   color: rgba(81, 163, 81, 0.9);
 }
 
-.done.success {
-  background: #66bb66;
+.done.success g{
+  fill: #66bb66;
 }
 
 .success #Account {
