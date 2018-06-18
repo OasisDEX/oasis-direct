@@ -49,26 +49,11 @@ export class Arrow extends PureComponent {
 
 export class Attention extends PureComponent {
   render() {
-    let styling = {...this.props.style};
-    styling.background = "#fff";
-
     return (
-      <svg width='14' height='14' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'
-           style={styling} {...this.props}>
-        <g id='Page-1-Copy' fill='none' fillRule='evenodd'>
-          <g id='oasis-direct-finalize-copy-2'>
-            <polygon id='Shape' points='-1 -1 21 -1 21 21 -1 21'/>
-            <path
-              d='M10,0.833333333 C4.94,0.833333333 0.833333333,4.94 0.833333333,10 C0.833333333,15.06 4.94,19.1666667 10,19.1666667 C15.06,19.1666667 19.1666667,15.06 19.1666667,10 C19.1666667,4.94 15.06,0.833333333 10,0.833333333 Z'
-              id='Shape' stroke='#9C9C9D' fillRule='nonzero'/>
-            <polygon id='Path' fill='#9C9C9D'
-                     points='10.9166667 14.5833333 9.08333333 14.5833333 9.08333333 9.08333333 10.9166667 9.08333333'
-            />
-            <polygon id='Path' fill='#9C9C9D'
-                     points='10.9166667 7.25 9.08333333 7.25 9.08333333 5.41666667 10.9166667 5.41666667'
-            />
-          </g>
-        </g>
+      <svg {...this.props} xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+        <path fill='none' d='M0 0h24v24H0V0z' />
+        <path fill='#9C9C9D' d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'
+        />
       </svg>
     )
   }

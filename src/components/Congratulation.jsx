@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import TokenAmount from "./TokenAmount";
 import Spinner from "./Spinner";
-import { fetchETHPriceInUSD } from '../helpers';
+import { calculateTradePrice, fetchETHPriceInUSD, toWei } from '../helpers';
 
 class Congratulation extends Component {
   constructor(props) {
@@ -25,26 +25,42 @@ class Congratulation extends Component {
     clearInterval(this.priceTickerInterval);
   }
 
-  render = () => (
-    <div className="transaction-result">
-      <h3 className="heading">
-        <span>Congratulations!</span>
-        {
-          this.props.hasStatus
-            ? <span className="status label info">Confirmed</span>
-            : <React.Fragment/>
-        }
+  render = () => {
+    const finalizedPrice = this.props.quotation.isCounter
+     ? calculateTradePrice(this.props.quotation.base, this.props.sold, this.props.quotation.quote, this.props.bought)
+     : calculateTradePrice(this.props.quotation.base, this.props.bought, this.props.quotation.quote, this.props.sold);
+    return (
+      <div className="transaction-result">
+        <h3 className="heading">
+          <span>Congratulations!</span>
+          <span className="status label info">Confirmed</span>
+        </h3>
+        <div className="content">
+          {
+            this.props.hasCreatedProxy &&
+            <span className="label">
+              You have successfully create a Proxy
+              <br/>
+              <br/>
+            </span>
 
-      </h3>
-      <div className="content">
+          }
         <span className="label">
-          You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;
+          {
+            this.props.hasCreatedProxy
+              ? <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+              : <React.Fragment>You used your <span className="value"> Proxy </span> to {this.props.quotation.isCounter ? "sell" : "buy"}&nbsp;</React.Fragment>
+          }
+          ;
           <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
                        token={this.props.quotation.base.toUpperCase()}/>&nbsp;
           {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
           <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
                        token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
           <br/>
+          at&nbsp;
+          <TokenAmount number={toWei(finalizedPrice.price)}
+                       token={`${finalizedPrice.priceUnit.toUpperCase()}`}/>&nbsp;
           by paying&nbsp;
           <span className="value">
             {
@@ -55,9 +71,10 @@ class Congratulation extends Component {
           </span>
           gas cost
         </span>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 export default Congratulation;
