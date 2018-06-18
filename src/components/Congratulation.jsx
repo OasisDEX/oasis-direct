@@ -46,7 +46,12 @@ class Congratulation extends Component {
 
           }
         <span className="label">
-          You used your <span className="value"> Proxy </span> to {this.props.quotation.isCounter ? "sell" : "buy"}&nbsp;
+          {
+            this.props.hasCreatedProxy
+              ? <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+              : <React.Fragment>You used your <span className="value"> Proxy </span> to {this.props.quotation.isCounter ? "sell" : "buy"}&nbsp;</React.Fragment>
+          }
+          ;
           <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
                        token={this.props.quotation.base.toUpperCase()}/>&nbsp;
           {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
