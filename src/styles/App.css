@@ -184,7 +184,7 @@
 
 .label {
   font-family: Montserrat, sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.92px;
 
@@ -428,11 +428,14 @@
 
 .info-box .info-box-row .holder .label {
   color: #9C9C9D;
+  font-size: 12px;
   letter-spacing: 1.1px;
+  line-height: 1.5;
 }
 
 .info-box .info-box-row .holder .value {
   letter-spacing: 1.09px;
+  font-size: 12px;
   text-align: right;
   line-height: 15px;
 }
@@ -506,6 +509,7 @@
 .attention-icon {
   margin-left: 4px;
   width: 16px;
+  height: 16px;
 }
 
 .identicon-placeholder {
