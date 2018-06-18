@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:400,600,700|Roboto:500|Raleway:400,500,600  ');
 @import 'styles/App.css';
 @import 'styles/LandingPage.css';
-@import 'styles/NoConnection.css';
 @import 'styles/NoAccount.css';
 @import 'styles/Responsive.css';
 
@@ -14,7 +13,6 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  background: #3F51B5;
 }
 
 pre {

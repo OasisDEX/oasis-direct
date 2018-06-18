@@ -1,15 +1,19 @@
 import React from 'react';
 import { isMetamask } from '../blockchainHandler';
-import '../styles/NoConnection.css'
+import { BackIcon, Circle } from "./Icons";
 
 
-const NoConnection = () => {
+const LockedAccount = props => {
   const metamask = isMetamask();
   return (
     <div className="frame no-account">
         <div className="heading">
+          <button className="back" onClick={props.onBack}>
+            <Circle><BackIcon/></Circle>
+          </button>
           <h2>
-            { metamask ? 'Metamask Account Locked' : 'No Account found' }</h2>
+            { metamask ? 'Metamask Account Locked' : 'No Account found' }
+          </h2>
         </div>
         <section className="content">
           {
@@ -24,4 +28,4 @@ const NoConnection = () => {
   )
 }
 
-export default NoConnection;
+export default LockedAccount;

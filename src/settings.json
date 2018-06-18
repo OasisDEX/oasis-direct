@@ -1,37 +1,9 @@
 {
+  "hwNetwork": "kovan",
   "etherscanApiKey": "34JVYM6RPM3J1SK8QXQFRNSHD9XG4UHXVU",
   "chain": {
-    "private": {
-      "otc": "",
-      "threshold": {
-        "daieth": 2,
-        "daimkr": 1,
-        "ethmkr": 1
-      },
-      "tokens": {
-        "weth": {
-          "address": "",
-          "minValue": 0
-        },
-        "mkr": {
-          "address": "",
-          "minValue": 0
-        },
-        "dai": {
-          "address": "",
-          "minValue": 0
-        }
-      },
-      "proxyRegistry": "",
-      "proxyFactory": "",
-      "proxyContracts": {
-        "oasisDirect": ""
-      },
-      "addrEstimation": "",
-      "proxyEstimation": "",
-      "fromBlock": 0
-    },
     "kovan": {
+      "nodeURL" : "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
       "threshold": {
         "daieth": 2,
@@ -63,6 +35,7 @@
       "fromBlock": 0
     },
     "main": {
+      "nodeURL" : "https://mainnet.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
       "threshold": {
         "daieth": 2,

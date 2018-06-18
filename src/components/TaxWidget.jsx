@@ -308,7 +308,7 @@ class TaxWidget extends Component {
   toggleExchange = (thisOne) => {
     if(!thisOne) return;
 
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const currentExchanges = [...prevState.exchanges];
 
       if (currentExchanges.includes(thisOne) && currentExchanges.length > 1) {

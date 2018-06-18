@@ -1,7 +1,6 @@
-import React, {Component} from 'react';
-import {initWeb3} from '../web3';
+import React, { Component } from 'react';
 import * as Blockchain from "../blockchainHandler";
-import {addressToBytes32, toBigNumber, toWei, fromWei, BigNumber} from '../helpers';
+import { addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from '../helpers';
 import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
@@ -17,6 +16,7 @@ class App extends Component {
     this.state = {
       ...initialState,
       network: {},
+      hw: {isConnected: false, showModal: false, option: null, derivationPath: null, addresses: [], addressIndex: null},
       section: 'exchange',
     }
     this.txInterval = {};
@@ -35,11 +35,15 @@ class App extends Component {
         amountBuy: toBigNumber(0),
         amountPayInput: '',
         amountBuyInput: '',
+        price: toBigNumber(0),
+        priceUnit: '',
+        bestPriceOffer: toBigNumber(0),
         txCost: toBigNumber(0),
         errorInputSell: null,
         errorInputBuy: null,
         errorOrders: null,
         txs: null,
+        proxy: null
       },
       transactions: {},
     };
@@ -54,17 +58,18 @@ class App extends Component {
           console.debug('YIKES! getBlock returned undefined!');
         }
         if (res.number >= this.state.network.latestBlock) {
-          const networkState = {...this.state.network};
-          networkState.latestBlock = res.number;
-          networkState.outOfSync = ((new Date().getTime() / 1000) - res.timestamp) > 600;
-          this.setState({network: networkState});
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.latestBlock = res.number;
+            networkState.outOfSync = ((new Date().getTime() / 1000) - res.timestamp) > 600;
+            return {network: networkState};
+          });
         } else {
           // XXX MetaMask frequently returns old blocks
           // https://github.com/MetaMask/metamask-plugin/issues/504
           console.debug('Skipping old block');
         }
       });
-
       // because you have another then after this.
       // The best way to handle is to return isConnect;
       return null;
@@ -87,7 +92,8 @@ class App extends Component {
                 console.log('res.hash:', res.hash);
                 network = 'private';
             }
-            if (this.state.network.network !== network) {
+            if (!this.state.network.stopIntervals // To avoid race condition
+                && this.state.network.network !== network) {
               this.initNetwork(network);
             }
           }, () => {
@@ -96,35 +102,48 @@ class App extends Component {
             }
           });
         } else {
-          const networkState = {...this.state.network};
-          networkState.isConnected = isConnected;
-          networkState.network = false;
-          networkState.latestBlock = 0;
-          this.setState({network: networkState});
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.isConnected = isConnected;
+            networkState.network = false;
+            networkState.latestBlock = 0;
+            return {network: networkState};
+          });
         }
       }
     });
   }
 
   initNetwork = newNetwork => {
-    const networkState = {...this.state.network};
-    networkState.network = newNetwork;
-    networkState.isConnected = true;
-    networkState.latestBlock = 0;
-    this.setState({network: networkState}, () => {
+    this.setState(prevState => {
+      const networkState = {...prevState.network};
+      networkState.network = newNetwork;
+      networkState.isConnected = true;
+      networkState.latestBlock = 0;
+      return {network: networkState};
+    }, () => {
       this.checkAccounts();
     });
   }
 
   checkAccounts = () => {
-    Blockchain.getAccounts().then(accounts => {
-      const networkState = {...this.state.network};
-      networkState.accounts = accounts;
-      const oldDefaultAccount = networkState.defaultAccount;
-      networkState.defaultAccount = accounts[0];
-      Blockchain.setDefaultAccount(networkState.defaultAccount);
-      this.setState({network: networkState}, () => {
-        if (oldDefaultAccount !== networkState.defaultAccount) {
+    Blockchain.getAccounts().then(async accounts => {
+      if (this.state.network.network && !this.state.hw.isConnected && accounts && accounts[0] !== Blockchain.getDefaultAccount()) {
+        const account = await Blockchain.getDefaultAccountByIndex(0);
+        if (!this.state.network.stopIntervals) { // To avoid race condition
+          Blockchain.setDefaultAccount(account);
+        }
+      }
+      let oldDefaultAccount = null;
+      this.setState(prevState => {
+        const networkState = {...prevState.network};
+        oldDefaultAccount = networkState.defaultAccount;
+        if (!networkState.stopIntervals) { // To avoid race condition
+          networkState.defaultAccount = Blockchain.getDefaultAccount();
+        }
+        return {network: networkState};
+      }, () => {
+        if (this.state.network.defaultAccount && oldDefaultAccount !== this.state.network.defaultAccount) {
           this.initContracts();
         }
       });
@@ -132,7 +151,8 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    setTimeout(this.init, 500);
+    this.setHashSection();
+    setTimeout(this.listenOnHashChange, 500);
   }
 
   componentWillUnmount = () => {
@@ -140,16 +160,10 @@ class App extends Component {
     clearInterval(this.checkNetworkInterval);
   }
 
-  init = () => {
-    this.setHashSection();
+  listenOnHashChange = () => {
     window.onhashchange = () => {
       this.setHashSection();
     }
-
-    initWeb3();
-    this.checkNetwork();
-    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
-    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
   setHashSection = () => {
@@ -166,13 +180,17 @@ class App extends Component {
     }, () => {
       const addrs = settings.chain[this.state.network.network];
       Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
-
       const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
         console.log('proxy', r[0]);
-        this.setState((prevState, props) => {
-          return {proxy: r[0]};
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          const hw = {...prevState.hw};
+          network.loadingAddress = false;
+          hw.showModal = false;
+          return {network, hw, proxy: r[0]};
         }, () => {
+          Blockchain.loadObject('dsproxy', this.state.proxy, 'proxy');
           this.setUpToken('weth');
           this.setUpToken('mkr');
           this.setUpToken('dai');
@@ -189,32 +207,38 @@ class App extends Component {
     }, 5000);
   }
 
-  setProxyAddress = () => {
+  setProxyAddress = (callbacks = []) => {
     Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
       this.setState(() => {
+        Blockchain.loadObject('dsproxy', proxy, 'proxy');
         return {proxy};
+      }, () => {
+        callbacks.forEach(callback => this.executeCallback(callback));
       });
-    }, () => {});
+    }, () => {
+    });
   }
 
   saveBalance = token => {
     if (token === 'weth') {
       Blockchain.getEthBalanceOf(this.state.network.defaultAccount).then(r => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const balances = {...prevState.balances};
           balances.eth = r;
           return {balances};
         });
-      }, () => {});
+      }, () => {
+      });
     } else {
       Blockchain.getTokenBalanceOf(token, this.state.network.defaultAccount).then(r => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const balances = {...prevState.balances};
           balances[token] = r;
           return {balances};
         });
-      }, () => {});
+      }, () => {
+      });
     }
   }
 
@@ -297,7 +321,8 @@ class App extends Component {
                   }
                 })
               });
-            }, () => {});
+            }, () => {
+            });
             // Using Etherscan API (backup)
             this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
@@ -307,37 +332,44 @@ class App extends Component {
                   }
                 });
               }
-            }, () => {});
+            }, () => {
+            });
           }
-        }, () => {});
+        }, () => {
+        });
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs), () => {});
+          ).then(logs => this.saveTradedValue('sell', logs), () => {
+          });
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
-          transactions[type].checkFromBlock).then(logs => {
+            transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('sell', logs.result);
             }
-          }, () => {});
+          }, () => {
+          });
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             transactions[type].checkFromBlock,
             settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs), () => {}, () => {});
+          ).then(logs => this.saveTradedValue('buy', logs), () => {
+          }, () => {
+          });
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
-          transactions[type].checkFromBlock).then(logs => {
+            transactions[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue('buy', logs.result);
             }
-          }, () => {});
+          }, () => {
+          });
         }
       }
       return false;
@@ -348,7 +380,7 @@ class App extends Component {
     if (this.state.transactions[type].tx !== newTx) {
       console.log(`Transaction ${this.state.transactions[type].tx} was replaced by ${newTx}.`);
     }
-    this.setState((prevState, props) => {
+    this.setState(prevState => {
       const transactions = {...prevState.transactions};
       transactions[type].tx = newTx;
       return {transactions};
@@ -384,7 +416,7 @@ class App extends Component {
       }
     });
     if (value.gt(0)) {
-      this.setState((prevState, props) => {
+      this.setState(prevState => {
         const transactions = {...prevState.transactions};
         transactions.trade[operation === 'buy' ? 'amountBuy' : 'amountSell'] = value;
         return {transactions};
@@ -415,7 +447,7 @@ class App extends Component {
     console.log('checkFromBlock', checkFromBlock);
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[type] = {tx, pending: true, error: false, nonce, checkFromBlock, callbacks}
+    transactions[type] = {tx, pending: true, error: false, errorDevice: false, nonce, checkFromBlock, callbacks}
     if (type === 'trade') {
       transactions[type].amountSell = toBigNumber(-1);
       transactions[type].amountBuy = toBigNumber(-1);
@@ -428,15 +460,19 @@ class App extends Component {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = {...this.state.transactions};
 
-    const type = typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
+    const type = typeof transactions.proxy !== 'undefined' && transactions.proxy.tx === tx
       ?
-      'approval'
+      'proxy'
       :
-      typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+      typeof transactions.approval !== 'undefined' && transactions.approval.tx === tx
         ?
-        'trade'
+        'approval'
         :
-        false;
+        typeof transactions.trade !== 'undefined' && transactions.trade.tx === tx
+          ?
+          'trade'
+          :
+          false;
     if (type && transactions[type].pending) {
       transactions[type].pending = false;
       transactions[type].gasUsed = parseInt(gasUsed, 10);
@@ -444,14 +480,17 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         Blockchain.getTransaction(tx).then(r => {
           if (r) {
-            this.setState((prevState, props) => {
+            this.setState(prevState => {
               const transactions = {...prevState.transactions};
               transactions[type].gasPrice = r.gasPrice;
+              // The next line is to decrease the chances to have a wrong block height (infura nodes)
+              transactions[type].checkFromBlock = r.blockNumber && r.blockNumber < transactions[type].checkFromBlock ? r.blockNumber : transactions[type].checkFromBlock;
               clearInterval(this.txInterval[tx]);
               return {transactions, showTxMessage: false};
             });
           }
-        }, () => {});
+        }, () => {
+        });
         if (typeof transactions[type].callbacks !== 'undefined' && transactions[type].callbacks.length > 0) {
           transactions[type].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -478,14 +517,24 @@ class App extends Component {
     }
   }
 
+  logTransactionErrorDevice = type => {
+    const transactions = {...this.state.transactions};
+    transactions[type] = {errorDevice: true}
+    this.setState({transactions});
+  }
+
   logTransactionRejected = type => {
     const transactions = {...this.state.transactions};
     transactions[type] = {rejected: true}
     this.setState({transactions});
   }
 
+  isErrorDevice = e => {
+    return e.message === 'invalid transport instance' || e.message.indexOf('Ledger device: UNKNOWN_ERROR') !== -1 || e.message === 'Error: Window closed';
+  }
+
   returnToSetTrade = () => {
-    this.setState((prevState, props) => {
+    this.setState(prevState => {
       const trade = {...prevState.trade};
       const transactions = {};
       trade.step = 1;
@@ -503,90 +552,132 @@ class App extends Component {
   executeCallback = args => {
     const method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
-    const timeout = ['executeProxyTx', 'executeProxyCreateAndExecute', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
+    const timeout = ['executeProxyTx', 'executeProxyCreateAndSellETH', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 4000;
     // console.log(method, args, timeout);
     setTimeout(() => {
       this[method](...args);
     }, timeout);
   }
 
-  checkAllowance = (token, dst, value, callbacks) => {
-    if (token === 'eth') {
-      this.setState((prevState, props) => {
-        const trade = {...prevState.trade};
-        trade.step = 2;
-        trade.txs = 1;
-        return {trade};
-      }, () => {
-        setTimeout(() => {
-          callbacks.forEach(callback => this.executeCallback(callback));
-        }, 2000);
-      });
+  checkProxy = callbacks => {
+    if (this.state.proxy) {
+      callbacks.forEach(callback => this.executeCallback(callback));
     } else {
-      const valueObj = toBigNumber(toWei(value));
-
-      Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
-        if (r.gte(valueObj)) {
-          this.setState((prevState, props) => {
+      this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+        this.logRequestTransaction('proxy').then(() => {
+          const proxyRegistry = Blockchain.objects.proxyRegistry;
+          callbacks = [['setProxyAddress', callbacks]];
+          this.setState(prevState => {
             const trade = {...prevState.trade};
             trade.step = 2;
-            trade.txs = 1;
+            trade.txs = 3;
             return {trade};
           }, () => {
-            setTimeout(() => {
-              callbacks.forEach(callback => this.executeCallback(callback));
-            }, 2000);
+            proxyRegistry.build({gasPrice}, (e, tx) => {
+              if (!e) {
+                this.logPendingTransaction(tx, 'proxy', callbacks);
+              } else {
+                if (this.isErrorDevice(e)) {
+                  this.logTransactionErrorDevice('proxy');
+                } else {
+                  this.logTransactionRejected('proxy');
+                }
+              }
+            });
           });
-        } else {
-          this.setState((prevState, props) => {
-            const trade = {...prevState.trade};
-            trade.step = 2;
-            trade.txs = 2;
-            return {trade};
-          }, () => {
-            setTimeout(() => {
-              this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-                this.logRequestTransaction('approval')
-                  .then(() => {
-                    Blockchain.tokenApprove(token, dst, gasPrice).then(tx => {
-                      this.logPendingTransaction(tx, 'approval', callbacks);
-                    }, () => this.logTransactionRejected('approval'));
-                  }, e => {
-                    console.debug("Couldn't calculate gas price because of", e);
-                  });
-              });
-            }, 2000);
-          });
-        }
-      }, () => {});
+        });
+      });
     }
   }
 
-  executeProxyTx = (amount, limit) => {
-    const params = Blockchain.getCallDataAndValue(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
-    this.logRequestTransaction('trade').then(() => {
-      this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-        Blockchain.proxyExecute(this.state.proxy, settings.chain[this.state.network.network].proxyContracts.oasisDirect, params.calldata, gasPrice, params.value).then(tx => {
-          this.logPendingTransaction(tx, 'trade');
-        }, e => {
-          console.log(e);
-          this.logTransactionRejected('trade');
+  checkAllowance = (token, dst, value, callbacks) => {
+    if (dst === 'proxy') dst = this.state.proxy; // It needs to be done as proxy might not be created when setAllowance is added to the queue of functions to be executed
+    const valueObj = toBigNumber(toWei(value));
+    Blockchain.getTokenAllowance(token, this.state.network.defaultAccount, dst).then(r => {
+      if (r.gte(valueObj)) {
+        this.setState(prevState => {
+          const trade = {...prevState.trade};
+          trade.step = 2;
+          trade.txs = trade.txs ? trade.txs : 1;
+          return {trade};
+        }, () => {
+          callbacks.forEach(callback => this.executeCallback(callback));
         });
-      }, () => {});
-    }, () => {});
+      } else {
+        this.setState(prevState => {
+          const trade = {...prevState.trade};
+          trade.step = 2;
+          trade.txs = trade.txs ? trade.txs : 2;
+          return {trade};
+        }, () => {
+          this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+            this.logRequestTransaction('approval').then(() => {
+              const tokenObj = Blockchain.objects[token];
+              const params = [dst, -1];
+              tokenObj.approve(...params.concat([{gasPrice}, (e, tx) => {
+                if (!e) {
+                  this.logPendingTransaction(tx, 'approval', callbacks);
+                } else {
+                  if (this.isErrorDevice(e)) {
+                    this.logTransactionErrorDevice('approval');
+                  } else {
+                    this.logTransactionRejected('approval');
+                  }
+                }
+              }]));
+            }, e => {
+              console.debug("Couldn't calculate gas price because of", e);
+            });
+          });
+        });
+      }
+    }, () => {
+    });
   }
 
-  executeProxyCreateAndExecute = (amount, limit) => {
-    const action = Blockchain.getActionCreateAndExecute(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+  executeProxyTx = (amount, limit) => {
+    const data = Blockchain.getCallDataAndValue(this.state.network.network, this.state.trade.operation, this.state.trade.from, this.state.trade.to, amount, limit);
+    this.logRequestTransaction('trade').then(() => {
+      this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+        const proxy = Blockchain.objects.proxy;
+        const params = [settings.chain[this.state.network.network].proxyContracts.oasisDirect, data.calldata];
+        proxy.execute['address,bytes'](...params.concat([{value: data.value, gasPrice}, (e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(tx, 'trade');
+          } else {
+            console.log(e);
+            if (this.isErrorDevice(e)) {
+              this.logTransactionErrorDevice('trade');
+            } else {
+              this.logTransactionRejected('trade');
+            }
+          }
+        }]));
+      }, () => {
+      });
+    }, () => {
+    });
+  }
+
+  executeProxyCreateAndSellETH = (amount, limit) => {
+    const data = Blockchain.getActionCreateProxyAndSellETH(this.state.network.network, this.state.trade.operation, this.state.trade.to, amount, limit);
     this.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.logRequestTransaction('trade').then(() => {
-        Blockchain.proxyCreateAndExecute(settings.chain[this.state.network.network].proxyCreationAndExecute, action.method, action.params, action.value, gasPrice).then(tx => {
-          this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
-        }, e => {
-          console.log(e);
-          this.logTransactionRejected('trade');
-        });
-      }, () => {});
+        const proxyCreateAndExecute = Blockchain.loadObject('proxycreateandexecute', settings.chain[this.state.network.network].proxyCreationAndExecute);
+        proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+          } else {
+            console.log(e);
+            if (this.isErrorDevice(e)) {
+              this.logTransactionErrorDevice('trade');
+            } else {
+              this.logTransactionRejected('trade');
+            }
+          }
+        }]));
+      }, () => {
+      });
     }, e => console.debug("Couldn't calculate gas price because of:", e));
   }
 
@@ -594,22 +685,35 @@ class App extends Component {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
     const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
     const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
-    if (this.state.proxy) {
-      this.checkAllowance(this.state.trade.from,
-        this.state.proxy,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
-        [['executeProxyTx', amount, limit]]);
+    if (this.state.trade.from === 'eth') {
+      this.setState(prevState => {
+        const trade = {...prevState.trade};
+        trade.step = 2;
+        trade.txs = 1;
+        trade.proxy = this.state.proxy;
+        return {trade};
+      }, () => {
+        // It will use the support contract just for the case of selling ETH
+        this[this.state.proxy ? 'executeProxyTx' : 'executeProxyCreateAndSellETH'](amount, limit);
+      });
     } else {
-      // No Proxy created, we need to use the support contract
-      this.checkAllowance(this.state.trade.from,
-        settings.chain[this.state.network.network].proxyCreationAndExecute,
-        this.state.trade.operation === 'sellAll' ? this.state.trade.amountPay : this.state.trade.amountPay.times(1 + threshold).round(18),
-        [['executeProxyCreateAndExecute', amount, limit]]);
+      const callbacks = [
+        [
+          'checkAllowance',
+          this.state.trade.from,
+          'proxy',
+          amount,
+          [
+            ['executeProxyTx', amount, limit]
+          ]
+        ]
+      ];
+      this.checkProxy(callbacks);
     }
   }
 
   cleanInputs = () => {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const trade = {...prevState.trade};
       trade.amountBuy = toBigNumber(0);
       trade.amountPay = toBigNumber(0);
@@ -623,15 +727,45 @@ class App extends Component {
     });
   }
 
+  getBestPriceOffer = (tokenSell, tokenBuy) => {
+    const offerTokenSell = settings.chain[this.state.network.network].tokens[tokenBuy.replace('eth', 'weth')].address;
+    const offerTokenBuy = settings.chain[this.state.network.network].tokens[tokenSell.replace('eth', 'weth')].address;
+    const otc = Blockchain.loadObject('matchingmarket', settings.chain[this.state.network.network].otc);
+    return new Promise((resolve, reject) => {
+      otc.getBestOffer(offerTokenSell, offerTokenBuy, (e, r) => {
+        if (!e) {
+          otc.offers(r, (e2, r2) => {
+            if (!e2) {
+              resolve((tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
+                ?
+                r2[2].div(r2[0])
+                :
+                r2[0].div(r2[2]));
+            } else {
+              reject(e2);
+            }
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
   calculateBuyAmount = (from, to, amount) => {
-    this.setState((prevState) => {
+    const rand = Math.random();
+    this.setState(prevState => {
       const trade = {...prevState.trade};
+      trade.rand = rand;
       trade.from = from;
       trade.to = to;
       trade.amountBuy = toBigNumber(0);
       trade.amountPay = toBigNumber(amount);
       trade.amountBuyInput = '';
       trade.amountPayInput = amount;
+      trade.price = toBigNumber(0);
+      trade.priceUnit = '';
+      trade.bestPriceOffer = toBigNumber(0);
       trade.operation = 'sellAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -640,18 +774,22 @@ class App extends Component {
       return {trade};
     }, () => {
       if (toBigNumber(amount).eq(0)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.amountBuy = fromWei(toBigNumber(0));
-          trade.amountBuyInput = '';
+          if (trade.rand === rand) {
+            trade.amountBuy = fromWei(toBigNumber(0));
+            trade.amountBuyInput = '';
+          }
         });
         return;
       }
       const minValue = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
       if (this.state.trade.amountPay.lt(minValue)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
+          if (trade.rand === rand) {
+            trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
+          }
           return {trade};
         });
         return;
@@ -660,14 +798,19 @@ class App extends Component {
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         toWei(amount),
-        (e, r) => {
+        async (e, r) => {
           if (!e) {
             const calculatedReceiveValue = fromWei(toBigNumber(r));
+            const bestPriceOffer = await this.getBestPriceOffer(this.state.trade.from, this.state.trade.to);
 
-            this.setState((prevState) => {
-              const trade = {...prevState.trade};
-              trade.amountBuy = calculatedReceiveValue;
-              trade.amountBuyInput = trade.amountBuy.valueOf();
+            this.setState(prevState => {
+              let trade = {...prevState.trade};
+              if (trade.rand === rand) {
+                trade.amountBuy = calculatedReceiveValue;
+                trade.amountBuyInput = trade.amountBuy.valueOf();
+                trade = {...trade, ...calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade.bestPriceOffer = bestPriceOffer;
+              }
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -687,10 +830,12 @@ class App extends Component {
                 :
                 null;
               if (errorInputSell || errorOrders) {
-                this.setState((prevState, props) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.errorInputSell = errorInputSell;
-                  trade.errorOrders = errorOrders;
+                  if (trade.rand === rand) {
+                    trade.errorInputSell = errorInputSell;
+                    trade.errorOrders = errorOrders;
+                  }
                   return {trade};
                 });
                 return;
@@ -707,58 +852,29 @@ class App extends Component {
               * */
               const calculatedReceiveValueMin = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
 
-              if(calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
-                this.setState((prevState) => {
+              if (calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.amountBuyInput = calculatedReceiveValue.valueOf();
-                  trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
+                  if (trade.rand === rand) {
+                    trade.amountBuyInput = calculatedReceiveValue.valueOf();
+                    trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
+                  }
                   return {trade};
                 });
                 return;
               }
 
-              let hasAllowance = false;
-              let action = null;
-              let data = null;
-              let target = null;
-              let addrFrom = null;
-              const txs = [];
-              if (this.state.proxy) {
-                // Calculate cost of proxy execute
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = Blockchain.getCallDataAndValue(this.state.network.network, 'sellAll', from, to, amount, 0);
-                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
-                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-                  action.calldata
-                );
+
+              let expenses = await this.estimateAllGasCosts('sellAll', from, to, amount, rand);
+              let ethBalance = balance;
+
+              if (this.state.trade.from === 'eth') {
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
               } else {
-                // Calculate cost of proxy creation and execution
-                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(amount)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'sellAll', from, to, amount, 0);
-                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
-              if (!hasAllowance) {
-                const dataAllowance = Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
-                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
-                  -1
-                );
-                txs.push({
-                  to: Blockchain[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
-                  data: dataAllowance,
-                  value: 0,
-                  from: this.state.network.defaultAccount
-                });
-              }
-              txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.saveCost(txs);
+
+              this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
             });
           } else {
             console.log(e);
@@ -768,14 +884,19 @@ class App extends Component {
   }
 
   calculatePayAmount = (from, to, amount) => {
-    this.setState((prevState) => {
+    const rand = Math.random();
+    this.setState(prevState => {
       const trade = {...prevState.trade};
+      trade.rand = rand;
       trade.from = from;
       trade.to = to;
       trade.amountBuy = toBigNumber(amount);
       trade.amountPay = toBigNumber(0);
       trade.amountBuyInput = amount;
       trade.amountPayInput = '';
+      trade.price = toBigNumber(0);
+      trade.priceUnit = '';
+      trade.bestPriceOffer = toBigNumber(0);
       trade.operation = 'buyAll';
       trade.txCost = toBigNumber(0);
       trade.errorInputSell = null;
@@ -784,18 +905,22 @@ class App extends Component {
       return {trade};
     }, () => {
       if (toBigNumber(amount).eq(0)) {
-        this.setState((prevState, props) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.amountPay = fromWei(toBigNumber(0));
-          trade.amountPayInput = '';
+          if (trade.rand === rand) {
+            trade.amountPay = fromWei(toBigNumber(0));
+            trade.amountPayInput = '';
+          }
         });
         return;
       }
       const minValue = settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].minValue;
       if (this.state.trade.amountBuy.lt(minValue)) {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           const trade = {...prevState.trade};
-          trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
+          if (trade.rand === rand) {
+            trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
+          }
           return {trade};
         });
         return;
@@ -804,14 +929,19 @@ class App extends Component {
         settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].address,
         settings.chain[this.state.network.network].tokens[to.replace('eth', 'weth')].address,
         toWei(amount),
-        (e, r) => {
+        async (e, r) => {
           if (!e) {
             const calculatedPayValue = fromWei(toBigNumber(r));
+            const bestPriceOffer = await this.getBestPriceOffer(this.state.trade.from, this.state.trade.to);
 
-            this.setState((prevState) => {
-              const trade = {...prevState.trade};
-              trade.amountPay = calculatedPayValue;
-              trade.amountPayInput = trade.amountPay.valueOf();
+            this.setState(prevState => {
+              let trade = {...prevState.trade};
+              if (trade.rand === rand) {
+                trade.amountPay = calculatedPayValue;
+                trade.amountPayInput = trade.amountPay.valueOf();
+                trade = {...trade, ...calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade.bestPriceOffer = bestPriceOffer;
+              }
               return {trade};
             }, async () => {
               const balance = from === 'eth' ? await Blockchain.getEthBalanceOf(this.state.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.state.network.defaultAccount);
@@ -831,10 +961,12 @@ class App extends Component {
                 :
                 null;
               if (errorInputSell || errorOrders) {
-                this.setState((prevState, props) => {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.errorInputSell = errorInputSell;
-                  trade.errorOrders = errorOrders;
+                  if (trade.rand === rand) {
+                    trade.errorInputSell = errorInputSell;
+                    trade.errorOrders = errorOrders;
+                  }
                   return {trade};
                 });
                 return;
@@ -852,58 +984,28 @@ class App extends Component {
               * */
               const calculatePayValueMin = settings.chain[this.state.network.network].tokens[from.replace('eth', 'weth')].minValue;
 
-              if(calculatedPayValue.lt(calculatePayValueMin)) {
-                this.setState((prevState) => {
+              if (calculatedPayValue.lt(calculatePayValueMin)) {
+                this.setState(prevState => {
                   const trade = {...prevState.trade};
-                  trade.amountPayInput = calculatedPayValue.valueOf();
-                  trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
+                  if (trade.rand === rand) {
+                    trade.amountPayInput = calculatedPayValue.valueOf();
+                    trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
+                  }
                   return {trade};
                 });
                 return;
               }
 
-              let hasAllowance = false;
-              let action = null;
-              let data = null;
-              let target = null;
-              let addrFrom = null;
-              const txs = [];
-              if (this.state.proxy) {
-                // Calculate cost of proxy execute
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(this.state.trade.amountPay)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                target = hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
-                action = Blockchain.getCallDataAndValue(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
-                data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
-                  settings.chain[this.state.network.network].proxyContracts.oasisDirect,
-                  action.calldata
-                );
+              let expenses = await this.estimateAllGasCosts('buyAll', from, to, amount, rand);
+              let ethBalance = balance;
+
+              if (this.state.trade.from === 'eth') {
+                expenses = expenses.add(toWei(this.state.trade.amountPay));
               } else {
-                // Calculate cost of proxy creation and execution
-                target = settings.chain[this.state.network.network].proxyCreationAndExecute;
-                hasAllowance = (from === 'eth' ||
-                  await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, target) ||
-                  (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, target)).gt(toWei(this.state.trade.amountPay)));
-                addrFrom = hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
-                action = Blockchain.getActionCreateAndExecute(this.state.network.network, 'buyAll', from, to, amount, toWei(this.state.trade.amountPay));
-                data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+                ethBalance = await Blockchain.getEthBalanceOf(this.state.network.defaultAccount);
               }
-              if (!hasAllowance) {
-                const dataAllowance = this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].approve.getData(
-                  this.state.proxy ? this.state.proxy : settings.chain[this.state.network.network].proxyCreationAndExecute,
-                  -1
-                );
-                txs.push({
-                  to: this[`${this.state.trade.from.replace('eth', 'weth')}Obj`].address,
-                  data: dataAllowance,
-                  value: 0,
-                  from: this.state.network.defaultAccount
-                });
-              }
-              txs.push({to: target, data, value: action.value, from: addrFrom});
-              this.saveCost(txs);
+
+              this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
             });
           } else {
             console.log(e);
@@ -912,21 +1014,93 @@ class App extends Component {
     });
   }
 
-  saveCost = (txs = []) => {
+  checkIfOneCanPayForGas = (balance, expenses, rand) => {
+    if (balance.lte(expenses)) {
+      this.setState(prevState => {
+        const trade = {...prevState.trade};
+        if (trade.rand === rand) {
+          trade.errorInputSell = 'gasCost';
+        }
+        return {trade};
+      });
+    }
+  };
+
+  estimateAllGasCosts = async (operation, from, to, amount, rand) => {
+    let hasAllowance = true;
+    let action = null;
+    let data = null;
+    let target = null;
+    let addrFrom = null;
+    const txs = [];
+
+    if (from !== 'eth') {
+      hasAllowance = this.state.proxy &&
+        (await Blockchain.getTokenTrusted(from, this.state.network.defaultAccount, this.state.proxy) ||
+          (await Blockchain.getTokenAllowance(from, this.state.network.defaultAccount, this.state.proxy)).gt(toWei(amount)));
+
+      if (!hasAllowance) {
+        if (!this.state.proxy) {
+          txs.push({
+            to: Blockchain.objects.proxyRegistry.address,
+            data: Blockchain.objects.proxyRegistry.build.getData(),
+            value: 0,
+            from: this.state.network.defaultAccount
+          });
+        }
+        txs.push({
+          to: Blockchain.objects[from].address,
+          data: Blockchain.objects[from].approve.getData(this.state.proxy ? this.state.proxy : '0x0000000000000000000000000000000000000000', -1),
+          value: 0,
+          from: this.state.network.defaultAccount
+        });
+      }
+    }
+
+    const limit = operation === 'sellAll' ? 0 : toWei(9999999);
+    if (this.state.proxy || from !== 'eth') {
+      target = this.state.proxy && hasAllowance ? this.state.proxy : settings.chain[this.state.network.network].proxyEstimation;
+      addrFrom = this.state.proxy && hasAllowance ? this.state.network.defaultAccount : settings.chain[this.state.network.network].addrEstimation;
+      action = Blockchain.getCallDataAndValue(this.state.network.network, operation, from, to, amount, limit);
+      data = Blockchain.loadObject('dsproxy', target).execute['address,bytes'].getData(
+        settings.chain[this.state.network.network].proxyContracts.oasisDirect,
+        action.calldata
+      );
+    } else {
+      target = settings.chain[this.state.network.network].proxyCreationAndExecute;
+      addrFrom = this.state.network.defaultAccount;
+      action = Blockchain.getActionCreateProxyAndSellETH(this.state.network.network, operation, to, amount, limit);
+      data = Blockchain.loadObject('proxycreateandexecute', target)[action.method].getData(...action.params);
+    }
+
+    txs.push({
+      to: target,
+      data,
+      value: action.value ? action.value : 0,
+      from: addrFrom
+    });
+
+    return await this.saveCost(txs, rand);
+  }
+
+  saveCost = (txs = [], rand) => {
     const promises = [];
     let total = toBigNumber(0);
     txs.forEach(tx => {
       promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
     });
-    Promise.all(promises).then(costs => {
+    return Promise.all(promises).then(costs => {
       costs.forEach(cost => {
         total = total.add(cost);
       });
-      this.setState((prevState, props) => {
+      this.setState(prevState => {
         const trade = {...prevState.trade};
-        trade.txCost = fromWei(total);
+        if (trade.rand === rand) {
+          trade.txCost = fromWei(total);
+        }
         return {trade};
       });
+      return total;
     })
   }
 
@@ -949,7 +1123,13 @@ class App extends Component {
         reject("Request timed out!");
       }, 3000);
 
-      fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
+      fetch("https://ethgasstation.info/json/ethgasAPI.json", {
+        mode: 'cors',
+        headers: {
+          'Access-Control-Request-Headers': 'Content-Type',
+          'Content-Type': 'text/plain',
+        }
+      }).then(stream => {
         stream.json().then(price => {
           clearTimeout(timeout);
           resolve(toWei(price.average / 10, "gwei"));
@@ -977,95 +1157,209 @@ class App extends Component {
     })
   }
 
+  // Web3 web client
+  setWeb3WebClient = () => {
+    this.setState(prevState => {
+      const network = {...prevState.network};
+      network.loadingAddress = true;
+      network.stopIntervals = false;
+      return {network};
+    }, async () => {
+      await Blockchain.setWebClientProvider();
+      this.checkNetwork();
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+    });
+  }
+
+  // Hardwallets
+  showHW = option => {
+    this.setState(prevState => {
+      const hw = {...prevState.hw};
+      hw.option = option;
+      hw.showModal = true;
+      return {hw};
+    });
+  }
+
+  showClientChoice = () => {
+    Blockchain.stopProvider();
+    clearInterval(this.checkAccountsInterval);
+    clearInterval(this.checkNetworkInterval);
+
+    this.setState(prevState => {
+      const hw = {...prevState.hw};
+      const network = {};
+      network.stopIntervals = true;
+      network.isConnected = false;
+      hw.addresses = [];
+      hw.option = null;
+      hw.isConnected = false;
+      hw.showModal = false;
+      return {hw, network};
+    });
+  }
+
+  loadHWAddresses = async (network, amount, derivationPath = this.state.hw.derivationPath) => {
+    try {
+      await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, amount);
+      const accounts = await Blockchain.getAccounts();
+      this.setState(prevState => {
+        const hw = {...prevState.hw};
+        hw.addresses = accounts;
+        hw.derivationPath = derivationPath;
+        hw.isConnected = true;
+        return {hw};
+      });
+      return accounts;
+    } catch (e) {
+      Blockchain.stopProvider();
+      console.log(`Error connecting ${this.state.hw.option}`, e.message);
+      return [];
+    }
+  }
+
+  selectHWAddress = address => {
+    this.setState(prevState => {
+      const hw = {...prevState.hw};
+      hw.addressIndex = hw.addresses.indexOf(address);
+      return {hw};
+    });
+  }
+
+  importAddress = () => {
+    this.setState(prevState => {
+      const network = {...prevState.network};
+      network.loadingAddress = true;
+      network.stopIntervals = false;
+      return {network};
+    }, async () => {
+      try {
+        const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
+        Blockchain.setDefaultAccount(account);
+        this.checkNetwork();
+        this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+        this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+      } catch (e) {
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          const hw = {...prevState.hw};
+          network.loadingAddress = false;
+          hw.addresses = [];
+          return {network, hw};
+        });
+      }
+    });
+  }
+  //
+
+  renderWidget = () => {
+    return <Widget isConnected={this.state.network.isConnected}
+            section={this.state.section}
+            network={this.state.network.network}
+            loadingAddress={this.state.network.loadingAddress}
+            account={this.state.network.defaultAccount}
+            proxy={this.state.proxy}
+            trade={this.state.trade}
+            balances={this.state.balances}
+            showTxMessage={this.state.showTxMessage}
+            transactions={this.state.transactions}
+            setMainState={this.setMainState}
+            fasterGasPrice={this.fasterGasPrice}
+            doTrade={this.doTrade}
+            reset={this.reset}
+            getProxy={this.getProxy}
+            calculateBuyAmount={this.calculateBuyAmount}
+            calculatePayAmount={this.calculatePayAmount}
+            cleanInputs={this.cleanInputs}
+            setWeb3WebClient={this.setWeb3WebClient}
+            hw={this.state.hw}
+            showHW={this.showHW}
+            showClientChoice={this.showClientChoice}
+            loadHWAddresses={this.loadHWAddresses}
+            selectHWAddress={this.selectHWAddress}
+            importAddress={this.importAddress}/>
+  }
+
   render = () => {
     return (
-      <section>
-        <section>
-          <header className="Container">
-            <div className={`Logo Logo--no-margin`}>
-              <a href="/"> <Logo/> </a>
-            </div>
-            <div className={'NavigationLinks'}>
-              <a href="/#" style={{color: 'white'}}>Trade</a>
-              <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
-            </div>
-          </header>
-        </section>
-        {
-          this.state.section === 'faq'
-            ? <FAQ/>
-            : <section className="Content">
-              <main className="Container">
-                <div>
-                  <div className="MainHeading">
-                    <h1>THE FIRST DECENTRALIZED INSTANT MARKETPLACE</h1>
+      this.state.section === 'trade-widget'
+        ?
+        this.renderWidget()
+        :
+        <section className="bg-section">
+          <section>
+            <header className="Container">
+              <div className={`Logo Logo--no-margin`}>
+                <a href="/"> <Logo/> </a>
+              </div>
+              <div className={'NavigationLinks'}>
+                <a href="/#" style={{color: 'white'}}>Trade</a>
+                <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
+              </div>
+            </header>
+          </section>
+          {
+            this.state.section === 'faq'
+              ?
+              <FAQ/>
+              :
+              <section className="Content">
+                <main className="Container">
+                  <div>
+                    <div className="MainHeading">
+                      <h1>THE FIRST DECENTRALIZED INSTANT MARKETPLACE</h1>
+                    </div>
+                    <div className="SecondaryHeading">
+                      <h2>No Registration. No Fees.</h2>
+                    </div>
                   </div>
-                  <div className="SecondaryHeading">
-                    <h2>No Registration. No Fees.</h2>
-                  </div>
-                </div>
-                <Widget isConnected={this.state.network.isConnected}
-                        section={this.state.section}
-                        network={this.state.network.network}
-                        account={this.state.network.defaultAccount}
-                        proxy={this.state.proxy}
-                        trade={this.state.trade}
-                        balances={this.state.balances}
-                        showTxMessage={this.state.showTxMessage}
-                        transactions={this.state.transactions}
-                        setMainState={this.setMainState}
-                        fasterGasPrice={this.fasterGasPrice}
-                        doTrade={this.doTrade}
-                        reset={this.reset}
-                        getProxy={this.getProxy}
-                        calculateBuyAmount={this.calculateBuyAmount}
-                        calculatePayAmount={this.calculatePayAmount}
-                        cleanInputs={this.cleanInputs} />
-              </main>
-            </section>
-        }
-        <section>
-          <footer className="Container">
-            <div className="LinksWrapper">
-              <h1> Resources </h1>
-              <ul className="Links">
-                <li className="Link"><a href="https://developer.makerdao.com/" target="_blank"
-                                        rel="noopener noreferrer">Documentation</a></li>
-                <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
-                <li className="Link" onClick={ () => {
-                  window.scrollTo(0,0);
-                }}><a href="/#faq" style={{color: 'white'}}>FAQ</a></li>
-              </ul>
-            </div>
-            <div className="LinksWrapper">
-              <h1> Oasis </h1>
-              <ul className="Links">
-                <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a>
-                </li>
-                {/* <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li> */}
-              </ul>
-            </div>
-            <div className="LinksWrapper">
-              <h1> Maker </h1>
-              <ul className="Links">
-                <li className="Link"><a href="https://chat.makerdao.com" target="_blank"
-                                        rel="noopener noreferrer">Chat</a></li>
-                <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank"
-                                        rel="noopener noreferrer">Reddit</a></li>
-              </ul>
-            </div>
-            <div className="LinksWrapper">
-              <h1> Follow us </h1>
-              <ul className="Links">
-                <li className="Link"><a href="https://twitter.com/oasisdirect" target="_blank"
-                                        rel="noopener noreferrer">Twitter</a></li>
-                <li className="Link"><a href="https://steemit.com/@oasisdirect" target="_blank"
-                                        rel="noopener noreferrer">Steem</a></li>
-              </ul>
-            </div>
-          </footer>
+                  {this.renderWidget()}
+                </main>
+              </section>
+          }
+          <section>
+            <footer className="Container">
+              <div className="LinksWrapper">
+                <h1> Resources </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://developer.makerdao.com/" target="_blank"
+                                          rel="noopener noreferrer">Documentation</a></li>
+                  <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
+                  <li className="Link" onClick={() => {
+                    window.scrollTo(0, 0);
+                  }}><a href="/#faq" style={{color: 'white'}}>FAQ</a></li>
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Oasis </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://oasisdex.com" target="_blank" rel="noopener noreferrer">Oasisdex.com</a>
+                  </li>
+                  {/* <li className="Link"><a href="#a" target="_blank" rel="noopener noreferrer">Oasis.tax</a></li> */}
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Maker </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://chat.makerdao.com" target="_blank"
+                                          rel="noopener noreferrer">Chat</a></li>
+                  <li className="Link"><a href="https://www.reddit.com/r/MakerDAO/" target="_blank"
+                                          rel="noopener noreferrer">Reddit</a></li>
+                </ul>
+              </div>
+              <div className="LinksWrapper">
+                <h1> Follow us </h1>
+                <ul className="Links">
+                  <li className="Link"><a href="https://twitter.com/oasisdirect" target="_blank"
+                                          rel="noopener noreferrer">Twitter</a></li>
+                  <li className="Link"><a href="https://steemit.com/@oasisdirect" target="_blank"
+                                          rel="noopener noreferrer">Steem</a></li>
+                </ul>
+              </div>
+            </footer>
+          </section>
         </section>
-      </section>
     );
   }
 }

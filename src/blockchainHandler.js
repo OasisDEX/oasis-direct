@@ -13,6 +13,8 @@ schema.dsproxy = require('./abi/dsproxy');
 schema.matchingmarket = require('./abi/matchingmarket');
 schema.proxycreateandexecute = require('./abi/proxycreateandexecute');
 
+export const objects = {}
+
 export const getAccounts = () => {
   return promisify(web3.eth.getAccounts)();
 }
@@ -20,13 +22,37 @@ export const getAccounts = () => {
 export const loadObject = (type, address, label = null) => {
   const object = web3.eth.contract(schema[type].abi).at(address);
   if (label) {
-    this[`${label}Obj`] = object;
+    objects[label] = object;
   }
   return object;
 }
 
+export const getDefaultAccount = () => {
+  return web3.eth.defaultAccount;
+}
+
+export const getCurrentProviderName = () => {
+  return web3.currentProvider.name;
+}
+
+export const getDefaultAccountByIndex = index => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const accounts = await getAccounts();
+      resolve(accounts[index]);
+    } catch (e) {
+      reject(new Error(e));
+    }
+  });
+}
+
 export const setDefaultAccount = account => {
   web3.eth.defaultAccount = account;
+  console.log(`Address ${account} loaded`);
+}
+
+export const getNetwork = () => {
+  return promisify(web3.version.getNetwork)();
 }
 
 export const getGasPrice = () => {
@@ -70,20 +96,16 @@ export const getEthBalanceOf = addr => {
 }
 
 export const getTokenBalanceOf = (token, addr) => {
-  return promisify(this[`${token}Obj`].balanceOf)(addr);
+  return promisify(objects[token].balanceOf)(addr);
 }
 
 export const getTokenAllowance = (token, from, to) => {
-  return promisify(this[`${token}Obj`].allowance.call)(from, to);
+  return promisify(objects[token].allowance.call)(from, to);
 }
 
 export const getTokenTrusted = (token, from, to) => {
-  return promisify(this[`${token}Obj`].allowance.call)(from, to)
-        .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
-}
-
-export const tokenApprove = (token, dst, gasPrice) => {
-  return promisify(this[`${token}Obj`].approve)(dst, -1, {gasPrice});
+  return promisify(objects[token].allowance.call)(from, to)
+    .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
 /*
@@ -92,11 +114,11 @@ export const tokenApprove = (token, dst, gasPrice) => {
    iterated, the way to access a give element is access it by index
  */
 export const getProxy = (account, proxyIndex) => {
-  return promisify(this.proxyRegistryObj.proxies)(account, proxyIndex);
+  return promisify(objects.proxyRegistry.proxies)(account, proxyIndex);
 }
 
 export const getProxiesCount = account => {
-  return promisify(this.proxyRegistryObj.proxiesCount)(account);
+  return promisify(objects.proxyRegistry.proxiesCount)(account);
 }
 
 export const getProxyAddress = account => {
@@ -117,17 +139,19 @@ export const getProxyOwner = proxy => {
   return promisify(loadObject('dsproxy', proxy).owner)();
 }
 
-export const proxyExecute = (proxyAddr, targetAddr, calldata, gasPrice, value = 0) => {
-  const proxyExecuteCall = loadObject('dsproxy', proxyAddr).execute['address,bytes'];
-  return promisify(proxyExecuteCall)(targetAddr,calldata, {value, gasPrice});
-}
-
-export const proxyCreateAndExecute = (contractAddr, method, params, value, gasPrice) => {
-  const proxyCreateAndExecuteCall = loadObject('proxycreateandexecute', contractAddr)[method];
-  return promisify(proxyCreateAndExecuteCall)(...params, { value, gasPrice });
-}
-
 export const isMetamask = () => web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider';
+
+export const stopProvider = () => {
+  web3.stop();
+}
+
+export const setHWProvider = (device, network, path, accountsOffset = 0, accountsLength = 1) => {
+  return web3.setHWProvider(device, network, path, accountsOffset, accountsLength);
+}
+
+export const setWebClientProvider = () => {
+  return web3.setWebClientProvider();
+}
 
 export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
   const result = {};
@@ -162,34 +186,19 @@ export const getCallDataAndValue = (network, operation, from, to, amount, limit)
   return result;
 }
 
-export const getActionCreateAndExecute = (network, operation, from, to, amount, limit) => {
-  const addrFrom = settings.chain[network].tokens[from.replace('eth', 'weth')].address;
+export const getActionCreateProxyAndSellETH = (network, operation, to, amount, limit) => {
   const addrTo = settings.chain[network].tokens[to.replace('eth', 'weth')].address;
   const result = {};
+
   if (operation === 'sellAll') {
-    if (from === "eth") {
-      result.method = 'createAndSellAllAmountPayEth';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, limit];
-      result.value = toWei(amount);
-    } else if (to === "eth") {
-      result.method = 'createAndSellAllAmountBuyEth';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrFrom, toWei(amount), limit];
-    } else {
-      result.method = 'createAndSellAllAmount';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrFrom, toWei(amount), addrTo, limit];
-    }
-  } else {
-    if (from === "eth") {
-      result.method = 'createAndBuyAllAmountPayEth';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount)];
-      result.value = limit;
-    } else if (to === "eth") {
-      result.method = 'createAndBuyAllAmountBuyEth';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, toWei(amount), addrFrom, limit];
-    } else {
-      result.method = 'createAndBuyAllAmount';
-      result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount), addrFrom, limit];
-    }
+    result.method = 'createAndSellAllAmountPayEth';
+    result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, limit];
+    result.value = toWei(amount);
+  }
+  else {
+    result.method = 'createAndBuyAllAmountPayEth';
+    result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount)];
+    result.value = limit;
   }
   return result;
 }

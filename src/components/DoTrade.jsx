@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
-import { isMetamask } from '../blockchainHandler';
-import { Ether, MKR, DAI, Arrow, Attention, QuestionMark, Finalized, Done, Failed } from './Icons';
+import React, {Component} from 'react';
+import ReactTooltip from 'react-tooltip';
+import { Ether, MKR, DAI, Done, AccountIcon, Attention } from './Icons';
 import Spinner from './Spinner';
-import TokenAmount from './TokenAmount'
-import { etherscanUrl, wdiv, toBigNumber, toWei } from '../helpers';
+import TokenAmount from './TokenAmount';
+import Congratulation from './Congratulation';
+import { etherscanUrl, quotation, toBigNumber, toWei } from '../helpers';
 
 const settings = require('../settings');
 
@@ -45,23 +46,21 @@ class DoTrade extends Component {
   }
 
   showTradeAgainButton = () => {
-    return (typeof this.props.transactions.approval !== 'undefined' &&
-      (this.props.transactions.approval.error || this.props.transactions.approval.rejected)) ||
+    return (typeof this.props.transactions.proxy !== 'undefined' &&
+      (this.props.transactions.proxy.error || this.props.transactions.proxy.rejected || this.props.transactions.proxy.errorDevice)) ||
+      (typeof this.props.transactions.approval !== 'undefined' &&
+        (this.props.transactions.approval.error || this.props.transactions.approval.rejected || this.props.transactions.approval.errorDevice)) ||
       (typeof this.props.transactions.trade !== 'undefined' &&
-      !this.props.transactions.trade.requested &&
-      (this.hasTxCompleted('trade')
-      || this.props.transactions.trade.error
-      || this.props.transactions.trade.rejected));
-  }
-
-  hasTwoTransactions = () => {
-    return this.props.trade.txs === 2;
+        !this.props.transactions.trade.requested &&
+        (this.hasTxCompleted('trade')
+          || this.props.transactions.trade.error
+          || this.props.transactions.trade.rejected
+          || this.props.transactions.trade.errorDevice));
   }
 
   render() {
-    const metamask = isMetamask();
     return (
-      <section className={`frame ${this.props.trade.step === 2 ? 'finalize' : ''}`}>
+      <section className="frame finalize">
         <div className="heading">
           <h2>Finalize Trade</h2>
         </div>
@@ -69,226 +68,328 @@ class DoTrade extends Component {
           <div className="info-box-row">
             <span className="holder">
               <span className="label">
-              Current Estimated Price
+                Currently Estimated Price
               </span>
-              <TokenAmount number={toWei(this.props.trade.amountPay.div(this.props.trade.amountBuy))}
-                           token= {`${tokens[this.props.trade.from].symbol}/${tokens[this.props.trade.to].symbol}`}/>
+              <TokenAmount number={toWei(this.props.trade.price)}
+                             token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
             </span>
           </div>
         </div>
         <div className="content">
           {
-            this.hasTwoTransactions() &&
+            this.props.trade.txs === 3 &&
             <a
-              href={typeof this.props.transactions.approval !== 'undefined' && this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.approval.tx}` : '#'}
-              onClick={(e) => {
-                if (typeof this.props.transactions.approval === 'undefined' || !this.props.transactions.approval.tx) {
-                  e.preventDefault();
-                  return false;
-                }
-              }}
-              className={typeof this.props.transactions.approval === 'undefined' || !this.props.transactions.approval.tx ? 'no-pointer' : ''}
+              href={typeof this.props.transactions.proxy !== 'undefined' && this.props.transactions.proxy.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.proxy.tx}` : '#'}
+              className={`non-clickable ${(this.props.transactions.proxy && this.props.transactions.proxy.tx) ? 'clickable' : ''}`}
               target="_blank" rel="noopener noreferrer">
-              <div className={`transaction-info-box half ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
-              <span className={`done-placeholder ${this.hasTxCompleted('approval') ? 'show' : ''}`}>
-                <span className="done">
-                  <Done/>
-                </span>
-              </span>
+              <div className="transaction-info-box">
                 <div className="operation">
-                  <span className="icon">{tokens[this.props.trade.from].icon}</span>
-                  <div className="details">
-                    <span className="label"> Enable</span>
-                    <span className="value"> Trading of {tokens[this.props.trade.from].symbol}</span>
-                  </div>
-                </div>
-                {
-                  typeof this.props.transactions.approval === 'undefined'
-                  ?
-                    <div className="status"><Spinner/><span className="label">Initiating transaction...</span></div>
-                  :
-                    this.props.transactions.approval.rejected
-                    ?
-                      <div className="status"><span className="label error">Rejected</span></div>
-                    :
-                      this.props.transactions.approval.requested
+                  <span className={`icon ${this.hasTxCompleted('proxy') ? 'success' : ''}`}>
+                    <AccountIcon/>
+                  </span>
+                  <span className="label vertical-align">
+                    Create Proxy
+                    <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
+                    <ReactTooltip id="proxy-tooltip">
+                      Proxy is a unique address which allows you
+                      <br/>
+                      to operate on all Maker products and save gas costs.
+                    </ReactTooltip>
+                  </span>
+                  {
+                    typeof this.props.transactions.proxy === 'undefined'
                       ?
-                        <div className="status"><Spinner/><span className="label info">Signing transaction</span></div>
+                      <React.Fragment>
+                        <span className="status label">Initiating transaction...</span><Spinner/>
+                      </React.Fragment>
                       :
-                        this.props.transactions.approval.pending
+                      this.props.transactions.proxy.errorDevice
                         ?
-                          <div className="status"><Spinner/><span className="label info">View on Etherscan</span></div>
+                        <span className="status label error">Error connecting device</span>
                         :
-                          this.props.transactions.approval.error
+                        this.props.transactions.proxy.rejected
                           ?
-                            <div className="status"><span className="label error">Failed</span></div>
+                          <span className="status label error">Rejected</span>
                           :
-                            <div className="status"><span className="label info">Confirmed</span></div>
-                }
+                          this.props.transactions.proxy.requested
+                            ?
+                            <React.Fragment>
+                              <span className="status label info">Sign transaction</span><Spinner/>
+                            </React.Fragment>
+                            :
+                            this.props.transactions.proxy.pending
+                              ?
+                              <React.Fragment>
+                                <span className="status label info">View on Etherscan</span><Spinner/>
+                              </React.Fragment>
+                              :
+                              this.props.transactions.proxy.error
+                                ?
+                                <span className="status label error">Failed</span>
+                                :
+                                <span className="status label info">Confirmed</span>
+                  }
+                </div>
               </div>
             </a>
           }
           {
-            this.hasTwoTransactions() &&
-            <div className="arrow-separator">
-             <Arrow/>
-            </div>
-          }
-            <div className={`transaction-info-box ${this.hasTwoTransactions() ? 'half' : ''} ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
-
-              <a
-                href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
-                onClick={(e) => {
-                  if (typeof this.props.transactions.trade === 'undefined' || !this.props.transactions.trade.tx) {
-                    e.preventDefault();
-                    return false;
-                  }
-                }}
-                className={typeof this.props.transactions.trade === 'undefined' || !this.props.transactions.trade.tx ? 'no-pointer' : ''}
-                target="_blank" rel="noopener noreferrer">
-
-            <span className={`done-placeholder ${this.hasTxCompleted('trade') ? 'show' : ''}`}>
-              <span className="done">
-                <Done/>
-              </span>
-            </span>
-              <div>
+            this.props.trade.txs >= 2 &&
+            <a
+              href={typeof this.props.transactions.approval !== 'undefined' && this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.approval.tx}` : '#'}
+              className={`non-clickable ${(this.props.transactions.approval && this.props.transactions.approval.tx) ? 'clickable' : ''}`}
+              target="_blank" rel="noopener noreferrer">
+              <div className="transaction-info-box">
                 <div className="operation">
-                  <span className="icon">{tokens[this.props.trade.from].icon}</span>
-                  <div className="details">
-                    <span className="label">Selling</span>
-                    <span
-                      className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}<TokenAmount number={toWei((this.props.trade.amountPay.valueOf()))} token={tokens[this.props.trade.from].symbol}/></span>
-                  </div>
-                </div>
-                <div className="operation">
-                  <span className="icon">{tokens[this.props.trade.to].icon}</span>
-                  <div className="details">
-                    <span className="label">Buying</span>
-                    <span className="value">{this.props.trade.operation === 'buyAll' ? '' : '~ '}
-                      <TokenAmount number={toWei((this.props.trade.amountBuy.valueOf()))} token={tokens[this.props.trade.to].symbol}/>
-                    </span>
-                  </div>
-                </div>
-              </div>
-              {
-                typeof this.props.transactions.trade === 'undefined'
-                ?
-                  this.props.trade.txs === 1
-                  ?
-                    <div className="status"><Spinner/><span className="label">Initiating transaction</span></div>
-                  :
-                    <div className="status"><Spinner/><span className="label">Waiting for approval</span></div>
-                :
-                  this.props.transactions.trade.rejected
-                  ?
-                    <div className="status"><span className="label error">Rejected</span></div>
-                  :
-                    this.props.transactions.trade.requested
-                    ?
-                      <div className="status"><Spinner/><span className="label">Signing transaction</span></div>
-                    :
-                      this.props.transactions.trade.pending
-                      ?
-                        <div className="status"><Spinner/><span className="label info">View on Etherscan</span></div>
-                      :
-                        this.props.transactions.trade.error
-                        ?
-                          <div className="status"><span className="label error">Failed</span></div>
-                        :
-                          this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
-                          ?
-                            <div className="status"><Spinner/><span className="label info">Confirmed. <br/> Loading data...</span></div>
-                          :
-                            <div className="status"><span className="label info">Completed</span></div>
-              }
-              </a>
-            </div>
-        </div>
-        {
-          !this.hasTxCompleted('trade')
-            ? this.props.transactions.trade && this.props.transactions.trade.error
-            ? <div className="transaction-result">
-              <h3 className="heading">
-                <span className="icon">
-                  <Failed/>
-                </span>
-                <span>Failed to execute trade</span>
-              </h3>
-              <div className="content">
-                <span>
-                  <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
-                  <span className="value">
-                    { settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort((a, b) => a > b).join('')] }% impact limit
+                  <span className={`icon done ${this.hasTxCompleted('approval') ? 'success' : ''}`}>
+                    <Done/>
                   </span>
-                </span>
-              </div>
-            </div>
-              :
-                <div className={`info-box more-info  ${this.props.trade.txs === 1 ? 'single-tx' : 'double-tx'}`} style={{marginTop: 'auto'}}>
-                  <div className="info-box-row info-box-row--no-borders info-box-row--left">
-                    <span className="icon">
-                      <Attention/>
-                    </span>
-                    {
-                      !this.props.showTxMessage &&
-                      <span className="label">
-                        Each trading pair requires a one-time transaction per Ethereum address to be enabled for trading.
-                      </span>
-                    }
-                    {
-                      this.props.showTxMessage && metamask &&
-                      <span className="label">
-                        If your transaction doesn't confirm, click on MetaMask and <strong>try the "Retry with a higher gas price here" button</strong>
-                      </span>
-                    }
-                    {
-                      this.props.showTxMessage && !metamask &&
-                      <span className="label">
-                        If your transaction doesn't confirm, please <strong>resubmit it with a higher gas price in your wallet</strong>
-                      </span>
-                    }
-                  </div>
+                  <span className="label vertical-align">
+                    Enable {tokens[this.props.trade.from].symbol} Trading
+                    <Attention data-tip data-for="allowance-tooltip" className="attention-icon"/>
+                    <ReactTooltip id="allowance-tooltip">
+                       Enabling over token means giving
+                      <br/>
+                      allowance to your proxy
+                    </ReactTooltip>
+                  </span>
                   {
-                    !this.props.showTxMessage &&
-                    <div className="info-box-row info-box-row--left">
-                      <span className="icon" style={{'height': '18px'}}>
-                        <QuestionMark/>
-                      </span>
-                        <span className="label">
-                        Need help? Contact us on <a href="http://chat.makerdao.com" target="_blank" rel="noopener noreferrer">chat.makerdao.com</a>
-                      </span>
-                    </div>
+                    typeof this.props.transactions.approval === 'undefined'
+                      ?
+                      this.props.trade.txs <= 2 || (/*typeof this.props.transactions.proxy.pending !== 'undefined' && */this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false)
+                        ?
+                        <React.Fragment>
+                          <span className="status label">Initiating transaction</span>
+                          <Spinner/>
+                        </React.Fragment>
+                        :
+                        <React.Fragment>
+                          <span className="status label">Waiting</span>
+                        </React.Fragment>
+                      :
+                      this.props.transactions.approval.errorDevice
+                        ?
+                        <span className="status label error">Error connecting device</span>
+                        :
+                        this.props.transactions.approval.rejected
+                          ?
+                          <span className="status label error">Rejected</span>
+                          :
+                          this.props.transactions.approval.requested
+                            ?
+                            <React.Fragment>
+                              <span className="status label info">Signing transaction</span><Spinner/>
+                            </React.Fragment>
+                            :
+                            this.props.transactions.approval.pending
+                              ?
+                              <React.Fragment>
+                                <span className="status label info">View on Etherscan</span><Spinner/>
+                              </React.Fragment>
+                              :
+                              this.props.transactions.approval.error
+                                ?
+                                <span className="status label error">Failed</span>
+                                :
+                                <span className="status label info">Confirmed</span>
                   }
                 </div>
-            :
-              <div className="transaction-result">
+              </div>
+            </a>
+          }
+          {
+            !this.hasTxCompleted('trade')
+              ? this.props.transactions.trade && this.props.transactions.trade.error
+                ? <div className="transaction-result">
                 <h3 className="heading">
-                  <span className="icon">
-                    <Finalized/>
-                  </span>
-                  <span>Congratulations!</span>
+                  <span>Failed to execute trade</span>
                 </h3>
                 <div className="content">
-                  <span className="label">
-                    You successfully bought&nbsp;
-                    <TokenAmount number={this.props.transactions.trade.amountBuy} decimal={5}
-                                 token={this.props.trade.to.toUpperCase()}/> with <TokenAmount number={this.props.transactions.trade.amountSell}
-                                 decimal={5}  token={this.props.trade.from.toUpperCase()}/> at <TokenAmount number={wdiv(this.props.transactions.trade.amountSell, this.props.transactions.trade.amountBuy)}
-                                 decimal={5}  token= {`${this.props.trade.from.toUpperCase()}/${this.props.trade.to.toUpperCase()}`}/> by paying <span className="value">
-                    {
-                      (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined') || typeof this.props.transactions.trade.gasPrice === 'undefined'
-                        ? <span><Spinner/></span>
-                        : <TokenAmount number={(typeof this.props.transactions.approval !== 'undefined'
-                        ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                        : toBigNumber(0)).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))} token={'ETH'}/>
-                    }&nbsp;
+                <span>
+                  <span
+                    className="label">Perhaps the market has moved, so your order could not be filled within the</span>
+                  <span className="value">
+                    {settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort((a, b) => a > b).join('')]}% impact limit
                   </span>
-                    gas cost
-                  </span>
+                </span>
+                </div>
               </div>
-          </div>
-        }
+                 :
+              <a
+                href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
+                className={`non-clickable ${(this.props.transactions.trade && this.props.transactions.trade.tx) ? 'clickable' : ''}`}
+                target="_blank" rel="noopener noreferrer">
+              <div className="transaction-info-box">
+                {
+                  this.props.trade.from === 'eth' && !this.props.trade.proxy &&
+                  <div className="operation new-proxy">
+                    <div className="details">
+                      <span className={`icon ${this.hasTxCompleted('trade') ? 'success' : ''}`}>
+                        <AccountIcon/>
+                      </span>
+                      <span className="label vertical-align">
+                        Create Proxy
+                        <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
+                        <ReactTooltip id="proxy-tooltip">
+                          Proxy is a unique address which allows you
+                          <br/>
+                          to operate on all Maker products and save gas costs.
+                        </ReactTooltip>
+                      </span>
+                      <React.Fragment>
+                        {
+                          typeof this.props.transactions.trade === 'undefined'
+                            ?
+                            this.props.trade.txs === 1
+                              ?
+                              <React.Fragment>
+                                <span className="status label">Initiating transaction</span><Spinner/>
+                              </React.Fragment>
+                              :
+                              <React.Fragment>
+                                <span className="status label">Waiting</span>
+                              </React.Fragment>
+                            :
+                            this.props.transactions.trade.errorDevice
+                              ?
+                              <span className="status label error">Error connecting device</span>
+                              :
+                              this.props.transactions.trade.rejected
+                                ?
+                                <React.Fragment>
+                                  <span className="status label error">Rejected</span>
+                                </React.Fragment>
+                                :
+                                this.props.transactions.trade.requested
+                                  ?
+                                  <React.Fragment>
+                                    <span className="status label">Signing transaction</span><Spinner/>
+                                  </React.Fragment>
+                                  :
+                                  this.props.transactions.trade.pending
+                                    ?
+                                    <React.Fragment>
+                                      <span className="status label info">View on Etherscan</span><Spinner/>
+                                    </React.Fragment>
+                                    :
+                                    this.props.transactions.trade.error
+                                      ?
+                                      <span className="status label error">Failed</span>
+                                      :
+                                      this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                        ?
+                                        <React.Fragment>
+                                          <span className="status label info">Confirmed. Loading...</span><Spinner/>
+                                        </React.Fragment>
+                                        :
+                                        <span className="status label info">Confirmed</span>
+                        }
+                      </React.Fragment>
+                    </div>
+                  </div>
+                }
+                <div className="operation">
+                  <div className="details">
+                    <span className="icon">{tokens[this.props.trade.from].icon}</span>
+                    <span className="label">Sell</span>
+                    <span className="value">{this.props.trade.operation === 'sellAll' ? '' : '~ '}
+                      <TokenAmount number={toWei((this.props.trade.amountPay.valueOf()))}
+                                   token={tokens[this.props.trade.from].symbol}/>
+                    </span>
+                    {
+                      (this.props.trade.proxy || this.props.trade.from !== "eth") &&
+                      <React.Fragment>
+                        {
+                          typeof this.props.transactions.trade === 'undefined'
+                            ?
+                            this.props.trade.txs === 1
+                              ?
+                              <React.Fragment>
+                                <span className="status label">Initiating transaction</span><Spinner/>
+                              </React.Fragment>
+                              :
+                              <React.Fragment>
+                                <span className="status label">Waiting</span>
+                              </React.Fragment>
+                            :
+                            this.props.transactions.trade.errorDevice
+                              ?
+                              <span className="status label error">Error connecting device</span>
+                              :
+                              this.props.transactions.trade.rejected
+                                ?
+                                <React.Fragment>
+                                  <span className="status label error">Rejected</span>
+                                </React.Fragment>
+                                :
+                                this.props.transactions.trade.requested
+                                  ?
+                                  <React.Fragment>
+                                    <span className="status label">Signing transaction</span><Spinner/>
+                                  </React.Fragment>
+                                  :
+                                  this.props.transactions.trade.pending
+                                    ?
+                                    <React.Fragment>
+                                      <span className="status label info">View on Etherscan</span><Spinner/>
+                                    </React.Fragment>
+                                    :
+                                    this.props.transactions.trade.error
+                                      ?
+                                      <span className="status label error">Failed</span>
+                                      :
+                                      this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
+                                        ?
+                                        <React.Fragment>
+                                        <span
+                                          className="status label info">Confirmed. Loading...</span><Spinner/>
+                                        </React.Fragment>
+                                        :
+                                        <React.Fragment/>
+                        }
+                      </React.Fragment>
+                    }
+                  </div>
+                  <div className="details">
+                    <span className="icon">{tokens[this.props.trade.to].icon}</span>
+                    <span className="label">Buy</span>
+                    <span className="value">{this.props.trade.operation === 'buyAll' ? '' : '~ '}
+                      <TokenAmount number={toWei((this.props.trade.amountBuy.valueOf()))}
+                                   token={tokens[this.props.trade.to].symbol}/>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              </a>
+              : <a
+                href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
+                target="_blank" rel="noopener noreferrer"
+                style={{textDecoration: "none"}}
+              >
+                <Congratulation
+                  hasCreatedProxy={!this.props.trade.proxy && this.props.trade.from === "eth"} //THIS IS A FRICKIN HACK!
+                  isCalculatingGas={
+                    (typeof this.props.transactions.approval !== 'undefined' && typeof this.props.transactions.approval.gasPrice === 'undefined')
+                    || typeof this.props.transactions.trade.gasPrice === 'undefined'
+                  }
+                  bought={this.props.transactions.trade.amountBuy}
+                  sold={this.props.transactions.trade.amountSell}
+                  quotation={quotation(this.props.trade.from, this.props.trade.to)}
+                  gas={
+                    (
+                      typeof this.props.transactions.approval !== 'undefined'
+                        ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
+                        : toBigNumber(0)
+                    )
+                      .add(
+                        this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed)
+                      )
+                  }
+                />
+              </a>
+          }
+        </div>
+
         <button type="submit" value="Trade again"
                 onClick={this.props.reset}
                 disabled={!this.showTradeAgainButton()}>
