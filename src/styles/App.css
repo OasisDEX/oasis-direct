@@ -1014,7 +1014,13 @@ button[disabled] {
 
 .transaction-info-box > a {
   width: 100%;
+  cursor: default;
   text-decoration: none;
+}
+
+.non-clickable {
+  cursor: default;
+  pointer-events: none;
 }
 
 .done {
@@ -1052,8 +1058,13 @@ button[disabled] {
   color: #448AFF;
 }
 
-a.no-pointer {
-  cursor: default;
+a.clickable {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+a.clickable .transaction-info-box {
+  border-color: #dee4f4;
 }
 
 .terms-and-conditions {
@@ -1121,7 +1132,7 @@ a.no-pointer {
 }
 
 .transaction-result {
-  border: 1px solid rgba(156, 156, 157, 0.08);
+  border: 1px solid #dee4f4;
   border-radius: 6px;
 
   margin-bottom: auto;
@@ -1175,6 +1186,11 @@ a.no-pointer {
   letter-spacing: 0.7px;
   text-align: right;
   margin-right: 8px;
+}
+
+.transaction-result.congratulation {
+  border-color: #dee4f4;
+  cursor: pointer;
 }
 
 .metamask--big {

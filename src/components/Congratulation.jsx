@@ -30,7 +30,7 @@ class Congratulation extends Component {
      ? calculateTradePrice(this.props.quotation.base, this.props.sold, this.props.quotation.quote, this.props.bought)
      : calculateTradePrice(this.props.quotation.base, this.props.bought, this.props.quotation.quote, this.props.sold);
     return (
-      <div className="transaction-result">
+      <div className="transaction-result congratulation">
         <h3 className="heading">
           <span>Congratulations!</span>
           <span className="status label info">Confirmed</span>
@@ -39,7 +39,7 @@ class Congratulation extends Component {
           {
             this.props.hasCreatedProxy &&
             <span className="label">
-              You have successfully create a Proxy
+              You have successfully create a <span className="value"> Proxy </span>
               <br/>
               <br/>
             </span>
@@ -49,7 +49,7 @@ class Congratulation extends Component {
           {
             this.props.hasCreatedProxy
               ? <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
-              : <React.Fragment>You used your <span className="value"> Proxy </span> to {this.props.quotation.isCounter ? "sell" : "buy"}&nbsp;</React.Fragment>
+              : <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
           }
           <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
                        token={this.props.quotation.base.toUpperCase()}/>&nbsp;
