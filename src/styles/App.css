@@ -151,6 +151,10 @@
 .frame.finalize .info-box .info-box-row .holder {
   padding: 0;
 }
+.frame.finalize .info-box .info-box-row .holder .value,
+.frame.finalize .info-box .info-box-row .holder .label {
+  font-size: 12px;
+}
 
 .frame.finalize .content {
   flex-direction: column;
@@ -180,7 +184,7 @@
 
 .label {
   font-family: Montserrat, sans-serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.92px;
 
@@ -404,6 +408,12 @@
   padding: 14px 16px;
 }
 
+.info-box-row .holder {
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+}
+
 .info-box-row .holder:nth-child(even) {
   padding-left: 12px;
 }
@@ -417,18 +427,11 @@
 }
 
 .info-box .info-box-row .holder .label {
-  font-family: Montserrat, sans-serif;
-  font-weight: 500;
-  font-size: 12px;
-  color: #6E6E70;
-  opacity: 0.6;
+  color: #9C9C9D;
   letter-spacing: 1.1px;
 }
 
 .info-box .info-box-row .holder .value {
-  font-family: Montserrat, sans-serif;
-  font-weight: 500;
-  font-size: 12px;
   letter-spacing: 1.09px;
   text-align: right;
   line-height: 15px;
@@ -498,6 +501,11 @@
 
 .token-icon {
   height: 38px;
+}
+
+.attention-icon {
+  margin-left: 4px;
+  width: 16px;
 }
 
 .identicon-placeholder {
@@ -938,7 +946,7 @@ button[disabled] {
   justify-content: flex-start;
   align-items: center;
 
-  padding: 8px 0;
+  padding: 7px 0;
 }
 
 .transaction-info-box .operation .details > .value {
@@ -966,6 +974,10 @@ button[disabled] {
   letter-spacing: 0.7px;
 
   color: rgba(73, 73, 74, 0.90);
+}
+
+.transaction-info-box .label, .transaction-info-box .value {
+  line-height: 1;
 }
 
 .transaction-info-box .label.info {
@@ -1173,4 +1185,12 @@ a.no-pointer {
 
 .grayscale-icon svg g {
   fill: #969697;
+}
+
+.operation.new-proxy {
+  padding-bottom: 8px;
+}
+
+.operation.new-proxy ~ .operation  {
+  padding-top: 8px;
 }

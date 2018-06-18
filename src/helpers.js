@@ -137,4 +137,12 @@ export const quotation = (from, to) => {
   }
 };
 
+export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
+  return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
+    ?
+    {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}:${tokenSell}`}
+    :
+    {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}:${tokenBuy}`};
+}
+
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;

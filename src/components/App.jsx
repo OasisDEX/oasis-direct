@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as Blockchain from "../blockchainHandler";
-import { addressToBytes32, toBigNumber, toWei, fromWei, BigNumber } from '../helpers';
+import { addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from '../helpers';
 import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
@@ -727,14 +727,6 @@ class App extends Component {
     });
   }
 
-  calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
-    return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
-      ?
-      {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}:${tokenSell}`}
-      :
-      {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}:${tokenBuy}`};
-  }
-
   getBestPriceOffer = (tokenSell, tokenBuy) => {
     const offerTokenSell = settings.chain[this.state.network.network].tokens[tokenBuy.replace('eth', 'weth')].address;
     const offerTokenBuy = settings.chain[this.state.network.network].tokens[tokenSell.replace('eth', 'weth')].address;
@@ -816,7 +808,7 @@ class App extends Component {
               if (trade.rand === rand) {
                 trade.amountBuy = calculatedReceiveValue;
                 trade.amountBuyInput = trade.amountBuy.valueOf();
-                trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade = {...trade, ...calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
                 trade.bestPriceOffer = bestPriceOffer;
               }
               return {trade};
@@ -947,7 +939,7 @@ class App extends Component {
               if (trade.rand === rand) {
                 trade.amountPay = calculatedPayValue;
                 trade.amountPayInput = trade.amountPay.valueOf();
-                trade = {...trade, ...this.calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
+                trade = {...trade, ...calculateTradePrice(trade.from, trade.amountPay, trade.to, trade.amountBuy)};
                 trade.bestPriceOffer = bestPriceOffer;
               }
               return {trade};
