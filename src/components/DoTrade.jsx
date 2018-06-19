@@ -80,7 +80,7 @@ class DoTrade extends Component {
             this.props.trade.txs === 3 &&
             <a
               href={typeof this.props.transactions.proxy !== 'undefined' && this.props.transactions.proxy.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.proxy.tx}` : '#'}
-              className={`non-clickable ${(this.props.transactions.proxy && this.props.transactions.proxy.tx) ? 'clickable' : ''}`}
+              className={`tx ${(this.props.transactions.proxy && this.props.transactions.proxy.tx) ? 'clickable' : 'non-clickable'}`}
               target="_blank" rel="noopener noreferrer">
               <div className="transaction-info-box">
                 <div className="operation">
@@ -114,7 +114,7 @@ class DoTrade extends Component {
                           this.props.transactions.proxy.requested
                             ?
                             <React.Fragment>
-                              <span className="status label info">Sign transaction</span><Spinner/>
+                              <span className="status label">Signing transaction</span><Spinner/>
                             </React.Fragment>
                             :
                             this.props.transactions.proxy.pending
@@ -137,7 +137,7 @@ class DoTrade extends Component {
             this.props.trade.txs >= 2 &&
             <a
               href={typeof this.props.transactions.approval !== 'undefined' && this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.approval.tx}` : '#'}
-              className={`non-clickable ${(this.props.transactions.approval && this.props.transactions.approval.tx) ? 'clickable' : ''}`}
+              className={`tx ${(this.props.transactions.approval && this.props.transactions.approval.tx) ? 'clickable' : 'non-clickable'}`}
               target="_blank" rel="noopener noreferrer">
               <div className="transaction-info-box">
                 <div className="operation">
@@ -178,7 +178,7 @@ class DoTrade extends Component {
                           this.props.transactions.approval.requested
                             ?
                             <React.Fragment>
-                              <span className="status label info">Signing transaction</span><Spinner/>
+                              <span className="status label">Signing transaction</span><Spinner/>
                             </React.Fragment>
                             :
                             this.props.transactions.approval.pending
@@ -217,7 +217,7 @@ class DoTrade extends Component {
                  :
               <a
                 href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
-                className={`non-clickable ${(this.props.transactions.trade && this.props.transactions.trade.tx) ? 'clickable' : ''}`}
+                className={`tx ${(this.props.transactions.trade && this.props.transactions.trade.tx) ? 'clickable' : 'non-clickable'}`}
                 target="_blank" rel="noopener noreferrer">
               <div className="transaction-info-box">
                 {
@@ -361,9 +361,11 @@ class DoTrade extends Component {
                 </div>
               </div>
               </a>
-              : <a
+              :
+              <a
                 href={typeof this.props.transactions.trade !== 'undefined' && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network)}/tx/${this.props.transactions.trade.tx}` : '#'}
                 target="_blank" rel="noopener noreferrer"
+                className='clickable'
                 style={{textDecoration: "none"}}
               >
                 <Congratulation
