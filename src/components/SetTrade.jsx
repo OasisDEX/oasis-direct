@@ -12,6 +12,18 @@ import * as Blockchain from "../blockchainHandler";
 
 const settings = require('../settings');
 
+const backdropStyle = {
+  position: 'absolute',
+  display:"flex",
+  alignItems:"center",
+  justifyContent:"center",
+  top: 0,
+  left: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  height: '100%',
+  width: '100%'
+};
+
 //TODO: make this bound to the token selector.
 const tokens = {
   eth: {
@@ -350,8 +362,8 @@ class SetTrade extends Component {
         }
         {
           this.props.loadingAddress &&
-          <div style={ {position: 'absolute', top: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', height: '100%', width: '100%'} }>
-            <span style={ {display: 'block', margin: 'auto', width: '18px'} }><Spinner /></span>
+          <div style={ backdropStyle }>
+            <Spinner styles={{width:"24px", height:"24px"}}/>
           </div>
         }
       </React.Fragment>

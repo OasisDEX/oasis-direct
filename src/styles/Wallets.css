@@ -137,7 +137,7 @@
 }
 
 .wallets .browser-wallet button {
-  width: auto;
+  width: 100px;
   padding: 0 15px;
   max-height: 28px;
   border-radius: 3px;
