@@ -114,6 +114,7 @@
 .wallets .browser-wallet .client-summary div {
   margin-left: 12px;
   display: inline-flex;
+  align-items: flex-start;
   flex-direction: column;
 }
 

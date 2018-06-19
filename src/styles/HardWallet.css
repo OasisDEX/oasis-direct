@@ -25,20 +25,26 @@
   cursor: pointer;
 }
 
-.hard-wallet-addresses .content .list-item:hover,
+.hard-wallet-addresses .content .list-item .balance .value {
+  color: #969697;
+}
+
 .hard-wallet-addresses .content .list-item.selected {
   background: #F7FAFF;
 }
 
-.hard-wallet-addresses .content .list-item:hover .balance,
-.hard-wallet-addresses .content .list-item:hover .address,
-.hard-wallet-addresses .content .list-item.selected .balance,
+.hard-wallet-addresses .content .list-item:not(.selected):hover {
+  background: rgba(222,228,244,0.08);
+}
+
+.hard-wallet-addresses .content .list-item.selected .balance .value,
 .hard-wallet-addresses .content .list-item.selected .address {
   color: #3F3F40;
 }
 
-.hard-wallet-addresses .content .list-item .balance {
-  color: #969697;
+.hard-wallet-addresses .content .list-item:not(.selected):hover .balance .value,
+.hard-wallet-addresses .content .list-item:not(.selected):hover .address {
+  color:  #656566;
 }
 
 .hard-wallet-addresses .content .list-item:last-child {
