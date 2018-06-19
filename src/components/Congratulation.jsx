@@ -55,12 +55,12 @@ class Congratulation extends Component {
                        token={this.props.quotation.base.toUpperCase()}/>&nbsp;
           {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
           <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
-                       token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
+                       token={this.props.quotation.quote.toUpperCase()}/>
           <br/>
           at&nbsp;
           <TokenAmount number={toWei(finalizedPrice.price)}
-                       token={`${finalizedPrice.priceUnit.toUpperCase()}`}/>&nbsp;
-          by paying&nbsp;
+                       token={`${finalizedPrice.priceUnit.toUpperCase()}`}/>
+          &nbsp;by paying&nbsp;
           <span className="value">
             {
               this.props.isCalculatingGas

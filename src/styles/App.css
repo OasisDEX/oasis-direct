@@ -160,6 +160,10 @@
   flex-direction: column;
 }
 
+.frame.finalize .content a.tx {
+  margin-bottom:12px;
+}
+
 .frame.finalize button {
   margin-top: auto;
 }
@@ -894,8 +898,6 @@ button[disabled] {
   background: #FFFFFF;
   border: 1px solid rgba(230, 230, 230, 0.60);
   border-radius: 4px;
-
-  margin-bottom: 12px;
 }
 
 .transaction-info-box.collapse {
@@ -978,6 +980,8 @@ button[disabled] {
   letter-spacing: 0.7px;
 
   color: rgba(73, 73, 74, 0.90);
+
+  margin-right: 0;
 }
 
 .transaction-info-box .label, .transaction-info-box .value {
@@ -1003,7 +1007,10 @@ button[disabled] {
 
 .transaction-info-box .status.label {
   margin-left: auto;
-  margin-right: 8px;
+}
+
+.transaction-info-box .spinner {
+  margin-left: 8px;
 }
 
 .content {
