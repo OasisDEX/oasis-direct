@@ -1195,7 +1195,7 @@ a.clickable .transaction-info-box {
   color: #448AFF;
   letter-spacing: 0.7px;
   text-align: right;
-  margin-right: 8px;
+  margin-right: 0;
 }
 
 .transaction-result.congratulation {

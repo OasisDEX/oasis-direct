@@ -98,9 +98,7 @@ class DoTrade extends Component {
                     <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
                     <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                       <p>
-                        Proxy is a supporting contract owned by you
-                        <br/>
-                        that groups different actions as one Ethereum transaction.
+                        Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
                       </p>
                     </ReactTooltip>
                   </span>
@@ -163,9 +161,7 @@ class DoTrade extends Component {
                     <Attention data-tip data-for="allowance-tooltip" className="attention-icon"/>
                     <ReactTooltip className="od-tooltip" effect="solid" id="allowance-tooltip">
                       <p>
-                        Enabling token trading allows your Proxy
-                        <br/>
-                        to take tokens from you and trade them on the exchange.
+                        Enabling token trading allows your Proxy to take tokens from you and trade them on the exchange.
                       </p>
                     </ReactTooltip>
                   </span>
@@ -254,9 +250,7 @@ class DoTrade extends Component {
                         <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
                         <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                           <p>
-                            Proxy is a supporting contract owned by you that
-                            <br/>
-                            groups different actions as one Ethereum transaction.
+                            Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
                           </p>
                         </ReactTooltip>
                       </span>
