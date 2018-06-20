@@ -216,7 +216,7 @@ class SetTrade extends Component {
                     <span className="label vertical-align">
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
-                      <ReactTooltip id="price-tooltip">
+                      <ReactTooltip className="od-tooltip" effect="solid" id="price-tooltip">
                         <p>
                           Price is based on the depth of orders
                           <br/>
@@ -232,7 +232,7 @@ class SetTrade extends Component {
                     <span className="label vertical-align">
                       Slippage Limit
                       <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
-                      <ReactTooltip id="slippage-tooltip">
+                      <ReactTooltip className="od-tooltip" effect="solid" id="slippage-tooltip">
                         <p>
                           The difference between the expected price of a trade
                           <br/>
@@ -254,7 +254,7 @@ class SetTrade extends Component {
                   <span className="label vertical-align">
                     Price Impact
                     <Attention data-tip data-for="price-impact-tooltip" className="attention-icon"/>
-                    <ReactTooltip id="price-impact-tooltip">
+                    <ReactTooltip className="od-tooltip" effect="solid" id="price-impact-tooltip">
                         <p>
                            The correlation between an incoming order (to buy or to sell)
                           <br/>
