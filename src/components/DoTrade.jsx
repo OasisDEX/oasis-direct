@@ -98,9 +98,9 @@ class DoTrade extends Component {
                     <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
                     <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                       <p>
-                        Proxy is a unique address which allows you
+                        Proxy is a supporting contract owned by you
                         <br/>
-                        to operate on all Maker products and save gas costs.
+                        that groups different actions as one Ethereum transaction.
                       </p>
                     </ReactTooltip>
                   </span>
@@ -163,9 +163,9 @@ class DoTrade extends Component {
                     <Attention data-tip data-for="allowance-tooltip" className="attention-icon"/>
                     <ReactTooltip className="od-tooltip" effect="solid" id="allowance-tooltip">
                       <p>
-                        Enabling over token means giving
+                        Enabling token trading allows your Proxy
                         <br/>
-                        allowance to your proxy
+                        to take tokens from you and trade them on the exchange.
                       </p>
                     </ReactTooltip>
                   </span>
@@ -254,9 +254,9 @@ class DoTrade extends Component {
                         <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
                         <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                           <p>
-                            Proxy is a unique address which allows you
+                            Proxy is a supporting contract owned by you that
                             <br/>
-                            to operate on all Maker products and save gas costs.
+                            groups different actions as one Ethereum transaction.
                           </p>
                         </ReactTooltip>
                       </span>

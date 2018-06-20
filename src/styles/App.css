@@ -1233,6 +1233,8 @@ a.clickable .transaction-info-box {
   font-size: 12px;
   padding: 0px 16px;
   color: #616161;
+
+  max-width: 200px;
 }
 
 .od-tooltip.show p {
@@ -1248,10 +1250,26 @@ a.clickable .transaction-info-box {
   transform-origin: 0 0;
   transform: rotate(-45deg);
   width: 0;
-  bottom: -12px;
   height: 0;
-  border: 0.5em solid black;
-  border-top-color: white !important;
-  border-color: transparent transparent #fff #fff;
-  box-shadow: -3px 3px 5px -2px rgba(0,0,0,.15);
+  border: 0.5em solid white !important;
+}
+
+.od-tooltip.show.place-top:after {
+  bottom: -12px;
+  box-shadow: -3px 3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-right:after {
+  left: -9px;
+  box-shadow: -3px -3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-left:after {
+  right: -4px;
+  box-shadow: 3px 3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-bottom:after {
+  top: 0;
+  box-shadow: 3px -3px 5px -2px rgba(0, 0, 0, .15);
 }
