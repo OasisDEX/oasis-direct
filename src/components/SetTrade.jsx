@@ -120,16 +120,18 @@ class SetTrade extends Component {
 
   calculateBuyAmount = () => {
     const amountToPay = this.amountPay.value;
+    const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
-    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
     }
   }
 
   calculatePayAmount = () => {
     const amountToBuy = this.amountBuy.value;
+    const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
-    if (!decimals || (decimals && decimals.length <= 18)) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <=15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
   }
