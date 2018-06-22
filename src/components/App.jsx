@@ -184,7 +184,7 @@ class App extends Component {
     }, () => {
       const addrs = settings.chain[this.state.network.network];
       Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
-      const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
+      const setUpPromises = [Blockchain.getProxy(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
         console.log('proxy', r[0]);
         this.setState(prevState => {
@@ -213,7 +213,7 @@ class App extends Component {
   }
 
   setProxyAddress = (callbacks = []) => {
-    Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
+    Blockchain.getProxy(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
       this.setState(() => {
         Blockchain.loadObject('dsproxy', proxy, 'proxy');
@@ -1275,7 +1275,6 @@ class App extends Component {
             fasterGasPrice={this.fasterGasPrice}
             doTrade={this.doTrade}
             reset={this.reset}
-            getProxy={this.getProxy}
             calculateBuyAmount={this.calculateBuyAmount}
             calculatePayAmount={this.calculatePayAmount}
             cleanInputs={this.cleanInputs}

@@ -71,13 +71,39 @@ class TaxWidget extends Component {
     }
   }
 
+  getLegacyProxies = (registry, address) => {
+    return new Promise((resolve, reject) => {
+      const proxies = [];
+      const registryObj = Blockchain.loadObject('legacyproxyregistry', registry);
+      registryObj.proxiesCount(address, async (e, count) => {
+        if (!e) {
+          if (count.gt(0)) {
+            for (let i = count.toNumber() - 1; i >= 0; i--) {
+              proxies.push(await Blockchain.legacy_getProxy(registryObj, address, i));
+            }
+          }
+          resolve(proxies);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
   getPossibleProxies = address => {
     return new Promise((resolve, reject) => {
-      Blockchain.getProxiesCount(address).then(async r => {
-        const proxies = [];
-        if (r.gt(0)) {
-          for (let i = r.toNumber() - 1; i >= 0; i--) {
-            proxies.push(await Blockchain.getProxy(address, i));
+      const promises = [];
+      config.taxProxyRegistries[this.props.network].legacy.forEach(registry => {
+        promises.push(this.getLegacyProxies(registry, address));
+      });
+      promises.push(Blockchain.getProxy(address));
+      let proxies = [];
+      Promise.all(promises).then(r => {
+        for (let i = 0; i < r.length; i++) {
+          if (typeof r[i] === 'object') {
+            proxies = proxies.concat(r[i]);
+          } else {
+            proxies.push(r[i]);
           }
         }
         resolve(proxies);
@@ -122,35 +148,39 @@ class TaxWidget extends Component {
 
   fetchOasisTakeTrades = (contract, address) => {
     return new Promise(async (resolve, reject) => {
-      const promises = [];
-      const proxiesAddr = await this.getPossibleProxies(address);
-      promises.push(this.fetchOasisTradesFromAccount(contract, {taker: address}));
-      proxiesAddr.forEach(proxyAddr => {
-        promises.push(this.fetchOasisTradesFromAccount(contract, {taker: proxyAddr}));
-      });
-      config.supportContracts[this.props.network].forEach(supportContract => {
-        promises.push(this.fetchOasisTradesFromAccount(contract, {taker: supportContract.address}));
-      });
-      Promise.all(promises).then(async r => {
-        const promises2 = [];
-        for (let i = 0; i < r.length; i++) {
-          for (let j = 0; j < r[i].length; j++) {
-            const owner = await this.getOwnerTransaction(r[i][j].transactionHash);
-            if (i === 0 || owner === address) {
-              // For the cases of proxy trades we need to verify if they were done by the address requested or the proxy might have been transferred before
-              promises2.push(this.addOasisTradeFor(address, 'taker', r[i][j].args));
+      try {
+        const promises = [];
+        const proxiesAddr = await this.getPossibleProxies(address);
+        promises.push(this.fetchOasisTradesFromAccount(contract, {taker: address}));
+        proxiesAddr.forEach(proxyAddr => {
+          promises.push(this.fetchOasisTradesFromAccount(contract, {taker: proxyAddr}));
+        });
+        config.supportContracts[this.props.network].forEach(supportContract => {
+          promises.push(this.fetchOasisTradesFromAccount(contract, {taker: supportContract.address}));
+        });
+        Promise.all(promises).then(async r => {
+          const promises2 = [];
+          for (let i = 0; i < r.length; i++) {
+            for (let j = 0; j < r[i].length; j++) {
+              const owner = await this.getOwnerTransaction(r[i][j].transactionHash);
+              if (i === 0 || owner === address) {
+                // For the cases of proxy trades we need to verify if they were done by the address requested or the proxy might have been transferred before
+                promises2.push(this.addOasisTradeFor(address, 'taker', r[i][j].args));
+              }
             }
           }
-        }
-        Promise.all(promises2).then(() => resolve(true));
-      }, () => {
-        reject();
-      })
+          Promise.all(promises2).then(() => resolve(true));
+        }, e => {
+          reject(e);
+        })
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
   setLoading = value => {
-    this.setState(prevState => {
+    this.setState(() => {
       return {isLoading: value};
     });
   }
@@ -265,7 +295,7 @@ class TaxWidget extends Component {
       };
 
       //add trade to CSV
-      this.addTradeToCSV(trade).then(() => resolve(true));
+      this.addTradeToCSV(trade).then(() => resolve(true), e => reject(e));
     });
   }
 

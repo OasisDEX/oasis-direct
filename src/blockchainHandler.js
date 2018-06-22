@@ -9,6 +9,7 @@ const schema = {};
 schema.dstoken = require('./abi/dstoken');
 schema.dsethtoken = require('./abi/dsethtoken');
 schema.proxyregistry = require('./abi/proxyregistry');
+schema.legacyproxyregistry = require('./abi/legacyproxyregistry');
 schema.dsproxy = require('./abi/dsproxy');
 schema.matchingmarket = require('./abi/matchingmarket');
 schema.proxycreateandexecute = require('./abi/proxycreateandexecute');
@@ -108,31 +109,17 @@ export const getTokenTrusted = (token, from, to) => {
     .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
+export const getProxy = account => {
+  return promisify(objects.proxyRegistry.proxies)(account).then(r => r !== '0x0000000000000000000000000000000000000000' ? r : null);
+}
+
 /*
    On the contract side, there is a mapping (address) -> []DsProxy
    A given address can have multiple proxies. Since lists cannot be
    iterated, the way to access a give element is access it by index
  */
-export const getProxy = (account, proxyIndex) => {
-  return promisify(objects.proxyRegistry.proxies)(account, proxyIndex);
-}
-
-export const getProxiesCount = account => {
-  return promisify(objects.proxyRegistry.proxiesCount)(account);
-}
-
-export const getProxyAddress = account => {
-  return getProxiesCount(account).then(async (r) => {
-    if (r.gt(0)) {
-      for (let i = r.toNumber() - 1; i >= 0; i--) {
-        const proxyAddr = await getProxy(account, i);
-        if (await getProxyOwner(proxyAddr) === account) {
-          return proxyAddr;
-        }
-      }
-    }
-    return null;
-  });
+export const legacy_getProxy = (registry, account, proxyIndex) => {
+  return promisify(registry.proxies)(account, proxyIndex);
 }
 
 export const getProxyOwner = proxy => {

@@ -89,6 +89,11 @@
         {
           "address": "0x45ab8d410049116c7a01f6edfc08d564475c08ed",
           "block_start": 685569,
+          "block_end": 5216718
+        },
+        {
+          "address": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
+          "block_start": 5216718,
           "block_end": "latest"
         }
       ],
@@ -116,12 +121,29 @@
       ]
     }
   },
+  "taxProxyRegistries": {
+    "kovan": {
+      "legacy": [
+        "0x383a7fc29edde64aec7f776e2517ec8819e147f1"
+      ]
+    },
+    "main": {
+      "legacy": [
+        "0xaa63c8683647ef91b3fdab4b4989ee9588da297b"
+      ]
+    }
+  },
   "supportContracts": {
     "kovan": [],
     "main": [
       {
         "address": "0xb0a00896f34655edff6c8d915fb342194c4a6d48",
         "block_start": 5120103,
+        "block_end": 5267186
+      },
+      {
+        "address": "0x793ebbe21607e4f04788f89c7a9b97320773ec59",
+        "block_start": 5267186,
         "block_end": "latest"
       }
     ]

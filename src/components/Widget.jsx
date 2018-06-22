@@ -27,8 +27,7 @@ class Widget extends Component {
                   this.props.section === 'tax-exporter'
                     ?
                     <TaxWidget account={this.props.account}
-                               network={this.props.network}
-                               getProxy={this.props.getProxy}/>
+                               network={this.props.network} />
                     :
                     <TradeWidget network={this.props.network}
                                  loadingAddress={this.props.loadingAddress}
