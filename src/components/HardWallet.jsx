@@ -221,7 +221,7 @@ class HardWallet extends React.Component {
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-                  <button disabled={!this.selectedAddress} onClick={this.importAddress}> {this.props.loadingAddress ? <Spinner /> : 'UNLOCK WALLET'}</button>
+                  <button disabled={!this.selectedAddress} onClick={this.importAddress}> {this.props.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
                 </div>
               </section>
             )

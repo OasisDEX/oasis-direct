@@ -381,7 +381,7 @@ class TaxWidget extends Component {
         </div>
         <button type="button" value="Create Report" onClick={this.fetchData}
                 disabled={!this.state.accounts.length || this.state.isLoading}>
-          {this.state.isLoading ? <Spinner/> : 'GENERATE REPORT'}
+          {this.state.isLoading ? <Spinner theme="button"/> : 'GENERATE REPORT'}
         </button>
       </section>
     )

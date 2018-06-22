@@ -130,7 +130,7 @@ class Wallets extends React.Component {
                               </div>
                             </div>
                             <button type="button" onClick={this.selectWallet}>{this.props.loadingAddress ?
-                              <Spinner/> : 'Continue'}</button>
+                              <Spinner theme="button"/> : 'Continue'}</button>
                           </React.Fragment>
                           : <React.Fragment>
                             <div className="client-summary">
