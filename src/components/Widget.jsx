@@ -19,10 +19,9 @@ class Widget extends Component {
                           loadHWAddresses={this.props.loadHWAddresses}
                           selectHWAddress={this.props.selectHWAddress}
                           importAddress={this.props.importAddress}/>
-            : !this.props.isConnected
+            : !this.props.isConnected || this.props.loadingFirstAddress
             ? <Wallets setWeb3WebClient={this.props.setWeb3WebClient} showHW={this.props.showHW} loadingAddress={this.props.loadingAddress} />
             : this.props.account && isAddress(this.props.account)
-
               ? <div>
                 {
                   this.props.section === 'tax-exporter'
@@ -32,6 +31,7 @@ class Widget extends Component {
                                getProxy={this.props.getProxy}/>
                     :
                     <TradeWidget network={this.props.network}
+                                 loadingAddress={this.props.loadingAddress}
                                  account={this.props.account}
                                  proxy={this.props.proxy}
                                  trade={this.props.trade}

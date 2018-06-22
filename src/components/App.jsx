@@ -144,7 +144,11 @@ class App extends Component {
         return {network: networkState};
       }, () => {
         if (this.state.network.defaultAccount && oldDefaultAccount !== this.state.network.defaultAccount) {
-          this.initContracts();
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.loadingAddress = true;
+            return {network: networkState};
+          }, () => this.initContracts());
         }
       });
     }, () => {});
@@ -187,6 +191,7 @@ class App extends Component {
           const network = {...prevState.network};
           const hw = {...prevState.hw};
           network.loadingAddress = false;
+          network.loadingFirstAddress = false;
           hw.showModal = false;
           return {network, hw, proxy: r[0]};
         }, () => {
@@ -1162,6 +1167,7 @@ class App extends Component {
     this.setState(prevState => {
       const network = {...prevState.network};
       network.loadingAddress = true;
+      network.loadingFirstAddress = true;
       network.stopIntervals = false;
       return {network};
     }, async () => {
@@ -1258,6 +1264,7 @@ class App extends Component {
             section={this.state.section}
             network={this.state.network.network}
             loadingAddress={this.state.network.loadingAddress}
+            loadingFirstAddress={this.state.network.loadingFirstAddress}
             account={this.state.network.defaultAccount}
             proxy={this.state.proxy}
             trade={this.state.trade}
