@@ -481,6 +481,10 @@
   cursor: pointer;
 }
 
+.token:hover {
+  border-color: #C7D1EB;
+}
+
 .ether {
   fill: #4F6CB1;
 }
@@ -593,6 +597,10 @@ input {
   padding: 9px;
 
   margin-top: 16px;
+}
+
+input:hover {
+  border-color: #C7D1EB;
 }
 
 input[type=number] {
@@ -769,6 +777,12 @@ button.disconnect {
   color: #FF7575;
 }
 
+button.disconnect:hover {
+  border-color: #C7D1EB;
+  background-color: transparent;
+  color: #FF4C4C;
+}
+
 button.close {
   height: 28px;
   width: 28px;
@@ -787,6 +801,10 @@ button.back {
 
   background: transparent;
   border: transparent;
+}
+
+button.back:hover {
+  background-color: transparent;
 }
 
 button {
@@ -813,6 +831,10 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  background-color: #337EFF;
+  border-color: #3978E6;
+}
 button[disabled] {
   border-color: #DDE4F6;
   background-color: #ffffff;
@@ -1077,6 +1099,10 @@ a.clickable .transaction-info-box {
   border-color: #dee4f4;
 }
 
+a.clickable .transaction-info-box:hover {
+  border-color: #C7D1EB;
+}
+
 .terms-and-conditions {
   height: 42px;
   margin-top: auto;
@@ -1201,6 +1227,10 @@ a.clickable .transaction-info-box {
 .transaction-result.congratulation {
   border-color: #dee4f4;
   cursor: pointer;
+}
+
+.transaction-result.congratulation:hover {
+  border-color: #C7D1EB;
 }
 
 .metamask--big {
