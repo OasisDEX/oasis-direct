@@ -233,11 +233,9 @@ class SetTrade extends Component {
                         <span className="label vertical-align">
                           Price
                           <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
-                          <ReactTooltip id="price-tooltip">
+                          <ReactTooltip className="od-tooltip" effect="solid" id="price-tooltip">
                             <p>
-                              Price is based on the depth of orders
-                              <br/>
-                              needed to fill your order.
+                              The estimated price of your order is calculated based on the current depth of the OasisDEX order book and the size of your order.
                             </p>
                           </ReactTooltip>
                         </span>
@@ -249,11 +247,9 @@ class SetTrade extends Component {
                         <span className="label vertical-align">
                           Slippage Limit
                           <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
-                          <ReactTooltip id="slippage-tooltip">
+                          <ReactTooltip className="od-tooltip" effect="solid" id="slippage-tooltip">
                             <p>
-                              The difference between the expected price of a trade
-                              <br/>
-                              and the price at which the trade is actually executed.
+                              The maximum allowed difference between the estimated price of the order and the actual price. The two may differ if the order book changes before your trade executes.
                             </p>
                           </ReactTooltip>
                         </span>
@@ -271,11 +267,9 @@ class SetTrade extends Component {
                       <span className="label vertical-align">
                         Price Impact
                         <Attention data-tip data-for="price-impact-tooltip" className="attention-icon"/>
-                        <ReactTooltip id="price-impact-tooltip">
+                        <ReactTooltip className="od-tooltip" effect="solid" id="price-impact-tooltip">
                           <p>
-                            The correlation between an incoming order (to buy or to sell)
-                            <br/>
-                            and the subsequent price change
+                            The difference between the best current price on the OasisDEX order book and the estimated price of your order.
                           </p>
                         </ReactTooltip>
                       </span>
