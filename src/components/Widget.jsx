@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TradeWidget from './TradeWidget';
-import TaxWidget from './TaxWidget';
+// import TaxWidget from './TaxWidget';
 
 import Wallets from './Wallets';
 import LockedAccount from './LockedAccount';
@@ -24,11 +24,11 @@ class Widget extends Component {
             : this.props.account && isAddress(this.props.account)
               ? <div>
                 {
-                  this.props.section === 'tax-exporter'
-                    ?
-                    <TaxWidget account={this.props.account}
-                               network={this.props.network} />
-                    :
+                  // this.props.section === 'tax-exporter'
+                  //   ?
+                  //   <TaxWidget account={this.props.account}
+                  //              network={this.props.network} />
+                  //   :
                     <TradeWidget network={this.props.network}
                                  loadingAddress={this.props.loadingAddress}
                                  account={this.props.account}
