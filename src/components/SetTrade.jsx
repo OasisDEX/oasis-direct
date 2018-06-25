@@ -351,12 +351,6 @@ class SetTrade extends Component {
               </button>
             </section>
         }
-        {
-          this.props.loadingAddress &&
-          <div style={ backdropStyle }>
-            <Spinner styles={{width:"24px", height:"24px"}}/>
-          </div>
-        }
       </React.Fragment>
     )
   }
