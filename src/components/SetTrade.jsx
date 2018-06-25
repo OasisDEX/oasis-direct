@@ -182,15 +182,12 @@ class SetTrade extends Component {
             :
             <section className="frame">
               <div className="heading">
-                <span data-tip className="identicon-placeholder"
+                <span className="identicon-placeholder"
                       onClick={() => {
                         this.setState({shouldDisplayActiveConnectionDetails: true});
                       }}>
-                  <Circle><IdentityIcon address={this.props.account}/></Circle>
+                  <Circle hover={true}><IdentityIcon address={this.props.account}/></Circle>
                 </span>
-                <ReactTooltip className="tooltip-theme ">
-                  {this.props.network}
-                </ReactTooltip>
                 <h2>Enter Order Details</h2>
               </div>
               <div

@@ -515,6 +515,21 @@
   height: 38px;
 }
 
+.circle-icon {
+  display: flex;
+  height: 28px;
+  width: 28px;
+  border-radius: 100%;
+  border: 1px solid rgb(222, 228, 244);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.circle-icon.hoverable:hover {
+  border-color: #C7D1EB;
+}
+
 .attention-icon {
   margin-left: 4px;
   width: 16px;
