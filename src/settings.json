@@ -1,5 +1,5 @@
 {
-  "hwNetwork": "kovan",
+  "hwNetwork": "main",
   "etherscanApiKey": "34JVYM6RPM3J1SK8QXQFRNSHD9XG4UHXVU",
   "chain": {
     "kovan": {
