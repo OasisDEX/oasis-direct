@@ -51,8 +51,9 @@ export class Attention extends PureComponent {
   render() {
     return (
       <svg {...this.props} xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
-        <path fill='none' d='M0 0h24v24H0V0z' />
-        <path fill='#9C9C9D' d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'
+        <path fill='none' d='M0 0h24v24H0V0z'/>
+        <path className="attention-path" fill='#9C9C9D'
+              d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'
         />
       </svg>
     )
@@ -86,8 +87,9 @@ export class Done extends PureComponent {
       <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
         <g id='old' fill='none' fillRule='evenodd'>
           <g id='Artboard-3' fill='#9E9E9E' fillRule='nonzero'>
-            <path d='M12,0 C18.624,0 24,5.376 24,12 C24,18.624 18.624,24 12,24 C5.376,24 0,18.624 0,12 C0,5.376 5.376,0 12,0 Z M9.85714286,15 L6.85714286,12 L5.85714286,13 L9.85714286,17 L18.4285714,8.42857143 L17.4285714,7.42857143 L9.85714286,15 Z'
-                  id='Combined-Shape' />
+            <path
+              d='M12,0 C18.624,0 24,5.376 24,12 C24,18.624 18.624,24 12,24 C5.376,24 0,18.624 0,12 C0,5.376 5.376,0 12,0 Z M9.85714286,15 L6.85714286,12 L5.85714286,13 L9.85714286,17 L18.4285714,8.42857143 L17.4285714,7.42857143 L9.85714286,15 Z'
+              id='Combined-Shape'/>
           </g>
         </g>
       </svg>
@@ -568,19 +570,8 @@ export const Grayscale = (props) => {
 //TODO: Use Decorating Component
 export const Circle = (props) => {
 
-  const style = Object.assign({
-    display: "flex",
-    height: "28px",
-    width: "28px",
-    borderRadius: "100%",
-    border: "1px solid rgb(222, 228, 244)",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer"
-  }, props.styles);
-
   return (
-    <div style={style}>
+    <div className={`circle-icon ${props.hover ? "hoverable" : ""}`} style={props.styles}>
       {props.children}
     </div>
   );

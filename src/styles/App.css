@@ -481,6 +481,10 @@
   cursor: pointer;
 }
 
+.token:hover {
+  border-color: #C7D1EB;
+}
+
 .ether {
   fill: #4F6CB1;
 }
@@ -511,10 +515,29 @@
   height: 38px;
 }
 
+.circle-icon {
+  display: flex;
+  height: 28px;
+  width: 28px;
+  border-radius: 100%;
+  border: 1px solid rgb(222, 228, 244);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.circle-icon.hoverable:hover {
+  border-color: #C7D1EB;
+}
+
 .attention-icon {
   margin-left: 4px;
   width: 16px;
   height: 16px;
+}
+
+.attention-icon:hover .attention-path {
+  fill: #8D8D8F;
 }
 
 .identicon-placeholder {
@@ -589,6 +612,10 @@ input {
   padding: 9px;
 
   margin-top: 16px;
+}
+
+input:hover {
+  border-color: #C7D1EB;
 }
 
 input[type=number] {
@@ -765,6 +792,12 @@ button.disconnect {
   color: #FF7575;
 }
 
+button.disconnect:hover {
+  border-color: #C7D1EB;
+  background-color: transparent;
+  color: #FF4C4C;
+}
+
 button.close {
   height: 28px;
   width: 28px;
@@ -783,6 +816,10 @@ button.back {
 
   background: transparent;
   border: transparent;
+}
+
+button.back:hover {
+  background-color: transparent;
 }
 
 button {
@@ -809,6 +846,10 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  background-color: #337EFF;
+  border-color: #3978E6;
+}
 button[disabled] {
   border-color: #DDE4F6;
   background-color: #ffffff;
@@ -1028,7 +1069,6 @@ button[disabled] {
 
 .non-clickable {
   cursor: default;
-  pointer-events: none;
 }
 
 .done {
@@ -1068,11 +1108,14 @@ button[disabled] {
 
 a.clickable {
   cursor: pointer;
-  pointer-events: auto;
 }
 
 a.clickable .transaction-info-box {
   border-color: #dee4f4;
+}
+
+a.clickable .transaction-info-box:hover {
+  border-color: #C7D1EB;
 }
 
 .terms-and-conditions {
@@ -1193,12 +1236,16 @@ a.clickable .transaction-info-box {
   color: #448AFF;
   letter-spacing: 0.7px;
   text-align: right;
-  margin-right: 8px;
+  margin-right: 0;
 }
 
 .transaction-result.congratulation {
   border-color: #dee4f4;
   cursor: pointer;
+}
+
+.transaction-result.congratulation:hover {
+  border-color: #C7D1EB;
 }
 
 .metamask--big {
@@ -1221,4 +1268,53 @@ a.clickable .transaction-info-box {
 
 .operation.new-proxy ~ .operation  {
   padding-top: 8px;
+}
+
+.od-tooltip.show {
+  opacity: 1;
+  box-shadow: 0 0 4px 1px rgba(0,0,0,.15);
+  border: 1px solid hsla(240,1%,72%,.05);
+  background-color: #ffffff;
+  font-size: 12px;
+  padding: 0px 16px;
+  color: #616161;
+
+  max-width: 200px;
+}
+
+.od-tooltip.show p {
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 1.1px;
+}
+
+.od-tooltip.show:after {
+  box-sizing: border-box;
+  transform-origin: 0 0;
+  transform: rotate(-45deg);
+  width: 0;
+  height: 0;
+  border: 0.5em solid white !important;
+}
+
+.od-tooltip.show.place-top:after {
+  bottom: -12px;
+  box-shadow: -3px 3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-right:after {
+  left: -9px;
+  box-shadow: -3px -3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-left:after {
+  right: -4px;
+  box-shadow: 3px 3px 5px -2px rgba(0, 0, 0, .15);
+}
+
+.od-tooltip.show.place-bottom:after {
+  top: 0;
+  box-shadow: 3px -3px 5px -2px rgba(0, 0, 0, .15);
 }

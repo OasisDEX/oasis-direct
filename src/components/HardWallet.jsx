@@ -178,6 +178,12 @@ class HardWallet extends React.Component {
     this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
   };
 
+  importAddress = () => {
+    if (this.props.loadingAddress) return;
+
+    this.props.importAddress();
+  }
+
 
   render() {
     return (
@@ -215,7 +221,7 @@ class HardWallet extends React.Component {
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-                  <button disabled={!this.selectedAddress || this.props.loadingAddress} onClick={this.props.importAddress}> UNLOCK WALLET {this.props.loadingAddress ? <Spinner /> : ''}</button>
+                  <button disabled={!this.selectedAddress} onClick={this.importAddress}> {this.props.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
                 </div>
               </section>
             )

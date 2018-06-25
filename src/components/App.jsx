@@ -144,7 +144,11 @@ class App extends Component {
         return {network: networkState};
       }, () => {
         if (this.state.network.defaultAccount && oldDefaultAccount !== this.state.network.defaultAccount) {
-          this.initContracts();
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.loadingAddress = true;
+            return {network: networkState};
+          }, () => this.initContracts());
         }
       });
     }, () => {});
@@ -180,13 +184,14 @@ class App extends Component {
     }, () => {
       const addrs = settings.chain[this.state.network.network];
       Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
-      const setUpPromises = [Blockchain.getProxyAddress(this.state.network.defaultAccount)];
+      const setUpPromises = [Blockchain.getProxy(this.state.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
         console.log('proxy', r[0]);
         this.setState(prevState => {
           const network = {...prevState.network};
           const hw = {...prevState.hw};
           network.loadingAddress = false;
+          network.loadingFirstAddress = false;
           hw.showModal = false;
           return {network, hw, proxy: r[0]};
         }, () => {
@@ -208,7 +213,7 @@ class App extends Component {
   }
 
   setProxyAddress = (callbacks = []) => {
-    Blockchain.getProxyAddress(this.state.network.defaultAccount).then(proxy => {
+    Blockchain.getProxy(this.state.network.defaultAccount).then(proxy => {
       console.log('proxy', proxy);
       this.setState(() => {
         Blockchain.loadObject('dsproxy', proxy, 'proxy');
@@ -1162,6 +1167,7 @@ class App extends Component {
     this.setState(prevState => {
       const network = {...prevState.network};
       network.loadingAddress = true;
+      network.loadingFirstAddress = true;
       network.stopIntervals = false;
       return {network};
     }, async () => {
@@ -1258,6 +1264,7 @@ class App extends Component {
             section={this.state.section}
             network={this.state.network.network}
             loadingAddress={this.state.network.loadingAddress}
+            loadingFirstAddress={this.state.network.loadingFirstAddress}
             account={this.state.network.defaultAccount}
             proxy={this.state.proxy}
             trade={this.state.trade}
@@ -1268,7 +1275,6 @@ class App extends Component {
             fasterGasPrice={this.fasterGasPrice}
             doTrade={this.doTrade}
             reset={this.reset}
-            getProxy={this.getProxy}
             calculateBuyAmount={this.calculateBuyAmount}
             calculatePayAmount={this.calculatePayAmount}
             cleanInputs={this.cleanInputs}
@@ -1294,8 +1300,8 @@ class App extends Component {
                 <a href="/"> <Logo/> </a>
               </div>
               <div className={'NavigationLinks'}>
-                <a href="/#" style={{color: 'white'}}>Trade</a>
-                <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a>
+                {/* <a href="/#" style={{color: 'white'}}>Trade</a> */}
+                {/* <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a> */}
               </div>
             </header>
           </section>
