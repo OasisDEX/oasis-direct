@@ -1,0 +1,156 @@
+/*Replace border with border:0*/
+
+.row-flex {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.column-flex {
+  display: flex;
+  flex-direction: column;
+}
+
+.wallets a {
+  text-decoration: none;
+}
+
+.wallets .heading {
+  color: inherit;
+  width: 100%;
+}
+
+.wallets .decorator {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  padding: 23px;
+  top: 0;
+  position: absolute;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  margin-bottom: auto;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.wallets .content {
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: auto;
+  border: 0;
+}
+
+.wallets .clients {
+  justify-content: center;
+}
+
+.wallets .clients:first-child {
+  margin-bottom: 42px;
+}
+
+.wallets .clients .heading {
+  margin-bottom: 20px;
+}
+
+.wallets .list {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 100%;
+}
+
+.wallets .hw-wallet:hover {
+  border-color: #C7D1EB;
+}
+
+.wallets .hw-wallet:hover .label {
+  color: #8B8B8C;
+}
+
+.wallets .hw-wallet:hover .logo  svg *{
+  fill: #8B8B8C;
+}
+
+.wallets .list .list-item {
+  padding: 0;
+  border: 0;
+}
+
+.wallets .list .list-item .row-items {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.wallets .list .list-item .row-flex > * {
+  flex: 1 1 100%;
+  margin-left: 24px;
+}
+
+.wallets .list .list-item .row-flex > *:first-child {
+  margin: 0;
+}
+
+.wallets .browser-wallet {
+  display: flex;
+  flex: 1 1 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+  padding: 20px 16px;
+  margin-bottom: 24px;
+}
+
+.wallets .client-summary {
+  display: inline-flex;
+  text-transform: capitalize;
+  align-items: center;
+}
+
+.wallets .browser-wallet .client-summary div {
+  margin-left: 12px;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.wallets .browser-wallet .label.status {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  text-align: left;
+  color: #5B5B5C;
+  letter-spacing: 0.29px;
+  opacity: 0.4;
+}
+
+.wallets .browser-wallet .label {
+  font-size: 14px;
+  line-height: 14px;
+  font-weight: 500;
+  color: #5B5B5C;
+  letter-spacing: 0.4px;
+}
+
+.wallets .browser-wallet button {
+  min-width: 100px;
+  width: auto;
+  padding: 0 15px;
+  max-height: 28px;
+  border-radius: 3px;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.15);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}
+
+.wallets .browser-wallet button:hover {
+  background-color: #337EFF;
+  border: 1px solid #376ECC;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.25);
+
+}

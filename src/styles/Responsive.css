@@ -36,6 +36,10 @@
     margin-top: 24px;
   }
 
+  .Widget.trade-widget {
+    margin-top: 0px;
+  }
+
   header {
     flex-direction: column;
     justify-content: center;
@@ -88,7 +92,12 @@
   }
 }
 
-@media all and (max-width: 499px) {
+@media all and (max-width: 469px) {
+  .identicon-placeholder, .frame button.back {
+    top:7px;
+    left: 12px;
+  }
+
   .connectionless .content .heading img {
     width: 64px;
     height: 64px;
@@ -129,7 +138,8 @@
     margin: auto;
   }
 
-  .frame > .content {
+  .frame .content .selected-token .token{
+    padding: 8px;
   }
 
   .frame > .info-box {
@@ -138,6 +148,19 @@
 
   .frame > .info-box .info-box-row {
     height: 24px;
+    padding: 7px;
+  }
+
+  .frame > .info-box .info-box-row .holder:nth-child(even) {
+    padding-left: 6px;
+  }
+
+  .frame > .info-box .info-box-row .holder:nth-child(odd) {
+    padding-right: 6px;
+  }
+
+  .frame.hard-wallet .guidelines .list .list-item{
+    padding: 10px;
   }
 
   .frame > .info-box .info-box-row .icon {
@@ -269,6 +292,29 @@
     width: 100%;
     max-height: 140px;
   }
+
+  .info-box .info-box-row .holder .label, .info-box .info-box-row .holder .value {
+    font-size: 10px;
+  }
+
+  .token-name {
+    font-size: 8px;
+  }
+
+  .hard-wallet-addresses  button.close {
+    top: 7px;
+    right: 11px;
+  }
+
+  .hard-wallet-addresses .content {
+    margin-top: 12px;
+  }
+
+  .hard-wallet-addresses  .list-item .address {
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 @media all and (max-width: 399px) {
@@ -314,6 +360,10 @@
   .transaction-info-box .operation .icon, .transaction-info-box .operation .icon svg {
     height: 24px;
     width: 24px;
+  }
+
+  .wallet-settings .wallet-details .label, .wallet-settings .wallet-details .value, .wallet-settings .wallet-details a {
+    font-size: 10px;
   }
 }
 
@@ -372,5 +422,17 @@
 
   .exporter .panel .list .list-item .address--with-tail {
     width: 61%;
+  }
+
+  .wallets .browser-wallet {
+    padding: 10px 8px;
+  }
+
+  .wallets .hw-wallet .label {
+    font-size: 10px;
+  }
+
+  .info-box .info-box-row .holder .label, .info-box .info-box-row .holder .value {
+    font-size: 8px;
   }
 }

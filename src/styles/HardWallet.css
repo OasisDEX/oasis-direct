@@ -1,0 +1,143 @@
+.hard-wallet .content, .hard-wallet-addresses .content {
+  justify-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.hard-wallet-addresses .content {
+  margin-top: 36px;
+  height: 100%;
+}
+
+.hard-wallet-addresses .content .list {
+  width: 100%;
+  border: 1px solid #DEE4F4;
+  border-radius: 4px;
+}
+
+.hard-wallet-addresses .content .list-item {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  height: 44px;
+  color: #777778;
+  border-color: #DEE4F4;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+
+.hard-wallet-addresses .content .list-item .balance .value {
+  color: #969697;
+}
+
+.hard-wallet-addresses .content .list-item.selected {
+  background: #F7FAFF;
+}
+
+.hard-wallet-addresses .content .list-item:not(.selected):hover {
+  background: rgba(222,228,244,0.08);
+}
+
+.hard-wallet-addresses .content .list-item.selected .balance .value,
+.hard-wallet-addresses .content .list-item.selected .address {
+  color: #3F3F40;
+}
+
+.hard-wallet-addresses .content .list-item:not(.selected):hover .balance .value,
+.hard-wallet-addresses .content .list-item:not(.selected):hover .address {
+  color:  #656566;
+}
+
+.hard-wallet-addresses .content .list-item:last-child {
+  border-bottom: 0;
+}
+
+.hard-wallet-addresses .content .pagination {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.hard-wallet .progress {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+
+  margin-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hard-wallet .progress .status {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+
+  height: 34px;
+  width: 176px;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+
+  padding: 8px 16px;
+}
+
+.hard-wallet .progress .label {
+  width: 100%;
+  margin-left: 0;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+
+  text-align: center;
+
+  color: #777778;
+  letter-spacing: 0.88px;
+}
+
+.hard-wallet .guidelines {
+  margin-top: 24px;
+
+  max-width: 380px;
+  width: 100%;
+
+  border: 1px solid #F0F0F0;
+  border-radius: 4px;
+}
+
+.hard-wallet .guidelines .list .list-item {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  justify-content: initial;
+  border: 0;
+  padding: 18px 22px;
+}
+
+.hard-wallet .guidelines .bullet-number {
+  display: inline-block;
+  margin: 0 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #969697;
+  letter-spacing: 1.17px;
+  text-align: center;
+}
+
+.hard-wallet .guidelines .text {
+  max-width: 270px;
+  font-size: 12px;
+  color: #969697;
+  letter-spacing: 1px;
+  text-align: left;
+}
+
+.hard-wallet button.close, .hard-wallet-addresses button.close {
+  position: absolute;
+  top: 18px;
+  right: 23px;
+}
+
+.hard-wallet-addresses .content button {
+  margin-top: auto;
+}

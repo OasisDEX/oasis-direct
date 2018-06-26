@@ -1,37 +1,9 @@
 {
+  "hwNetwork": "main",
   "etherscanApiKey": "34JVYM6RPM3J1SK8QXQFRNSHD9XG4UHXVU",
   "chain": {
-    "private": {
-      "otc": "",
-      "threshold": {
-        "daieth": 2,
-        "daimkr": 1,
-        "ethmkr": 1
-      },
-      "tokens": {
-        "weth": {
-          "address": "",
-          "minValue": 0
-        },
-        "mkr": {
-          "address": "",
-          "minValue": 0
-        },
-        "dai": {
-          "address": "",
-          "minValue": 0
-        }
-      },
-      "proxyRegistry": "",
-      "proxyFactory": "",
-      "proxyContracts": {
-        "oasisDirect": ""
-      },
-      "addrEstimation": "",
-      "proxyEstimation": "",
-      "fromBlock": 0
-    },
     "kovan": {
+      "nodeURL" : "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
       "threshold": {
         "daieth": 2,
@@ -52,8 +24,8 @@
           "minValue": 0.00001
         }
       },
-      "proxyRegistry": "0x383a7fc29edde64aec7f776e2517ec8819e147f1",
-      "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
+      "proxyRegistry": "0x64a436ae831c1672ae81f674cab8b6775df3475c",
+      "proxyFactory": "0xe11e3b391f7e8bc47247866af32af67dd58dc800",
       "proxyCreationAndExecute": "0xee419971e63734fed782cfe49110b1544ae8a773",
       "proxyContracts": {
         "oasisDirect": "0xe635f5f52220a114fea0985abf7ec8144710507b"
@@ -63,6 +35,7 @@
       "fromBlock": 0
     },
     "main": {
+      "nodeURL" : "https://mainnet.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
       "threshold": {
         "daieth": 2,
@@ -83,8 +56,8 @@
           "minValue": 30
         }
       },
-      "proxyRegistry": "0xaa63c8683647ef91b3fdab4b4989ee9588da297b",
-      "proxyFactory": "0x1043fbd15c10a3234664cbdd944a16a204f945e6",
+      "proxyRegistry": "0x4678f0a6958e4d2bc4f1baf7bc52e8f3564f3fe4",
+      "proxyFactory": "0xa26e15c895efc0616177b7c1e7270a4c7d51c997",
       "proxyCreationAndExecute": "0x793ebbe21607e4f04788f89c7a9b97320773ec59",
       "proxyContracts": {
         "oasisDirect": "0x279594b6843014376a422ebb26a6eab7a30e36f0"
