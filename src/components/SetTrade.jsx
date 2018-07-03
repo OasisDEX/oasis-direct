@@ -141,10 +141,9 @@ class SetTrade extends Component {
     }
   }
 
-  hasDetails = () => {
-    // return true;
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy;
-  }
+  hasDetails = () => this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0);
+
+  hasErrors = () =>  this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy;
 
   acceptTermsAndConditions = () => {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
@@ -182,7 +181,7 @@ class SetTrade extends Component {
                 <h2>Enter Order Details</h2>
               </div>
               <div
-                className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
+                className={`info-box ${this.hasDetails() || this.hasErrors() ? '' : ' info-box--hidden'} ${this.hasErrors() ? 'has-errors' : ''}`}>
                 <div className="info-box-row wrap">
                   {
                     this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
@@ -322,7 +321,7 @@ class SetTrade extends Component {
                 </form>
               </div>
               {
-                this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
+                this.hasDetails() && !this.hasErrors() &&
                 <Checkbox className="terms-and-conditions" onToggle={this.acceptTermsAndConditions}>
                   I agree to the&nbsp;
                   <a href="OasisToS.pdf" target="_blank" onClick={e => e.stopPropagation()}>
@@ -331,7 +330,7 @@ class SetTrade extends Component {
                 </Checkbox>
               }
               <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
-                      disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
+                      disabled={this.hasErrors() || !this.hasDetails() || !this.state.hasAcceptedTerms}>
                 START TRANSACTION
               </button>
             </section>
