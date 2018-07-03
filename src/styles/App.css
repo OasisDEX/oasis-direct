@@ -1,6 +1,7 @@
 @import './Wallets.css';
 @import './HardWallet.css';
 @import '../ui-components/Product.css';
+@import '../ui-components/Checkbox.css';
 
 .notify-container {
   display: flex;
@@ -1119,11 +1120,15 @@ a.clickable .transaction-info-box:hover {
 }
 
 .terms-and-conditions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #F0F0F0;
   height: 42px;
   margin-top: auto;
   margin-bottom: 0;
   flex-direction: row;
-  justify-content: space-evenly;
   padding: 8px 24px;
 }
 
@@ -1131,12 +1136,10 @@ a.clickable .transaction-info-box:hover {
   cursor: pointer;
 }
 
-.info-box.terms-and-conditions .info-box-row {
-  padding: 0;
-}
 
 .terms-and-conditions .label {
   font-size: 12px;
+  line-height: 14px;
   color: rgba(156, 156, 157, 0.90);
   letter-spacing: 0.7px;
   margin-right: 0;
@@ -1145,27 +1148,6 @@ a.clickable .transaction-info-box:hover {
 .terms-and-conditions .label a {
   text-decoration: none;
   opacity: 1;
-}
-
-.checkbox {
-  height: 14px;
-  width: 14px;
-  border: 1px solid #DEE4F4;
-  border-radius: 2px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-  vertical-align: middle;
-}
-
-.checkbox--active {
-  border-color: #448AFF;
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZSIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+ICAgIDxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4gICAgPHBhdGggZD0iTTkgMTYuMkw0LjggMTJsLTEuNCAxLjRMOSAxOSAyMSA3bC0xLjQtMS40TDkgMTYuMnoiLz48L3N2Zz4=);
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-color: #448AFF;
 }
 
 .holder {

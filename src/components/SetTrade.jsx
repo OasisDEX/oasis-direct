@@ -9,6 +9,7 @@ import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
+import Checkbox from "../ui-components/Checkbox";
 
 const settings = require('../settings');
 
@@ -120,8 +121,10 @@ class SetTrade extends Component {
 
   calculateBuyAmount = () => {
     const amountToPay = this.amountPay.value;
+
     const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
+
     if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
     }
@@ -129,8 +132,10 @@ class SetTrade extends Component {
 
   calculatePayAmount = () => {
     const amountToBuy = this.amountBuy.value;
+
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
+
     if (whole.length <=15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
@@ -153,10 +158,6 @@ class SetTrade extends Component {
     .round(2)
     .valueOf();
 
-  debug = (value) => {
-    console.log(value);
-    return value;
-  }
 
   render() {
     return (
@@ -195,8 +196,9 @@ class SetTrade extends Component {
                     (
                       this.props.trade.errorInputSell === 'funds'
                         ?
-                        <span
-                          className="label"> You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet</span>
+                        <span className="label">
+                          You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet
+                        </span>
                         :
                         this.props.trade.errorInputSell === 'gasCost'
                           ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
@@ -321,19 +323,12 @@ class SetTrade extends Component {
               </div>
               {
                 this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
-                <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
-                    onClick={this.acceptTermsAndConditions}>
-                  <div className="info-box-row">
-                      <span>
-                        <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
-                        <span className="label">
-                          I agree to the <a href="OasisToS.pdf" target="_blank" onClick={(e) => {
-                          e.stopPropagation()
-                        }}>Terms of Service</a>
-                        </span>
-                      </span>
-                  </div>
-                </div>
+                <Checkbox className="terms-and-conditions" onToggle={this.acceptTermsAndConditions}>
+                  I agree to the&nbsp;
+                  <a href="OasisToS.pdf" target="_blank" onClick={e => e.stopPropagation()}>
+                    Terms of Service
+                  </a>
+                </Checkbox>
               }
               <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
                       disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>

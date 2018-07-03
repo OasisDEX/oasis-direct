@@ -1,0 +1,20 @@
+.checkbox {
+  height: 14px;
+  width: 14px;
+  border: 1px solid #DEE4F4;
+  border-radius: 2px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+  vertical-align: middle;
+}
+
+.checkbox.checked {
+  border-color: #448AFF;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZSIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+ICAgIDxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4gICAgPHBhdGggZD0iTTkgMTYuMkw0LjggMTJsLTEuNCAxLjRMOSAxOSAyMSA3bC0xLjQtMS40TDkgMTYuMnoiLz48L3N2Zz4=);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #448AFF;
+}
