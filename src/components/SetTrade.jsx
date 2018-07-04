@@ -10,6 +10,7 @@ import TokenAmount from './TokenAmount';
 import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
 import Checkbox from "../ui-components/Checkbox";
+import AmountInput from "./AmountInput";
 
 const settings = require('../settings');
 
@@ -118,26 +119,12 @@ class SetTrade extends Component {
     return false;
   }
 
-  calculateBuyAmount = () => {
-    const amountToPay = this.amountPay.value;
-
-    const whole = amountToPay.split(".")[0];
-    const decimals = amountToPay.split(".")[1];
-
-    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
-      this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
-    }
+  calculateBuyAmount = (amount) => {
+    this.props.calculateBuyAmount(this.state.from, this.state.to, amount);
   }
 
-  calculatePayAmount = () => {
-    const amountToBuy = this.amountBuy.value;
-
-    const whole = amountToBuy.split(".")[0];
-    const decimals = amountToBuy.split(".")[1];
-
-    if (whole.length <=15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
-      this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
-    }
+  calculatePayAmount = (amount) => {
+    this.props.calculatePayAmount(this.state.from, this.state.to, amount);
   }
 
   hasDetails = () => this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0);
@@ -283,11 +270,10 @@ class SetTrade extends Component {
                       }
                     </div>
                     <div>
-                      <input type="number"
-                            className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                            ref={(input) => this.amountPay = input}
-                            value={this.props.trade.amountPayInput || ''}
-                            onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
+                      <AmountInput className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                                   onChange={this.calculateBuyAmount}
+                                   value={this.props.trade.amountPayInput}
+                                   placeholder="deposit amount"/>
                     </div>
                   </div>
                   <div className='separator'>
@@ -304,17 +290,16 @@ class SetTrade extends Component {
                         !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
                           ? <Spinner/>
                           : <TokenAmount className="token-name"
-                                        number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
-                                        decimal={3}
-                                        token={tokens[this.state.to].symbol}/>
+                                         number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                         decimal={3}
+                                         token={tokens[this.state.to].symbol}/>
                       }
                     </div>
                     <div>
-                      <input type="number"
-                            className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                            ref={(input) => this.amountBuy = input}
-                            value={this.props.trade.amountBuyInput || ''}
-                            onChange={this.calculatePayAmount} placeholder="receive amount"/>
+                      <AmountInput className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                                   value={this.props.trade.amountBuyInput}
+                                   onChange={this.calculatePayAmount}
+                                   placeholder="receive amount"/>
                     </div>
                   </div>
                 </form>
