@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
-import TokensSelector from './TokensSelector';
+import TokenList from './TokenList';
 import {
   Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
 } from './Icons';
@@ -13,7 +13,6 @@ import Checkbox from "../ui-components/Checkbox";
 
 const settings = require('../settings');
 
-//TODO: make this bound to the token selector.
 const tokens = {
   eth: {
     icon: <Ether/>,
@@ -168,7 +167,7 @@ class SetTrade extends Component {
           :
           this.state.shouldDisplayTokenSelector
             ?
-            <TokensSelector tokens={tokens} balances={this.props.balances} select={this.select} back={() => this.setState({shouldDisplayTokenSelector: false})} />
+            <TokenList tokens={tokens} balances={this.props.balances} onSelect={this.select} onClose={() => this.setState({shouldDisplayTokenSelector: false})} />
             :
             <section className="frame">
               <div className="heading">
