@@ -146,64 +146,69 @@ class SetTrade extends Component {
 
 
   render() {
+    const { balances, network, trade } = this.props;
     return (
       <React.Fragment>
         {
           this.state.shouldDisplayActiveConnectionDetails
-          ?
-          <ActiveConnection account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} onDisconnect={this.props.onDisconnect} />
-          :
-          this.state.shouldDisplayTokenSelector
             ?
-            <TokenList tokens={tokens} balances={this.props.balances} onSelect={this.select} onClose={() => this.setState({shouldDisplayTokenSelector: false})} />
+            <ActiveConnection account={this.props.account} ethBalance={this.state.ethBalance}
+                              network={network}
+                              back={() => this.setState({shouldDisplayActiveConnectionDetails: false})}
+                              onDisconnect={this.props.onDisconnect}/>
             :
-            <section className="frame">
-              <div className="heading">
+            this.state.shouldDisplayTokenSelector
+              ?
+              <TokenList tokens={tokens} balances={balances} onSelect={this.select}
+                         onClose={() => this.setState({shouldDisplayTokenSelector: false})}/>
+              :
+              <section className="frame">
+                <div className="heading">
                 <span className="identicon-placeholder"
                       onClick={() => {
                         this.setState({shouldDisplayActiveConnectionDetails: true});
                       }}>
                   <Circle hover={true}><IdentityIcon address={this.props.account}/></Circle>
                 </span>
-                <h2>Enter Order Details</h2>
-              </div>
-              <div
-                className={`info-box ${this.hasDetails() || this.hasErrors() ? '' : ' info-box--hidden'} ${this.hasErrors() ? 'has-errors' : ''}`}>
-                <div className="info-box-row wrap">
-                  {
-                    this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
-                    <span className="label">
-                      No orders available to {this.props.trade.errorOrders.type}&nbsp;
-                      <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
+                  <h2>Enter Order Details</h2>
+                </div>
+                <div
+                  className={`info-box ${this.hasDetails() || this.hasErrors() ? '' : ' info-box--hidden'} ${this.hasErrors() ? 'has-errors' : ''}`}>
+                  <div className="info-box-row wrap">
+                    {
+                      trade.errorOrders && !trade.errorInputSell &&
+                      <span className="label">
+                      No orders available to {trade.errorOrders.type}&nbsp;
+                        <strong>{trade.errorOrders.amount} {trade.errorOrders.token}</strong>
                     </span>
-                  }
-                  {
-                    this.props.trade.errorInputSell &&
-                    (
-                      this.props.trade.errorInputSell === 'funds'
-                        ?
-                        <span className="label">
-                          You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet
+                    }
+                    {
+                      trade.errorInputSell &&
+                      (
+                        trade.errorInputSell === 'funds'
+                          ?
+                          <span className="label">
+                          You don't have enough <strong>{tokens[trade.from].name} </strong> in your Wallet
                         </span>
-                        :
-                        this.props.trade.errorInputSell === 'gasCost'
-                          ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
-                          : <span className="label">
-                              {tokens[this.props.trade.from].symbol}&nbsp;
-                              Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}
+                          :
+                          trade.errorInputSell === 'gasCost'
+                            ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
+                            : <span className="label">
+                              {tokens[trade.from].symbol}&nbsp;
+                              Minimum Value: {trade.errorInputSell.replace('minValue:', '')}
                             </span>
-                    )
-                  }
-                  {
-                    !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
-                    <span className="label">
-                      {tokens[this.props.trade.to].symbol}&nbsp;
-                      Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}
+                      )
+                    }
+                    {
+                      !trade.errorOrders && !trade.errorInputSell && trade.errorInputBuy &&
+                      <span className="label">
+                      {tokens[trade.to].symbol}&nbsp;
+                        Minimum Value: {trade.errorInputBuy.replace('minValue:', '')}
                     </span>
-                  }
-                  {
-                    !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
-                    <React.Fragment>
+                    }
+                    {
+                      !trade.errorOrders && !trade.errorInputSell && !trade.errorInputBuy &&
+                      <React.Fragment>
                       <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                         <span className="label vertical-align">
                           Price
@@ -214,11 +219,12 @@ class SetTrade extends Component {
                             </p>
                           </ReactTooltip>
                         </span>
-                        <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
-                                    token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+                        <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
+                          number={toWei(trade.price)} decimal={2}
+                          token={`${trade.priceUnit.toUpperCase()}`}/>
                         </span>
                       </span>
-                      <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+                        <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                         <span className="label vertical-align">
                           Slippage Limit
                           <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
@@ -228,17 +234,20 @@ class SetTrade extends Component {
                             </p>
                           </ReactTooltip>
                         </span>
-                        <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                        <span
+                          className="value">{settings.chain[network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
                       </span>
-                      <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+                        <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                       <span className="label">Gas cost</span>
-                        {
-                          this.props.trade.txCost.gt(0)
-                            ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
-                            : <Spinner/>
-                        }
+                          {
+                            trade.txCost.gt(0)
+                              ? <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
+                                number={toWei(trade.txCost) * this.state.priceInUSD} decimal={2}
+                                token={'USD'}/></span>
+                              : <Spinner/>
+                          }
                       </span>
-                      <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                        <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                       <span className="label vertical-align">
                         Price Impact
                         <Attention data-tip data-for="price-impact-tooltip" className="attention-icon"/>
@@ -248,66 +257,64 @@ class SetTrade extends Component {
                           </p>
                         </ReactTooltip>
                       </span>
-                      <span style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}
-                        className='value'>{this.priceImpact()}%</span>
+                      <span style={{color: this.priceImpact() > 5 ? "#E53935" : ""}}
+                            className='value'>{this.priceImpact()}%</span>
                       </span>
-                    </React.Fragment>
-                  }
-                </div>
-              </div>
-              <div className="content">
-                <form className="trade">
-                  <div className="selected-token">
-                    <TokenDetails token={{
-                      icon: tokens[this.state.from].icon,
-                      balance: this.props.balances[tokens[this.state.from].symbol.toLowerCase()] ? this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf() : "",
-                      symbol: tokens[this.state.from].symbol
-                    }} select={() => {
-                      this.pickToken('from')
-                    }}/>
-                    <div>
-                      <AmountInput className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                                   onChange={this.calculateBuyAmount}
-                                   value={this.props.trade.amountPayInput}
-                                   placeholder="deposit amount"/>
-                    </div>
+                      </React.Fragment>
+                    }
                   </div>
-                  <div className='separator'>
+                </div>
+                <div className="content">
+                  <form className="trade">
+                    <div className="selected-token">
+                      <TokenDetails token={{
+                        icon: tokens[this.state.from].icon,
+                        balance: balances[tokens[this.state.from].symbol.toLowerCase()] ? balances[tokens[this.state.from].symbol.toLowerCase()].valueOf() : "",
+                        symbol: tokens[this.state.from].symbol
+                      }} select={() => {
+                        this.pickToken('from')
+                      }}/>
+                      <AmountInput
+                        className={`${trade.errorInputSell && !trade.errorOrders ? 'has-errors' : ''} `}
+                        onChange={this.calculateBuyAmount}
+                        value={trade.amountPayInput}
+                        placeholder="deposit amount"/>
+                    </div>
+                    <div className='separator'>
                     <span className="swap-tokens" onClick={this.swapTokens}>
                       <SwapArrows/>
                     </span>
-                  </div>
-                  <div className="selected-token">
-                    <TokenDetails token={{
-                      icon: tokens[this.state.to].icon,
-                      balance: this.props.balances[tokens[this.state.to].symbol.toLowerCase()] ? this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf() : "",
-                      symbol: tokens[this.state.to].symbol
-                    }} select={() => {
-                      this.pickToken('to')
-                    }}/>
-                    <div>
-                      <AmountInput className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
-                                   value={this.props.trade.amountBuyInput}
-                                   onChange={this.calculatePayAmount}
-                                   placeholder="receive amount"/>
                     </div>
-                  </div>
-                </form>
-              </div>
-              {
-                this.hasDetails() && !this.hasErrors() &&
-                <Checkbox className="terms-and-conditions" onToggle={this.acceptTermsAndConditions}>
-                  I agree to the&nbsp;
-                  <a href="OasisToS.pdf" target="_blank" onClick={e => e.stopPropagation()}>
-                    Terms of Service
-                  </a>
-                </Checkbox>
-              }
-              <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
-                      disabled={this.hasErrors() || !this.hasDetails() || !this.state.hasAcceptedTerms}>
-                START TRANSACTION
-              </button>
-            </section>
+                    <div className="selected-token">
+                      <TokenDetails token={{
+                        icon: tokens[this.state.to].icon,
+                        balance: balances[tokens[this.state.to].symbol.toLowerCase()] ? balances[tokens[this.state.to].symbol.toLowerCase()].valueOf() : "",
+                        symbol: tokens[this.state.to].symbol
+                      }} select={() => {
+                        this.pickToken('to')
+                      }}/>
+                      <AmountInput
+                        className={`${trade.errorInputBuy && !trade.errorOrders ? 'has-errors' : ''} `}
+                        value={trade.amountBuyInput}
+                        onChange={this.calculatePayAmount}
+                        placeholder="receive amount"/>
+                    </div>
+                  </form>
+                </div>
+                {
+                  this.hasDetails() && !this.hasErrors() &&
+                  <Checkbox className="terms-and-conditions" onToggle={this.acceptTermsAndConditions}>
+                    I agree to the&nbsp;
+                    <a href="OasisToS.pdf" target="_blank" onClick={e => e.stopPropagation()}>
+                      Terms of Service
+                    </a>
+                  </Checkbox>
+                }
+                <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
+                        disabled={this.hasErrors() || !this.hasDetails() || !this.state.hasAcceptedTerms}>
+                  START TRANSACTION
+                </button>
+              </section>
         }
       </React.Fragment>
     )
