@@ -11,6 +11,7 @@ import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
 import Checkbox from "../ui-components/Checkbox";
 import AmountInput from "./AmountInput";
+import TokenDetails from "./TokenDetails";
 
 const settings = require('../settings');
 
@@ -257,18 +258,13 @@ class SetTrade extends Component {
               <div className="content">
                 <form className="trade">
                   <div className="selected-token">
-                    <div className="token" onClick={() => {
+                    <TokenDetails token={{
+                      icon: tokens[this.state.from].icon,
+                      balance: this.props.balances[tokens[this.state.from].symbol.toLowerCase()] ? this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf() : "",
+                      symbol: tokens[this.state.from].symbol
+                    }} select={() => {
                       this.pickToken('from')
-                    }}>
-                      <span className="token-icon">{tokens[this.state.from].icon}</span>
-                      {
-                        !this.props.balances[tokens[this.state.from].symbol.toLowerCase()]
-                          ? <Spinner/>
-                          : <TokenAmount className="token-name" number={this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
-                                        decimal={3}
-                                        token={tokens[this.state.from].symbol}/>
-                      }
-                    </div>
+                    }}/>
                     <div>
                       <AmountInput className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
                                    onChange={this.calculateBuyAmount}
@@ -282,19 +278,13 @@ class SetTrade extends Component {
                     </span>
                   </div>
                   <div className="selected-token">
-                    <div className="token" onClick={() => {
-                      this.pickToken('to');
-                    }}>
-                      <span className="token-icon">{tokens[this.state.to].icon}</span>
-                      {
-                        !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
-                          ? <Spinner/>
-                          : <TokenAmount className="token-name"
-                                         number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
-                                         decimal={3}
-                                         token={tokens[this.state.to].symbol}/>
-                      }
-                    </div>
+                    <TokenDetails token={{
+                      icon: tokens[this.state.to].icon,
+                      balance: this.props.balances[tokens[this.state.to].symbol.toLowerCase()] ? this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf() : "",
+                      symbol: tokens[this.state.to].symbol
+                    }} select={() => {
+                      this.pickToken('to')
+                    }}/>
                     <div>
                       <AmountInput className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
                                    value={this.props.trade.amountBuyInput}

@@ -1,43 +1,31 @@
 import React from 'react';
-import TokenAmount from './TokenAmount';
-import Spinner from './Spinner';
+import TokenDetails from "./TokenDetails";
 
-class TokenList extends React.Component {
-  render() {
-    const {tokens , balances , onSelect, onClose } = this.props;
+const TokenList = (props) => {
+  const {tokens, balances, onSelect, onClose} = props;
 
-    return (
-      <div className="frame">
-        <div className="token-selector">
-          <button className="close" onClick={onClose}/>
-          <div className="tokens-container">
-            <div className="tokens">
-              <div className="token-list">
-                {
-                  Object.values(tokens).map((token, index) => (
-                      <div key={index} className='token' onClick={() => {
-                        onSelect(token.symbol.toLowerCase())
-                      }}>
-                        <span className="token-icon">{token.icon}</span>
-                        {
-                          balances[token.symbol.toLowerCase()]
-                            ? <TokenAmount className="token-name"
-                                           number={balances[token.symbol.toLowerCase()].valueOf()}
-                                           decimal={3}
-                                           token={token.symbol.toUpperCase()}/>
-                            : <Spinner/>
-                        }
-                      </div>
-                    )
-                  )
-                }
-              </div>
+  return (
+    <div className="frame">
+      <div className="token-selector">
+        <button className="close" onClick={onClose}/>
+
+        <div className="tokens-container">
+          <div className="tokens">
+            <div className="token-list">
+              {
+                Object.values(tokens).map((token, index) => {
+                    token.balance = balances[token.symbol.toLowerCase()].valueOf();
+                    token.symbol = token.symbol.toUpperCase();
+                    return <TokenDetails key={index} token={token} select={onSelect}/>;
+                  }
+                )
+              }
             </div>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default TokenList;
