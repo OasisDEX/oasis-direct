@@ -149,6 +149,13 @@ class App extends Component {
             networkState.loadingAddress = true;
             return {network: networkState};
           }, () => this.initContracts());
+        } else {
+          this.setState(prevState => {
+            const networkState = {...prevState.network};
+            networkState.loadingAddress = false;
+            networkState.loadingFirstAddress = false;
+            return {network: networkState};
+          })
         }
       });
     }, () => {});
