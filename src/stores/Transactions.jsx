@@ -1,4 +1,4 @@
-import {observable, decorate} from "mobx";
+import {observable, decorate, computed} from "mobx";
 import * as Blockchain from "../blockchainHandler";
 
 import {toWei, toBigNumber, addressToBytes32} from '../helpers';
@@ -9,6 +9,12 @@ class TransactionsStore {
   approval = {};
   trade = {};
   proxy = {};
+
+  reset = () => {
+    this.approval = {};
+    this.trade = {};
+    this.proxy = {};
+  }
 
   getLogsByAddressFromEtherscan = (address, fromBlock, filter = {}) => {
     let filterString = '';
@@ -223,7 +229,7 @@ class TransactionsStore {
         }
       }, () => {});
       if (typeof this[type].callbacks !== 'undefined' && this[type].callbacks.length > 0) {
-        this[type].callbacks.forEach(callback => this.executeCallback(callback));
+        this.executeCallbacks(this[type].callbacks);
       }
     }
   }
@@ -296,21 +302,39 @@ class TransactionsStore {
     })
   }
 
+  executeCallbacks = callbacks => {
+    callbacks.forEach(callback => this.executeCallback(callback));
+  }
+
   executeCallback = args => {
-    const method = args.shift();
-    // If the callback is to execute a getter function is better to wait as sometimes the new value is not updated instantly when the tx is confirmed
-    const timeout = ['executeProxyTx', 'executeProxyCreateAndSellETH', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 4000;
-    // console.log(method, args, timeout);
+    let method = args.shift();
+    // If the callback is to execute a getter function is better to wait as sometimes the new value is not uopdated instantly when the tx is confirmed
+    const timeout = ['system/executeProxyTx', 'system/executeProxyCreateAndSellETH', 'system/checkAllowance'].indexOf(method) !== -1 ? 0 : 5000;
     setTimeout(() => {
-      this[method](...args);
+      method = method.split('/');
+      console.log('executeCallback', `${method[0]}.${method[1]}`, args);
+      if (method[0] === 'transactions') {
+        this[method[1]](...args);
+      } else {
+        this[method[0]][method[1]](...args);
+      }
     }, timeout);
   }
+
+  get hasApprovalTx() { return this.approval.requested || this.approval.tx || this.approval.rejected };
+
+  get hasTradeTx() { return this.trade.requested || this.trade.tx || this.trade.rejected };
+
+  get hasProxyTx() { return this.proxy.requested || this.proxy.tx || this.proxy.rejected };
 }
 
 decorate(TransactionsStore, {
   approval: observable,
   trade: observable,
   proxy: observable,
+  hasApprovalTx: computed,
+  hasTradeTx: computed,
+  hasProxyTx: computed
 });
 
 const store = new TransactionsStore();

@@ -62,16 +62,14 @@ class SystemStore {
   }
 
   cleanInputs = () => {
-    this.trade = {
-      amountPay: toBigNumber(0),
-      amountBuy: toBigNumber(0),
-      amountPayInput: '',
-      amountBuyInput: '',
-      txCost: toBigNumber(0),
-      errorInputSell: null,
-      errorInputBuy: null,
-      errorOrders: null,
-    };
+    this.trade.amountPay = toBigNumber(0);
+    this.trade.amountBuy = toBigNumber(0);
+    this.trade.amountPayInput = '';
+    this.trade.amountBuyInput = '';
+    this.trade.txCost = toBigNumber(0);
+    this.trade.errorInputSell = null;
+    this.trade.errorInputBuy = null;
+    this.trade.errorOrders = null;
   }
 
   saveBalance = token => {
@@ -104,7 +102,7 @@ class SystemStore {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 1;
 
-        callbacks.forEach(callback => this.transactions.executeCallback(callback));
+        this.transactions.executeCallbacks(callbacks);
       } else {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 2;
@@ -164,7 +162,7 @@ class SystemStore {
         const proxyCreateAndExecute = Blockchain.loadObject('proxycreateandexecute', settings.chain[this.network.network].proxyCreationAndExecute);
         proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
           if (!e) {
-            this.transactions.logPendingTransaction(tx, 'trade', [['setProxyAddress']]);
+            this.transactions.logPendingTransaction(tx, 'trade', [['profile/getAndSetProxy']]);
           } else {
             console.log(e);
             if (this.transactions.isErrorDevice(e)) {
@@ -189,18 +187,40 @@ class SystemStore {
       this.trade.proxy = this.profile.proxy;
       this[this.profile.proxy ? 'executeProxyTx' : 'executeProxyCreateAndSellETH'](amount, limit);
     } else {
-      const callbacks = [
+      let callbacks = [
         [
-          'checkAllowance',
+          'system/checkAllowance',
           this.trade.from,
           'proxy',
           amount,
           [
-            ['executeProxyTx', amount, limit]
+            ['system/executeProxyTx', amount, limit]
           ]
         ]
       ];
-      this.profile.checkProxy(callbacks); // TODO: VER!!!!
+
+      if (this.profile.proxy) {
+        this.transactions.executeCallbacks(callbacks);
+      } else {
+        this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+          this.transactions.logRequestTransaction('proxy').then(() => {
+            callbacks = [['profile/getAndSetProxy', callbacks]];
+            this.trade.txs = 3;
+            this.trade.step = 2;
+            Blockchain.objects.proxyRegistry.build({gasPrice}, (e, tx) => {
+              if (!e) {
+                this.transactions.logPendingTransaction(tx, 'proxy', callbacks);
+              } else {
+                if (this.transactions.isErrorDevice(e)) {
+                  this.transactions.logTransactionErrorDevice('proxy');
+                } else {
+                  this.transactions.logTransactionRejected('proxy');
+                }
+              }
+            });
+          });
+        });
+      }
     }
   }
 
