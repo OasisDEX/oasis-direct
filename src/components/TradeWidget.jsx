@@ -1,43 +1,29 @@
 
-import React, { Component } from 'react';
+import React from 'react';
+import {observer} from "mobx-react";
 import SetTrade from './SetTrade';
 import DoTrade from './DoTrade';
 
-class TradeWidget extends Component {
+class TradeWidget extends React.Component {
   render() {
     return (
       <div style={ {position: 'relative'} }>
         {
-          this.props.trade.step === 1
+          this.props.system.trade.step === 1
             ?
             <SetTrade network={this.props.network}
-                      account={this.props.account}
-                      loadingAddress={this.props.loadingAddress}
-                      proxy={this.props.proxy}
-                      setMainState={this.props.setMainState}
-                      fasterGasPrice={this.props.fasterGasPrice}
-                      doTrade={this.props.doTrade}
-                      trade={this.props.trade}
-                      balances={this.props.balances}
-                      calculateBuyAmount={this.props.calculateBuyAmount}
-                      calculatePayAmount={this.props.calculatePayAmount}
-                      cleanInputs={this.props.cleanInputs}
-                      showHW={this.props.showHW}
-                      onDisconnect={this.props.onDisconnect} />
+                      system={this.props.system}
+                      profile={this.props.profile}
+                      transactions={this.props.transactions} />
             :
-            <DoTrade network={this.props.network}
-                      account={this.props.account}
-                      proxy={this.props.proxy}
-                      trade={this.props.trade}
-                      transactions={this.props.transactions}
-                      setMainState={this.props.setMainState}
-                      fasterGasPrice={this.props.fasterGasPrice}
-                      reset={this.props.reset}
-                      showTxMessage={this.props.showTxMessage} />
+            <DoTrade  network={this.props.network}
+                      system={this.props.system}
+                      profile={this.props.profile}
+                      transactions={this.props.transactions} />
         }
       </div>
     )
   }
 }
 
-export default TradeWidget;
+export default observer(TradeWidget);

@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
+import {observer} from "mobx-react";
 import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
@@ -31,13 +32,13 @@ const tokens = {
   },
 }
 
-class SetTrade extends Component {
+class SetTrade extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       ethBalance: 0,
-      from: this.props.trade.from,
-      to: this.props.trade.to,
+      from: this.props.system.trade.from,
+      to: this.props.system.trade.to,
       selectedSide: null,
       shouldDisplayTokenSelector: false,
       shouldDisplayActiveConnectionDetails: false,
@@ -48,7 +49,7 @@ class SetTrade extends Component {
 
   componentDidMount() {
     this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
-    Blockchain.getEthBalanceOf(this.props.account).then((balance) => {
+    Blockchain.getEthBalanceOf(this.props.network.defaultAccount).then((balance) => {
       this.setState({ethBalance: balance.valueOf()});
     });
   }
@@ -96,10 +97,10 @@ class SetTrade extends Component {
     // If we change the RECEIVE token and we have some amount  for the DEPOSIT token
     // then we just recalculate what the user will receive with the new RECEIVE token.
     this.setState({[this.state.selectedSide]: selectedToken}, () => {
-      if (this.state.selectedSide === 'to' && this.props.trade.amountBuy.gt(0)) {
-        this.calculateBuyAmount();
+      if (this.state.selectedSide === 'to' && this.props.system.trade.amountBuy.gt(0)) {
+        this.props.system.calculateBuyAmount();
       } else {
-        this.props.cleanInputs();
+        this.props.system.cleanInputs();
       }
     });
 
@@ -108,13 +109,13 @@ class SetTrade extends Component {
 
   swapTokens = () => {
     this.setState({from: this.state.to, to: this.state.from, hasAcceptedTerms: false}, () => {
-      this.props.cleanInputs();
+      this.props.system.cleanInputs();
     });
   }
 
   nextStep = e => {
     e.preventDefault();
-    this.props.doTrade();
+    this.props.system.doTrade();
     return false;
   }
 
@@ -123,7 +124,7 @@ class SetTrade extends Component {
     const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
     if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
-      this.props.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
+      this.props.system.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
     }
   }
 
@@ -132,23 +133,23 @@ class SetTrade extends Component {
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
     if (whole.length <=15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
-      this.props.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
+      this.props.system.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
   }
 
   hasDetails = () => {
     // return true;
-    return (this.props.trade.amountPay.gt(0) && this.props.trade.amountBuy.gt(0) && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy) || this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy;
+    return (this.props.system.trade.amountPay.gt(0) && this.props.system.trade.amountBuy.gt(0) && !this.props.system.trade.errorInputSell && !this.props.system.trade.errorInputBuy) || this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy;
   }
 
   acceptTermsAndConditions = () => {
     this.setState({hasAcceptedTerms: !this.state.hasAcceptedTerms});
   }
 
-  priceImpact = () => this.props.trade.bestPriceOffer
-    .minus(this.props.trade.price)
+  priceImpact = () => this.props.system.trade.bestPriceOffer
+    .minus(this.props.system.trade.price)
     .abs()
-    .div(this.props.trade.bestPriceOffer)
+    .div(this.props.system.trade.bestPriceOffer)
     .times(100)
     .round(2)
     .valueOf();
@@ -164,11 +165,11 @@ class SetTrade extends Component {
         {
           this.state.shouldDisplayActiveConnectionDetails
           ?
-          <ActiveConnection account={this.props.account} ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} onDisconnect={this.props.onDisconnect} />
+          <ActiveConnection ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} />
           :
           this.state.shouldDisplayTokenSelector
             ?
-            <TokensSelector tokens={tokens} balances={this.props.balances} select={this.select} back={() => this.setState({shouldDisplayTokenSelector: false})} />
+            <TokensSelector tokens={tokens} balances={this.props.system.balances} select={this.select} back={() => this.setState({shouldDisplayTokenSelector: false})} />
             :
             <section className="frame">
               <div className="heading">
@@ -176,45 +177,45 @@ class SetTrade extends Component {
                       onClick={() => {
                         this.setState({shouldDisplayActiveConnectionDetails: true});
                       }}>
-                  <Circle hover={true}><IdentityIcon address={this.props.account}/></Circle>
+                  <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
                 </span>
                 <h2>Enter Order Details</h2>
               </div>
               <div
-                className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.trade.errorOrders || this.props.trade.errorInputSell || this.props.trade.errorInputBuy ? 'has-errors' : ''}`}>
+                className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? 'has-errors' : ''}`}>
                 <div className="info-box-row wrap">
                   {
-                    this.props.trade.errorOrders && !this.props.trade.errorInputSell &&
+                    this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell &&
                     <span className="label">
-                      No orders available to {this.props.trade.errorOrders.type}&nbsp;
-                      <strong>{this.props.trade.errorOrders.amount} {this.props.trade.errorOrders.token}</strong>
+                      No orders available to {this.props.system.trade.errorOrders.type}&nbsp;
+                      <strong>{this.props.system.trade.errorOrders.amount} {this.props.system.trade.errorOrders.token}</strong>
                     </span>
                   }
                   {
-                    this.props.trade.errorInputSell &&
+                    this.props.system.trade.errorInputSell &&
                     (
-                      this.props.trade.errorInputSell === 'funds'
+                      this.props.system.trade.errorInputSell === 'funds'
                         ?
                         <span
-                          className="label"> You don't have enough <strong>{tokens[this.props.trade.from].name} </strong> in your Wallet</span>
+                          className="label"> You don't have enough <strong>{tokens[this.props.system.trade.from].name} </strong> in your Wallet</span>
                         :
-                        this.props.trade.errorInputSell === 'gasCost'
+                        this.props.system.trade.errorInputSell === 'gasCost'
                           ? <span className="label"> You won't have enough ETH to pay for the gas!</span>
                           : <span className="label">
-                              {tokens[this.props.trade.from].symbol}&nbsp;
-                              Minimum Value: {this.props.trade.errorInputSell.replace('minValue:', '')}
+                              {tokens[this.props.system.trade.from].symbol}&nbsp;
+                              Minimum Value: {this.props.system.trade.errorInputSell.replace('minValue:', '')}
                             </span>
                     )
                   }
                   {
-                    !this.props.trade.errorOrders && !this.props.trade.errorInputSell && this.props.trade.errorInputBuy &&
+                    !this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell && this.props.system.trade.errorInputBuy &&
                     <span className="label">
-                      {tokens[this.props.trade.to].symbol}&nbsp;
-                      Minimum Value: {this.props.trade.errorInputBuy.replace('minValue:', '')}
+                      {tokens[this.props.system.trade.to].symbol}&nbsp;
+                      Minimum Value: {this.props.system.trade.errorInputBuy.replace('minValue:', '')}
                     </span>
                   }
                   {
-                    !this.props.trade.errorOrders && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy &&
+                    !this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell && !this.props.system.trade.errorInputBuy &&
                     <React.Fragment>
                       <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                         <span className="label vertical-align">
@@ -226,8 +227,8 @@ class SetTrade extends Component {
                             </p>
                           </ReactTooltip>
                         </span>
-                        <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.price)} decimal={2}
-                                    token={`${this.props.trade.priceUnit.toUpperCase()}`}/>
+                        <span  style={{lineHeight: "14px",  fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.price)} decimal={2}
+                                    token={`${this.props.system.trade.priceUnit.toUpperCase()}`}/>
                         </span>
                       </span>
                       <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
@@ -240,13 +241,13 @@ class SetTrade extends Component {
                             </p>
                           </ReactTooltip>
                         </span>
-                        <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                        <span className="value">{settings.chain[this.props.network.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
                       </span>
                       <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                       <span className="label">Gas cost</span>
                         {
-                          this.props.trade.txCost.gt(0)
-                            ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
+                          this.props.system.trade.txCost.gt(0)
+                            ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
                             : <Spinner/>
                         }
                       </span>
@@ -275,18 +276,18 @@ class SetTrade extends Component {
                     }}>
                       <span className="token-icon">{tokens[this.state.from].icon}</span>
                       {
-                        !this.props.balances[tokens[this.state.from].symbol.toLowerCase()]
+                        !this.props.system.balances[tokens[this.state.from].symbol.toLowerCase()]
                           ? <Spinner/>
-                          : <TokenAmount className="token-name" number={this.props.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                          : <TokenAmount className="token-name" number={this.props.system.balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
                                         decimal={3}
                                         token={tokens[this.state.from].symbol}/>
                       }
                     </div>
                     <div>
                       <input type="number"
-                            className={`${this.props.trade.errorInputSell && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                            className={`${this.props.system.trade.errorInputSell && !this.props.system.trade.errorOrders ? 'has-errors' : ''} `}
                             ref={(input) => this.amountPay = input}
-                            value={this.props.trade.amountPayInput || ''}
+                            value={this.props.system.trade.amountPayInput || ''}
                             onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
                     </div>
                   </div>
@@ -301,26 +302,26 @@ class SetTrade extends Component {
                     }}>
                       <span className="token-icon">{tokens[this.state.to].icon}</span>
                       {
-                        !this.props.balances[tokens[this.state.to].symbol.toLowerCase()]
+                        !this.props.system.balances[tokens[this.state.to].symbol.toLowerCase()]
                           ? <Spinner/>
                           : <TokenAmount className="token-name"
-                                        number={this.props.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                        number={this.props.system.balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
                                         decimal={3}
                                         token={tokens[this.state.to].symbol}/>
                       }
                     </div>
                     <div>
                       <input type="number"
-                            className={`${this.props.trade.errorInputBuy && !this.props.trade.errorOrders ? 'has-errors' : ''} `}
+                            className={`${this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders ? 'has-errors' : ''} `}
                             ref={(input) => this.amountBuy = input}
-                            value={this.props.trade.amountBuyInput || ''}
+                            value={this.props.system.trade.amountBuyInput || ''}
                             onChange={this.calculatePayAmount} placeholder="receive amount"/>
                     </div>
                   </div>
                 </form>
               </div>
               {
-                this.hasDetails() && !this.props.trade.errorInputSell && !this.props.trade.errorInputBuy && !this.props.trade.errorOrders &&
+                this.hasDetails() && !this.props.system.trade.errorInputSell && !this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders &&
                 <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
                     onClick={this.acceptTermsAndConditions}>
                   <div className="info-box-row">
@@ -336,7 +337,7 @@ class SetTrade extends Component {
                 </div>
               }
               <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
-                      disabled={this.props.trade.errorInputSell || this.props.trade.errorInputBuy || this.props.trade.errorOrders || this.props.trade.amountBuy.eq(0) || this.props.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
+                      disabled={this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy || this.props.system.trade.errorOrders || this.props.system.trade.amountBuy.eq(0) || this.props.system.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
                 START TRANSACTION
               </button>
             </section>
@@ -346,4 +347,4 @@ class SetTrade extends Component {
   }
 }
 
-export default SetTrade;
+export default observer(SetTrade);

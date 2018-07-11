@@ -1,4 +1,5 @@
 import React from 'react';
+import {observer} from "mobx-react";
 import TokenAmount from './TokenAmount';
 import Spinner from './Spinner';
 
@@ -48,4 +49,4 @@ class TokensSelector extends React.Component {
   }
 }
 
-export default TokensSelector;
+export default observer(TokensSelector);

@@ -1,4 +1,5 @@
 import React from 'react';
+import {observer} from "mobx-react";
 import {
   IdentityIcon, BackIcon, Circle,
 } from './Icons';
@@ -20,15 +21,15 @@ class ActiveConnection extends React.Component {
           <div className="content">
             <div className="wallet-details">
               <div>
-                <IdentityIcon address={this.props.account}/>
-                <span className="label">{Blockchain.getCurrentProviderName()} on {this.props.network}</span>
+                <IdentityIcon address={this.props.network.defaultAccount}/>
+                <span className="label">{Blockchain.getCurrentProviderName()} on {this.props.network.network}</span>
                 <TokenAmount number={this.props.ethBalance} decimal={5} token={"ETH"}/>
               </div>
-              {etherscanAddress(this.props.network, this.props.account, this.props.account)}
+              {etherscanAddress(this.props.network.network, this.props.network.defaultAccount, this.props.network.defaultAccount)}
             </div>
           </div>
         </div>
-        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.onDisconnect}>
+        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.showClientChoice}>
           DISCONNECT
         </button>
       </div>
@@ -36,4 +37,4 @@ class ActiveConnection extends React.Component {
   }
 }
 
-export default ActiveConnection;
+export default observer(ActiveConnection);

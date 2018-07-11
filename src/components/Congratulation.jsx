@@ -1,9 +1,11 @@
-import React, { Component } from 'react'
+import React from 'react'
+import {observer} from "mobx-react";
+
 import TokenAmount from "./TokenAmount";
 import Spinner from "./Spinner";
 import { calculateTradePrice, fetchETHPriceInUSD, toWei } from '../helpers';
 
-class Congratulation extends Component {
+class Congratulation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -76,4 +78,4 @@ class Congratulation extends Component {
   }
 }
 
-export default Congratulation;
+export default observer(Congratulation);

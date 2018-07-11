@@ -1,4 +1,5 @@
 import React from 'react';
+import {observer} from "mobx-react";
 import Product from '../ui-components/Product';
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
@@ -38,11 +39,11 @@ class Wallets extends React.Component {
   }
 
   connectLedger = () => {
-    this.props.showHW('ledger');
+    this.props.network.showHW('ledger');
   }
 
   connectTrezor = () => {
-    this.props.showHW('trezor');
+    this.props.network.showHW('trezor');
   }
 
   getToClientSelection = () => {
@@ -68,11 +69,11 @@ class Wallets extends React.Component {
   }
 
   selectWallet = () => {
-    if (this.props.loadingAddress) {
+    if (this.props.network.loadingAddress) {
       return
     }
 
-    this.props.setWeb3WebClient();
+    this.props.network.setWeb3WebClient();
   }
 
   render() {
@@ -133,7 +134,7 @@ class Wallets extends React.Component {
                                 <span className="label">{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
                               </div>
                             </div>
-                            <button type="button" onClick={this.selectWallet}>{this.props.loadingAddress ?
+                            <button type="button" onClick={this.selectWallet}>{this.props.network.loadingAddress ?
                               <Spinner theme="button"/> : 'Continue'}</button>
                           </React.Fragment>
                           : <React.Fragment>
@@ -147,9 +148,9 @@ class Wallets extends React.Component {
                   </li>
                   <li className="list-item">
                     <div className="row-flex">
-                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} disabled={this.props.loadingAddress}
+                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectLedger}/>
-                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} disabled={this.props.loadingAddress}
+                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectTrezor}/>
                     </div>
                   </li>
@@ -163,4 +164,4 @@ class Wallets extends React.Component {
   }
 }
 
-export default Wallets;
+export default observer(Wallets);

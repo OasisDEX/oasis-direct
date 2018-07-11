@@ -1,4 +1,5 @@
 import React from 'react';
+import {observer} from "mobx-react";
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
   SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
@@ -120,14 +121,13 @@ class HardWallet extends React.Component {
   }
 
   componentWillMount() {
-    this.derivationPath = this.props.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
+    this.derivationPath = this.props.network.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
 
     this.waitForDeviceToConnect(this.derivationPath);
   }
 
   waitForDeviceToConnect = async (derivationPath) => {
-    // TODO: probably have a dropdown with the networks?
-    const addresses = await this.props.loadHWAddresses(settings.hwNetwork, 100, derivationPath);
+    const addresses = await this.props.network.loadHWAddresses(settings.hwNetwork, 100, derivationPath);
 
     this.setState({connectivityError: true});
 
@@ -147,24 +147,24 @@ class HardWallet extends React.Component {
 
   //TODO; create pagination component
   next = async (pageSize) => {
-    const addresses = this.props.hw.addresses;
+    const addresses = this.props.network.hw.addresses;
     const page = {
       start: this.page.end,
       end: this.page.end + pageSize
     };
 
     if (this.page.end === addresses.length) {
-      const {error} = await this.props.loadHWAddresses(settings.hwNetwork, this.page.end + 5, this.derivationPath);
+      const {error} = await this.props.network.loadHWAddresses(settings.hwNetwork, this.page.end + 5, this.derivationPath);
       if (error) {
         console.log("Error connecting with the device");
         return;
       } //TODO: handle it somehow - probably some notification box? This happen with TREZOR.
 
-      page.end = this.props.hw.addresses.length;
+      page.end = this.props.network.hw.addresses.length;
     }
 
     this.page = page;
-    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+    this.setState({addresses: this.props.network.hw.addresses.slice(this.page.start, this.page.end)});
   };
 
   previous = (pageSize) => {
@@ -175,13 +175,13 @@ class HardWallet extends React.Component {
       end: this.page.start
     };
 
-    this.setState({addresses: this.props.hw.addresses.slice(this.page.start, this.page.end)});
+    this.setState({addresses: this.props.network.hw.addresses.slice(this.page.start, this.page.end)});
   };
 
   importAddress = () => {
-    if (this.props.loadingAddress) return;
+    if (this.props.network.loadingAddress) return;
 
-    this.props.importAddress();
+    this.props.network.importAddress();
   }
 
 
@@ -189,24 +189,21 @@ class HardWallet extends React.Component {
     return (
       <React.Fragment>
         {
-          this.props.hw.addresses.length > 0
+          this.props.network.hw.addresses.length > 0
             ? (
               <section className='frame hard-wallet-addresses'>
                 <div className="heading">
-                  <h2>Select Address on your <span style={hwNameStyle}>{this.props.hw.option}</span></h2>
+                  <h2>Select Address on your <span style={hwNameStyle}>{this.props.network.hw.option}</span></h2>
                 </div>
-                <button className="close" onClick={this.props.onBack}/>
+                <button className="close" onClick={this.props.network.showClientChoice}/>
 
                 <div className="content">
 
                   <ul className="list">
                     {
                       this.state.addresses.map(address =>
-                        <li key={address} className={`list-item ${this.selectedAddress === address ? 'selected' : ''} `}
-                            onClick={() => {
-                              this.selectedAddress = address;
-                              this.props.selectHWAddress(address)
-                            }}>
+                        <li key={address} className={`list-item ${this.props.network.hw.addresses[this.props.network.hw.addressIndex] === address ? 'selected' : ''} `}
+                            onClick={() => this.props.network.selectHWAddress(address)}>
                           <Address address={address}/>
                         </li>
                       )
@@ -214,24 +211,24 @@ class HardWallet extends React.Component {
                   </ul>
 
                   <div className="pagination">
-                    <span onClick={() => this.previous(5)} disabled={this.props.loadingAddress}>
+                    <span onClick={() => this.previous(5)} disabled={this.props.network.loadingAddress}>
                       <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
                     </span>
-                    <span onClick={() => this.next(5)} disabled={this.props.loadingAddress}>
+                    <span onClick={() => this.next(5)} disabled={this.props.network.loadingAddress}>
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-                  <button disabled={!this.selectedAddress} onClick={this.importAddress}> {this.props.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
+                  <button disabled={this.props.network.hw.addressIndex === null} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
                 </div>
               </section>
             )
             : (
               <section className='frame hard-wallet'>
-                <button className="back" onClick={this.props.onBack}>
+                <button className="back" onClick={this.props.network.showClientChoice}>
                   <Circle><BackIcon/></Circle>
                 </button>
                 <div className="heading">
-                  <h2>Connect your <span style={hwNameStyle}>{this.props.hw.option}</span> Wallet</h2>
+                  <h2>Connect your <span style={hwNameStyle}>{this.props.network.hw.option}</span> Wallet</h2>
                 </div>
                 <div className="content">
                   <div className="progress">
@@ -251,7 +248,7 @@ class HardWallet extends React.Component {
                       <Circle styles={circularButtonStyle}><RetryIcon/></Circle>
                     </div>
                   </div>
-                  <Guidelines steps={steps[this.props.hw.option]}/>
+                  <Guidelines steps={steps[this.props.network.hw.option]}/>
                 </div>
               </section>
             )
@@ -261,4 +258,4 @@ class HardWallet extends React.Component {
   }
 }
 
-export default HardWallet;
+export default observer(HardWallet);
