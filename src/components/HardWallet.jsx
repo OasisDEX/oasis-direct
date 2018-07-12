@@ -115,6 +115,7 @@ class HardWallet extends React.Component {
     super(props);
 
     this.state = {
+      selectedAddress: null,
       addresses: [],
       connectivityError: false
     }
@@ -181,7 +182,7 @@ class HardWallet extends React.Component {
   importAddress = () => {
     if (this.props.network.loadingAddress) return;
 
-    this.props.network.importAddress();
+    this.props.network.importAddress(this.state.selectedAddress);
   }
 
 
@@ -202,8 +203,8 @@ class HardWallet extends React.Component {
                   <ul className="list">
                     {
                       this.state.addresses.map(address =>
-                        <li key={address} className={`list-item ${this.props.network.hw.addresses[this.props.network.hw.addressIndex] === address ? 'selected' : ''} `}
-                            onClick={() => this.props.network.selectHWAddress(address)}>
+                        <li key={address} className={`list-item ${this.state.selectedAddress === address ? 'selected' : ''} `}
+                            onClick={() => this.setState({selectedAddress: address})}>
                           <Address address={address}/>
                         </li>
                       )
@@ -218,7 +219,7 @@ class HardWallet extends React.Component {
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-                  <button disabled={this.props.network.hw.addressIndex === null} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
+                  <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
                 </div>
               </section>
             )

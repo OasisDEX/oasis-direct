@@ -14,7 +14,7 @@ class NetworkStore {
   network = "";
   outOfSync = true;
   isHw = false;
-  hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], addressIndex: null, loading: false, error: null};
+  hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
   downloadClient = false;
 
   checkNetwork = () => {
@@ -137,12 +137,11 @@ class NetworkStore {
     this.hw.derivationPath = false;
   }
 
-  importAddress = async () => {
+  importAddress = account => {
     try {
       this.hw.active = true;
       this.loadingAddress = true;
       this.stopIntervals = false;
-      const account = await Blockchain.getDefaultAccountByIndex(this.hw.addressIndex);
       Blockchain.setDefaultAccount(account);
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
@@ -194,7 +193,7 @@ class NetworkStore {
     this.network = "";
     this.outOfSync = true;
     this.isHw = false;
-    this.hw = {show: false, active: false, showSelector: false, option: null, derivationPath: null, addresses: [], addressIndex: null, loading: false, error: null};
+    this.hw = {show: false, active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
     this.downloadClient = false;
   }
 
@@ -211,10 +210,6 @@ class NetworkStore {
       console.log(`Error connecting ${this.hw.option}`, e.message);
       return [];
     }
-  }
-
-  selectHWAddress = address => {
-    this.hw.addressIndex = this.hw.addresses.indexOf(address);
   }
 }
 
