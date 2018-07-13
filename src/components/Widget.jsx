@@ -14,21 +14,18 @@ class Widget extends React.Component {
       <div className={`Widget ${this.props.section}`}>
         {
           this.props.network.hw.showSelector
+          ?
+            <HardWallet />
+          :
+            !this.props.network.isConnected || this.props.network.loadingFirstAddress
             ?
-              <HardWallet />
+              <Wallets />
             :
-              !this.props.network.isConnected || this.props.network.loadingFirstAddress
+              this.props.network.defaultAccount && isAddress(this.props.network.defaultAccount)
               ?
-                <Wallets />
+                <TradeWidget />
               :
-                this.props.network.defaultAccount && isAddress(this.props.network.defaultAccount)
-                ?
-                  <div>
-                    <TradeWidget />
-                  </div>
-                  // Create a decorator Component that returns a component which is wrapped into element with only back function passed as argument
-                :
-                  <LockedAccount />
+                <LockedAccount />
         }
       </div>
     )
