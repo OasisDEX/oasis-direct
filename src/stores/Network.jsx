@@ -1,4 +1,9 @@
 import { observable, decorate } from "mobx";
+
+import ProfileStore from "./Profile";
+import SystemStore from "./System";
+import TransactionsStore from "./Transactions";
+
 import * as Blockchain from "../blockchainHandler";
 
 const settings = require("../settings");
@@ -155,7 +160,7 @@ class NetworkStore {
 
   setPendingTxInterval = () => {
     this.pendingTxInterval = setInterval(() => {
-      this.transactions.checkPendingTransactions();
+      TransactionsStore.checkPendingTransactions();
     }, 10000);
   }
 
@@ -170,9 +175,9 @@ class NetworkStore {
         this.loadingAddress = false;
         this.loadingFirstAddress = false;
         this.hw.showSelector = false;
-        this.profile.setProxy(r[0]);
+        ProfileStore.setProxy(r[0]);
 
-        this.system.init();
+        SystemStore.init();
         this.setPendingTxInterval();
       });
     }

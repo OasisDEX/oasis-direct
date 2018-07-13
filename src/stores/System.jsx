@@ -1,6 +1,10 @@
 import { observable, decorate } from "mobx";
-import * as Blockchain from "../blockchainHandler";
 
+import NetworkStore from "./Network";
+import ProfileStore from "./Profile";
+import TransactionsStore from "./Transactions";
+
+import * as Blockchain from "../blockchainHandler";
 import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../helpers";
 
 const settings = require("../settings");
@@ -74,12 +78,12 @@ class SystemStore {
 
   saveBalance = token => {
     if (token === "weth") {
-      Blockchain.getEthBalanceOf(this.network.defaultAccount).then(r => {
+      Blockchain.getEthBalanceOf(NetworkStore.defaultAccount).then(r => {
         this.balances.eth = r;
       }, () => {
       });
     } else {
-      Blockchain.getTokenBalanceOf(token, this.network.defaultAccount).then(r => {
+      Blockchain.getTokenBalanceOf(token, NetworkStore.defaultAccount).then(r => {
         this.balances[token] = r;
       }, () => {
       });
@@ -87,7 +91,7 @@ class SystemStore {
   }
 
   setUpToken = token => {
-    Blockchain.loadObject(token === "weth" ? "dsethtoken" : "dstoken", settings.chain[this.network.network].tokens[token].address, token);
+    Blockchain.loadObject(token === "weth" ? "dsethtoken" : "dstoken", settings.chain[NetworkStore.network].tokens[token].address, token);
     setInterval(() => {
       this.saveBalance(token);
     }, 5000);
@@ -95,30 +99,30 @@ class SystemStore {
   }
   
   checkAllowance = (token, dst, value, callbacks) => {
-    if (dst === "proxy") dst = this.profile.proxy; // It needs to be done as proxy might not be created when setAllowance is added to the queue of functions to be executed
+    if (dst === "proxy") dst = ProfileStore.proxy; // It needs to be done as proxy might not be created when setAllowance is added to the queue of functions to be executed
     const valueObj = toBigNumber(toWei(value));
-    Blockchain.getTokenAllowance(token, this.network.defaultAccount, dst).then(r => {
+    Blockchain.getTokenAllowance(token, NetworkStore.defaultAccount, dst).then(r => {
       if (r.gte(valueObj)) {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 1;
 
-        this.transactions.executeCallbacks(callbacks);
+        TransactionsStore.executeCallbacks(callbacks);
       } else {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 2;
 
-        this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.transactions.logRequestTransaction("approval").then(() => {
+        TransactionsStore.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+          TransactionsStore.logRequestTransaction("approval").then(() => {
             const tokenObj = Blockchain.objects[token];
             const params = [dst, -1];
             tokenObj.approve(...params.concat([{gasPrice}, (e, tx) => {
               if (!e) {
-                this.transactions.logPendingTransaction(tx, "approval", callbacks);
+                TransactionsStore.logPendingTransaction(tx, "approval", callbacks);
               } else {
-                if (this.transactions.isErrorDevice(e)) {
-                  this.transactions.logTransactionErrorDevice("approval");
+                if (TransactionsStore.isErrorDevice(e)) {
+                  TransactionsStore.logTransactionErrorDevice("approval");
                 } else {
-                  this.transactions.logTransactionRejected("approval");
+                  TransactionsStore.logTransactionRejected("approval");
                 }
               }
             }]));
@@ -132,20 +136,20 @@ class SystemStore {
   }
 
   executeProxyTx = (amount, limit) => {
-    const data = Blockchain.getCallDataAndValue(this.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
-    this.transactions.logRequestTransaction("trade").then(() => {
-      this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+    const data = Blockchain.getCallDataAndValue(NetworkStore.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
+    TransactionsStore.logRequestTransaction("trade").then(() => {
+      TransactionsStore.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
         const proxy = Blockchain.objects.proxy;
-        const params = [settings.chain[this.network.network].proxyContracts.oasisDirect, data.calldata];
+        const params = [settings.chain[NetworkStore.network].proxyContracts.oasisDirect, data.calldata];
         proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice}, (e, tx) => {
           if (!e) {
-            this.transactions.logPendingTransaction(tx, "trade");
+            TransactionsStore.logPendingTransaction(tx, "trade");
           } else {
             console.log(e);
-            if (this.transactions.isErrorDevice(e)) {
-              this.transactions.logTransactionErrorDevice("trade");
+            if (TransactionsStore.isErrorDevice(e)) {
+              TransactionsStore.logTransactionErrorDevice("trade");
             } else {
-              this.transactions.logTransactionRejected("trade");
+              TransactionsStore.logTransactionRejected("trade");
             }
           }
         }]));
@@ -156,19 +160,19 @@ class SystemStore {
   }
 
   executeProxyCreateAndSellETH = (amount, limit) => {
-    const data = Blockchain.getActionCreateProxyAndSellETH(this.network.network, this.trade.operation, this.trade.to, amount, limit);
-    this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-      this.transactions.logRequestTransaction("trade").then(() => {
-        const proxyCreateAndExecute = Blockchain.loadObject("proxycreateandexecute", settings.chain[this.network.network].proxyCreationAndExecute);
+    const data = Blockchain.getActionCreateProxyAndSellETH(NetworkStore.network, this.trade.operation, this.trade.to, amount, limit);
+    TransactionsStore.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+      TransactionsStore.logRequestTransaction("trade").then(() => {
+        const proxyCreateAndExecute = Blockchain.loadObject("proxycreateandexecute", settings.chain[NetworkStore.network].proxyCreationAndExecute);
         proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
           if (!e) {
-            this.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+            TransactionsStore.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
           } else {
             console.log(e);
-            if (this.transactions.isErrorDevice(e)) {
-              this.transactions.logTransactionErrorDevice("trade");
+            if (TransactionsStore.isErrorDevice(e)) {
+              TransactionsStore.logTransactionErrorDevice("trade");
             } else {
-              this.transactions.logTransactionRejected("trade");
+              TransactionsStore.logTransactionRejected("trade");
             }
           }
         }]));
@@ -179,13 +183,13 @@ class SystemStore {
 
   doTrade = () => {
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
-    const threshold = settings.chain[this.network.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")] * 0.01;
+    const threshold = settings.chain[NetworkStore.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")] * 0.01;
     const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - threshold) : this.trade.amountPay.times(1 + threshold)).round(0);
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
-      this.trade.proxy = this.profile.proxy;
-      this[this.profile.proxy ? "executeProxyTx" : "executeProxyCreateAndSellETH"](amount, limit);
+      this.trade.proxy = ProfileStore.proxy;
+      this[ProfileStore.proxy ? "executeProxyTx" : "executeProxyCreateAndSellETH"](amount, limit);
     } else {
       let callbacks = [
         [
@@ -199,22 +203,22 @@ class SystemStore {
         ]
       ];
 
-      if (this.profile.proxy) {
-        this.transactions.executeCallbacks(callbacks);
+      if (ProfileStore.proxy) {
+        TransactionsStore.executeCallbacks(callbacks);
       } else {
-        this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.transactions.logRequestTransaction("proxy").then(() => {
+        TransactionsStore.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
+          TransactionsStore.logRequestTransaction("proxy").then(() => {
             callbacks = [["profile/getAndSetProxy", callbacks]];
             this.trade.txs = 3;
             this.trade.step = 2;
             Blockchain.objects.proxyRegistry.build({gasPrice}, (e, tx) => {
               if (!e) {
-                this.transactions.logPendingTransaction(tx, "proxy", callbacks);
+                TransactionsStore.logPendingTransaction(tx, "proxy", callbacks);
               } else {
-                if (this.transactions.isErrorDevice(e)) {
-                  this.transactions.logTransactionErrorDevice("proxy");
+                if (TransactionsStore.isErrorDevice(e)) {
+                  TransactionsStore.logTransactionErrorDevice("proxy");
                 } else {
-                  this.transactions.logTransactionRejected("proxy");
+                  TransactionsStore.logTransactionRejected("proxy");
                 }
               }
             });
@@ -225,9 +229,9 @@ class SystemStore {
   }
 
   getBestPriceOffer = (tokenSell, tokenBuy) => {
-    const offerTokenSell = settings.chain[this.network.network].tokens[tokenBuy.replace("eth", "weth")].address;
-    const offerTokenBuy = settings.chain[this.network.network].tokens[tokenSell.replace("eth", "weth")].address;
-    const otc = Blockchain.loadObject("matchingmarket", settings.chain[this.network.network].otc);
+    const offerTokenSell = settings.chain[NetworkStore.network].tokens[tokenBuy.replace("eth", "weth")].address;
+    const offerTokenBuy = settings.chain[NetworkStore.network].tokens[tokenSell.replace("eth", "weth")].address;
+    const otc = Blockchain.loadObject("matchingmarket", settings.chain[NetworkStore.network].otc);
     return new Promise((resolve, reject) => {
       otc.getBestOffer(offerTokenSell, offerTokenBuy, (e, r) => {
         if (!e) {
@@ -274,16 +278,16 @@ class SystemStore {
       }
       return;
     }
-    const minValue = settings.chain[this.network.network].tokens[from.replace("eth", "weth")].minValue;
+    const minValue = settings.chain[NetworkStore.network].tokens[from.replace("eth", "weth")].minValue;
     if (this.trade.amountPay.lt(minValue)) {
       if (this.trade.rand === rand) {
         this.trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
       }
       return;
     }
-    Blockchain.loadObject("matchingmarket", settings.chain[this.network.network].otc).getBuyAmount(
-      settings.chain[this.network.network].tokens[to.replace("eth", "weth")].address,
-      settings.chain[this.network.network].tokens[from.replace("eth", "weth")].address,
+    Blockchain.loadObject("matchingmarket", settings.chain[NetworkStore.network].otc).getBuyAmount(
+      settings.chain[NetworkStore.network].tokens[to.replace("eth", "weth")].address,
+      settings.chain[NetworkStore.network].tokens[from.replace("eth", "weth")].address,
       toWei(amount),
       async (e, r) => {
         if (!e) {
@@ -297,7 +301,7 @@ class SystemStore {
             this.trade.bestPriceOffer = bestPriceOffer;
           }
 
-          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(this.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.network.defaultAccount);
+          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount) : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
           const errorInputSell = balance.lt(toWei(amount))
             ?
             // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
@@ -330,7 +334,7 @@ class SystemStore {
           * an error message is displayed for violating min value.
           *
           * */
-          const calculatedReceiveValueMin = settings.chain[this.network.network].tokens[to.replace("eth", "weth")].minValue;
+          const calculatedReceiveValueMin = settings.chain[NetworkStore.network].tokens[to.replace("eth", "weth")].minValue;
 
           if (calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
             if (this.trade.rand === rand) {
@@ -346,7 +350,7 @@ class SystemStore {
           if (this.trade.from === "eth") {
             expenses = expenses.add(toWei(this.trade.amountPay));
           } else {
-            ethBalance = await Blockchain.getEthBalanceOf(this.network.defaultAccount);
+            ethBalance = await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount);
           }
 
           this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
@@ -381,16 +385,16 @@ class SystemStore {
       }
       return;
     }
-    const minValue = settings.chain[this.network.network].tokens[to.replace("eth", "weth")].minValue;
+    const minValue = settings.chain[NetworkStore.network].tokens[to.replace("eth", "weth")].minValue;
     if (this.trade.amountBuy.lt(minValue)) {
       if (this.trade.rand === rand) {
         this.trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
       }
       return;
     }
-    Blockchain.loadObject("matchingmarket", settings.chain[this.network.network].otc).getPayAmount(
-      settings.chain[this.network.network].tokens[from.replace("eth", "weth")].address,
-      settings.chain[this.network.network].tokens[to.replace("eth", "weth")].address,
+    Blockchain.loadObject("matchingmarket", settings.chain[NetworkStore.network].otc).getPayAmount(
+      settings.chain[NetworkStore.network].tokens[from.replace("eth", "weth")].address,
+      settings.chain[NetworkStore.network].tokens[to.replace("eth", "weth")].address,
       toWei(amount),
       async (e, r) => {
         if (!e) {
@@ -403,7 +407,7 @@ class SystemStore {
             this.trade.bestPriceOffer = bestPriceOffer;
           }
 
-          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(this.network.defaultAccount) : await Blockchain.getTokenBalanceOf(from, this.network.defaultAccount);
+          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount) : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
           const errorInputSell = balance.lt(toWei(this.trade.amountPay))
             ?
             // `Not enough balance to sell ${this.trade.amountPay} ${from.toUpperCase()}`
@@ -436,7 +440,7 @@ class SystemStore {
           * an error message is displayed for violating min value.
           *
           * */
-          const calculatePayValueMin = settings.chain[this.network.network].tokens[from.replace("eth", "weth")].minValue;
+          const calculatePayValueMin = settings.chain[NetworkStore.network].tokens[from.replace("eth", "weth")].minValue;
 
           if (calculatedPayValue.lt(calculatePayValueMin)) {
             if (this.trade.rand === rand) {
@@ -452,7 +456,7 @@ class SystemStore {
           if (this.trade.from === "eth") {
             expenses = expenses.add(toWei(this.trade.amountPay));
           } else {
-            ethBalance = await Blockchain.getEthBalanceOf(this.network.defaultAccount);
+            ethBalance = await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount);
           }
 
           this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
@@ -479,41 +483,41 @@ class SystemStore {
     const txs = [];
 
     if (from !== "eth") {
-      hasAllowance = this.profile.proxy &&
-        (await Blockchain.getTokenTrusted(from, this.network.defaultAccount, this.profile.proxy) ||
-          (await Blockchain.getTokenAllowance(from, this.network.defaultAccount, this.profile.proxy)).gt(toWei(amount)));
+      hasAllowance = ProfileStore.proxy &&
+        (await Blockchain.getTokenTrusted(from, NetworkStore.defaultAccount, ProfileStore.proxy) ||
+          (await Blockchain.getTokenAllowance(from, NetworkStore.defaultAccount, ProfileStore.proxy)).gt(toWei(amount)));
 
       if (!hasAllowance) {
-        if (!this.profile.proxy) {
+        if (!ProfileStore.proxy) {
           txs.push({
             to: Blockchain.objects.proxyRegistry.address,
             data: Blockchain.objects.proxyRegistry.build.getData(),
             value: 0,
-            from: this.network.defaultAccount
+            from: NetworkStore.defaultAccount
           });
         }
         txs.push({
           to: Blockchain.objects[from].address,
-          data: Blockchain.objects[from].approve.getData(this.profile.proxy ? this.profile.proxy : "0x0000000000000000000000000000000000000000", -1),
+          data: Blockchain.objects[from].approve.getData(ProfileStore.proxy ? ProfileStore.proxy : "0x0000000000000000000000000000000000000000", -1),
           value: 0,
-          from: this.network.defaultAccount
+          from: NetworkStore.defaultAccount
         });
       }
     }
 
     const limit = operation === "sellAll" ? 0 : toWei(9999999);
-    if (this.profile.proxy || from !== "eth") {
-      target = this.profile.proxy && hasAllowance ? this.profile.proxy : settings.chain[this.network.network].proxyEstimation;
-      addrFrom = this.profile.proxy && hasAllowance ? this.network.defaultAccount : settings.chain[this.network.network].addrEstimation;
-      action = Blockchain.getCallDataAndValue(this.network.network, operation, from, to, amount, limit);
+    if (ProfileStore.proxy || from !== "eth") {
+      target = ProfileStore.proxy && hasAllowance ? ProfileStore.proxy : settings.chain[NetworkStore.network].proxyEstimation;
+      addrFrom = ProfileStore.proxy && hasAllowance ? NetworkStore.defaultAccount : settings.chain[NetworkStore.network].addrEstimation;
+      action = Blockchain.getCallDataAndValue(NetworkStore.network, operation, from, to, amount, limit);
       data = Blockchain.loadObject("dsproxy", target).execute["address,bytes"].getData(
-        settings.chain[this.network.network].proxyContracts.oasisDirect,
+        settings.chain[NetworkStore.network].proxyContracts.oasisDirect,
         action.calldata
       );
     } else {
-      target = settings.chain[this.network.network].proxyCreationAndExecute;
-      addrFrom = this.network.defaultAccount;
-      action = Blockchain.getActionCreateProxyAndSellETH(this.network.network, operation, to, amount, limit);
+      target = settings.chain[NetworkStore.network].proxyCreationAndExecute;
+      addrFrom = NetworkStore.defaultAccount;
+      action = Blockchain.getActionCreateProxyAndSellETH(NetworkStore.network, operation, to, amount, limit);
       data = Blockchain.loadObject("proxycreateandexecute", target)[action.method].getData(...action.params);
     }
 
@@ -547,7 +551,7 @@ class SystemStore {
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
       console.log("Calculating cost...");
-      Promise.all([Blockchain.estimateGas(to, data, value, from), this.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
+      Promise.all([Blockchain.estimateGas(to, data, value, from), TransactionsStore.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
         console.log(to, data, value, from);
         console.log(r[0], r[1].valueOf());
         resolve(r[1].times(r[0]));
