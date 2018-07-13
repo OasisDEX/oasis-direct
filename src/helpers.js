@@ -1,6 +1,6 @@
-import React from 'react';
-import web3 from './web3';
-import jazzicon from 'jazzicon';
+import React from "react";
+import web3 from "./web3";
+import jazzicon from "jazzicon";
 
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
@@ -10,24 +10,24 @@ var padLeft = function (string, chars, sign) {
 
 export const toBytes32 = (x, prefix = true) => {
   let y = web3.toHex(x);
-  y = y.replace('0x', '');
+  y = y.replace("0x", "");
   y = padLeft(y, 64);
-  if (prefix) y = '0x' + y;
+  if (prefix) y = "0x" + y;
   return y;
 }
 
 export const toBytes12 = (x, prefix = true) => {
   let y = web3.toHex(x);
-  y = y.replace('0x', '');
+  y = y.replace("0x", "");
   y = padLeft(y, 24);
-  if (prefix) y = '0x' + y;
+  if (prefix) y = "0x" + y;
   return y;
 }
 
 export const addressToBytes32 = (x, prefix = true) => {
-  let y = x.replace('0x', '');
+  let y = x.replace("0x", "");
   y = padLeft(y, 64);
-  if (prefix) y = '0x' + y;
+  if (prefix) y = "0x" + y;
   return y;
 }
 
@@ -45,9 +45,9 @@ export const formatNumber = (number, decimals = false, isWei = true) => {
     object = object.valueOf();
   }
 
-  const parts = object.toString().split('.');
+  const parts = object.toString().split(".");
   const decimalsWithoutTrailingZeros = parts[1] ? parts[1].replace(/[0]+$/,"") : "";
-  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (decimalsWithoutTrailingZeros ? `.${decimalsWithoutTrailingZeros}` : '');
+  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (decimalsWithoutTrailingZeros ? `.${decimalsWithoutTrailingZeros}` : "");
 }
 
 export const formatDate = timestamp => {
@@ -64,9 +64,9 @@ export const fromRaytoWad = (x) => {
 }
 
 export const copyToClipboard = e => {
-  const value = e.target.title.replace(',', '');
+  const value = e.target.title.replace(",", "");
   var aux = document.createElement("input");
-  aux.setAttribute('value', value);
+  aux.setAttribute("value", value);
   document.body.appendChild(aux);
   aux.select();
   document.execCommand("copy");
@@ -85,7 +85,7 @@ export const wdiv = (a, b) => {
 }
 
 export const etherscanUrl = network => {
-  return `https://${ network !== 'main' ? `${network}.` : '' }etherscan.io`;
+  return `https://${ network !== "main" ? `${network}.` : "" }etherscan.io`;
 }
 
 export const etherscanAddress = (network, text, address) => {
@@ -97,7 +97,7 @@ export const etherscanTx = (network, text, tx) => {
 }
 
 export const etherscanToken = (network, text, token, holder = false) => {
-  return <a href={ `${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ''}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+  return <a href={ `${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ""}` } target="_blank" rel="noopener noreferrer">{ text }</a>
 }
 
 export const methodSig = method => {
@@ -138,7 +138,7 @@ export const quotation = (from, to) => {
 };
 
 export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
-  return (tokenSell === 'dai' || (tokenSell === 'eth' && tokenBuy !== 'dai'))
+  return (tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
     ?
     {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}/${tokenSell}`}
     :

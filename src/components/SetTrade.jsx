@@ -1,17 +1,18 @@
-import React from 'react';
-import {observer} from "mobx-react";
-import ReactTooltip from 'react-tooltip';
-import ActiveConnection from './ActiveConnection';
-import TokensSelector from './TokensSelector';
-import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
-} from './Icons';
-import Spinner from './Spinner';
-import TokenAmount from './TokenAmount';
-import { fetchETHPriceInUSD, toWei } from '../helpers'
-import * as Blockchain from "../blockchainHandler";
+import React from "react";
+import {inject, observer} from "mobx-react";
+import ReactTooltip from "react-tooltip";
 
-const settings = require('../settings');
+import ActiveConnection from "./ActiveConnection";
+import Spinner from "./Spinner";
+import TokenAmount from "./TokenAmount";
+import TokensSelector from "./TokensSelector";
+
+import * as Blockchain from "../blockchainHandler";
+import {fetchETHPriceInUSD, toWei} from "../helpers";
+import {Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention} from "./Icons";
+
+
+const settings = require("../settings");
 
 //TODO: make this bound to the token selector.
 const tokens = {
@@ -64,7 +65,7 @@ class SetTrade extends React.Component {
     })
   }
 
-  //Whether it's 'from' or 'to'. Probably better name should be chosen
+  //Whether it's "from" or "to". Probably better name should be chosen
   pickToken = (tokenType) => {
     this.setState({shouldDisplayTokenSelector: true, selectedSide: tokenType});
   }
@@ -74,7 +75,7 @@ class SetTrade extends React.Component {
   };
 
   select = (selectedToken) => {
-    const oppositeSide = this.state.selectedSide === 'from' ? 'to' : 'from';
+    const oppositeSide = this.state.selectedSide === "from" ? "to" : "from";
     const tokenOnTheOppositeSide = this.state[oppositeSide];
 
     // We we have selected ETH as DEPOSIT token and we open again DEPOSIT token-picker and select ETH again
@@ -97,7 +98,7 @@ class SetTrade extends React.Component {
     // If we change the RECEIVE token and we have some amount  for the DEPOSIT token
     // then we just recalculate what the user will receive with the new RECEIVE token.
     this.setState({[this.state.selectedSide]: selectedToken}, () => {
-      if (this.state.selectedSide === 'to' && this.props.system.trade.amountBuy.gt(0)) {
+      if (this.state.selectedSide === "to" && this.props.system.trade.amountBuy.gt(0)) {
         this.props.system.calculateBuyAmount();
       } else {
         this.props.system.cleanInputs();
@@ -160,7 +161,7 @@ class SetTrade extends React.Component {
         {
           this.state.shouldDisplayActiveConnectionDetails
           ?
-            <ActiveConnection ethBalance={this.state.ethBalance} network={this.props.network} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} />
+            <ActiveConnection ethBalance={this.state.ethBalance} back={() => this.setState({shouldDisplayActiveConnectionDetails: false})} />
           :
             this.state.shouldDisplayTokenSelector
             ?
@@ -177,7 +178,7 @@ class SetTrade extends React.Component {
                   <h2>Enter Order Details</h2>
                 </div>
                 <div
-                  className={`info-box ${this.hasDetails() ? '' : ' info-box--hidden'} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? 'has-errors' : ''}`}>
+                  className={`info-box ${this.hasDetails() ? "" : " info-box--hidden"} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? "has-errors" : ""}`}>
                   <div className="info-box-row wrap">
                     {
                       this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell &&
@@ -189,17 +190,17 @@ class SetTrade extends React.Component {
                     {
                       this.props.system.trade.errorInputSell &&
                       (
-                        this.props.system.trade.errorInputSell === 'funds'
+                        this.props.system.trade.errorInputSell === "funds"
                         ?
                           <span className="label"> You don't have enough <strong>{tokens[this.props.system.trade.from].name} </strong> in your Wallet</span>
                         :
-                        this.props.system.trade.errorInputSell === 'gasCost'
+                        this.props.system.trade.errorInputSell === "gasCost"
                         ?
                           <span className="label"> You won't have enough ETH to pay for the gas!</span>
                         :
                           <span className="label">
                             {tokens[this.props.system.trade.from].symbol}&nbsp;
-                            Minimum Value: {this.props.system.trade.errorInputSell.replace('minValue:', '')}
+                            Minimum Value: {this.props.system.trade.errorInputSell.replace("minValue:", "")}
                           </span>
                       )
                     }
@@ -207,7 +208,7 @@ class SetTrade extends React.Component {
                       !this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell && this.props.system.trade.errorInputBuy &&
                       <span className="label">
                         {tokens[this.props.system.trade.to].symbol}&nbsp;
-                        Minimum Value: {this.props.system.trade.errorInputBuy.replace('minValue:', '')}
+                        Minimum Value: {this.props.system.trade.errorInputBuy.replace("minValue:", "")}
                       </span>
                     }
                     {
@@ -237,13 +238,13 @@ class SetTrade extends React.Component {
                               </p>
                             </ReactTooltip>
                           </span>
-                          <span className="value">{settings.chain[this.props.network.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                          <span className="value">{settings.chain[this.props.network.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join("")]}%</span>
                         </span>
                         <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                         <span className="label">Gas cost</span>
                           {
                             this.props.system.trade.txCost.gt(0)
-                              ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.state.priceInUSD} decimal={2} token={'USD'}/></span>
+                              ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.state.priceInUSD} decimal={2} token={"USD"}/></span>
                               : <Spinner/>
                           }
                         </span>
@@ -258,7 +259,7 @@ class SetTrade extends React.Component {
                           </ReactTooltip>
                         </span>
                         <span style={{color:this.priceImpact() > 5 ? "#E53935" : ""}}
-                          className='value'>{this.priceImpact()}%</span>
+                          className="value">{this.priceImpact()}%</span>
                         </span>
                       </React.Fragment>
                     }
@@ -268,7 +269,7 @@ class SetTrade extends React.Component {
                   <form className="trade">
                     <div className="selected-token">
                       <div className="token" onClick={() => {
-                        this.pickToken('from')
+                        this.pickToken("from")
                       }}>
                         <span className="token-icon">{tokens[this.state.from].icon}</span>
                         {
@@ -283,20 +284,20 @@ class SetTrade extends React.Component {
                       </div>
                       <div>
                         <input type="number"
-                              className={`${this.props.system.trade.errorInputSell && !this.props.system.trade.errorOrders ? 'has-errors' : ''} `}
+                              className={`${this.props.system.trade.errorInputSell && !this.props.system.trade.errorOrders ? "has-errors" : ""} `}
                               ref={(input) => this.amountPay = input}
-                              value={this.props.system.trade.amountPayInput || ''}
+                              value={this.props.system.trade.amountPayInput || ""}
                               onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
                       </div>
                     </div>
-                    <div className='separator'>
+                    <div className="separator">
                       <span className="swap-tokens" onClick={this.swapTokens}>
                         <SwapArrows/>
                       </span>
                     </div>
                     <div className="selected-token">
                       <div className="token" onClick={() => {
-                        this.pickToken('to');
+                        this.pickToken("to");
                       }}>
                         <span className="token-icon">{tokens[this.state.to].icon}</span>
                         {
@@ -312,9 +313,9 @@ class SetTrade extends React.Component {
                       </div>
                       <div>
                         <input type="number"
-                              className={`${this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders ? 'has-errors' : ''} `}
+                              className={`${this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders ? "has-errors" : ""} `}
                               ref={(input) => this.amountBuy = input}
-                              value={this.props.system.trade.amountBuyInput || ''}
+                              value={this.props.system.trade.amountBuyInput || ""}
                               onChange={this.calculatePayAmount} placeholder="receive amount"/>
                       </div>
                     </div>
@@ -322,7 +323,7 @@ class SetTrade extends React.Component {
                 </div>
                 {
                   this.hasDetails() && !this.props.system.trade.errorInputSell && !this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders &&
-                  <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? 'accepted' : ''}`}
+                  <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? "accepted" : ""}`}
                       onClick={this.acceptTermsAndConditions}>
                     <div className="info-box-row">
                         <span>
@@ -347,4 +348,4 @@ class SetTrade extends React.Component {
   }
 }
 
-export default observer(SetTrade);
+export default inject("network")(inject("system")(observer(SetTrade)));

@@ -1,7 +1,7 @@
-import network from './Network';
-import profile from './Profile';
-import transactions from './Transactions';
-import system from './System';
+import network from "./Network";
+import profile from "./Profile";
+import transactions from "./Transactions";
+import system from "./System";
 
 const stores = { network, profile, transactions, system };
 

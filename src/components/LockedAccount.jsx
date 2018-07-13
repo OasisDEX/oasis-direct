@@ -1,7 +1,7 @@
-import React from 'react';
-import { isMetamask } from '../blockchainHandler';
-import { BackIcon, Circle } from "./Icons";
+import React from "react";
 
+import {isMetamask} from "../blockchainHandler";
+import {BackIcon, Circle} from "./Icons";
 
 const LockedAccount = props => {
   const metamask = isMetamask();
@@ -12,7 +12,7 @@ const LockedAccount = props => {
             <Circle><BackIcon/></Circle>
           </button>
           <h2>
-            { metamask ? 'Metamask Account Locked' : 'No Account found' }
+            { metamask ? "Metamask Account Locked" : "No Account found" }
           </h2>
         </div>
         <section className="content">

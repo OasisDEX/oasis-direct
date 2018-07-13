@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {observer} from "mobx-react";
-import * as Blockchain from "../blockchainHandler";
-import Widget from './Widget';
-import { Logo } from "./Icons";
+
 import FAQ from "./FAQ";
+import Widget from "./Widget";
+
+import * as Blockchain from "../blockchainHandler";
+import { Logo } from "./Icons";
 
 window.Blockchain = Blockchain;
 
@@ -11,7 +13,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      section: 'exchange',
+      section: "exchange",
     }
   }
 
@@ -28,23 +30,19 @@ class App extends Component {
   }
 
   setHashSection = () => {
-    const section = window.location.hash.replace(/^#\/?|\/$/g, '').split('/')[0];
+    const section = window.location.hash.replace(/^#\/?|\/$/g, "").split("/")[0];
     this.setState({section});
   }
   //
 
 
   renderWidget = () => {
-    return <Widget network={this.props.network}
-            system={this.props.system}
-            profile={this.props.profile}
-            transactions={this.props.transactions}
-            section={this.state.section} />
+    return <Widget section={this.state.section} />
   }
 
   render = () => {
     return (
-      this.state.section === 'trade-widget'
+      this.state.section === "trade-widget"
         ?
         this.renderWidget()
         :
@@ -54,14 +52,14 @@ class App extends Component {
               <div className={`Logo Logo--no-margin`}>
                 <a href="/"> <Logo/> </a>
               </div>
-              <div className={'NavigationLinks'}>
-                {/* <a href="/#" style={{color: 'white'}}>Trade</a> */}
-                {/* <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a> */}
+              <div className={"NavigationLinks"}>
+                {/* <a href="/#" style={{color: "white"}}>Trade</a> */}
+                {/* <a href="/#tax-exporter" style={{color: "white"}}>Export Trades</a> */}
               </div>
             </header>
           </section>
           {
-            this.state.section === 'faq'
+            this.state.section === "faq"
               ?
               <FAQ/>
               :

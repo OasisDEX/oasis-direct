@@ -1,14 +1,16 @@
-import React from 'react';
-import {observer} from "mobx-react";
+import React from "react";
+import {inject, observer} from "mobx-react";
+
+import Spinner from "./Spinner";
+import TokenAmount from "./TokenAmount";
+
+import {getEthBalanceOf} from "../blockchainHandler";
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
   SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
 } from "./Icons";
-import Spinner from "./Spinner";
-import { getEthBalanceOf } from "../blockchainHandler";
-import TokenAmount from "./TokenAmount";
 
-const settings = require('../settings');
+const settings = require("../settings");
 
 const hwNameStyle = {
   textTransform: "capitalize"
@@ -122,7 +124,7 @@ class HardWallet extends React.Component {
   }
 
   componentWillMount() {
-    this.derivationPath = this.props.network.hw.option === 'ledger' ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
+    this.derivationPath = this.props.network.hw.option === "ledger" ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
 
     this.waitForDeviceToConnect(this.derivationPath);
   }
@@ -192,7 +194,7 @@ class HardWallet extends React.Component {
         {
           this.props.network.hw.addresses.length > 0
             ? (
-              <section className='frame hard-wallet-addresses'>
+              <section className="frame hard-wallet-addresses">
                 <div className="heading">
                   <h2>Select Address on your <span style={hwNameStyle}>{this.props.network.hw.option}</span></h2>
                 </div>
@@ -203,7 +205,7 @@ class HardWallet extends React.Component {
                   <ul className="list">
                     {
                       this.state.addresses.map(address =>
-                        <li key={address} className={`list-item ${this.state.selectedAddress === address ? 'selected' : ''} `}
+                        <li key={address} className={`list-item ${this.state.selectedAddress === address ? "selected" : ""} `}
                             onClick={() => this.setState({selectedAddress: address})}>
                           <Address address={address}/>
                         </li>
@@ -219,12 +221,12 @@ class HardWallet extends React.Component {
                       <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
                     </span>
                   </div>
-                  <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : 'UNLOCK WALLET'}</button>
+                  <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : "UNLOCK WALLET"}</button>
                 </div>
               </section>
             )
             : (
-              <section className='frame hard-wallet'>
+              <section className="frame hard-wallet">
                 <button className="back" onClick={this.props.network.showClientChoice}>
                   <Circle><BackIcon/></Circle>
                 </button>
@@ -259,4 +261,4 @@ class HardWallet extends React.Component {
   }
 }
 
-export default observer(HardWallet);
+export default inject("network")(observer(HardWallet));

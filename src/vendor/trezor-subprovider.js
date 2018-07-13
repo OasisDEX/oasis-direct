@@ -1,8 +1,8 @@
 //@flow
 import HookedWalletSubprovider from "web3-provider-engine/dist/es5/subproviders/hooked-wallet";
 import EthereumTx from "ethereumjs-tx";
-import AddressGenerator from './address-generator';
-import TrezorConnect from './trezor-connect';
+import AddressGenerator from "./address-generator";
+import TrezorConnect from "./trezor-connect";
 
 const allowedHdPaths = ["44'/1'", "44'/60'", "44'/61'"];
 
@@ -63,7 +63,7 @@ export default function createTrezorSubprovider(
 
   const createAddressGenerator = derivationPath => {
     return new Promise((resolve, reject) => {
-      TrezorConnect.setCurrency('ETH');
+      TrezorConnect.setCurrency("ETH");
       TrezorConnect.getXPubKey(derivationPath, result => {
         if (result.success) {
           resolve(new AddressGenerator(result));

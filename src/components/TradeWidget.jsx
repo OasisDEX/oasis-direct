@@ -1,29 +1,24 @@
 
-import React from 'react';
-import {observer} from "mobx-react";
-import SetTrade from './SetTrade';
-import DoTrade from './DoTrade';
+import React from "react";
+import {inject, observer} from "mobx-react";
+
+import DoTrade from "./DoTrade";
+import SetTrade from "./SetTrade";
 
 class TradeWidget extends React.Component {
   render() {
     return (
-      <div style={ {position: 'relative'} }>
+      <div style={ {position: "relative"} }>
         {
           this.props.system.trade.step === 1
             ?
-            <SetTrade network={this.props.network}
-                      system={this.props.system}
-                      profile={this.props.profile}
-                      transactions={this.props.transactions} />
+              <SetTrade />
             :
-            <DoTrade  network={this.props.network}
-                      system={this.props.system}
-                      profile={this.props.profile}
-                      transactions={this.props.transactions} />
+              <DoTrade />
         }
       </div>
     )
   }
 }
 
-export default observer(TradeWidget);
+export default inject("system")(observer(TradeWidget));

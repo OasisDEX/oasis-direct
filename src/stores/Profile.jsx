@@ -18,8 +18,8 @@ class ProfileStore {
 
   setProxy = proxy => {
     this.proxy = proxy;
-    Blockchain.loadObject('dsproxy', this.proxy, 'proxy');
-    console.log('proxy', this.proxy);
+    Blockchain.loadObject("dsproxy", this.proxy, "proxy");
+    console.log("proxy", this.proxy);
   }
 }
 

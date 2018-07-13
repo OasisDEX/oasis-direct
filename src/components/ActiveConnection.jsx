@@ -1,11 +1,12 @@
-import React from 'react';
-import {observer} from "mobx-react";
-import {
-  IdentityIcon, BackIcon, Circle,
-} from './Icons';
-import TokenAmount from './TokenAmount';
+import React from "react";
+import {inject, observer} from "mobx-react";
+
+import TokenAmount from "./TokenAmount";
+
 import * as Blockchain from "../blockchainHandler";
-import { etherscanAddress } from '../helpers';
+import {etherscanAddress} from "../helpers";
+
+import {IdentityIcon, BackIcon, Circle} from "./Icons";
 
 class ActiveConnection extends React.Component {
   render() {
@@ -37,4 +38,4 @@ class ActiveConnection extends React.Component {
   }
 }
 
-export default observer(ActiveConnection);
+export default inject("network")(observer(ActiveConnection));

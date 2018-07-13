@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
-import Accordion from '../ui-components/Accordion';
-import FAQ_DATA from '../misc/faq';
+import React, { Component } from "react";
+
+import Accordion from "../ui-components/Accordion";
+
+import FAQ_DATA from "../misc/faq";
 
 class FAQ extends Component {
   render() {

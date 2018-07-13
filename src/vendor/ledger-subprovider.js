@@ -4,7 +4,7 @@ import type Transport from "@ledgerhq/hw-transport";
 import HookedWalletSubprovider from "web3-provider-engine/dist/es5/subproviders/hooked-wallet";
 import stripHexPrefix from "strip-hex-prefix";
 import EthereumTx from "ethereumjs-tx";
-import AddressGenerator from './address-generator';
+import AddressGenerator from "./address-generator";
 
 const allowedHdPaths = ["44'/1'", "44'/60'", "44'/61'"];
 

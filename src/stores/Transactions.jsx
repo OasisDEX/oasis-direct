@@ -1,9 +1,9 @@
 import {observable, decorate, computed} from "mobx";
 import * as Blockchain from "../blockchainHandler";
 
-import {toWei, toBigNumber, addressToBytes32} from '../helpers';
+import {toWei, toBigNumber, addressToBytes32} from "../helpers";
 
-const settings = require('../settings');
+const settings = require("../settings");
 
 class TransactionsStore {
   approval = {};
@@ -17,7 +17,7 @@ class TransactionsStore {
   }
 
   getLogsByAddressFromEtherscan = (address, fromBlock, filter = {}) => {
-    let filterString = '';
+    let filterString = "";
     if (Object.keys(filter).length > 0) {
       Object.keys(filter).map(key => {
         filterString += `&${key}=${filter[key]}`;
@@ -25,10 +25,10 @@ class TransactionsStore {
       });
     }
     return new Promise((resolve, reject) => {
-      const url = `https://api${this.network.network !== 'main' ? `-${this.network.network}` : ''}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.network.network !== "main" ? `-${this.network.network}` : ""}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
       console.log(url);
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
+      xhr.open("GET", url, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -43,10 +43,10 @@ class TransactionsStore {
 
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
-      const url = `https://api${this.network.network !== 'main' ? `-${this.network.network}` : ''}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.network.network !== "main" ? `-${this.network.network}` : ""}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
       console.log(url);
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
+      xhr.open("GET", url, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -61,7 +61,7 @@ class TransactionsStore {
 
   // Transactions
   checkPendingTransactions = () => {
-    ['approval', 'trade', 'proxy'].map(type => {
+    ["approval", "trade", "proxy"].map(type => {
       if (this[type].pending) {
         Blockchain.getTransactionReceipt(this[type].tx).then(r => {
           if (r !== null) {
@@ -75,7 +75,7 @@ class TransactionsStore {
             // Using logs:
             Blockchain.setFilter(
               this[type].checkFromBlock,
-              settings.chain[this.network.network].tokens[this.system.trade.from.replace('eth', 'weth')].address
+              settings.chain[this.network.network].tokens[this.system.trade.from.replace("eth", "weth")].address
             ).then(r => {
               r.forEach(v => {
                 Blockchain.getTransaction(v.transactionHash).then(r2 => {
@@ -102,35 +102,35 @@ class TransactionsStore {
         }, () => {
         });
       } else {
-        if (typeof this[type] !== 'undefined' && typeof this[type].amountSell !== 'undefined' && this[type].amountSell.eq(-1)) {
+        if (typeof this[type] !== "undefined" && typeof this[type].amountSell !== "undefined" && this[type].amountSell.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[this.network.network].tokens[this.system.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs), () => {
+            settings.chain[this.network.network].tokens[this.system.trade.from.replace("eth", "weth")].address
+          ).then(logs => this.saveTradedValue("sell", logs), () => {
           });
           // Using Etherscan API (backup)
-          this.getLogsByAddressFromEtherscan(settings.chain[this.network.network].tokens[this.system.trade.from.replace('eth', 'weth')].address,
+          this.getLogsByAddressFromEtherscan(settings.chain[this.network.network].tokens[this.system.trade.from.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              this.saveTradedValue('sell', logs.result);
+              this.saveTradedValue("sell", logs.result);
             }
           }, () => {
           });
         }
-        if (typeof this[type] !== 'undefined' && typeof this[type].amountBuy !== 'undefined' && this[type].amountBuy.eq(-1)) {
+        if (typeof this[type] !== "undefined" && typeof this[type].amountBuy !== "undefined" && this[type].amountBuy.eq(-1)) {
           // Using Logs
           Blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[this.network.network].tokens[this.system.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs), () => {
+            settings.chain[this.network.network].tokens[this.system.trade.to.replace("eth", "weth")].address
+          ).then(logs => this.saveTradedValue("buy", logs), () => {
           }, () => {
           });
           // Using Etherscan API (backup)
-          this.getLogsByAddressFromEtherscan(settings.chain[this.network.network].tokens[this.system.trade.to.replace('eth', 'weth')].address,
+          this.getLogsByAddressFromEtherscan(settings.chain[this.network.network].tokens[this.system.trade.to.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
-              this.saveTradedValue('buy', logs.result);
+              this.saveTradedValue("buy", logs.result);
             }
           }, () => {
           });
@@ -152,18 +152,18 @@ class TransactionsStore {
     let value = toBigNumber(0);
     logs.forEach(log => {
       if (log.transactionHash === this.trade.tx) {
-        if (this.system.trade[operation === 'buy' ? 'to' : 'from'] !== 'eth' &&
-          log.topics[operation === 'buy' ? 2 : 1] === addressToBytes32(this.network.defaultAccount) &&
-          log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+        if (this.system.trade[operation === "buy" ? "to" : "from"] !== "eth" &&
+          log.topics[operation === "buy" ? 2 : 1] === addressToBytes32(this.network.defaultAccount) &&
+          log.topics[0] === "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef") {
           // No ETH, src or dst is user's address and Transfer Event
           value = value.add(toBigNumber(log.data));
-        } else if (this.system.trade[operation === 'buy' ? 'to' : 'from'] === 'eth') {
-          if (log.topics[0] === '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c') {
+        } else if (this.system.trade[operation === "buy" ? "to" : "from"] === "eth") {
+          if (log.topics[0] === "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c") {
             // Deposit (only can come when selling ETH)
             value = value.add(toBigNumber(log.data));
-          } else if (log.topics[0] === '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65') {
+          } else if (log.topics[0] === "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65") {
             // Withdrawal
-            if (operation === 'buy') {
+            if (operation === "buy") {
               // If buying, the withdrawal shows amount the user is receiving
               value = value.add(toBigNumber(log.data));
             } else {
@@ -175,7 +175,7 @@ class TransactionsStore {
       }
     });
     if (value.gt(0)) {
-      this.trade[operation === 'buy' ? 'amountBuy' : 'amountSell'] = value;
+      this.trade[operation === "buy" ? "amountBuy" : "amountSell"] = value;
     }
   }
 
@@ -188,39 +188,39 @@ class TransactionsStore {
 
   logPendingTransaction = async (tx, type, callbacks = []) => {
     const nonce = await Blockchain.getTransactionCount(this.network.defaultAccount);
-    const checkFromBlock = (await Blockchain.getBlock('latest')).number;
-    console.log('nonce', nonce);
-    console.log('checkFromBlock', checkFromBlock);
-    const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
+    const checkFromBlock = (await Blockchain.getBlock("latest")).number;
+    console.log("nonce", nonce);
+    console.log("checkFromBlock", checkFromBlock);
+    const msgTemp = "Transaction TX was created. Waiting for confirmation...";
     this[type] = {tx, pending: true, error: false, errorDevice: false, nonce, checkFromBlock, callbacks}
-    if (type === 'trade') {
+    if (type === "trade") {
       this[type].amountSell = toBigNumber(-1);
       this[type].amountBuy = toBigNumber(-1);
     }
-    console.log(msgTemp.replace('TX', tx));
+    console.log(msgTemp.replace("TX", tx));
   }
 
   logTransactionConfirmed = (tx, gasUsed) => {
-    const msgTemp = 'Transaction TX was confirmed.';
+    const msgTemp = "Transaction TX was confirmed.";
 
-    const type = typeof this.proxy !== 'undefined' && this.proxy.tx === tx
+    const type = typeof this.proxy !== "undefined" && this.proxy.tx === tx
+    ?
+      "proxy"
+    :
+      typeof this.approval !== "undefined" && this.approval.tx === tx
       ?
-      'proxy'
+        "approval"
       :
-      typeof this.approval !== 'undefined' && this.approval.tx === tx
+        typeof this.trade !== "undefined" && this.trade.tx === tx
         ?
-        'approval'
+          "trade"
         :
-        typeof this.trade !== 'undefined' && this.trade.tx === tx
-          ?
-          'trade'
-          :
           false;
     if (type && this[type].pending) {
       this[type].pending = false;
       this[type].gasUsed = parseInt(gasUsed, 10);
 
-      console.log(msgTemp.replace('TX', tx));
+      console.log(msgTemp.replace("TX", tx));
       Blockchain.getTransaction(tx).then(r => {
         if (r) {
           this[type].gasPrice = r.gasPrice;
@@ -228,21 +228,21 @@ class TransactionsStore {
           this[type].checkFromBlock = r.blockNumber && r.blockNumber < this[type].checkFromBlock ? r.blockNumber : this[type].checkFromBlock;
         }
       }, () => {});
-      if (typeof this[type].callbacks !== 'undefined' && this[type].callbacks.length > 0) {
+      if (typeof this[type].callbacks !== "undefined" && this[type].callbacks.length > 0) {
         this.executeCallbacks(this[type].callbacks);
       }
     }
   }
 
   logTransactionFailed = tx => {
-    const type = typeof this.approval !== 'undefined' && this.approval.tx === tx
+    const type = typeof this.approval !== "undefined" && this.approval.tx === tx
+    ?
+      "approval"
+    :
+      typeof this.trade !== "undefined" && this.trade.tx === tx
       ?
-      'approval'
+        "trade"
       :
-      typeof this.trade !== 'undefined' && this.trade.tx === tx
-        ?
-        'trade'
-        :
         false;
     if (type) {
       this[type].pending = false;
@@ -259,7 +259,7 @@ class TransactionsStore {
   }
 
   isErrorDevice = e => {
-    return e.message === 'invalid transport instance' || e.message.indexOf('Ledger device: UNKNOWN_ERROR') !== -1 || e.message === 'Error: Window closed';
+    return e.message === "invalid transport instance" || e.message.indexOf("Ledger device: UNKNOWN_ERROR") !== -1 || e.message === "Error: Window closed";
   }
 
   getGasPriceFromETHGasStation = () => {
@@ -269,10 +269,10 @@ class TransactionsStore {
       }, 3000);
 
       fetch("https://ethgasstation.info/json/ethgasAPI.json", {
-        mode: 'cors',
+        mode: "cors",
         headers: {
-          'Access-Control-Request-Headers': 'Content-Type',
-          'Content-Type': 'text/plain',
+          "Access-Control-Request-Headers": "Content-Type",
+          "Content-Type": "text/plain",
         }
       }).then(stream => {
         stream.json().then(price => {
@@ -309,11 +309,11 @@ class TransactionsStore {
   executeCallback = args => {
     let method = args.shift();
     // If the callback is to execute a getter function is better to wait as sometimes the new value is not uopdated instantly when the tx is confirmed
-    const timeout = ['system/executeProxyTx', 'system/executeProxyCreateAndSellETH', 'system/checkAllowance'].indexOf(method) !== -1 ? 0 : 5000;
+    const timeout = ["system/executeProxyTx", "system/executeProxyCreateAndSellETH", "system/checkAllowance"].indexOf(method) !== -1 ? 0 : 5000;
     setTimeout(() => {
-      method = method.split('/');
-      console.log('executeCallback', `${method[0]}.${method[1]}`, args);
-      if (method[0] === 'transactions') {
+      method = method.split("/");
+      console.log("executeCallback", `${method[0]}.${method[1]}`, args);
+      if (method[0] === "transactions") {
         this[method[1]](...args);
       } else {
         this[method[0]][method[1]](...args);

@@ -1,7 +1,7 @@
 import { observable, decorate } from "mobx";
 import * as Blockchain from "../blockchainHandler";
 
-const settings = require('../settings');
+const settings = require("../settings");
 
 class NetworkStore {
   stopIntervals = false;
@@ -21,9 +21,9 @@ class NetworkStore {
     let isConnected = null;
     Blockchain.getNode().then(r => {
       isConnected = true;
-      Blockchain.getBlock('latest').then(res => {
-        if (typeof(res) === 'undefined') {
-          console.debug('YIKES! getBlock returned undefined!');
+      Blockchain.getBlock("latest").then(res => {
+        if (typeof(res) === "undefined") {
+          console.debug("YIKES! getBlock returned undefined!");
         }
         if (res.number >= this.latestBlock) {
           this.latestBlock = res.number;
@@ -31,7 +31,7 @@ class NetworkStore {
         } else {
           // XXX MetaMask frequently returns old blocks
           // https://github.com/MetaMask/metamask-plugin/issues/504
-          console.debug('Skipping old block');
+          console.debug("Skipping old block");
         }
       });
       // because you have another then after this.
@@ -45,16 +45,16 @@ class NetworkStore {
           let network = false;
           Blockchain.getBlock(0).then(res => {
             switch (res.hash) {
-              case '0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9':
-                network = 'kovan';
+              case "0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9":
+                network = "kovan";
                 break;
-              case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
-                network = 'main';
+              case "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3":
+                network = "main";
                 break;
               default:
-                console.log('setting network to private');
-                console.log('res.hash:', res.hash);
-                network = 'private';
+                console.log("setting network to private");
+                console.log("res.hash:", res.hash);
+                network = "private";
             }
             if (!this.stopIntervals // To avoid race condition
                 && this.network !== network) {
@@ -133,7 +133,7 @@ class NetworkStore {
   hideHw = () => {
     this.hw.loading = false;
     this.hw.showSelector = false;
-    this.hw.option = '';
+    this.hw.option = "";
     this.hw.derivationPath = false;
   }
 
@@ -162,9 +162,9 @@ class NetworkStore {
   loadContracts = () => {
     if (this.network && !this.stopIntervals) {
       Blockchain.resetFilters(true);
-      if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
+      if (typeof this.pendingTxInterval !== "undefined") clearInterval(this.pendingTxInterval);
       const addrs = settings.chain[this.network];
-      Blockchain.loadObject('proxyregistry', addrs.proxyRegistry, 'proxyRegistry');
+      Blockchain.loadObject("proxyregistry", addrs.proxyRegistry, "proxyRegistry");
       const setUpPromises = [Blockchain.getProxy(this.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
         this.loadingAddress = false;
@@ -199,7 +199,7 @@ class NetworkStore {
 
   loadHWAddresses = async (network, amount, derivationPath = this.hw.derivationPath) => {
     try {
-      await Blockchain.setHWProvider(this.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, amount);
+      await Blockchain.setHWProvider(this.hw.option, network, `${derivationPath.replace("m/", "")}/0`, 0, amount);
       const accounts = await Blockchain.getAccounts();
       this.hw.addresses = accounts;
       this.hw.derivationPath = derivationPath;

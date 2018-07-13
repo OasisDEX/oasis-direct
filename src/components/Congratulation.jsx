@@ -1,9 +1,10 @@
-import React from 'react'
+import React from "react"
 import {observer} from "mobx-react";
 
-import TokenAmount from "./TokenAmount";
 import Spinner from "./Spinner";
-import { calculateTradePrice, fetchETHPriceInUSD, toWei } from '../helpers';
+import TokenAmount from "./TokenAmount";
+
+import { calculateTradePrice, fetchETHPriceInUSD, toWei } from "../helpers";
 
 class Congratulation extends React.Component {
   constructor(props) {
@@ -67,7 +68,7 @@ class Congratulation extends React.Component {
             {
               this.props.isCalculatingGas
                 ? <span><Spinner/></span>
-                : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={'USD'}/>
+                : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={"USD"}/>
             }&nbsp;
           </span>
           gas cost

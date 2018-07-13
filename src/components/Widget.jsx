@@ -1,10 +1,12 @@
-import React from 'react';
-import {observer} from "mobx-react";
-import TradeWidget from './TradeWidget';
-import Wallets from './Wallets';
-import LockedAccount from './LockedAccount';
-import { isAddress } from '../helpers';
+import React from "react";
+import {inject, observer} from "mobx-react";
+
 import HardWallet from "./HardWallet";
+import LockedAccount from "./LockedAccount";
+import TradeWidget from "./TradeWidget";
+import Wallets from "./Wallets";
+
+import {isAddress} from "../helpers";
 
 class Widget extends React.Component {
   render() {
@@ -13,27 +15,24 @@ class Widget extends React.Component {
         {
           this.props.network.hw.showSelector
             ?
-              <HardWallet network={this.props.network} />
+              <HardWallet />
             :
               !this.props.network.isConnected || this.props.network.loadingFirstAddress
               ?
-                <Wallets network={this.props.network} />
+                <Wallets />
               :
                 this.props.network.defaultAccount && isAddress(this.props.network.defaultAccount)
                 ?
                   <div>
-                    <TradeWidget  network={this.props.network}
-                                  system={this.props.system}
-                                  profile={this.props.profile}
-                                  transactions={this.props.transactions} />
+                    <TradeWidget />
                   </div>
                   // Create a decorator Component that returns a component which is wrapped into element with only back function passed as argument
                 :
-                  <LockedAccount onBack={this.props.showClientChoice} />
+                  <LockedAccount />
         }
       </div>
     )
   }
 }
 
-export default observer(Widget);
+export default inject("network")(observer(Widget));

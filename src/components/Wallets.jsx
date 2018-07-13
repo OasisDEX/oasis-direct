@@ -1,13 +1,14 @@
-import React from 'react';
-import {observer} from "mobx-react";
-import Product from '../ui-components/Product';
+import React from "react";
+import {inject, observer} from "mobx-react";
+
+import Spinner from "./Spinner";
+import Product from "../ui-components/Product";
+
+import {getCurrentProviderName} from "../web3";
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
 } from "./Icons";
-import Spinner from "./Spinner";
-import { getCurrentProviderName } from '../web3';
-
 
 const logos = {
   metamask: {icon: <MetamaskIcon/>, name: "Metamask"},
@@ -23,7 +24,7 @@ class Wallets extends React.Component {
 
     this.state = {
       hasProvider: false,
-      provider: '',
+      provider: "",
       shouldDisplayAvailableClients: false
     }
   }
@@ -39,11 +40,11 @@ class Wallets extends React.Component {
   }
 
   connectLedger = () => {
-    this.props.network.showHW('ledger');
+    this.props.network.showHW("ledger");
   }
 
   connectTrezor = () => {
-    this.props.network.showHW('trezor');
+    this.props.network.showHW("trezor");
   }
 
   getToClientSelection = () => {
@@ -126,7 +127,8 @@ class Wallets extends React.Component {
                     <div className="browser-wallet">
                       {
                         this.state.hasProvider
-                          ? <React.Fragment>
+                        ?
+                          <React.Fragment>
                             <div className="client-summary">
                               {this.logoFor(getCurrentProviderName())}
                               <div>
@@ -134,10 +136,17 @@ class Wallets extends React.Component {
                                 <span className="label">{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
                               </div>
                             </div>
-                            <button type="button" onClick={this.selectWallet}>{this.props.network.loadingAddress ?
-                              <Spinner theme="button"/> : 'Continue'}</button>
+                            <button type="button" onClick={this.selectWallet}>
+                              {
+                                this.props.network.loadingAddress
+                                ?
+                                  <Spinner theme="button"/>
+                                :
+                                  "Continue"}
+                            </button>
                           </React.Fragment>
-                          : <React.Fragment>
+                        :
+                          <React.Fragment>
                             <div className="client-summary">
                               <span className="label">No Client in use</span>
                             </div>
@@ -164,4 +173,4 @@ class Wallets extends React.Component {
   }
 }
 
-export default observer(Wallets);
+export default inject("network")(observer(Wallets));
