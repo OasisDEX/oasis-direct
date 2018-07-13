@@ -381,12 +381,10 @@ class DoTrade extends React.Component {
                   </div>
                 </a>
               :
-                <a
-                  href={this.props.transactions.hasTradeTx && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
-                  target="_blank" rel="noopener noreferrer"
-                  className="clickable"
-                  style={{textDecoration: "none"}}
-                >
+                <a href={this.props.transactions.hasTradeTx && this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
+                   target="_blank" rel="noopener noreferrer"
+                   className="clickable"
+                   style={{textDecoration: "none"}} >
                   <Congratulation
                     hasCreatedProxy={!this.props.system.trade.proxy && this.props.system.trade.from === "eth"} //THIS IS A FRICKIN HACK!
                     isCalculatingGas={

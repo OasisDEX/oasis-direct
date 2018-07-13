@@ -19,9 +19,10 @@ class TokensSelector extends React.Component {
                   <span className="token-icon">{this.props.tokens.eth.icon}</span>
                   {
                     this.props.balances.eth
-                      ? <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3}
-                                      token={"ETH"}/>
-                      : <Spinner/>
+                      ?
+                        <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"}/>
+                      :
+                        <Spinner/>
                   }
                 </div>
                 {
@@ -33,9 +34,10 @@ class TokensSelector extends React.Component {
                         <span className="token-icon">{this.props.tokens[token].icon}</span>
                         {
                           this.props.balances[token]
-                            ? <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3}
-                                            token={token.toUpperCase()}/>
-                            : <Spinner/>
+                            ?
+                              <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3} token={token.toUpperCase()}/>
+                            :
+                              <Spinner/>
                         }
                       </div>
                     )

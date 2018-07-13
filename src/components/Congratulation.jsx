@@ -51,8 +51,10 @@ class Congratulation extends React.Component {
         <span className="label">
           {
             this.props.hasCreatedProxy
-              ? <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
-              : <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+            ?
+              <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+            :
+              <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
           }
           <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
                        token={this.props.quotation.base.toUpperCase()}/>&nbsp;
@@ -67,8 +69,10 @@ class Congratulation extends React.Component {
           <span className="value">
             {
               this.props.isCalculatingGas
-                ? <span><Spinner/></span>
-                : <TokenAmount number={this.props.gas * this.state.priceInUSD} token={"USD"}/>
+              ?
+                <span><Spinner/></span>
+              :
+                <TokenAmount number={this.props.gas * this.state.priceInUSD} token={"USD"}/>
             }&nbsp;
           </span>
           gas cost

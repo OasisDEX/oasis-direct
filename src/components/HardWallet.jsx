@@ -193,68 +193,68 @@ class HardWallet extends React.Component {
       <React.Fragment>
         {
           this.props.network.hw.addresses.length > 0
-            ? (
-              <section className="frame hard-wallet-addresses">
-                <div className="heading">
-                  <h2>Select Address on your <span style={hwNameStyle}>{this.props.network.hw.option}</span></h2>
+          ?
+            <section className="frame hard-wallet-addresses">
+              <div className="heading">
+                <h2>Select Address on your <span style={hwNameStyle}>{this.props.network.hw.option}</span></h2>
+              </div>
+              <button className="close" onClick={this.props.network.showClientChoice}/>
+
+              <div className="content">
+
+                <ul className="list">
+                  {
+                    this.state.addresses.map(address =>
+                      <li key={address} className={`list-item ${this.state.selectedAddress === address ? "selected" : ""} `}
+                          onClick={() => this.setState({selectedAddress: address})}>
+                        <Address address={address}/>
+                      </li>
+                    )
+                  }
+                </ul>
+
+                <div className="pagination">
+                  <span onClick={() => this.previous(5)} disabled={this.props.network.loadingAddress}>
+                    <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
+                  </span>
+                  <span onClick={() => this.next(5)} disabled={this.props.network.loadingAddress}>
+                    <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
+                  </span>
                 </div>
-                <button className="close" onClick={this.props.network.showClientChoice}/>
-
-                <div className="content">
-
-                  <ul className="list">
+                <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : "UNLOCK WALLET"}</button>
+              </div>
+            </section>
+          :
+            <section className="frame hard-wallet">
+              <button className="back" onClick={this.props.network.showClientChoice}>
+                <Circle><BackIcon/></Circle>
+              </button>
+              <div className="heading">
+                <h2>Connect your <span style={hwNameStyle}>{this.props.network.hw.option}</span> Wallet</h2>
+              </div>
+              <div className="content">
+                <div className="progress">
+                  <div className="status">
                     {
-                      this.state.addresses.map(address =>
-                        <li key={address} className={`list-item ${this.state.selectedAddress === address ? "selected" : ""} `}
-                            onClick={() => this.setState({selectedAddress: address})}>
-                          <Address address={address}/>
-                        </li>
-                      )
-                    }
-                  </ul>
-
-                  <div className="pagination">
-                    <span onClick={() => this.previous(5)} disabled={this.props.network.loadingAddress}>
-                      <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
-                    </span>
-                    <span onClick={() => this.next(5)} disabled={this.props.network.loadingAddress}>
-                      <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
-                    </span>
-                  </div>
-                  <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button"/> : "UNLOCK WALLET"}</button>
-                </div>
-              </section>
-            )
-            : (
-              <section className="frame hard-wallet">
-                <button className="back" onClick={this.props.network.showClientChoice}>
-                  <Circle><BackIcon/></Circle>
-                </button>
-                <div className="heading">
-                  <h2>Connect your <span style={hwNameStyle}>{this.props.network.hw.option}</span> Wallet</h2>
-                </div>
-                <div className="content">
-                  <div className="progress">
-                    <div className="status">
-                      {
-                        this.state.connectivityError
-                          ? <span className="label"> Couldn't connect</span>
-                          : <React.Fragment>
+                      this.state.connectivityError
+                        ?
+                          <span className="label"> Couldn't connect</span>
+                        :
+                          <React.Fragment>
                             <Spinner styles={spinnerStyle}/>
                             <span className="label"> Connecting </span>
                           </React.Fragment>
-                      }
-                    </div>
-                    <div>
-                    </div>
-                    <div onClick={this.retry}>
-                      <Circle styles={circularButtonStyle}><RetryIcon/></Circle>
-                    </div>
+                    }
                   </div>
-                  <Guidelines steps={steps[this.props.network.hw.option]}/>
+                  <div>
+                  </div>
+                  <div onClick={this.retry}>
+                    <Circle styles={circularButtonStyle}><RetryIcon/></Circle>
+                  </div>
                 </div>
-              </section>
-            )
+                <Guidelines steps={steps[this.props.network.hw.option]}/>
+              </div>
+            </section>
         }
       </React.Fragment>
     )

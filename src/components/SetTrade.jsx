@@ -244,8 +244,10 @@ class SetTrade extends React.Component {
                         <span className="label">Gas cost</span>
                           {
                             this.props.system.trade.txCost.gt(0)
-                              ? <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.state.priceInUSD} decimal={2} token={"USD"}/></span>
-                              : <Spinner/>
+                              ?
+                                <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.state.priceInUSD} decimal={2} token={"USD"}/></span>
+                              :
+                                <Spinner/>
                           }
                         </span>
                         <span style={{paddingTop: "4px"}} className="holder half holder--spread">

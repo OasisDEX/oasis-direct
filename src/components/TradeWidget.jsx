@@ -11,10 +11,10 @@ class TradeWidget extends React.Component {
       <div style={ {position: "relative"} }>
         {
           this.props.system.trade.step === 1
-            ?
-              <SetTrade />
-            :
-              <DoTrade />
+          ?
+            <SetTrade />
+          :
+            <DoTrade />
         }
       </div>
     )

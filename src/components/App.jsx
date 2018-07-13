@@ -60,9 +60,9 @@ class App extends Component {
           </section>
           {
             this.state.section === "faq"
-              ?
+            ?
               <FAQ/>
-              :
+            :
               <section className="Content">
                 <main className="Container">
                   <div>

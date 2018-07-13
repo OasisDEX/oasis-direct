@@ -16,9 +16,7 @@ class FAQ extends Component {
                 FAQ_DATA.map(pair => {
                   return (
                     <li className="ListItem">
-                      <Accordion
-                        headline={pair.question}
-                        content={pair.answer}/>
+                      <Accordion headline={pair.question} content={pair.answer} />
                     </li>
                   )
                 })
