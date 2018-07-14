@@ -1,6 +1,7 @@
 import {observable, decorate, computed} from "mobx";
 
 import NetworkStore from "./Network";
+import ProfileStore from "./Profile";
 import SystemStore from "./System";
 
 import * as Blockchain from "../blockchainHandler";
@@ -319,7 +320,18 @@ class TransactionsStore {
       if (method[0] === "transactions") {
         this[method[1]](...args);
       } else {
-        this[method[0]][method[1]](...args);
+        let object = null;
+        switch(method[0]){
+          case "system":
+            object = SystemStore;
+            break;
+          case "profile":
+            object = ProfileStore;
+            break;
+          default:
+            break;
+        }
+        object && object[method[1]](...args);
       }
     }, timeout);
   }
