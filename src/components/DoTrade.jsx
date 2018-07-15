@@ -7,38 +7,11 @@ import Spinner from "./Spinner";
 import TokenAmount from "./TokenAmount";
 
 import {etherscanUrl, quotation, toBigNumber, toWei} from "../helpers";
-import {Ether, MKR, DAI, Done, AccountIcon, Attention} from "./Icons";
+import {Done, AccountIcon, Attention} from "./Icons";
 
 const settings = require("../settings");
 
-const tokens = {
-  eth: {
-    icon: <Ether/>,
-    symbol: "ETH",
-    name: "Ether"
-  },
-  mkr: {
-    icon: <MKR/>,
-    symbol: "MKR",
-    name: "Maker"
-  },
-  dai: {
-    icon: <DAI/>,
-    symbol: "DAI",
-    name: "DAI",
-  },
-}
-
 class DoTrade extends React.Component {
-  token = key => {
-    const tokens = {
-      eth: "Ether",
-      mkr: "Maker",
-      dai: "Dai"
-    };
-    return tokens[key];
-  }
-
   hasTxCompleted = type => {
     return this.props.transactions[type]
       && this.props.transactions[type].tx
@@ -58,6 +31,53 @@ class DoTrade extends React.Component {
           || this.props.transactions.trade.error
           || this.props.transactions.trade.rejected
           || this.props.transactions.trade.errorDevice));
+  }
+
+  renderInitialStatus = initiating => {
+    return  initiating
+            ?
+              <React.Fragment>
+                <span className="status label">Initiating transaction</span>
+                <Spinner/>
+              </React.Fragment>
+            :
+              <React.Fragment>
+                <span className="status label">Waiting</span>
+              </React.Fragment>
+  }
+
+  renderStatus = type => {
+    return  this.props.transactions[type].errorDevice
+            ?
+              <span className="status label error">Error connecting device</span>
+            :
+              this.props.transactions[type].rejected
+              ?
+                <span className="status label error">Rejected</span>
+              :
+                this.props.transactions[type].requested
+                ?
+                  <React.Fragment>
+                    <span className="status label">Signing transaction</span><Spinner/>
+                  </React.Fragment>
+                :
+                  this.props.transactions[type].pending
+                  ?
+                    <React.Fragment>
+                      <span className="status label info">View on Etherscan</span><Spinner/>
+                    </React.Fragment>
+                  :
+                    this.props.transactions[type].error
+                    ?
+                      <span className="status label error">Failed</span>
+                    :
+                      type === 'trade' && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
+                      ?
+                        <React.Fragment>
+                          <span className="status label info">Confirmed. Loading...</span><Spinner/>
+                        </React.Fragment>
+                      :
+                        <span className="status label info">Confirmed</span>
   }
 
   render() {
@@ -106,35 +126,9 @@ class DoTrade extends React.Component {
                   {
                     !this.props.transactions.hasProxyTx
                     ?
-                      <React.Fragment>
-                        <span className="status label">Initiating transaction...</span><Spinner/>
-                      </React.Fragment>
+                      this.renderInitialStatus(true)
                     :
-                      this.props.transactions.proxy.errorDevice
-                    ?
-                        <span className="status label error">Error connecting device</span>
-                      :
-                        this.props.transactions.proxy.rejected
-                        ?
-                          <span className="status label error">Rejected</span>
-                        :
-                          this.props.transactions.proxy.requested
-                          ?
-                            <React.Fragment>
-                              <span className="status label">Signing transaction</span><Spinner/>
-                            </React.Fragment>
-                          :
-                            this.props.transactions.proxy.pending
-                            ?
-                              <React.Fragment>
-                                <span className="status label info">View on Etherscan</span><Spinner/>
-                              </React.Fragment>
-                            :
-                              this.props.transactions.proxy.error
-                              ?
-                                <span className="status label error">Failed</span>
-                              :
-                                <span className="status label info">Confirmed</span>
+                      this.renderStatus('proxy')
                   }
                 </div>
               </div>
@@ -158,7 +152,7 @@ class DoTrade extends React.Component {
                     <Done/>
                   </span>
                   <span className="label vertical-align">
-                    Enable {tokens[this.props.system.trade.from].symbol} Trading
+                    Enable {this.props.tokens[this.props.system.trade.from].symbol} Trading
                     <Attention data-tip data-for="allowance-tooltip" className="attention-icon"/>
                     <ReactTooltip className="od-tooltip" effect="solid" id="allowance-tooltip">
                       <p>
@@ -169,42 +163,9 @@ class DoTrade extends React.Component {
                   {
                     !this.props.transactions.hasApprovalTx
                     ?
-                      this.props.system.trade.txs <= 2 || (this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false)
-                      ?
-                        <React.Fragment>
-                          <span className="status label">Initiating transaction</span>
-                          <Spinner/>
-                        </React.Fragment>
-                      :
-                        <React.Fragment>
-                          <span className="status label">Waiting</span>
-                        </React.Fragment>
+                      this.renderInitialStatus(this.props.system.trade.txs <= 2 || (this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false))
                     :
-                      this.props.transactions.approval.errorDevice
-                      ?
-                        <span className="status label error">Error connecting device</span>
-                      :
-                        this.props.transactions.approval.rejected
-                        ?
-                          <span className="status label error">Rejected</span>
-                        :
-                          this.props.transactions.approval.requested
-                          ?
-                            <React.Fragment>
-                              <span className="status label">Signing transaction</span><Spinner/>
-                            </React.Fragment>
-                          :
-                            this.props.transactions.approval.pending
-                            ?
-                              <React.Fragment>
-                                <span className="status label info">View on Etherscan</span><Spinner/>
-                              </React.Fragment>
-                            :
-                              this.props.transactions.approval.error
-                              ?
-                                <span className="status label error">Failed</span>
-                              :
-                                <span className="status label info">Confirmed</span>
+                      this.renderStatus('approval')
                   }
                 </div>
               </div>
@@ -261,49 +222,9 @@ class DoTrade extends React.Component {
                             {
                               !this.props.transactions.hasTradeTx
                               ?
-                                this.props.system.trade.txs === 1
-                                ?
-                                  <React.Fragment>
-                                    <span className="status label">Initiating transaction</span><Spinner/>
-                                  </React.Fragment>
-                                :
-                                  <React.Fragment>
-                                    <span className="status label">Waiting</span>
-                                  </React.Fragment>
+                                this.renderInitialStatus(this.props.system.trade.txs === 1)
                               :
-                                this.props.transactions.trade.errorDevice
-                                ?
-                                  <span className="status label error">Error connecting device</span>
-                                :
-                                  this.props.transactions.trade.rejected
-                                  ?
-                                    <React.Fragment>
-                                      <span className="status label error">Rejected</span>
-                                    </React.Fragment>
-                                  :
-                                    this.props.transactions.trade.requested
-                                    ?
-                                      <React.Fragment>
-                                        <span className="status label">Signing transaction</span><Spinner/>
-                                      </React.Fragment>
-                                    :
-                                      this.props.transactions.trade.pending
-                                      ?
-                                        <React.Fragment>
-                                          <span className="status label info">View on Etherscan</span><Spinner/>
-                                        </React.Fragment>
-                                      :
-                                        this.props.transactions.trade.error
-                                        ?
-                                          <span className="status label error">Failed</span>
-                                        :
-                                          this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
-                                          ?
-                                            <React.Fragment>
-                                              <span className="status label info">Confirmed. Loading...</span><Spinner/>
-                                            </React.Fragment>
-                                          :
-                                            <span className="status label info">Confirmed</span>
+                                this.renderStatus('trade')
                             }
                           </React.Fragment>
                         </div>
@@ -311,10 +232,10 @@ class DoTrade extends React.Component {
                     }
                     <div className="operation">
                       <div className="details">
-                        <span className="icon">{tokens[this.props.system.trade.from].icon}</span>
+                        <span className="icon">{this.props.tokens[this.props.system.trade.from].icon}</span>
                         <span className="label">Sell</span>
                         <span className="value">{this.props.system.trade.operation === "sellAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={tokens[this.props.system.trade.from].symbol}/>
+                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={this.props.tokens[this.props.system.trade.from].symbol}/>
                       </span>
                         {
                           (this.props.system.trade.proxy || this.props.system.trade.from !== "eth") &&
@@ -322,59 +243,18 @@ class DoTrade extends React.Component {
                             {
                               !this.props.transactions.hasTradeTx
                               ?
-                                this.props.system.trade.txs === 1
-                                ?
-                                  <React.Fragment>
-                                    <span className="status label">Initiating transaction</span><Spinner/>
-                                  </React.Fragment>
-                                :
-                                  <React.Fragment>
-                                    <span className="status label">Waiting</span>
-                                  </React.Fragment>
+                                this.renderInitialStatus(this.props.system.trade.txs === 1)
                               :
-                                this.props.transactions.trade.errorDevice
-                                ?
-                                  <span className="status label error">Error connecting device</span>
-                                :
-                                  this.props.transactions.trade.rejected
-                                  ?
-                                    <React.Fragment>
-                                      <span className="status label error">Rejected</span>
-                                    </React.Fragment>
-                                  :
-                                    this.props.transactions.trade.requested
-                                    ?
-                                      <React.Fragment>
-                                        <span className="status label">Signing transaction</span><Spinner/>
-                                      </React.Fragment>
-                                    :
-                                      this.props.transactions.trade.pending
-                                      ?
-                                        <React.Fragment>
-                                          <span className="status label info">View on Etherscan</span><Spinner/>
-                                        </React.Fragment>
-                                      :
-                                        this.props.transactions.trade.error
-                                        ?
-                                          <span className="status label error">Failed</span>
-                                        :
-                                          this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1)
-                                          ?
-                                            <React.Fragment>
-                                              <span className="status label info">Confirmed. Loading...</span><Spinner/>
-                                            </React.Fragment>
-                                          :
-                                            <React.Fragment/>
+                                this.renderStatus('trade')
                             }
                           </React.Fragment>
                         }
                       </div>
                       <div className="details">
-                        <span className="icon">{tokens[this.props.system.trade.to].icon}</span>
+                        <span className="icon">{this.props.tokens[this.props.system.trade.to].icon}</span>
                         <span className="label">Buy</span>
                         <span className="value">{this.props.system.trade.operation === "buyAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))}
-                                      token={tokens[this.props.system.trade.to].symbol}/>
+                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))} token={this.props.tokens[this.props.system.trade.to].symbol}/>
                       </span>
                       </div>
                     </div>

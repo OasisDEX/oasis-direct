@@ -2,23 +2,79 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 
+import ActiveConnection from "./ActiveConnection";
 import DoTrade from "./DoTrade";
 import SetTrade from "./SetTrade";
 
+import * as Blockchain from "../blockchainHandler";
+import {fetchETHPriceInUSD} from "../helpers";
+import {Ether, MKR, DAI} from "./Icons";
+
 class TradeWidget extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      ethBalance: 0,
+      showActiveConnection: false
+    }
+  }
+
+  tokens = {
+    eth: {
+      icon: <Ether/>,
+      symbol: "ETH",
+      name: "Ether"
+    },
+    mkr: {
+      icon: <MKR/>,
+      symbol: "MKR",
+      name: "Maker"
+    },
+    dai: {
+      icon: <DAI/>,
+      symbol: "DAI",
+      name: "DAI",
+    },
+  }
+
+  componentDidMount() {
+    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
+    Blockchain.getEthBalanceOf(this.props.network.defaultAccount).then((balance) => {
+      this.setState({ethBalance: balance.valueOf()});
+    });
+  }
+
+  fetchPriceInUSD = () => {
+    fetchETHPriceInUSD().then(price => {
+      this.setState({priceInUSD: price});
+    })
+  }
+
+  showConnectionDetails = () => {
+    this.setState({showActiveConnection: true});
+  }
+
+  hideConnectionDetails = () => {
+    this.setState({showActiveConnection: false});
+  }
+
   render() {
     return (
       <div style={ {position: "relative"} }>
         {
           this.props.system.trade.step === 1
           ?
-            <SetTrade />
+            this.state.showActiveConnection
+            ?
+              <ActiveConnection ethBalance={this.state.ethBalance} back={this.hideConnectionDetails} />
+            :
+              <SetTrade tokens={this.tokens} showConnectionDetails={this.showConnectionDetails} priceInUSD={this.state.priceInUSD} />
           :
-            <DoTrade />
+            <DoTrade tokens={this.tokens} />
         }
       </div>
     )
   }
 }
 
-export default inject("system")(observer(TradeWidget));
+export default inject("network")(inject("system")(observer(TradeWidget)));
