@@ -21,17 +21,17 @@ class TradeWidget extends React.Component {
 
   tokens = {
     eth: {
-      icon: <Ether/>,
+      icon: <Ether />,
       symbol: "ETH",
       name: "Ether"
     },
     mkr: {
-      icon: <MKR/>,
+      icon: <MKR />,
       symbol: "MKR",
       name: "Maker"
     },
     dai: {
-      icon: <DAI/>,
+      icon: <DAI />,
       symbol: "DAI",
       name: "DAI",
     },

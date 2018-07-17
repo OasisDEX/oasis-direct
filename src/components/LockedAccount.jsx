@@ -9,7 +9,7 @@ const LockedAccount = props => {
     <div className="frame no-account">
         <div className="heading">
           <button className="back" onClick={props.onBack}>
-            <Circle><BackIcon/></Circle>
+            <Circle><BackIcon /></Circle>
           </button>
           <h2>
             { metamask ? "Metamask Account Locked" : "No Account found" }

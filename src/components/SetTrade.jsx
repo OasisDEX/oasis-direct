@@ -48,7 +48,6 @@ class SetTrade extends React.Component {
       return;
     }
 
-
     // If we have ETH / DAI for DEPOSIT / RECEIVE respectively  and we click on
     // DEPOSIT token and select DAI -> we swap the pair so it has DAI / ETH for
     // DEPOSIT / RECEIVE respectively. Close the token-picker.
@@ -126,7 +125,7 @@ class SetTrade extends React.Component {
         <section className="frame">
           <div className="heading">
             <span className="identicon-placeholder" onClick={this.props.showConnectionDetails}>
-              <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
+              <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount} /></Circle>
             </span>
             <h2>Enter Order Details</h2>
           </div>
@@ -170,7 +169,7 @@ class SetTrade extends React.Component {
                   <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Price
-                      <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
+                      <Attention data-tip data-for="price-tooltip" className="attention-icon" />
                       <ReactTooltip className="od-tooltip" effect="solid" id="price-tooltip">
                         <p>
                           The estimated price of your order is calculated based on the current depth of the OasisDEX order book and the size of your order.
@@ -178,13 +177,13 @@ class SetTrade extends React.Component {
                       </ReactTooltip>
                     </span>
                     <span style={{lineHeight: "14px",  fontSize:"12px"}}>
-                      &nbsp;~&nbsp;<TokenAmount number={toWei(this.props.system.trade.price)} decimal={2} token={`${this.props.system.trade.priceUnit.toUpperCase()}`}/>
+                      &nbsp;~&nbsp;<TokenAmount number={toWei(this.props.system.trade.price)} decimal={2} token={`${this.props.system.trade.priceUnit.toUpperCase()}`} />
                     </span>
                   </span>
                   <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Slippage Limit
-                      <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
+                      <Attention data-tip data-for="slippage-tooltip" className="attention-icon" />
                       <ReactTooltip className="od-tooltip" effect="solid" id="slippage-tooltip">
                         <p>
                           The maximum allowed difference between the estimated price of the order and the actual price. The two may differ if the order book changes before your trade executes.
@@ -198,15 +197,15 @@ class SetTrade extends React.Component {
                     {
                       this.props.system.trade.txCost.gt(0)
                         ?
-                          <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2} token={"USD"}/></span>
+                          <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2} token={"USD"} /></span>
                         :
-                          <Spinner/>
+                          <Spinner />
                     }
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label vertical-align">
                     Price Impact
-                    <Attention data-tip data-for="price-impact-tooltip" className="attention-icon"/>
+                    <Attention data-tip data-for="price-impact-tooltip" className="attention-icon" />
                     <ReactTooltip className="od-tooltip" effect="solid" id="price-impact-tooltip">
                       <p>
                         The difference between the best current price on the OasisDEX order book and the estimated price of your order.
@@ -230,11 +229,11 @@ class SetTrade extends React.Component {
                   {
                     !this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
                     ?
-                      <Spinner/>
+                      <Spinner />
                     :
                       <TokenAmount className="token-name" number={this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
                                   decimal={3}
-                                  token={this.props.tokens[this.state.from].symbol}/>
+                                  token={this.props.tokens[this.state.from].symbol} />
                   }
                 </div>
                 <div>
@@ -242,12 +241,12 @@ class SetTrade extends React.Component {
                         className={`${this.props.system.trade.errorInputSell && !this.props.system.trade.errorOrders ? "has-errors" : ""} `}
                         ref={(input) => this.amountPay = input}
                         value={this.props.system.trade.amountPayInput || ""}
-                        onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
+                        onChange={this.calculateBuyAmount} placeholder="deposit amount" />
                 </div>
               </div>
               <div className="separator">
                 <span className="swap-tokens" onClick={this.swapTokens}>
-                  <SwapArrows/>
+                  <SwapArrows />
                 </span>
               </div>
               <div className="selected-token">
@@ -258,12 +257,12 @@ class SetTrade extends React.Component {
                   {
                     !this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
                     ?
-                      <Spinner/>
+                      <Spinner />
                     :
                       <TokenAmount className="token-name"
                                     number={this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
                                     decimal={3}
-                                    token={this.props.tokens[this.state.to].symbol}/>
+                                    token={this.props.tokens[this.state.to].symbol} />
                   }
                 </div>
                 <div>
@@ -271,7 +270,7 @@ class SetTrade extends React.Component {
                         className={`${this.props.system.trade.errorInputBuy && !this.props.system.trade.errorOrders ? "has-errors" : ""} `}
                         ref={(input) => this.amountBuy = input}
                         value={this.props.system.trade.amountBuyInput || ""}
-                        onChange={this.calculatePayAmount} placeholder="receive amount"/>
+                        onChange={this.calculatePayAmount} placeholder="receive amount" />
                 </div>
               </div>
             </form>
@@ -282,11 +281,9 @@ class SetTrade extends React.Component {
                 onClick={this.acceptTermsAndConditions}>
               <div className="info-box-row">
                   <span>
-                    <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`}/>
+                    <span className={`checkbox ${this.state.hasAcceptedTerms ? "checkbox--active" : ""}`} />
                     <span className="label">
-                      I agree to the <a href="OasisToS.pdf" target="_blank" onClick={(e) => {
-                      e.stopPropagation()
-                    }}>Terms of Service</a>
+                      I agree to the <a href="OasisToS.pdf" target="_blank" onClick={e => e.stopPropagation()}>Terms of Service</a>
                     </span>
                   </span>
               </div>

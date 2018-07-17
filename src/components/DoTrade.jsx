@@ -38,7 +38,7 @@ class DoTrade extends React.Component {
             ?
               <React.Fragment>
                 <span className="status label">Initiating transaction</span>
-                <Spinner/>
+                <Spinner />
               </React.Fragment>
             :
               <React.Fragment>
@@ -58,13 +58,13 @@ class DoTrade extends React.Component {
                 this.props.transactions[type].requested
                 ?
                   <React.Fragment>
-                    <span className="status label">Signing transaction</span><Spinner/>
+                    <span className="status label">Signing transaction</span><Spinner />
                   </React.Fragment>
                 :
                   this.props.transactions[type].pending
                   ?
                     <React.Fragment>
-                      <span className="status label info">View on Etherscan</span><Spinner/>
+                      <span className="status label info">View on Etherscan</span><Spinner />
                     </React.Fragment>
                   :
                     this.props.transactions[type].error
@@ -74,7 +74,7 @@ class DoTrade extends React.Component {
                       type === 'trade' && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
                       ?
                         <React.Fragment>
-                          <span className="status label info">Confirmed. Loading...</span><Spinner/>
+                          <span className="status label info">Confirmed. Loading...</span><Spinner />
                         </React.Fragment>
                       :
                         <span className="status label info">Confirmed</span>
@@ -92,7 +92,7 @@ class DoTrade extends React.Component {
               <span className="label">
                 Currently Estimated Price
               </span>
-              <TokenAmount number={toWei(this.props.system.trade.price)} token={`${this.props.system.trade.priceUnit.toUpperCase()}`}/>
+              <TokenAmount number={toWei(this.props.system.trade.price)} token={`${this.props.system.trade.priceUnit.toUpperCase()}`} />
             </span>
           </div>
         </div>
@@ -112,11 +112,11 @@ class DoTrade extends React.Component {
               <div className="transaction-info-box">
                 <div className="operation">
                   <span className={`icon ${this.hasTxCompleted("proxy") ? "success" : ""}`}>
-                    <AccountIcon/>
+                    <AccountIcon />
                   </span>
                   <span className="label vertical-align">
                     Create Proxy
-                    <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
+                    <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
                     <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                       <p>
                         Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
@@ -153,7 +153,7 @@ class DoTrade extends React.Component {
                   </span>
                   <span className="label vertical-align">
                     Enable {this.props.tokens[this.props.system.trade.from].symbol} Trading
-                    <Attention data-tip data-for="allowance-tooltip" className="attention-icon"/>
+                    <Attention data-tip data-for="allowance-tooltip" className="attention-icon" />
                     <ReactTooltip className="od-tooltip" effect="solid" id="allowance-tooltip">
                       <p>
                         Enabling token trading allows your Proxy to take tokens from you and trade them on the exchange.
@@ -207,11 +207,11 @@ class DoTrade extends React.Component {
                       <div className="operation new-proxy">
                         <div className="details">
                         <span className={`icon ${this.hasTxCompleted("trade") ? "success" : ""}`}>
-                          <AccountIcon/>
+                          <AccountIcon />
                         </span>
                           <span className="label vertical-align">
                           Create Proxy
-                          <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
+                          <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
                           <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                             <p>
                               Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
@@ -254,7 +254,7 @@ class DoTrade extends React.Component {
                         <span className="icon">{this.props.tokens[this.props.system.trade.to].icon}</span>
                         <span className="label">Buy</span>
                         <span className="value">{this.props.system.trade.operation === "buyAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))} token={this.props.tokens[this.props.system.trade.to].symbol}/>
+                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))} token={this.props.tokens[this.props.system.trade.to].symbol} />
                       </span>
                       </div>
                     </div>

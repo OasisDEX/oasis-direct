@@ -20,24 +20,22 @@ class TokensSelector extends React.Component {
                   {
                     this.props.balances.eth
                       ?
-                        <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"}/>
+                        <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"} />
                       :
-                        <Spinner/>
+                        <Spinner />
                   }
                 </div>
                 {
                   ['mkr', 'dai'].map((token, index) => {
                     return (
-                      <div key={index} className='token' onClick={() => {
-                        this.props.select(token)
-                      }}>
+                      <div key={index} className='token' onClick={() => this.props.select(token)}>
                         <span className="token-icon">{this.props.tokens[token].icon}</span>
                         {
                           this.props.balances[token]
                             ?
-                              <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3} token={token.toUpperCase()}/>
+                              <TokenAmount className="token-name" number={this.props.balances[token].valueOf()} decimal={3} token={token.toUpperCase()} />
                             :
-                              <Spinner/>
+                              <Spinner />
                         }
                       </div>
                     )

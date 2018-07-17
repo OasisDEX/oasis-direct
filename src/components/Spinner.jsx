@@ -9,12 +9,10 @@ const themes = {
     outerCircleColor:"#689DF8",
     innerCircleColor:"#FFFFFF"
   }
-}
+};
 
-const Spinner = (props) => {
-
+const Spinner = props => {
   const style = Object.assign({height: "18px", width: "18px"}, props.styles);
-
   let theme = props.theme ? themes[props.theme] : themes.default; // assigned the default theme if attr value is not provided
   theme = theme ? theme : themes.default; // assign default theme if the provided one doesn't exist
 
@@ -32,4 +30,4 @@ const Spinner = (props) => {
   )
 };
 
-export default Spinner
+export default Spinner;

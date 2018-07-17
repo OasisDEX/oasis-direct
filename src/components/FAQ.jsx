@@ -13,13 +13,11 @@ class FAQ extends Component {
           <div>
             <ul className="List">
               {
-                FAQ_DATA.map(pair => {
-                  return (
-                    <li className="ListItem">
-                      <Accordion headline={pair.question} content={pair.answer} />
-                    </li>
-                  )
-                })
+                FAQ_DATA.map((pair, key) =>
+                  <li key={key} className="ListItem">
+                    <Accordion headline={pair.question} content={pair.answer} />
+                  </li>
+                )
               }
             </ul>
           </div>
