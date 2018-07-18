@@ -6,7 +6,7 @@ import TransactionsStore from "./Transactions";
 
 import * as Blockchain from "../blockchainHandler";
 
-const settings = require("../settings");
+import * as settings from "../settings";
 
 class NetworkStore {
   stopIntervals = false;

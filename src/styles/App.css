@@ -1,6 +1,6 @@
 @import './Wallets.css';
 @import './HardWallet.css';
-@import '../ui-components/Product.css';
+@import '../components-ui/Product.css';
 
 .notify-container {
   display: flex;

@@ -1,8 +1,10 @@
+// Libraries
 import React from "react";
 import {observer} from "mobx-react";
 
-import Spinner from "./Spinner";
-import TokenAmount from "./TokenAmount";
+// UI Components
+import Spinner from "../components-ui/Spinner";
+import TokenAmount from "../components-ui/TokenAmount";
 
 class TokensSelector extends React.Component {
   render() {
@@ -13,9 +15,7 @@ class TokensSelector extends React.Component {
           <div className="tokens-container">
             <div className="tokens">
               <div className="token-list">
-                <div className="token" onClick={() => {
-                  this.props.select("eth")
-                }}>
+                <div className="token" onClick={() => this.props.select("eth")}>
                   <span className="token-icon">{this.props.tokens.eth.icon}</span>
                   {
                     this.props.balances.eth

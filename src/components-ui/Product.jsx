@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+// Libraries
+import React from 'react';
 
-export default class extends Component {
+export default class extends React.Component {
   render = () => {
     const Logo = this.props.logo;
 

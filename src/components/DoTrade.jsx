@@ -1,15 +1,19 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
+// Components
 import Congratulation from "./Congratulation";
-import Spinner from "./Spinner";
-import TokenAmount from "./TokenAmount";
 
+// UI Components
+import {Done, AccountIcon, Attention} from "../components-ui/Icons";
+import Spinner from "../components-ui/Spinner";
+import TokenAmount from "../components-ui/TokenAmount";
+
+// Internal Libraries/Settings
 import {etherscanUrl, quotation, toBigNumber, toWei} from "../helpers";
-import {Done, AccountIcon, Attention} from "./Icons";
-
-const settings = require("../settings");
+import * as settings from "../settings";
 
 class DoTrade extends React.Component {
   hasTxCompleted = type => {
@@ -41,9 +45,7 @@ class DoTrade extends React.Component {
                 <Spinner />
               </React.Fragment>
             :
-              <React.Fragment>
-                <span className="status label">Waiting</span>
-              </React.Fragment>
+              <span className="status label">Waiting</span>
   }
 
   renderStatus = type => {
@@ -102,7 +104,7 @@ class DoTrade extends React.Component {
             <a
               href={this.props.transactions.hasProxyTx && this.props.transactions.proxy.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.proxy.tx}` : "#"}
               className={`tx ${(this.props.transactions.hasProxyTx && this.props.transactions.proxy.tx) ? "clickable" : "non-clickable"}`}
-              onClick={(e) => {
+              onClick={e => {
                 if (!(this.props.transactions.hasProxyTx && this.props.transactions.proxy.tx)) {
                   e.preventDefault();
                   return false;

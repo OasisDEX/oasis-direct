@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+// Libraries
+import React from 'react';
 
-class Accordion extends Component {
-
+class Accordion extends React.Component {
   constructor(props) {
     super(props);
 

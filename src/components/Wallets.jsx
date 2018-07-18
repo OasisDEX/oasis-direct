@@ -1,14 +1,17 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 
-import Spinner from "./Spinner";
-import Product from "../ui-components/Product";
-
-import {getCurrentProviderName} from "../web3";
+// UI Components
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
-} from "./Icons";
+} from "../components-ui/Icons";
+import Product from "../components-ui/Product";
+import Spinner from "../components-ui/Spinner";
+
+// Internal Libraries
+import {getCurrentProviderName} from "../web3";
 
 const logos = {
   metamask: {icon: <MetamaskIcon/>, name: "Metamask"},

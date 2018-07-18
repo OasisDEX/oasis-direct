@@ -1,28 +1,35 @@
-import React, { Component } from "react";
+// Libraries
+import React from "react";
 import {observer, Provider} from "mobx-react";
 
+// Components
 import FAQ from "./FAQ";
 import Widget from "./Widget";
 
-import network from "../stores/Network";
-import profile from "../stores/Profile";
-import transactions from "../stores/Transactions";
-import system from "../stores/System";
+// UI Components
+import {Logo} from "../components-ui/Icons";
 
+// Stores
+import NetworkStore from "../stores/Network";
+import ProfileStore from "../stores/Profile";
+import TransactionsStore from "../stores/Transactions";
+import SystemStore from "../stores/System";
+
+// Internal Libraries
 import * as Blockchain from "../blockchainHandler";
-import { Logo } from "./Icons";
 
-window.Blockchain = Blockchain;
-window.network = network;
-window.profile = profile;
-window.transactions = transactions;
-window.system = system;
+// Convenient console access
+window.blockchain = Blockchain;
+window.network = NetworkStore;
+window.profile = ProfileStore;
+window.transactions = TransactionsStore;
+window.system = SystemStore;
 
-class App extends Component {
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      section: "exchange",
+      section: "",
     }
   }
 
@@ -45,7 +52,7 @@ class App extends Component {
 
   render = () => {
     return (
-      <Provider network={network} profile={profile} transactions={transactions} system={system}>
+      <Provider network={NetworkStore} profile={ProfileStore} transactions={TransactionsStore} system={SystemStore}>
         {
           this.state.section === "trade-widget"
           ?
@@ -62,7 +69,7 @@ class App extends Component {
               {
                 this.state.section === "faq"
                 ?
-                  <FAQ/>
+                  <FAQ />
                 :
                   <section className="Content">
                     <main className="Container">
@@ -85,9 +92,7 @@ class App extends Component {
                     <ul className="Links">
                       <li className="Link"><a href="https://developer.makerdao.com/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
                       <li className="Link"><a href="OasisToS.pdf" target="_blank" rel="noopener noreferrer">Legal</a></li>
-                      <li className="Link" onClick={() => {
-                        window.scrollTo(0, 0);
-                      }}><a href="/#faq" style={{color: 'white'}}>FAQ</a></li>
+                      <li className="Link" onClick={() => window.scrollTo(0, 0)}><a href="/#faq" style={{color: 'white'}}>FAQ</a></li>
                     </ul>
                   </div>
                   <div className="LinksWrapper">

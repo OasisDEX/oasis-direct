@@ -7,7 +7,7 @@ import SystemStore from "./System";
 import * as Blockchain from "../blockchainHandler";
 import {toWei, toBigNumber, addressToBytes32} from "../helpers";
 
-const settings = require("../settings");
+import * as settings from "../settings";
 
 class TransactionsStore {
   approval = {};

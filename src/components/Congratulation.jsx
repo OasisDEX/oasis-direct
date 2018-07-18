@@ -1,10 +1,13 @@
+// Libraries
 import React from "react"
 import {observer} from "mobx-react";
 
-import Spinner from "./Spinner";
-import TokenAmount from "./TokenAmount";
+// UI Components
+import Spinner from "../components-ui/Spinner";
+import TokenAmount from "../components-ui/TokenAmount";
 
-import { calculateTradePrice, fetchETHPriceInUSD, toWei } from "../helpers";
+// Internal Libraries
+import {calculateTradePrice, fetchETHPriceInUSD, toWei} from "../helpers";
 
 class Congratulation extends React.Component {
   constructor(props) {

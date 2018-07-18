@@ -7,7 +7,7 @@ import TransactionsStore from "./Transactions";
 import * as Blockchain from "../blockchainHandler";
 import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../helpers";
 
-const settings = require("../settings");
+import * as settings from "../settings";
 
 class SystemStore {
 

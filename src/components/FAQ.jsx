@@ -1,10 +1,12 @@
-import React, { Component } from "react";
+// Libraries
+import React from "react";
 
-import Accordion from "../ui-components/Accordion";
+// UI Components
+import Accordion from "../components-ui/Accordion";
 
 import FAQ_DATA from "../misc/faq";
 
-class FAQ extends Component {
+class FAQ extends React.Component {
   render() {
     return (
       <section className="Content FAQ">

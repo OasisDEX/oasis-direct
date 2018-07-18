@@ -1,11 +1,14 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 
+// Components
 import HardWallet from "./HardWallet";
 import LockedAccount from "./LockedAccount";
 import TradeWidget from "./TradeWidget";
 import Wallets from "./Wallets";
 
+// Internal Libraries
 import {isAddress} from "../helpers";
 
 class Widget extends React.Component {

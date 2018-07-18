@@ -5,7 +5,7 @@ import Transport from "@ledgerhq/hw-transport-u2f";
 import LedgerSubProvider from "./vendor/ledger-subprovider";
 import TrezorSubProvider from "./vendor/trezor-subprovider";
 
-const settings = require("./settings");
+import * as settings from "./settings";
 
 export const getCurrentProviderName = () => {
   if (!window.web3 || typeof window.web3.currentProvider === "undefined")

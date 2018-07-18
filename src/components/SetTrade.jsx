@@ -1,15 +1,19 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
-import Spinner from "./Spinner";
-import TokenAmount from "./TokenAmount";
+// Components
 import TokensSelector from "./TokensSelector";
 
-import {toWei} from "../helpers";
-import {SwapArrows, IdentityIcon, Circle, Attention} from "./Icons";
+// UI Components
+import {SwapArrows, IdentityIcon, Circle, Attention} from "../components-ui/Icons";
+import Spinner from "../components-ui/Spinner";
+import TokenAmount from "../components-ui/TokenAmount";
 
-const settings = require("../settings");
+// Internal Libraries/Settings
+import {toWei} from "../helpers";
+import * as settings from "../settings";
 
 class SetTrade extends React.Component {
   constructor(props) {

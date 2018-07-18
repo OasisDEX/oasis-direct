@@ -1,12 +1,14 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 
-import TokenAmount from "./TokenAmount";
+// UI Components
+import {IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
+import TokenAmount from "../components-ui/TokenAmount";
 
+// Internal Libraries
 import * as Blockchain from "../blockchainHandler";
 import {etherscanAddress} from "../helpers";
-
-import {IdentityIcon, BackIcon, Circle} from "./Icons";
 
 class ActiveConnection extends React.Component {
   render() {

@@ -2,7 +2,8 @@ import web3 from "./web3";
 import Promise from "bluebird";
 import { toBytes32, addressToBytes32, toWei, methodSig } from "./helpers";
 
-const settings = require("./settings");
+import * as settings from "./settings";
+
 const promisify = Promise.promisify;
 const schema = {};
 

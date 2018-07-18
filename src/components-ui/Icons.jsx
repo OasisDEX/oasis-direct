@@ -1,8 +1,10 @@
-import React, {PureComponent} from "react"
+// Libraries
+import React from "react"
 
+// Internal Libraries
 import {generateIcon} from "../helpers";
 
-export class SwapArrows extends PureComponent {
+export class SwapArrows extends React.PureComponent {
   render() {
     return (
       <svg fill="#4B4B4B" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +21,7 @@ export class SwapArrows extends PureComponent {
   }
 }
 
-export class Arrow extends PureComponent {
+export class Arrow extends React.PureComponent {
   render() {
     return (
       <svg width="11" height="8" viewBox="0 0 11 8" xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +50,7 @@ export class Arrow extends PureComponent {
   }
 }
 
-export class Attention extends PureComponent {
+export class Attention extends React.PureComponent {
   render() {
     return (
       <svg {...this.props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -61,7 +63,7 @@ export class Attention extends PureComponent {
   }
 }
 
-export class QuestionMark extends PureComponent {
+export class QuestionMark extends React.PureComponent {
   render() {
     return (
       <svg width="18" height="18" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +84,7 @@ export class QuestionMark extends PureComponent {
   }
 }
 
-export class Done extends PureComponent {
+export class Done extends React.PureComponent {
   render() {
     return (
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +100,7 @@ export class Done extends PureComponent {
   }
 }
 
-export class Finalized extends PureComponent {
+export class Finalized extends React.PureComponent {
   render() {
     return (
       <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +120,7 @@ export class Finalized extends PureComponent {
   }
 }
 
-export class Failed extends PureComponent {
+export class Failed extends React.PureComponent {
   render() {
     return (
       <svg height="18px" width="18px" version="1.1" viewBox="0 0 18 18">
@@ -133,7 +135,7 @@ export class Failed extends PureComponent {
   }
 }
 
-export class Ether extends PureComponent {
+export class Ether extends React.PureComponent {
   render() {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="38" viewBox="0 0 28 28" className="ether">
@@ -144,7 +146,7 @@ export class Ether extends PureComponent {
   }
 }
 
-export class MKR extends PureComponent {
+export class MKR extends React.PureComponent {
   render() {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="38" viewBox="0 0 28 28" className="maker">
@@ -155,7 +157,7 @@ export class MKR extends PureComponent {
   }
 }
 
-export class DAI extends PureComponent {
+export class DAI extends React.PureComponent {
   render() {
     return (
       <svg width="100%" height="38" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"
@@ -174,7 +176,7 @@ export class DAI extends PureComponent {
 }
 
 //TODO: This would be nice to be removed from here and extracted as part of the landing page component.
-export class Logo extends PureComponent {
+export class Logo extends React.PureComponent {
   render() {
     return (
       <svg height="42px" width="195px" version="1.1" viewBox="0 0 195 42">
@@ -196,7 +198,7 @@ export class Logo extends PureComponent {
   }
 }
 
-export class OasisExchangeLogo extends PureComponent {
+export class OasisExchangeLogo extends React.PureComponent {
   render() {
     return (
       <svg width="100%" height="26" viewBox="0 0 100 26" xmlns="http://www.w3.org/2000/svg"
@@ -211,7 +213,7 @@ export class OasisExchangeLogo extends PureComponent {
   }
 }
 
-export class EtherDeltaExchangeLogo extends PureComponent {
+export class EtherDeltaExchangeLogo extends React.PureComponent {
   render() {
     return (
       <svg width="100%" height="26" viewBox="0 0 100 26" xmlns="http://www.w3.org/2000/svg"
@@ -229,7 +231,7 @@ export class EtherDeltaExchangeLogo extends PureComponent {
   }
 }
 
-export class ZeroExExchangesLogo extends PureComponent {
+export class ZeroExExchangesLogo extends React.PureComponent {
   render() {
     return (
       <svg width="100%" height="26" viewBox="0 0 100 26" xmlns="http://www.w3.org/2000/svg"
@@ -250,7 +252,7 @@ export class ZeroExExchangesLogo extends PureComponent {
   }
 }
 
-export class LedgerIcon extends PureComponent {
+export class LedgerIcon extends React.PureComponent {
   render = () => (
     <svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">
       <g id="Symbols" fill="none" fillRule="evenodd">
@@ -264,7 +266,7 @@ export class LedgerIcon extends PureComponent {
   )
 }
 
-export class TrezorIcon extends PureComponent {
+export class TrezorIcon extends React.PureComponent {
   render = () => (
     <svg width="24" height="34" viewBox="0 0 24 34" xmlns="http://www.w3.org/2000/svg">
       <g id="Symbols" fill="none" fillRule="evenodd">
@@ -279,7 +281,7 @@ export class TrezorIcon extends PureComponent {
   )
 }
 
-export class IdentityIcon extends PureComponent {
+export class IdentityIcon extends React.PureComponent {
   render = () => {
     return <div className="icon identicon"
                 dangerouslySetInnerHTML={{__html: generateIcon(this.props.address).innerHTML}}/>;

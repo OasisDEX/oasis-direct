@@ -1,14 +1,18 @@
-
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 
+// Components
 import ActiveConnection from "./ActiveConnection";
 import DoTrade from "./DoTrade";
 import SetTrade from "./SetTrade";
 
+// UI Components
+import {Ether, MKR, DAI} from "../components-ui/Icons";
+
+// Internal Libraries
 import * as Blockchain from "../blockchainHandler";
 import {fetchETHPriceInUSD} from "../helpers";
-import {Ether, MKR, DAI} from "./Icons";
 
 class TradeWidget extends React.Component {
   constructor(props) {

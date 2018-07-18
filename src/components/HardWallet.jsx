@@ -1,16 +1,18 @@
+// Libraries
 import React from "react";
 import {inject, observer} from "mobx-react";
 
-import Spinner from "./Spinner";
-import TokenAmount from "./TokenAmount";
-
-import {getEthBalanceOf} from "../blockchainHandler";
+// UI Components
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
   SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
-} from "./Icons";
+} from "../components-ui/Icons";
+import Spinner from "../components-ui/Spinner";
+import TokenAmount from "../components-ui/TokenAmount";
 
-const settings = require("../settings");
+// Internal Libraries/Settings
+import {getEthBalanceOf} from "../blockchainHandler";
+import * as settings from "../settings";
 
 const hwNameStyle = {
   textTransform: "capitalize"
@@ -61,24 +63,6 @@ const steps = {
       "text": "If required, enter your pin or password to unlock the TREZOR"
     },
   ],
-}
-
-class Guidelines extends React.Component {
-  render = () => (
-    <div className="guidelines">
-      <ul className="list">
-        {
-          this.props.steps.map((step, index) => (
-            <li key={index} className="list-item">
-              {step.icon}
-              <span className="bullet-number">{index + 1}</span>
-              <span className="text">{step.text}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  )
 }
 
 class Address extends React.Component {
@@ -231,7 +215,19 @@ class HardWallet extends React.Component {
                 <Circle styles={circularButtonStyle}><RetryIcon /></Circle>
               </div>
             </div>
-            <Guidelines steps={steps[this.props.network.hw.option]} />
+            <div className="guidelines">
+              <ul className="list">
+                {
+                  steps.map((step, index) => (
+                    <li key={index} className="list-item">
+                      {step.icon}
+                      <span className="bullet-number">{index + 1}</span>
+                      <span className="text">{step.text}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
           </div>
         </section>
     )
