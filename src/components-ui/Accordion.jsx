@@ -1,5 +1,5 @@
 // Libraries
-import React from 'react';
+import React from "react";
 
 class Accordion extends React.Component {
   constructor(props) {
@@ -14,9 +14,7 @@ class Accordion extends React.Component {
     return (
       <div className="Accordion">
         <div className={`Headline ${this.state.isCollapsed ? "Headline--collapsed" : ""}`}
-             onClick={() => {
-               this.setState({isCollapsed: !this.state.isCollapsed})
-             }}>
+             onClick={() => this.setState({isCollapsed: !this.state.isCollapsed})}>
           <span>{this.props.headline}</span>
         </div>
         <div className="Content">

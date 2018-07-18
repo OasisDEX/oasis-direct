@@ -75,7 +75,7 @@ class DoTrade extends React.Component {
                     ?
                       <span className="status label error">Failed</span>
                     :
-                      type === 'trade' && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
+                      type === "trade" && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
                       ?
                         <React.Fragment>
                           <span className="status label info">Confirmed. Loading...</span><Spinner />
@@ -132,7 +132,7 @@ class DoTrade extends React.Component {
                     ?
                       this.renderInitialStatus(true)
                     :
-                      this.renderStatus('proxy')
+                      this.renderStatus("proxy")
                   }
                 </div>
               </div>
@@ -169,7 +169,7 @@ class DoTrade extends React.Component {
                     ?
                       this.renderInitialStatus(this.props.system.trade.txs <= 2 || (this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false))
                     :
-                      this.renderStatus('approval')
+                      this.renderStatus("approval")
                   }
                 </div>
               </div>
@@ -228,7 +228,7 @@ class DoTrade extends React.Component {
                               ?
                                 this.renderInitialStatus(this.props.system.trade.txs === 1)
                               :
-                                this.renderStatus('trade')
+                                this.renderStatus("trade")
                             }
                           </React.Fragment>
                         </div>
@@ -249,7 +249,7 @@ class DoTrade extends React.Component {
                               ?
                                 this.renderInitialStatus(this.props.system.trade.txs === 1)
                               :
-                                this.renderStatus('trade')
+                                this.renderStatus("trade")
                             }
                           </React.Fragment>
                         }

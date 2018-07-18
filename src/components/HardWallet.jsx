@@ -3,7 +3,7 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 
 // Components
-import AddressList from './AddressList';
+import AddressList from "./AddressList";
 
 // UI Components
 import {
