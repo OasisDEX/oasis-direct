@@ -154,16 +154,19 @@ class App extends Component {
     }, () => {});
   }
 
+  // TODO: Extract to Landing page
   componentDidMount = () => {
     this.setHashSection();
     setTimeout(this.listenOnHashChange, 500);
   }
 
+  // TODO: Extract to Landing page
   componentWillUnmount = () => {
     clearInterval(this.checkAccountsInterval);
     clearInterval(this.checkNetworkInterval);
   }
 
+  // TODO: Extract to Landing page
   listenOnHashChange = () => {
     window.onhashchange = () => {
       this.setHashSection();
@@ -1178,58 +1181,16 @@ class App extends Component {
     });
   }
 
-  // Hardwallets
-  showHW = option => {
-    this.setState(prevState => {
-      const hw = {...prevState.hw};
-      hw.option = option;
-      hw.showModal = true;
-      return {hw};
-    });
-  }
-
   showClientChoice = () => {
     Blockchain.stopProvider();
     clearInterval(this.checkAccountsInterval);
     clearInterval(this.checkNetworkInterval);
 
     this.setState(prevState => {
-      const hw = {...prevState.hw};
       const network = {};
       network.stopIntervals = true;
       network.isConnected = false;
-      hw.addresses = [];
-      hw.option = null;
-      hw.isConnected = false;
-      hw.showModal = false;
-      return {hw, network};
-    });
-  }
-
-  loadHWAddresses = async (network, amount, derivationPath = this.state.hw.derivationPath) => {
-    try {
-      await Blockchain.setHWProvider(this.state.hw.option, network, `${derivationPath.replace('m/', '')}/0`, 0, amount);
-      const accounts = await Blockchain.getAccounts();
-      this.setState(prevState => {
-        const hw = {...prevState.hw};
-        hw.addresses = accounts;
-        hw.derivationPath = derivationPath;
-        hw.isConnected = true;
-        return {hw};
-      });
-      return accounts;
-    } catch (e) {
-      Blockchain.stopProvider();
-      console.log(`Error connecting ${this.state.hw.option}`, e.message);
-      return [];
-    }
-  }
-
-  selectHWAddress = address => {
-    this.setState(prevState => {
-      const hw = {...prevState.hw};
-      hw.addressIndex = hw.addresses.indexOf(address);
-      return {hw};
+      return {network};
     });
   }
 
@@ -1241,8 +1202,6 @@ class App extends Component {
       return {network};
     }, async () => {
       try {
-        const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
-        Blockchain.setDefaultAccount(account);
         this.checkNetwork();
         this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
         this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
@@ -1279,12 +1238,7 @@ class App extends Component {
             calculatePayAmount={this.calculatePayAmount}
             cleanInputs={this.cleanInputs}
             setWeb3WebClient={this.setWeb3WebClient}
-            hw={this.state.hw}
-            showHW={this.showHW}
-            showClientChoice={this.showClientChoice}
-            loadHWAddresses={this.loadHWAddresses}
-            selectHWAddress={this.selectHWAddress}
-            importAddress={this.importAddress}/>
+            showClientChoice={this.showClientChoice}/>
   }
 
   render = () => {
@@ -1299,10 +1253,10 @@ class App extends Component {
               <div className={`Logo Logo--no-margin`}>
                 <a href="/"> <Logo/> </a>
               </div>
-              <div className={'NavigationLinks'}>
-                {/* <a href="/#" style={{color: 'white'}}>Trade</a> */}
-                {/* <a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a> */}
-              </div>
+              {/*<div className={'NavigationLinks'}>*/}
+                 {/*<a href="/#" style={{color: 'white'}}>Trade</a> */}
+                 {/*<a href="/#tax-exporter" style={{color: 'white'}}>Export Trades</a> */}
+              {/*</div>*/}
             </header>
           </section>
           {

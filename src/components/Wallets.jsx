@@ -6,6 +6,8 @@ import {
 } from "./Icons";
 import Spinner from "./Spinner";
 import { getCurrentProviderName } from '../web3';
+import { connect } from "react-redux";
+import { actions } from "../handlers/HardWallet";
 
 
 const logos = {
@@ -159,4 +161,12 @@ class Wallets extends React.Component {
   }
 }
 
-export default Wallets;
+const mapStateToProps = state => {
+  return { ...state.hw }
+};
+
+const mapDispatchToProps = dispatch => ({
+  showHW : type => dispatch(actions.showDetails(type))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Wallets);
