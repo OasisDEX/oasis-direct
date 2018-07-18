@@ -1,12 +1,14 @@
-import { observable, decorate } from "mobx";
+// Libraries
+import {observable, decorate} from "mobx";
 
+// Stores
 import NetworkStore from "./Network";
 import ProfileStore from "./Profile";
 import TransactionsStore from "./Transactions";
 
+// Internal Libraries
 import * as Blockchain from "../blockchainHandler";
 import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../helpers";
-
 import * as settings from "../settings";
 
 class SystemStore {

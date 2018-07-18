@@ -11,8 +11,10 @@ import {SwapArrows, IdentityIcon, Circle, Attention} from "../components-ui/Icon
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
-// Internal Libraries/Settings
+// Internal Libraries
 import {toWei} from "../helpers";
+
+// Settings
 import * as settings from "../settings";
 
 class SetTrade extends React.Component {

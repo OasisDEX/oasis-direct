@@ -1,11 +1,15 @@
-import { observable, decorate } from "mobx";
+// Libraries
+import {observable, decorate} from "mobx";
 
+// Stores
 import ProfileStore from "./Profile";
 import SystemStore from "./System";
 import TransactionsStore from "./Transactions";
 
+// Internal Libraries
 import * as Blockchain from "../blockchainHandler";
 
+// Settings
 import * as settings from "../settings";
 
 class NetworkStore {

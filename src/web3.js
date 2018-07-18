@@ -1,10 +1,14 @@
-import Web3 from "web3";
-import * as Web3ProviderEngine from "web3-provider-engine/dist/es5";
+// Libraries
 import * as RpcSource from "web3-provider-engine/dist/es5/subproviders/rpc";
 import Transport from "@ledgerhq/hw-transport-u2f";
+import Web3 from "web3";
+import * as Web3ProviderEngine from "web3-provider-engine/dist/es5";
+
+// Internal Libraries
 import LedgerSubProvider from "./vendor/ledger-subprovider";
 import TrezorSubProvider from "./vendor/trezor-subprovider";
 
+// Settings
 import * as settings from "./settings";
 
 export const getCurrentProviderName = () => {

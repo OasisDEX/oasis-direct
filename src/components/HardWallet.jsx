@@ -10,8 +10,10 @@ import {
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
-// Internal Libraries/Settings
+// Internal Libraries
 import {getEthBalanceOf} from "../blockchainHandler";
+
+// Settings
 import * as settings from "../settings";
 
 const hwNameStyle = {

@@ -1,7 +1,11 @@
-import web3 from "./web3";
+// Libraries
 import Promise from "bluebird";
-import { toBytes32, addressToBytes32, toWei, methodSig } from "./helpers";
 
+// Internal Libraries
+import {toBytes32, addressToBytes32, toWei, methodSig} from "./helpers";
+import web3 from "./web3";
+
+// Settings
 import * as settings from "./settings";
 
 const promisify = Promise.promisify;

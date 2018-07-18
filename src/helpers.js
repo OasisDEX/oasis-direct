@@ -1,6 +1,9 @@
+// Libraries
 import React from "react";
-import web3 from "./web3";
 import jazzicon from "jazzicon";
+
+// Internal Libraries
+import web3 from "./web3";
 
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
