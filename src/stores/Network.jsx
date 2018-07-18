@@ -7,7 +7,7 @@ import SystemStore from "./System";
 import TransactionsStore from "./Transactions";
 
 // Internal Libraries
-import * as Blockchain from "../blockchainHandler";
+import * as Blockchain from "../utils/blockchain-handler";
 
 // Settings
 import * as settings from "../settings";

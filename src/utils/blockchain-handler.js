@@ -6,18 +6,18 @@ import {toBytes32, addressToBytes32, toWei, methodSig} from "./helpers";
 import web3 from "./web3";
 
 // Settings
-import * as settings from "./settings";
+import * as settings from "../settings";
 
 const promisify = Promise.promisify;
 const schema = {};
 
-schema.dstoken = require("./abi/dstoken");
-schema.dsethtoken = require("./abi/dsethtoken");
-schema.proxyregistry = require("./abi/proxyregistry");
-schema.legacyproxyregistry = require("./abi/legacyproxyregistry");
-schema.dsproxy = require("./abi/dsproxy");
-schema.matchingmarket = require("./abi/matchingmarket");
-schema.proxycreateandexecute = require("./abi/proxycreateandexecute");
+schema.dstoken = require("../abi/dstoken");
+schema.dsethtoken = require("../abi/dsethtoken");
+schema.proxyregistry = require("../abi/proxyregistry");
+schema.legacyproxyregistry = require("../abi/legacyproxyregistry");
+schema.dsproxy = require("../abi/dsproxy");
+schema.matchingmarket = require("../abi/matchingmarket");
+schema.proxycreateandexecute = require("../abi/proxycreateandexecute");
 
 export const objects = {}
 

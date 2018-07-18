@@ -7,7 +7,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Internal Libraries
-import {calculateTradePrice, fetchETHPriceInUSD, toWei} from "../helpers";
+import {calculateTradePrice, fetchETHPriceInUSD, toWei} from "../utils/helpers";
 
 class Congratulation extends React.Component {
   constructor(props) {

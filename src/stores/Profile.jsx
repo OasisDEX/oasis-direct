@@ -6,7 +6,7 @@ import NetworkStore from "./Network";
 import TransactionsStore from "./Transactions";
 
 // Internal Libraries
-import * as Blockchain from "../blockchainHandler";
+import * as Blockchain from "../utils/blockchain-handler";
 
 class ProfileStore {
   proxy = -1;

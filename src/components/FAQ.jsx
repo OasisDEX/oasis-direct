@@ -4,6 +4,7 @@ import React from "react";
 // UI Components
 import Accordion from "../components-ui/Accordion";
 
+// Content
 import FAQ_DATA from "../misc/faq";
 
 class FAQ extends React.Component {

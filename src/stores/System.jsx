@@ -7,8 +7,8 @@ import ProfileStore from "./Profile";
 import TransactionsStore from "./Transactions";
 
 // Internal Libraries
-import * as Blockchain from "../blockchainHandler";
-import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../helpers";
+import * as Blockchain from "../utils/blockchain-handler";
+import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../utils/helpers";
 import * as settings from "../settings";
 
 class SystemStore {

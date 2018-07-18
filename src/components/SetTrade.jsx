@@ -12,7 +12,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Internal Libraries
-import {toWei} from "../helpers";
+import {toWei} from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";

@@ -11,7 +11,7 @@ import Product from "../components-ui/Product";
 import Spinner from "../components-ui/Spinner";
 
 // Internal Libraries
-import {getCurrentProviderName} from "../web3";
+import {getCurrentProviderName} from "../utils/web3";
 
 const logos = {
   metamask: {icon: <MetamaskIcon/>, name: "Metamask"},

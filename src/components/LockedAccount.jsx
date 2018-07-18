@@ -5,7 +5,7 @@ import React from "react";
 import {BackIcon, Circle} from "../components-ui/Icons";
 
 // Internal Libraries
-import {isMetamask} from "../blockchainHandler";
+import {isMetamask} from "../utils/blockchain-handler";
 
 const LockedAccount = props => {
   const metamask = isMetamask();

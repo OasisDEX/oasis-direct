@@ -12,7 +12,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Internal Libraries
-import {etherscanUrl, quotation, toBigNumber, toWei} from "../helpers";
+import {etherscanUrl, quotation, toBigNumber, toWei} from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";

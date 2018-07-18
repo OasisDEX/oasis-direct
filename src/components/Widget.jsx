@@ -9,7 +9,7 @@ import TradeWidget from "./TradeWidget";
 import Wallets from "./Wallets";
 
 // Internal Libraries
-import {isAddress} from "../helpers";
+import {isAddress} from "../utils/helpers";
 
 class Widget extends React.Component {
   render() {

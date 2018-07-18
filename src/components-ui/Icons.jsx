@@ -2,7 +2,7 @@
 import React from "react"
 
 // Internal Libraries
-import {generateIcon} from "../helpers";
+import {generateIcon} from "../utils/helpers";
 
 export class SwapArrows extends React.PureComponent {
   render() {

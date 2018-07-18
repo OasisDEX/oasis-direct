@@ -11,8 +11,8 @@ import SetTrade from "./SetTrade";
 import {Ether, MKR, DAI} from "../components-ui/Icons";
 
 // Internal Libraries
-import * as Blockchain from "../blockchainHandler";
-import {fetchETHPriceInUSD} from "../helpers";
+import * as Blockchain from "../utils/blockchain-handler";
+import {fetchETHPriceInUSD} from "../utils/helpers";
 
 class TradeWidget extends React.Component {
   constructor(props) {

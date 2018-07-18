@@ -7,8 +7,8 @@ import {IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Internal Libraries
-import * as Blockchain from "../blockchainHandler";
-import {etherscanAddress} from "../helpers";
+import * as Blockchain from "../utils/blockchain-handler";
+import {etherscanAddress} from "../utils/helpers";
 
 class ActiveConnection extends React.Component {
   render() {
