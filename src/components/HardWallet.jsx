@@ -2,35 +2,18 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 
+// Components
+import AddressList from './AddressList';
+
 // UI Components
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
-  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon, ArrowLeft, ArrowRight
+  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon
 } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
-import TokenAmount from "../components-ui/TokenAmount";
-
-// Internal Libraries
-import {getEthBalanceOf} from "../blockchainHandler";
 
 // Settings
 import * as settings from "../settings";
-
-const hwNameStyle = {
-  textTransform: "capitalize"
-}
-
-const spinnerStyle = {
-  width: "18px",
-  height: "18px"
-}
-
-const circularButtonStyle = {
-  width: "32px",
-  height: "32px",
-  padding: "5px",
-  marginLeft: "16px"
-};
 
 const steps = {
   "ledger": [
@@ -67,33 +50,6 @@ const steps = {
   ],
 }
 
-class Address extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      address: props.address,
-    }
-  }
-
-  componentDidMount() {
-    getEthBalanceOf(this.state.address).then((balance) => {
-      this.setState({balance: balance.valueOf()});
-    })
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-        <span className="address">{this.state.address}</span>
-        <span className="balance">
-          <TokenAmount number={this.state.balance} decimal={5} token={"ETH"} />
-        </span>
-      </React.Fragment>
-    )
-  }
-}
-
-// TODO: Extract each hw device as separate component and they will be composed in HardWallet component
 class HardWallet extends React.Component {
   constructor(props) {
     super(props);
@@ -126,69 +82,16 @@ class HardWallet extends React.Component {
     });
   }
 
-  //TODO; create pagination component
-  next = async pageSize => {
-    const addresses = this.props.network.hw.addresses;
-    const page = {
-      start: this.page.end,
-      end: this.page.end + pageSize
-    };
-    if (this.page.end === addresses.length) {
-      const {error} = await this.props.network.loadHWAddresses(settings.hwNetwork, this.page.end + 5, this.derivationPath);
-      if (error) {
-        console.log("Error connecting with the device");
-        return;
-      } //TODO: handle it somehow - probably some notification box? This happen with TREZOR.
-      page.end = this.props.network.hw.addresses.length;
-    }
-    this.page = page;
-    this.setState({addresses: this.props.network.hw.addresses.slice(this.page.start, this.page.end)});
-  };
-
-  previous = pageSize => {
-    if (this.page.start - pageSize < 0) return;
-    this.page = {
-      start: this.page.start - pageSize,
-      end: this.page.start
-    };
-    this.setState({addresses: this.props.network.hw.addresses.slice(this.page.start, this.page.end)});
-  };
-
-  importAddress = () => {
-    if (this.props.network.loadingAddress) return;
-    this.props.network.importAddress(this.state.selectedAddress);
-  }
-
   render() {
     return (
       this.props.network.hw.addresses.length > 0
       ?
         <section className="frame hard-wallet-addresses">
           <div className="heading">
-            <h2>Select Address on your <span style={hwNameStyle}>{this.props.network.hw.option}</span></h2>
+            <h2>Select Address on your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span></h2>
           </div>
           <button className="close" onClick={this.props.network.showClientChoice} />
-          <div className="content">
-            <ul className="list">
-              {
-                this.state.addresses.map(address =>
-                  <li key={address} className={`list-item ${this.state.selectedAddress === address ? "selected" : ""} `}
-                      onClick={() => this.setState({selectedAddress: address})}>
-                    <Address address={address} />
-                  </li>
-                )
-              }
-            </ul>
-            <div className="pagination">
-              <span onClick={() => this.previous(5)} disabled={this.props.network.loadingAddress}>
-                <Circle styles={circularButtonStyle}><ArrowLeft /></Circle>
-              </span>
-              <span onClick={() => this.next(5)} disabled={this.props.network.loadingAddress}>
-                <Circle styles={circularButtonStyle}><ArrowRight /></Circle>
-              </span>
-            </div>
-            <button disabled={!this.state.selectedAddress} onClick={this.importAddress}> {this.props.network.loadingAddress ? <Spinner theme="button" /> : "UNLOCK WALLET"}</button>
-          </div>
+          <AddressList addresses={this.props.network.hw.addresses} />
         </section>
       :
         <section className="frame hard-wallet">
@@ -196,7 +99,7 @@ class HardWallet extends React.Component {
             <Circle><BackIcon/></Circle>
           </button>
           <div className="heading">
-            <h2>Connect your <span style={hwNameStyle}>{this.props.network.hw.option}</span> Wallet</h2>
+            <h2>Connect your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span> Wallet</h2>
           </div>
           <div className="content">
             <div className="progress">
@@ -207,20 +110,20 @@ class HardWallet extends React.Component {
                       <span className="label"> Couldn't connect</span>
                     :
                       <React.Fragment>
-                        <Spinner styles={spinnerStyle} />
+                        <Spinner styles={{width: "18px", height: "18px"}} />
                         <span className="label"> Connecting </span>
                       </React.Fragment>
                 }
               </div>
               <div></div>
               <div onClick={this.retry}>
-                <Circle styles={circularButtonStyle}><RetryIcon /></Circle>
+                <Circle styles={{width: "32px", height: "32px", padding: "5px", marginLeft: "16px"}}><RetryIcon /></Circle>
               </div>
             </div>
             <div className="guidelines">
               <ul className="list">
                 {
-                  steps.map((step, index) => (
+                  steps[this.props.network.hw.option].map((step, index) => (
                     <li key={index} className="list-item">
                       {step.icon}
                       <span className="bullet-number">{index + 1}</span>
