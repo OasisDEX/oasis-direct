@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Circle } from "../components/Icons";
+import { ArrowLeft, ArrowRight, Circle } from "./Icons";
 
 const circularButtonStyle = {
   width: "32px",

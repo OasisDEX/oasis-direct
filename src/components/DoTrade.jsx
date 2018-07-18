@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Ether, MKR, DAI, Done, AccountIcon, Attention } from './Icons';
-import Spinner from './Spinner';
+import { Ether, MKR, DAI, Done, AccountIcon, Attention } from '../components-ui/Icons';
+import Spinner from '../components-ui/Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
 import { etherscanUrl, quotation, toBigNumber, toWei } from '../helpers';

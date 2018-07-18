@@ -1,8 +1,8 @@
 import React from 'react';
-import Pagination from "../ui-components/Pagination";
+import Pagination from "../components-ui/Pagination";
 import { setDefaultAccount } from "../blockchainHandler";
 import Address from "./Address";
-import Spinner from "./Spinner";
+import Spinner from "../components-ui/Spinner";
 
 
 class AddressList extends React.Component {

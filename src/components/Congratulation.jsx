@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import TokenAmount from "./TokenAmount";
-import Spinner from "./Spinner";
+import Spinner from "../components-ui/Spinner";
 import { calculateTradePrice, fetchETHPriceInUSD, toWei } from '../helpers';
 
 class Congratulation extends Component {

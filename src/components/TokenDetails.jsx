@@ -1,6 +1,6 @@
 import React from 'react';
 import TokenAmount from "./TokenAmount";
-import Spinner from "./Spinner";
+import Spinner from "../components-ui/Spinner";
 
 const TokenDetails = (props) => {
   const {icon, balance, symbol} = props.token;

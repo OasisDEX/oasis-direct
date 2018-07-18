@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import Spinner from './Spinner';
+import Spinner from '../components-ui/Spinner';
 import config from '../exporter-config.json';
 import * as Blockchain from '../blockchainHandler';
 import { fromWei, isAddress } from '../helpers';
 
-import { ZeroExExchangesLogo, EtherDeltaExchangeLogo, OasisExchangeLogo } from "./Icons";
+import { ZeroExExchangesLogo, EtherDeltaExchangeLogo, OasisExchangeLogo } from "../components-ui/Icons";
 
 const EXCHANGES = [
   {

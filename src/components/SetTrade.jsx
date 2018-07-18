@@ -4,12 +4,12 @@ import ActiveConnection from './ActiveConnection';
 import TokenList from './TokenList';
 import {
   Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
-} from './Icons';
-import Spinner from './Spinner';
+} from '../components-ui/Icons';
+import Spinner from '../components-ui/Spinner';
 import TokenAmount from './TokenAmount';
 import { fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
-import Checkbox from "../ui-components/Checkbox";
+import Checkbox from "../components-ui/Checkbox";
 import AmountInput from "./AmountInput";
 import TokenDetails from "./TokenDetails";
 

@@ -2,8 +2,8 @@ import React from 'react';
 import {
   ApplicationSettingsIcon, Circle, LockOpenIcon, PicInPicIcon, RetryIcon, SmartphoneIcon, SmartphoneUpdateIcon,
   USBIcon
-} from "./Icons";
-import Spinner from "./Spinner";
+} from "../components-ui/Icons";
+import Spinner from "../components-ui/Spinner";
 
 const circularButtonStyle = {
   width: "32px",

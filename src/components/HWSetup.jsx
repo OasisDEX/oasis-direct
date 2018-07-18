@@ -2,7 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { Circle, BackIcon } from "./Icons";
+import { Circle, BackIcon } from "../components-ui/Icons";
 import { actions } from '../handlers/HardWallet';
 import AddressList from './AddressList'
 import HWConnectivity from "./HWConnectivity";

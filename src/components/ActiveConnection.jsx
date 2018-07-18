@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   IdentityIcon, BackIcon, Circle,
-} from './Icons';
+} from '../components-ui/Icons';
 import TokenAmount from './TokenAmount';
 import * as Blockchain from "../blockchainHandler";
 import { etherscanAddress } from '../helpers';

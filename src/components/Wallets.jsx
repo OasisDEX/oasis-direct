@@ -1,10 +1,10 @@
 import React from 'react';
-import Product from '../ui-components/Product';
+import Product from '../components-ui/Product';
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
-} from "./Icons";
-import Spinner from "./Spinner";
+} from "../components-ui/Icons";
+import Spinner from "../components-ui/Spinner";
 import { getCurrentProviderName } from '../web3';
 import { connect } from "react-redux";
 import { actions } from "../handlers/HardWallet";

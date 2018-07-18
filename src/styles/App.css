@@ -1,7 +1,7 @@
 @import './Wallets.css';
 @import './HardWallet.css';
-@import '../ui-components/Product.css';
-@import '../ui-components/Checkbox.css';
+@import '../components-ui/Product.css';
+@import '../components-ui/Checkbox.css';
 
 .notify-container {
   display: flex;
