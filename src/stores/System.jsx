@@ -12,7 +12,6 @@ import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../ut
 import * as settings from "../settings";
 
 class SystemStore {
-
   balances = {
     dai: null,
     eth: null,
@@ -82,21 +81,17 @@ class SystemStore {
     if (token === "weth") {
       Blockchain.getEthBalanceOf(NetworkStore.defaultAccount).then(r => {
         this.balances.eth = r;
-      }, () => {
-      });
+      }, () => {});
     } else {
       Blockchain.getTokenBalanceOf(token, NetworkStore.defaultAccount).then(r => {
         this.balances[token] = r;
-      }, () => {
-      });
+      }, () => {});
     }
   }
 
   setUpToken = token => {
     Blockchain.loadObject(token === "weth" ? "dsethtoken" : "dstoken", settings.chain[NetworkStore.network].tokens[token].address, token);
-    setInterval(() => {
-      this.saveBalance(token);
-    }, 5000);
+    setInterval(() => this.saveBalance(token), 5000);
     this.saveBalance(token);
   }
   
@@ -133,8 +128,7 @@ class SystemStore {
           });
         });
       }
-    }, () => {
-    });
+    }, () => {});
   }
 
   executeProxyTx = (amount, limit) => {
@@ -240,11 +234,13 @@ class SystemStore {
         if (!e) {
           otc.offers(r, (e2, r2) => {
             if (!e2) {
-              resolve((tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
+              resolve(
+                (tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
                 ?
-                r2[2].div(r2[0])
+                  r2[2].div(r2[0])
                 :
-                r2[0].div(r2[2]));
+                  r2[0].div(r2[2])
+              );
             } else {
               reject(e2);
             }
@@ -304,22 +300,21 @@ class SystemStore {
             this.trade.bestPriceOffer = bestPriceOffer;
           }
 
-          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount) : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
+          const balance = from === "eth"
+                          ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount)
+                          : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
           const errorInputSell = balance.lt(toWei(amount))
-            ?
-            // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
-            "funds"
-            :
-            "";
+                                  ? "funds" // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
+                                  : "";
           const errorOrders = this.trade.amountBuy.eq(0)
-            ?
-            {
-              type: "sell",
-              amount,
-              token: from.toUpperCase()
-            }
-            :
-            null;
+                              ?
+                                {
+                                  type: "sell",
+                                  amount,
+                                  token: from.toUpperCase()
+                                }
+                              :
+                                null;
           if (errorInputSell || errorOrders) {
             if (this.trade.rand === rand) {
               this.trade.errorInputSell = errorInputSell;
@@ -410,22 +405,21 @@ class SystemStore {
             this.trade.bestPriceOffer = bestPriceOffer;
           }
 
-          const balance = from === "eth" ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount) : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
+          const balance = from === "eth"
+                          ? await Blockchain.getEthBalanceOf(NetworkStore.defaultAccount)
+                          : await Blockchain.getTokenBalanceOf(from, NetworkStore.defaultAccount);
           const errorInputSell = balance.lt(toWei(this.trade.amountPay))
-            ?
-            // `Not enough balance to sell ${this.trade.amountPay} ${from.toUpperCase()}`
-            "funds"
-            :
-            null;
+                                  ? "funds" // `Not enough balance to sell ${this.trade.amountPay} ${from.toUpperCase()}`
+                                  : null;
           const errorOrders = this.trade.amountPay.eq(0)
-            ?
-            {
-              type: "buy",
-              amount,
-              token: to.toUpperCase()
-            }
-            :
-            null;
+                              ?
+                                {
+                                  type: "buy",
+                                  amount,
+                                  token: to.toUpperCase()
+                                }
+                              :
+                                null;
           if (errorInputSell || errorOrders) {
             if (this.trade.rand === rand) {
               this.trade.errorInputSell = errorInputSell;
