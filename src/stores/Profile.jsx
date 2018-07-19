@@ -5,7 +5,7 @@ import {observable, decorate} from "mobx";
 import NetworkStore from "./Network";
 import TransactionsStore from "./Transactions";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
 class ProfileStore {

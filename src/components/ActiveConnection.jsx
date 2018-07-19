@@ -6,7 +6,7 @@ import {inject, observer} from "mobx-react";
 import {IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
 import TokenAmount from "../components-ui/TokenAmount";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 import {etherscanAddress} from "../utils/helpers";
 

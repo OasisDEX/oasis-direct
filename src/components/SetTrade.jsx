@@ -11,7 +11,7 @@ import {SwapArrows, IdentityIcon, Circle, Attention} from "../components-ui/Icon
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
-// Internal Libraries
+// Utils
 import {toWei} from "../utils/helpers";
 
 // Settings
@@ -135,8 +135,7 @@ class SetTrade extends React.Component {
             </span>
             <h2>Enter Order Details</h2>
           </div>
-          <div
-            className={`info-box ${this.hasDetails() ? "" : " info-box--hidden"} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? "has-errors" : ""}`}>
+          <div className={`info-box ${this.hasDetails() ? "" : " info-box--hidden"} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? "has-errors" : ""}`}>
             <div className="info-box-row wrap">
               {
                 this.props.system.trade.errorOrders && !this.props.system.trade.errorInputSell &&
@@ -202,10 +201,10 @@ class SetTrade extends React.Component {
                   <span className="label">Gas cost</span>
                     {
                       this.props.system.trade.txCost.gt(0)
-                        ?
-                          <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2} token={"USD"} /></span>
-                        :
-                          <Spinner />
+                      ?
+                        <span style={{lineHeight: "14px", fontSize:"12px"}}> ~ <TokenAmount number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2} token={"USD"} /></span>
+                      :
+                        <Spinner />
                     }
                   </span>
                   <span style={{paddingTop: "4px"}} className="holder half holder--spread">
@@ -228,9 +227,7 @@ class SetTrade extends React.Component {
           <div className="content">
             <form className="trade">
               <div className="selected-token">
-                <div className="token" onClick={() => {
-                  this.pickToken("from")
-                }}>
+                <div className="token" onClick={() => this.pickToken("from")}>
                   <span className="token-icon">{this.props.tokens[this.state.from].icon}</span>
                   {
                     !this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
@@ -256,9 +253,7 @@ class SetTrade extends React.Component {
                 </span>
               </div>
               <div className="selected-token">
-                <div className="token" onClick={() => {
-                  this.pickToken("to");
-                }}>
+                <div className="token" onClick={() => this.pickToken("to")}>
                   <span className="token-icon">{this.props.tokens[this.state.to].icon}</span>
                   {
                     !this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()]

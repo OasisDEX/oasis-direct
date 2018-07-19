@@ -6,7 +6,7 @@ import NetworkStore from "./Network";
 import ProfileStore from "./Profile";
 import TransactionsStore from "./Transactions";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../utils/helpers";
 import * as settings from "../settings";
@@ -190,9 +190,10 @@ class SystemStore {
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
-      this.trade.proxy = ProfileStore.proxy;
+      this.trade.hasToCreateProxyInTrade = Boolean(!ProfileStore.proxy);
       this[ProfileStore.proxy ? "executeProxyTx" : "executeProxyCreateAndSellETH"](amount, limit);
     } else {
+      this.trade.hasToCreateProxyInTrade = false;
       let callbacks = [
         [
           "system/checkAllowance",

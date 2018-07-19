@@ -6,7 +6,7 @@ import NetworkStore from "./Network";
 import ProfileStore from "./Profile";
 import SystemStore from "./System";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 import {toWei, toBigNumber, addressToBytes32} from "../utils/helpers";
 import * as settings from "../settings";

@@ -1,7 +1,7 @@
 // Libraries
 import Promise from "bluebird";
 
-// Internal Libraries
+// Utils
 import {toBytes32, addressToBytes32, toWei, methodSig} from "./helpers";
 import web3 from "./web3";
 

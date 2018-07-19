@@ -8,7 +8,7 @@ import LockedAccount from "./LockedAccount";
 import TradeWidget from "./TradeWidget";
 import Wallets from "./Wallets";
 
-// Internal Libraries
+// Utils
 import {isAddress} from "../utils/helpers";
 
 class Widget extends React.Component {

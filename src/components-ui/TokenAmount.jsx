@@ -1,7 +1,7 @@
 // Libraries
 import React from "react";
 
-// Internal Libraries
+// Utils
 import {formatNumber} from "../utils/helpers";
 
 const TokenAmount = props => {

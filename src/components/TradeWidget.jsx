@@ -10,7 +10,7 @@ import SetTrade from "./SetTrade";
 // UI Components
 import {Ether, MKR, DAI} from "../components-ui/Icons";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 import {fetchETHPriceInUSD} from "../utils/helpers";
 

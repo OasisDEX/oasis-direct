@@ -14,7 +14,7 @@ import ProfileStore from "../stores/Profile";
 import TransactionsStore from "../stores/Transactions";
 import SystemStore from "../stores/System";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
 // Convenient console access

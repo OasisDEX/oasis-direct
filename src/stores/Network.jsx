@@ -6,7 +6,7 @@ import ProfileStore from "./Profile";
 import SystemStore from "./System";
 import TransactionsStore from "./Transactions";
 
-// Internal Libraries
+// Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
 // Settings

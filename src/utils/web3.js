@@ -4,7 +4,7 @@ import Transport from "@ledgerhq/hw-transport-u2f";
 import Web3 from "web3";
 import * as Web3ProviderEngine from "web3-provider-engine/dist/es5";
 
-// Internal Libraries
+// Utils
 import LedgerSubProvider from "./ledger-subprovider";
 import TrezorSubProvider from "./trezor-subprovider";
 

@@ -6,7 +6,7 @@ import {observer} from "mobx-react";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
-// Internal Libraries
+// Utils
 import {calculateTradePrice, fetchETHPriceInUSD, toWei} from "../utils/helpers";
 
 class Congratulation extends React.Component {
@@ -45,7 +45,7 @@ class Congratulation extends React.Component {
           {
             this.props.hasCreatedProxy &&
             <span className="label">
-              You have successfully create a <span className="value"> Proxy </span>
+              You have successfully created a <span className="value"> Proxy </span>
               <br/>
               <br/>
             </span>

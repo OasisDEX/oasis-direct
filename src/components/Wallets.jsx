@@ -10,7 +10,7 @@ import {
 import Product from "../components-ui/Product";
 import Spinner from "../components-ui/Spinner";
 
-// Internal Libraries
+// Utils
 import {getCurrentProviderName} from "../utils/web3";
 
 const logos = {
