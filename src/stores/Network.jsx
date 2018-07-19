@@ -122,6 +122,7 @@ class NetworkStore {
     try {
       this.stopIntervals = false;
       this.loadingAddress = true;
+      this.loadingFirstAddress = true;
       await Blockchain.setWebClientProvider();
       this.checkNetwork();
       this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);

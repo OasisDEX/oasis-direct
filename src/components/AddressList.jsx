@@ -15,8 +15,7 @@ class AddressList extends React.Component {
 
     this.state = {
       addresses: this.props.addresses.slice(0, 5),
-      selectedAddress: null,
-      loadingAddress: false,
+      selectedAddress: null
     };
   }
 
@@ -41,7 +40,7 @@ class AddressList extends React.Component {
     });
   };
 
-  render = () => {
+  render() {
     return (
       <div className="content">
         <ul className="list">
@@ -59,7 +58,7 @@ class AddressList extends React.Component {
         <Pagination items={this.props.addresses} enlist={this.enlist} />
         <button disabled={!this.state.selectedAddress} onClick={this.importAddress}>
           {
-            this.state.loadingAddress
+            this.props.network.loadingAddress
             ?
               <Spinner theme="button" />
             :
