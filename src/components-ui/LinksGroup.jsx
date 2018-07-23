@@ -1,5 +1,6 @@
 // Libraries
 import React from "react";
+import {Link} from "react-router-dom";
 
 const LinksGroup = props => (
   <div className="LinksWrapper">
@@ -7,7 +8,15 @@ const LinksGroup = props => (
     <ul className="Links">
       {
         props.links.map((link, key) => 
-          <li key={key} className="Link"><a href={link.url} {...link.options}>{link.label}</a></li>
+          <li key={key} className="Link">
+            {
+              link.internal
+              ?
+                <Link to={link.url}>{link.label}</Link>
+              :
+                <a href={link.url} {...link.options}>{link.label}</a>
+            }
+          </li>
         )
       }
     </ul>
