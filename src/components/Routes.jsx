@@ -8,7 +8,7 @@ import FAQ from "./FAQ";
 import Main from "./Main";
 import Widget from "./Widget";
 
-class App extends React.Component {
+class Routes extends React.Component {
   componentDidUpdate = prevProps => {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       window.scrollTo(0, 0);
@@ -27,4 +27,4 @@ class App extends React.Component {
   }
 }
 
-export default withRouter(observer(App));
+export default withRouter(observer(Routes));
