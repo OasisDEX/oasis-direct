@@ -123,6 +123,7 @@ class App extends Component {
       return {network: networkState};
     }, () => {
       this.checkAccounts();
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
     });
   }
 
@@ -1180,7 +1181,6 @@ class App extends Component {
     }, async () => {
       await Blockchain.setWebClientProvider();
       this.checkNetwork();
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
     });
   }
@@ -1251,7 +1251,6 @@ class App extends Component {
         const account = await Blockchain.getDefaultAccountByIndex(this.state.hw.addressIndex);
         Blockchain.setDefaultAccount(account);
         this.checkNetwork();
-        this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
         this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
       } catch (e) {
         this.setState(prevState => {
