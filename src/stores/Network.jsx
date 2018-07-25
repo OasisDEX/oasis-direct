@@ -94,6 +94,7 @@ class NetworkStore {
     this.isConnected = true;
     this.latestBlock = 0;
     this.checkAccounts();
+    this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
   }
 
   checkAccounts = () => {
@@ -125,7 +126,6 @@ class NetworkStore {
       this.loadingFirstAddress = true;
       await Blockchain.setWebClientProvider();
       this.checkNetwork();
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
     } catch (e) {
       this.loadingAddress = false;
@@ -154,7 +154,6 @@ class NetworkStore {
       this.stopIntervals = false;
       Blockchain.setDefaultAccount(account);
       this.checkNetwork();
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
     } catch (e) {
       this.loadingAddress = false;
