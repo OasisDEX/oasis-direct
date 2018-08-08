@@ -7,7 +7,7 @@ import {IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Utils
-import * as Blockchain from "../utils/blockchain-handler";
+import * as blockchain from "../utils/blockchain";
 import {etherscanAddress} from "../utils/helpers";
 
 class ActiveConnection extends React.Component {
@@ -25,14 +25,14 @@ class ActiveConnection extends React.Component {
             <div className="wallet-details">
               <div>
                 <IdentityIcon address={this.props.network.defaultAccount}/>
-                <span className="label">{Blockchain.getCurrentProviderName()} on {this.props.network.network}</span>
+                <span className="label">{blockchain.getCurrentProviderName()} on {this.props.network.network}</span>
                 <TokenAmount number={this.props.ethBalance} decimal={5} token={"ETH"}/>
               </div>
               {etherscanAddress(this.props.network.network, this.props.network.defaultAccount, this.props.network.defaultAccount)}
             </div>
           </div>
         </div>
-        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.showClientChoice}>
+        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.stopNetwork}>
           DISCONNECT
         </button>
       </div>

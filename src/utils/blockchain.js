@@ -145,6 +145,81 @@ export const setWebClientProvider = () => {
   return web3.setWebClientProvider();
 }
 
+export const checkNetwork = (actualIsConnected, actualNetwork) => {
+  return new Promise((resolve, reject) => {
+    let isConnected = null;
+    getNode().then(r => {
+      isConnected = true;
+      getBlock("latest").then(res => {
+        if (res.number >= this.latestBlock) {
+          resolve({
+            status: 0,
+            data: {
+              latestBlock: res.number,
+              outOfSync: ((new Date().getTime() / 1000) - res.timestamp) > 600
+            }
+          });
+        }
+      });
+      // because you have another then after this.
+      // The best way to handle is to return isConnect;
+      return null;
+    }, () => {
+      isConnected = false;
+    }).then(() => {
+      if (actualIsConnected !== isConnected) {
+        if (isConnected === true) {
+          let network = false;
+          getBlock(0).then(res => {
+            switch (res.hash) {
+              case "0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9":
+                network = "kovan";
+                break;
+              case "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3":
+                network = "main";
+                break;
+              default:
+                console.log("setting network to private");
+                console.log("res.hash:", res.hash);
+                network = "private";
+            }
+            if (actualNetwork !== network) {
+              resolve({
+                status: 1,
+                data: {
+                  network: network,
+                  isConnected: true,
+                  latestBlock: 0
+                }
+              });
+            }
+          }, () => {
+            if (actualNetwork !== network) {
+              resolve({
+                status: 1,
+                data: {
+                  network: network,
+                  isConnected: true,
+                  latestBlock: 0
+                }
+              });
+            }
+          });
+        } else {
+          resolve({
+            status: 0,
+            data: {
+              isConnected: isConnected,
+              network: false,
+              latestBlock: 0
+            }
+          });
+        }
+      }
+    }, e => reject(e));
+  });
+}
+
 export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
   const result = {};
   const otcBytes32 = addressToBytes32(settings.chain[network].otc, false);

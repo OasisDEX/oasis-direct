@@ -10,10 +10,10 @@ import Routes from "./Routes";
 import rootStore from "../stores/Root";
 
 // Utils
-import * as Blockchain from "../utils/blockchain-handler";
+import * as blockchain from "../utils/blockchain";
 
 // Convenient console access
-window.blockchain = Blockchain;
+window.blockchain = blockchain;
 window.network = rootStore.network;
 window.profile = rootStore.profile;
 window.transactions = rootStore.transactions;

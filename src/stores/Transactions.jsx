@@ -2,7 +2,7 @@
 import {observable, decorate, computed} from "mobx";
 
 // Utils
-import * as Blockchain from "../utils/blockchain-handler";
+import * as blockchain from "../utils/blockchain";
 import {toWei, toBigNumber, addressToBytes32} from "../utils/helpers";
 import * as settings from "../settings";
 
@@ -68,7 +68,7 @@ export default class TransactionsStore {
   checkPendingTransactions = () => {
     ["approval", "trade", "proxy"].map(type => {
       if (this[type].pending) {
-        Blockchain.getTransactionReceipt(this[type].tx).then(r => {
+        blockchain.getTransactionReceipt(this[type].tx).then(r => {
           if (r !== null) {
             if (r.logs.length === 0) {
               this.logTransactionFailed(this[type].tx);
@@ -78,12 +78,12 @@ export default class TransactionsStore {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            Blockchain.setFilter(
+            blockchain.setFilter(
               this[type].checkFromBlock,
               settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address
             ).then(r => {
               r.forEach(v => {
-                Blockchain.getTransaction(v.transactionHash).then(r2 => {
+                blockchain.getTransaction(v.transactionHash).then(r2 => {
                   if (r2.from === this.rootStore.network.defaultAccount &&
                     r2.nonce === this[type].nonce) {
                     this.saveReplacedTransaction(type, v.transactionHash);
@@ -109,7 +109,7 @@ export default class TransactionsStore {
       } else {
         if (typeof this[type] !== "undefined" && typeof this[type].amountSell !== "undefined" && this[type].amountSell.eq(-1)) {
           // Using Logs
-          Blockchain.setFilter(
+          blockchain.setFilter(
             this[type].checkFromBlock,
             settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address
           ).then(logs => this.saveTradedValue("sell", logs), () => {
@@ -125,7 +125,7 @@ export default class TransactionsStore {
         }
         if (typeof this[type] !== "undefined" && typeof this[type].amountBuy !== "undefined" && this[type].amountBuy.eq(-1)) {
           // Using Logs
-          Blockchain.setFilter(
+          blockchain.setFilter(
             this[type].checkFromBlock,
             settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address
           ).then(logs => this.saveTradedValue("buy", logs), () => {
@@ -192,8 +192,8 @@ export default class TransactionsStore {
   }
 
   logPendingTransaction = async (tx, type, callbacks = []) => {
-    const nonce = await Blockchain.getTransactionCount(this.rootStore.network.defaultAccount);
-    const checkFromBlock = (await Blockchain.getBlock("latest")).number;
+    const nonce = await blockchain.getTransactionCount(this.rootStore.network.defaultAccount);
+    const checkFromBlock = (await blockchain.getBlock("latest")).number;
     console.log("nonce", nonce);
     console.log("checkFromBlock", checkFromBlock);
     const msgTemp = "Transaction TX was created. Waiting for confirmation...";
@@ -226,7 +226,7 @@ export default class TransactionsStore {
       this[type].gasUsed = parseInt(gasUsed, 10);
 
       console.log(msgTemp.replace("TX", tx));
-      Blockchain.getTransaction(tx).then(r => {
+      blockchain.getTransaction(tx).then(r => {
         if (r) {
           this[type].gasPrice = r.gasPrice;
           // The next line is to reduce the chances to have a wrong block height (infura nodes)
@@ -295,7 +295,7 @@ export default class TransactionsStore {
     return new Promise((resolve, reject) => {
       this.getGasPriceFromETHGasStation()
         .then(estimation => resolve(estimation), () => {
-          Blockchain.getGasPrice()
+          blockchain.getGasPrice()
             .then(estimation => resolve(estimation), error => reject(error));
         });
     });

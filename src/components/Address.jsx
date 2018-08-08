@@ -6,7 +6,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Utils
-import {getEthBalanceOf} from "../utils/blockchain-handler";
+import {getEthBalanceOf} from "../utils/blockchain";
 
 class Address extends React.Component {
   constructor(props) {

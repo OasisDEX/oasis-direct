@@ -11,7 +11,7 @@ import SetTrade from "./SetTrade";
 import {Ether, MKR, DAI} from "../components-ui/Icons";
 
 // Utils
-import * as Blockchain from "../utils/blockchain-handler";
+import * as blockchain from "../utils/blockchain";
 import {fetchETHPriceInUSD} from "../utils/helpers";
 
 class TradeWidget extends React.Component {
@@ -43,7 +43,7 @@ class TradeWidget extends React.Component {
 
   componentDidMount() {
     this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
-    Blockchain.getEthBalanceOf(this.props.network.defaultAccount).then((balance) => {
+    blockchain.getEthBalanceOf(this.props.network.defaultAccount).then((balance) => {
       this.setState({ethBalance: balance.valueOf()});
     });
   }

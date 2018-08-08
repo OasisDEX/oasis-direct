@@ -90,12 +90,12 @@ class HardWallet extends React.Component {
           <div className="heading">
             <h2>Select Address on your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span></h2>
           </div>
-          <button className="close" onClick={this.props.network.showClientChoice} />
+          <button className="close" onClick={this.props.network.stopNetwork} />
           <AddressList addresses={this.props.network.hw.addresses} />
         </section>
       :
         <section className="frame hard-wallet">
-          <button className="back" onClick={this.props.network.showClientChoice}>
+          <button className="back" onClick={this.props.network.stopNetwork}>
             <Circle><BackIcon/></Circle>
           </button>
           <div className="heading">

@@ -2,7 +2,7 @@
 import {observable, decorate} from "mobx";
 
 // Utils
-import * as Blockchain from "../utils/blockchain-handler";
+import * as blockchain from "../utils/blockchain";
 
 export default class ProfileStore {
   proxy = -1;
@@ -13,7 +13,7 @@ export default class ProfileStore {
 
   getAndSetProxy = (callbacks = null) => {
     return new Promise((resolve, reject) => {
-      Blockchain.getProxy(this.rootStore.network.defaultAccount).then(proxy => {
+      blockchain.getProxy(this.rootStore.network.defaultAccount).then(proxy => {
         if (proxy) {
           this.setProxy(proxy);
           callbacks && this.rootStore.transactions.executeCallbacks(callbacks);
@@ -25,7 +25,7 @@ export default class ProfileStore {
 
   setProxy = proxy => {
     this.proxy = proxy;
-    Blockchain.loadObject("dsproxy", this.proxy, "proxy");
+    blockchain.loadObject("dsproxy", this.proxy, "proxy");
     console.log("proxy", this.proxy);
   }
 }
