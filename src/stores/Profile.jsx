@@ -1,22 +1,22 @@
 // Libraries
 import {observable, decorate} from "mobx";
 
-// Stores
-import NetworkStore from "./Network";
-import TransactionsStore from "./Transactions";
-
 // Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
-class ProfileStore {
+export default class ProfileStore {
   proxy = -1;
+
+  constructor(rootStore) {
+    this.rootStore = rootStore;
+  }
 
   getAndSetProxy = (callbacks = null) => {
     return new Promise((resolve, reject) => {
-      Blockchain.getProxy(NetworkStore.defaultAccount).then(proxy => {
+      Blockchain.getProxy(this.rootStore.network.defaultAccount).then(proxy => {
         if (proxy) {
           this.setProxy(proxy);
-          callbacks && TransactionsStore.executeCallbacks(callbacks);
+          callbacks && this.rootStore.transactions.executeCallbacks(callbacks);
         }
         resolve(proxy);
       }, () => reject(false));
@@ -33,6 +33,3 @@ class ProfileStore {
 decorate(ProfileStore, {
   proxy: observable
 });
-
-const store = new ProfileStore();
-export default store;

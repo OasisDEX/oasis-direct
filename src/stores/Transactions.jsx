@@ -1,20 +1,19 @@
 // Libraries
 import {observable, decorate, computed} from "mobx";
 
-// Stores
-import NetworkStore from "./Network";
-import ProfileStore from "./Profile";
-import SystemStore from "./System";
-
 // Utils
 import * as Blockchain from "../utils/blockchain-handler";
 import {toWei, toBigNumber, addressToBytes32} from "../utils/helpers";
 import * as settings from "../settings";
 
-class TransactionsStore {
+export default class TransactionsStore {
   approval = {};
   trade = {};
   proxy = {};
+
+  constructor(rootStore) {
+    this.rootStore = rootStore;
+  }
 
   reset = () => {
     this.approval = {};
@@ -31,7 +30,7 @@ class TransactionsStore {
       });
     }
     return new Promise((resolve, reject) => {
-      const url = `https://api${NetworkStore.network !== "main" ? `-${NetworkStore.network}` : ""}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.rootStore.network.network !== "main" ? `-${this.rootStore.network.network}` : ""}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
       console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
@@ -49,7 +48,7 @@ class TransactionsStore {
 
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
-      const url = `https://api${NetworkStore.network !== "main" ? `-${NetworkStore.network}` : ""}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
+      const url = `https://api${this.rootStore.network.network !== "main" ? `-${this.rootStore.network.network}` : ""}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
       console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
@@ -81,11 +80,11 @@ class TransactionsStore {
             // Using logs:
             Blockchain.setFilter(
               this[type].checkFromBlock,
-              settings.chain[NetworkStore.network].tokens[SystemStore.trade.from.replace("eth", "weth")].address
+              settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address
             ).then(r => {
               r.forEach(v => {
                 Blockchain.getTransaction(v.transactionHash).then(r2 => {
-                  if (r2.from === NetworkStore.defaultAccount &&
+                  if (r2.from === this.rootStore.network.defaultAccount &&
                     r2.nonce === this[type].nonce) {
                     this.saveReplacedTransaction(type, v.transactionHash);
                   }
@@ -94,7 +93,7 @@ class TransactionsStore {
             }, () => {
             });
             // Using Etherscan API (backup)
-            this.getTransactionsByAddressFromEtherscan(NetworkStore.defaultAccount, this[type].checkFromBlock).then(r => {
+            this.getTransactionsByAddressFromEtherscan(this.rootStore.network.defaultAccount, this[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
                 r.result.forEach(v => {
                   if (parseInt(v.nonce, 10) === parseInt(this[type].nonce, 10)) {
@@ -112,11 +111,11 @@ class TransactionsStore {
           // Using Logs
           Blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[NetworkStore.network].tokens[SystemStore.trade.from.replace("eth", "weth")].address
+            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address
           ).then(logs => this.saveTradedValue("sell", logs), () => {
           });
           // Using Etherscan API (backup)
-          this.getLogsByAddressFromEtherscan(settings.chain[NetworkStore.network].tokens[SystemStore.trade.from.replace("eth", "weth")].address,
+          this.getLogsByAddressFromEtherscan(settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue("sell", logs.result);
@@ -128,12 +127,12 @@ class TransactionsStore {
           // Using Logs
           Blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[NetworkStore.network].tokens[SystemStore.trade.to.replace("eth", "weth")].address
+            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address
           ).then(logs => this.saveTradedValue("buy", logs), () => {
           }, () => {
           });
           // Using Etherscan API (backup)
-          this.getLogsByAddressFromEtherscan(settings.chain[NetworkStore.network].tokens[SystemStore.trade.to.replace("eth", "weth")].address,
+          this.getLogsByAddressFromEtherscan(settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {
             if (parseInt(logs.status, 10) === 1) {
               this.saveTradedValue("buy", logs.result);
@@ -158,12 +157,12 @@ class TransactionsStore {
     let value = toBigNumber(0);
     logs.forEach(log => {
       if (log.transactionHash === this.trade.tx) {
-        if (SystemStore.trade[operation === "buy" ? "to" : "from"] !== "eth" &&
-          log.topics[operation === "buy" ? 2 : 1] === addressToBytes32(NetworkStore.defaultAccount) &&
+        if (this.rootStore.system.trade[operation === "buy" ? "to" : "from"] !== "eth" &&
+          log.topics[operation === "buy" ? 2 : 1] === addressToBytes32(this.rootStore.network.defaultAccount) &&
           log.topics[0] === "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef") {
           // No ETH, src or dst is user's address and Transfer Event
           value = value.add(toBigNumber(log.data));
-        } else if (SystemStore.trade[operation === "buy" ? "to" : "from"] === "eth") {
+        } else if (this.rootStore.system.trade[operation === "buy" ? "to" : "from"] === "eth") {
           if (log.topics[0] === "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c") {
             // Deposit (only can come when selling ETH)
             value = value.add(toBigNumber(log.data));
@@ -193,7 +192,7 @@ class TransactionsStore {
   }
 
   logPendingTransaction = async (tx, type, callbacks = []) => {
-    const nonce = await Blockchain.getTransactionCount(NetworkStore.defaultAccount);
+    const nonce = await Blockchain.getTransactionCount(this.rootStore.network.defaultAccount);
     const checkFromBlock = (await Blockchain.getBlock("latest")).number;
     console.log("nonce", nonce);
     console.log("checkFromBlock", checkFromBlock);
@@ -325,10 +324,10 @@ class TransactionsStore {
         let object = null;
         switch(method[0]){
           case "system":
-            object = SystemStore;
+            object = this.rootStore.system;
             break;
           case "profile":
-            object = ProfileStore;
+            object = this.rootStore.profile;
             break;
           default:
             break;
@@ -353,6 +352,3 @@ decorate(TransactionsStore, {
   hasTradeTx: computed,
   hasProxyTx: computed
 });
-
-const store = new TransactionsStore();
-export default store;

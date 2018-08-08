@@ -1,18 +1,13 @@
 // Libraries
 import {observable, decorate} from "mobx";
 
-// Stores
-import ProfileStore from "./Profile";
-import SystemStore from "./System";
-import TransactionsStore from "./Transactions";
-
 // Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
 // Settings
 import * as settings from "../settings";
 
-class NetworkStore {
+export default class NetworkStore {
   stopIntervals = false;
   loadingAddress = false;
   loadingFirstAddress = false;
@@ -25,6 +20,10 @@ class NetworkStore {
   isHw = false;
   hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
   downloadClient = false;
+
+  constructor(rootStore) {
+    this.rootStore = rootStore;
+  }
 
   checkNetwork = () => {
     let isConnected = null;
@@ -164,7 +163,7 @@ class NetworkStore {
 
   setPendingTxInterval = () => {
     this.pendingTxInterval = setInterval(() => {
-      TransactionsStore.checkPendingTransactions();
+      this.rootStore.transactions.checkPendingTransactions();
     }, 10000);
   }
 
@@ -179,9 +178,9 @@ class NetworkStore {
         this.loadingAddress = false;
         this.loadingFirstAddress = false;
         this.hw.showSelector = false;
-        ProfileStore.setProxy(r[0]);
+        this.rootStore.profile.setProxy(r[0]);
 
-        SystemStore.init();
+        this.rootStore.system.init();
         this.setPendingTxInterval();
       });
     }
@@ -236,6 +235,3 @@ decorate(NetworkStore, {
   isHw: observable,
   downloadClient: observable
 });
-
-const store = new NetworkStore();
-export default store;

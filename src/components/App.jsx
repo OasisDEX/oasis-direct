@@ -7,25 +7,22 @@ import {BrowserRouter} from "react-router-dom";
 import Routes from "./Routes";
 
 // Stores
-import NetworkStore from "../stores/Network";
-import ProfileStore from "../stores/Profile";
-import TransactionsStore from "../stores/Transactions";
-import SystemStore from "../stores/System";
+import rootStore from "../stores/Root";
 
 // Utils
 import * as Blockchain from "../utils/blockchain-handler";
 
 // Convenient console access
 window.blockchain = Blockchain;
-window.network = NetworkStore;
-window.profile = ProfileStore;
-window.transactions = TransactionsStore;
-window.system = SystemStore;
+window.network = rootStore.network;
+window.profile = rootStore.profile;
+window.transactions = rootStore.transactions;
+window.system = rootStore.system;
 
 class App extends React.Component {
   render() {
     return (
-      <Provider network={NetworkStore} profile={ProfileStore} transactions={TransactionsStore} system={SystemStore}>
+      <Provider network={rootStore.network} profile={rootStore.profile} transactions={rootStore.transactions} system={rootStore.system}>
         <BrowserRouter>
           <Routes />
         </BrowserRouter>
