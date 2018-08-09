@@ -1,6 +1,5 @@
 // Libraries
 import React from "react";
-import {observer} from "mobx-react";
 import {withRouter, Route, Switch} from "react-router-dom";
 
 // Components
@@ -8,6 +7,7 @@ import FAQ from "./FAQ";
 import Main from "./Main";
 import Widget from "./Widget";
 
+@withRouter
 class Routes extends React.Component {
   componentDidUpdate = prevProps => {
     if (this.props.location.pathname !== prevProps.location.pathname) {
@@ -27,4 +27,4 @@ class Routes extends React.Component {
   }
 }
 
-export default withRouter(observer(Routes));
+export default Routes;

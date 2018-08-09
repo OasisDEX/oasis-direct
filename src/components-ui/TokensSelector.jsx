@@ -1,6 +1,5 @@
 // Libraries
 import React from "react";
-import {observer} from "mobx-react";
 
 // UI Components
 import Spinner from "../components-ui/Spinner";
@@ -50,4 +49,4 @@ class TokensSelector extends React.Component {
   }
 }
 
-export default observer(TokensSelector);
+export default TokensSelector;

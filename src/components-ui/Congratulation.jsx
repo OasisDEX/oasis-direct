@@ -1,6 +1,5 @@
 // Libraries
 import React from "react"
-import {observer} from "mobx-react";
 
 // UI Components
 import Spinner from "../components-ui/Spinner";
@@ -50,39 +49,39 @@ class Congratulation extends React.Component {
               <br/>
             </span>
           }
-        <span className="label">
-          {
-            this.props.hasCreatedProxy
-            ?
-              <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
-            :
-              <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
-          }
-          <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
-                       token={this.props.quotation.base.toUpperCase()} />&nbsp;
-          {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
-          <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
-                       token={this.props.quotation.quote.toUpperCase()} />
-          <br/>
-          at&nbsp;
-          <TokenAmount number={toWei(finalizedPrice.price)}
-                       token={`${finalizedPrice.priceUnit.toUpperCase()}`} />
-          &nbsp;by paying&nbsp;
-          <span className="value">
+          <span className="label">
             {
-              this.props.isCalculatingGas
+              this.props.hasCreatedProxy
               ?
-                <span><Spinner /></span>
+                <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
               :
-                <TokenAmount number={this.props.gas * this.state.priceInUSD} token={"USD"} />
-            }&nbsp;
+                <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+            }
+            <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
+                        token={this.props.quotation.base.toUpperCase()} />&nbsp;
+            {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
+            <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
+                        token={this.props.quotation.quote.toUpperCase()} />
+            <br/>
+            at&nbsp;
+            <TokenAmount number={toWei(finalizedPrice.price)}
+                        token={`${finalizedPrice.priceUnit.toUpperCase()}`} />
+            &nbsp;by paying&nbsp;
+            <span className="value">
+              {
+                this.props.isCalculatingGas
+                ?
+                  <span><Spinner /></span>
+                :
+                  <TokenAmount number={this.props.gas * this.state.priceInUSD} token={"USD"} />
+              }&nbsp;
+            </span>
+            gas cost
           </span>
-          gas cost
-        </span>
         </div>
       </div>
     )
   }
 }
 
-export default observer(Congratulation);
+export default Congratulation;

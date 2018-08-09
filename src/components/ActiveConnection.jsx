@@ -10,6 +10,8 @@ import TokenAmount from "../components-ui/TokenAmount";
 import * as blockchain from "../utils/blockchain";
 import {etherscanAddress} from "../utils/helpers";
 
+@inject("network")
+@observer
 class ActiveConnection extends React.Component {
   render() {
     return (
@@ -40,4 +42,4 @@ class ActiveConnection extends React.Component {
   }
 }
 
-export default inject("network")(observer(ActiveConnection));
+export default ActiveConnection;

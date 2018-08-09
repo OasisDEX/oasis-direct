@@ -1,6 +1,6 @@
 // Libraries
 import React from "react";
-import {observer, Provider} from "mobx-react";
+import {Provider} from "mobx-react";
 import {BrowserRouter} from "react-router-dom";
 
 // Components
@@ -31,4 +31,4 @@ class App extends React.Component {
   }
 }
 
-export default observer(App);
+export default App;

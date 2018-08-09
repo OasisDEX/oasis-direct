@@ -2,13 +2,13 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 
-// Components
-import Address from "./Address";
-
 // UI Components
+import Address from "../components-ui/Address";
 import Pagination from "../components-ui/Pagination";
 import Spinner from "../components-ui/Spinner";
 
+@inject("network")
+@observer
 class AddressList extends React.Component {
   constructor(props) {
     super(props);
@@ -70,4 +70,4 @@ class AddressList extends React.Component {
   }
 }
 
-export default inject("network")(observer(AddressList));
+export default AddressList;

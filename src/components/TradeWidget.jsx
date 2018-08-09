@@ -14,6 +14,9 @@ import {Ether, MKR, DAI} from "../components-ui/Icons";
 import * as blockchain from "../utils/blockchain";
 import {fetchETHPriceInUSD} from "../utils/helpers";
 
+@inject("network")
+@inject("system")
+@observer
 class TradeWidget extends React.Component {
   constructor(props) {
     super(props);
@@ -81,4 +84,4 @@ class TradeWidget extends React.Component {
   }
 }
 
-export default inject("network")(inject("system")(observer(TradeWidget)));
+export default TradeWidget;

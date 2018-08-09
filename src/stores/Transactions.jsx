@@ -1,5 +1,5 @@
 // Libraries
-import {observable, decorate, computed} from "mobx";
+import {observable, computed} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -7,13 +7,17 @@ import {toWei, toBigNumber, addressToBytes32} from "../utils/helpers";
 import * as settings from "../settings";
 
 export default class TransactionsStore {
-  approval = {};
-  trade = {};
-  proxy = {};
+  @observable approval = {};
+  @observable trade = {};
+  @observable proxy = {};
 
   constructor(rootStore) {
     this.rootStore = rootStore;
   }
+
+  @computed get hasApprovalTx() { return this.approval.requested || this.approval.tx || this.approval.rejected };
+  @computed get hasTradeTx() { return this.trade.requested || this.trade.tx || this.trade.rejected };
+  @computed get hasProxyTx() { return this.proxy.requested || this.proxy.tx || this.proxy.rejected };
 
   reset = () => {
     this.approval = {};
@@ -336,19 +340,4 @@ export default class TransactionsStore {
       }
     }, timeout);
   }
-
-  get hasApprovalTx() { return this.approval.requested || this.approval.tx || this.approval.rejected };
-
-  get hasTradeTx() { return this.trade.requested || this.trade.tx || this.trade.rejected };
-
-  get hasProxyTx() { return this.proxy.requested || this.proxy.tx || this.proxy.rejected };
 }
-
-decorate(TransactionsStore, {
-  approval: observable,
-  trade: observable,
-  proxy: observable,
-  hasApprovalTx: computed,
-  hasTradeTx: computed,
-  hasProxyTx: computed
-});

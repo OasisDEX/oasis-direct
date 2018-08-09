@@ -1,5 +1,5 @@
 // Libraries
-import {observable, decorate} from "mobx";
+import {observable} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -7,13 +7,13 @@ import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../ut
 import * as settings from "../settings";
 
 export default class SystemStore {
-  balances = {
+  @observable balances = {
     dai: null,
     eth: null,
     mkr: null
   };
 
-  trade = {
+  @observable trade = {
     step: 1,
     operation: "",
     from: "eth",
@@ -557,8 +557,3 @@ export default class SystemStore {
     });
   }
 }
-
-decorate(SystemStore, {
-  balances: observable,
-  trade: observable
-});

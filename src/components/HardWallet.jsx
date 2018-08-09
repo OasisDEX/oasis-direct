@@ -50,6 +50,8 @@ const steps = {
   ],
 }
 
+@inject("network")
+@observer
 class HardWallet extends React.Component {
   constructor(props) {
     super(props);
@@ -139,4 +141,4 @@ class HardWallet extends React.Component {
   }
 }
 
-export default inject("network")(observer(HardWallet));
+export default HardWallet;

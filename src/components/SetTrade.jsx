@@ -3,13 +3,11 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
-// Components
-import TokensSelector from "./TokensSelector";
-
 // UI Components
 import {SwapArrows, IdentityIcon, Circle, Attention} from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
+import TokensSelector from "../components-ui/TokensSelector";
 
 // Utils
 import {toWei} from "../utils/helpers";
@@ -17,6 +15,9 @@ import {toWei} from "../utils/helpers";
 // Settings
 import * as settings from "../settings";
 
+@inject("network")
+@inject("system")
+@observer
 class SetTrade extends React.Component {
   constructor(props) {
     super(props);
@@ -299,4 +300,4 @@ class SetTrade extends React.Component {
   }
 }
 
-export default inject("network")(inject("system")(observer(SetTrade)));
+export default SetTrade;

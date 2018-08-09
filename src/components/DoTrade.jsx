@@ -3,10 +3,8 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
-// Components
-import Congratulation from "./Congratulation";
-
 // UI Components
+import Congratulation from "../components-ui/Congratulation";
 import {Done, AccountIcon, Attention} from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
@@ -17,6 +15,10 @@ import {etherscanUrl, quotation, toBigNumber, toWei} from "../utils/helpers";
 // Settings
 import * as settings from "../settings";
 
+@inject("network")
+@inject("transactions")
+@inject("system")
+@observer
 class DoTrade extends React.Component {
   hasTxCompleted = type => {
     return this.props.transactions[type].tx
@@ -265,4 +267,4 @@ class DoTrade extends React.Component {
   }
 }
 
-export default inject("network")(inject("transactions")(inject("system")(observer(DoTrade))));
+export default DoTrade;

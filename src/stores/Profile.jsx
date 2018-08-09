@@ -1,11 +1,11 @@
 // Libraries
-import {observable, decorate} from "mobx";
+import {observable} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
 
 export default class ProfileStore {
-  proxy = -1;
+  @observable proxy = -1;
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -29,7 +29,3 @@ export default class ProfileStore {
     console.log("proxy", this.proxy);
   }
 }
-
-decorate(ProfileStore, {
-  proxy: observable
-});

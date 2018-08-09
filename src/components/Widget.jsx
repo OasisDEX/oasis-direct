@@ -11,6 +11,8 @@ import Wallets from "./Wallets";
 // Utils
 import {isAddress} from "../utils/helpers";
 
+@inject("network")
+@observer
 class Widget extends React.Component {
   render() {
     return (
@@ -35,4 +37,4 @@ class Widget extends React.Component {
   }
 }
 
-export default inject("network")(observer(Widget));
+export default Widget;
