@@ -2,11 +2,7 @@
 import Promise from "bluebird";
 
 // Utils
-import {toBytes32, addressToBytes32, toWei, methodSig} from "./helpers";
 import web3 from "./web3";
-
-// Settings
-import * as settings from "../settings";
 
 const promisify = Promise.promisify;
 const schema = {};
@@ -218,54 +214,4 @@ export const checkNetwork = (actualIsConnected, actualNetwork) => {
       }
     }, e => reject(e));
   });
-}
-
-export const getCallDataAndValue = (network, operation, from, to, amount, limit) => {
-  const result = {};
-  const otcBytes32 = addressToBytes32(settings.chain[network].otc, false);
-  const fromAddrBytes32 = addressToBytes32(settings.chain[network].tokens[from.replace("eth", "weth")].address, false);
-  const toAddrBytes32 = addressToBytes32(settings.chain[network].tokens[to.replace("eth", "weth")].address, false);
-  if (operation === "sellAll") {
-    if (from === "eth") {
-      result.calldata = `${methodSig("sellAllAmountPayEth(address,address,address,uint256)")}` +
-        `${otcBytes32}${fromAddrBytes32}${toAddrBytes32}${toBytes32(limit, false)}`;
-      result.value = toWei(amount);
-    } else if (to === "eth") {
-      result.calldata = `${methodSig("sellAllAmountBuyEth(address,address,uint256,address,uint256)")}` +
-        `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-    } else {
-      result.calldata = `${methodSig("sellAllAmount(address,address,uint256,address,uint256)")}` +
-        `${otcBytes32}${fromAddrBytes32}${toBytes32(toWei(amount), false)}${toAddrBytes32}${toBytes32(limit, false)}`;
-    }
-  } else {
-    if (from === "eth") {
-      result.calldata = `${methodSig("buyAllAmountPayEth(address,address,uint256,address)")}` +
-        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}`;
-      result.value = limit;
-    } else if (to === "eth") {
-      result.calldata = `${methodSig("buyAllAmountBuyEth(address,address,uint256,address,uint256)")}` +
-        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-    } else {
-      result.calldata = `${methodSig("buyAllAmount(address,address,uint256,address,uint256)")}` +
-        `${otcBytes32}${toAddrBytes32}${toBytes32(toWei(amount), false)}${fromAddrBytes32}${toBytes32(limit, false)}`;
-    }
-  }
-  return result;
-}
-
-export const getActionCreateProxyAndSellETH = (network, operation, to, amount, limit) => {
-  const addrTo = settings.chain[network].tokens[to.replace("eth", "weth")].address;
-  const result = {};
-
-  if (operation === "sellAll") {
-    result.method = "createAndSellAllAmountPayEth";
-    result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, limit];
-    result.value = toWei(amount);
-  }
-  else {
-    result.method = "createAndBuyAllAmountPayEth";
-    result.params = [settings.chain[network].proxyRegistry, settings.chain[network].otc, addrTo, toWei(amount)];
-    result.value = limit;
-  }
-  return result;
 }

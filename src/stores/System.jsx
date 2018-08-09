@@ -4,6 +4,7 @@ import {observable} from "mobx";
 // Utils
 import * as blockchain from "../utils/blockchain";
 import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../utils/helpers";
+import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 
 export default class SystemStore {
@@ -131,7 +132,7 @@ export default class SystemStore {
   }
 
   executeProxyTx = (amount, limit) => {
-    const data = blockchain.getCallDataAndValue(this.rootStore.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
+    const data = oasis.getCallDataAndValue(this.rootStore.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
     this.rootStore.transactions.logRequestTransaction("trade").then(() => {
       this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
         const proxy = blockchain.objects.proxy;
@@ -155,7 +156,7 @@ export default class SystemStore {
   }
 
   executeProxyCreateAndSellETH = (amount, limit) => {
-    const data = blockchain.getActionCreateProxyAndSellETH(this.rootStore.network.network, this.trade.operation, this.trade.to, amount, limit);
+    const data = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, this.trade.operation, this.trade.to, amount, limit);
     this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
       this.rootStore.transactions.logRequestTransaction("trade").then(() => {
         const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
@@ -224,33 +225,6 @@ export default class SystemStore {
     }
   }
 
-  getBestPriceOffer = (tokenSell, tokenBuy) => {
-    const offerTokenSell = settings.chain[this.rootStore.network.network].tokens[tokenBuy.replace("eth", "weth")].address;
-    const offerTokenBuy = settings.chain[this.rootStore.network.network].tokens[tokenSell.replace("eth", "weth")].address;
-    const otc = blockchain.loadObject("matchingmarket", settings.chain[this.rootStore.network.network].otc);
-    return new Promise((resolve, reject) => {
-      otc.getBestOffer(offerTokenSell, offerTokenBuy, (e, r) => {
-        if (!e) {
-          otc.offers(r, (e2, r2) => {
-            if (!e2) {
-              resolve(
-                (tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
-                ?
-                  r2[2].div(r2[0])
-                :
-                  r2[0].div(r2[2])
-              );
-            } else {
-              reject(e2);
-            }
-          });
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
   calculateBuyAmount = (from, to, amount) => {
     const rand = Math.random();
     this.trade.rand = rand;
@@ -290,8 +264,7 @@ export default class SystemStore {
       async (e, r) => {
         if (!e) {
           const calculatedReceiveValue = fromWei(toBigNumber(r));
-          const bestPriceOffer = await this.getBestPriceOffer(this.trade.from, this.trade.to);
-
+          const bestPriceOffer = await oasis.getBestPriceOffer(this.rootStore.network.network, this.trade.from, this.trade.to);
           if (this.trade.rand === rand) {
             this.trade.amountBuy = calculatedReceiveValue;
             this.trade.amountBuyInput = this.trade.amountBuy.valueOf();
@@ -396,7 +369,7 @@ export default class SystemStore {
       async (e, r) => {
         if (!e) {
           const calculatedPayValue = fromWei(toBigNumber(r));
-          const bestPriceOffer = await this.getBestPriceOffer(this.trade.from, this.trade.to);
+          const bestPriceOffer = await oasis.getBestPriceOffer(this.rootStore.network.network, this.trade.from, this.trade.to);
           if (this.trade.rand === rand) {
             this.trade.amountPay = calculatedPayValue;
             this.trade.amountPayInput = this.trade.amountPay.valueOf();
@@ -505,7 +478,7 @@ export default class SystemStore {
     if (this.rootStore.profile.proxy || from !== "eth") {
       target = this.rootStore.profile.proxy && hasAllowance ? this.rootStore.profile.proxy : settings.chain[this.rootStore.network.network].proxyEstimation;
       addrFrom = this.rootStore.profile.proxy && hasAllowance ? this.rootStore.network.defaultAccount : settings.chain[this.rootStore.network.network].addrEstimation;
-      action = blockchain.getCallDataAndValue(this.rootStore.network.network, operation, from, to, amount, limit);
+      action = oasis.getCallDataAndValue(this.rootStore.network.network, operation, from, to, amount, limit);
       data = blockchain.loadObject("dsproxy", target).execute["address,bytes"].getData(
         settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect,
         action.calldata
@@ -513,7 +486,7 @@ export default class SystemStore {
     } else {
       target = settings.chain[this.rootStore.network.network].proxyCreationAndExecute;
       addrFrom = this.rootStore.network.defaultAccount;
-      action = blockchain.getActionCreateProxyAndSellETH(this.rootStore.network.network, operation, to, amount, limit);
+      action = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, operation, to, amount, limit);
       data = blockchain.loadObject("proxycreateandexecute", target)[action.method].getData(...action.params);
     }
 
