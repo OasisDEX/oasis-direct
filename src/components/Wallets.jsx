@@ -1,7 +1,7 @@
 import React from 'react';
 import Product from '../ui-components/Product';
 import {
-  LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, ToshiIcon,
+  LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
   StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
 } from "./Icons";
 import Spinner from "./Spinner";
@@ -9,10 +9,10 @@ import { getCurrentProviderName } from '../web3';
 
 
 const logos = {
-  metamask: <MetamaskIcon/>,
-  parity: <ParityIcon/>,
-  toshi: <ToshiIcon/>,
-  status: <StatusIcon/>
+  metamask: {icon: <MetamaskIcon/>, name: "Metamask"},
+  parity: {icon: <ParityIcon/>, name: "Parity"},
+  coinbase: {icon: <CoinbaseIcon/>, name: "Coinbase Wallet"},
+  status: {icon: <StatusIcon/>, name: "Status"}
 }
 
 class Wallets extends React.Component {
@@ -50,7 +50,7 @@ class Wallets extends React.Component {
   }
 
   logoFor = (provider) => {
-    const logo = logos[provider];
+    const logo = logos[provider].icon;
     if (logo) return logo;
     return <EthereumIcon/>;
   };
@@ -102,8 +102,8 @@ class Wallets extends React.Component {
                     <a href="https://status.im/" target="_blank" rel="noopener noreferrer">
                       <Product label="Status" logo={this.grayScale(StatusIcon)}/>
                     </a>
-                    <a href="https://toshi.org/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Toshi" logo={this.grayScale(ToshiIcon)}/>
+                    <a href="https://wallet.coinbase.com" target="_blank" rel="noopener noreferrer">
+                      <Product label="Coinbase Wallet" logo={this.grayScale(CoinbaseIcon)}/>
                     </a>
                   </div>
                 </li>
@@ -126,7 +126,7 @@ class Wallets extends React.Component {
                               {this.logoFor(getCurrentProviderName())}
                               <div>
                                 <span className="label status">Connected</span>
-                                <span className="label">{this.state.provider}</span>
+                                <span className="label">{logos[this.state.provider].name}</span>
                               </div>
                             </div>
                             <button type="button" onClick={this.selectWallet}>{this.props.loadingAddress ?
