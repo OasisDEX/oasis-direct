@@ -21,6 +21,8 @@
 
   margin-left: 12px;
 
+  width: min-content;
+
   color: #969697;
   letter-spacing: 0.94px;
   text-transform: uppercase;
