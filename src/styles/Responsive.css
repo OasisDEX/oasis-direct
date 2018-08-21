@@ -367,6 +367,26 @@
   }
 }
 
+@media all and (max-width: 424px) {
+  .wallets .clients .row-flex {
+    flex-direction: column;
+  }
+
+  .wallets .clients .heading {
+    margin-bottom: 8px;
+  }
+
+
+  .wallets .list .list-item.clients .row-flex > * {
+    margin-left:0;
+    margin-top: 12px;
+  }
+
+  .wallets .list .list-item.clients .row-flex > * .product-cover {
+    height: 46px;
+  }
+}
+
 @media all and (min-width: 375px) and (max-width: 424px) {
   .selected-token {
     width: 150px;
