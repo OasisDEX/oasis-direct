@@ -16,7 +16,6 @@ export default class NetworkStore {
   @observable outOfSync = true;
   @observable isHw = false;
   @observable hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
-  @observable downloadClient = false;
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -83,7 +82,6 @@ export default class NetworkStore {
       this.setNetworkInterval = setInterval(this.setNetwork, 3000);
     } catch (e) {
       this.loadingAddress = false;
-      this.downloadClient = true;
       console.log(e);
     }
   }
