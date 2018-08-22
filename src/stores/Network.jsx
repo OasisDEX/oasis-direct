@@ -7,7 +7,6 @@ import * as blockchain from "../utils/blockchain";
 export default class NetworkStore {
   @observable stopIntervals = false;
   @observable loadingAddress = false;
-  @observable loadingFirstAddress = false;
   @observable accounts = [];
   @observable defaultAccount = null;
   @observable isConnected = false;
@@ -132,7 +131,6 @@ export default class NetworkStore {
 
   stopLoadingAddress = () => {
     this.loadingAddress = false;
-    this.loadingFirstAddress = false;
     this.hw.showSelector = false;
   }
 }

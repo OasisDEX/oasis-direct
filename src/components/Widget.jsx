@@ -22,7 +22,7 @@ class Widget extends React.Component {
           ?
             <HardWallet />
           :
-            !this.props.network.isConnected || this.props.network.loadingFirstAddress
+            !this.props.network.isConnected
             ?
               <Wallets />
             :
