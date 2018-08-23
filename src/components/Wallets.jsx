@@ -50,8 +50,12 @@ class Wallets extends React.Component {
   }
 
   logoFor = (provider) => {
-    const logo = logos[provider].icon;
-    if (logo) return logo;
+    const logo = logos[provider];
+
+    if (logo) {
+      return logos[provider].icon
+    }
+
     return <EthereumIcon/>;
   };
 
@@ -126,7 +130,7 @@ class Wallets extends React.Component {
                               {this.logoFor(getCurrentProviderName())}
                               <div>
                                 <span className="label status">Connected</span>
-                                <span className="label">{logos[this.state.provider].name}</span>
+                                <span className="label">{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
                               </div>
                             </div>
                             <button type="button" onClick={this.selectWallet}>{this.props.loadingAddress ?
