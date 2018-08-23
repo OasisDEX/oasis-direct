@@ -1,6 +1,6 @@
 // Libraries
 import React from "react";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 
 // Components
 import AddressList from "./AddressList";
@@ -14,43 +14,45 @@ import Spinner from "../components-ui/Spinner";
 
 // Settings
 import * as settings from "../settings";
+import { SWITCH } from "../stores/UIStore";
 
 const steps = {
   "ledger": [
     {
-      "icon": <USBIcon />,
+      "icon": <USBIcon/>,
       "text": "Connect your Ledger to begin"
     },
     {
-      "icon": <SmartphoneIcon />,
+      "icon": <SmartphoneIcon/>,
       "text": "Open the Ethereum app on the Ledger"
     },
     {
-      "icon": <ApplicationSettingsIcon />,
+      "icon": <ApplicationSettingsIcon/>,
       "text": "Ensure the Browser Support is enabled in Settings"
     },
     {
-      "icon": <SmartphoneUpdateIcon />,
+      "icon": <SmartphoneUpdateIcon/>,
       "text": "You may need to update the firmware if Browser Support is not available"
     },
   ],
   "trezor": [
     {
-      "icon": <USBIcon />,
+      "icon": <USBIcon/>,
       "text": "Connect your TREZOR Wallet to begin"
     },
     {
-      "icon": <PicInPicIcon />,
+      "icon": <PicInPicIcon/>,
       "text": "When to popop asks if you want to export the public key, select export"
     },
     {
-      "icon": <LockOpenIcon />,
+      "icon": <LockOpenIcon/>,
       "text": "If required, enter your pin or password to unlock the TREZOR"
     },
   ],
 }
 
 @inject("network")
+@inject("ui")
 @observer
 class HardWallet extends React.Component {
   constructor(props) {
@@ -63,7 +65,7 @@ class HardWallet extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.derivationPath = this.props.network.hw.option === "ledger" ? "m/44'/60'/0'" : "m/44'/60'/0'/0";
     this.waitForDeviceToConnect(this.derivationPath);
   }
@@ -75,7 +77,7 @@ class HardWallet extends React.Component {
       start: 0,
       end: 5
     };
-    this.setState({addresses: addresses.slice(0,5)});
+    this.setState({addresses: addresses.slice(0, 5)});
   }
 
   retry = () => {
@@ -84,24 +86,31 @@ class HardWallet extends React.Component {
     });
   }
 
+  dismiss = () => {
+    this.props.ui.toggleHWView(SWITCH.OFF);
+    this.props.network.resetSelection();
+  }
+
   render() {
     return (
       this.props.network.hw.addresses.length > 0
-      ?
+        ?
         <section className="frame hard-wallet-addresses">
           <div className="heading">
-            <h2>Select Address on your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span></h2>
+            <h2>Select Address on your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span>
+            </h2>
           </div>
-          <button className="close" onClick={this.props.network.stopNetwork} />
-          <AddressList addresses={this.props.network.hw.addresses} />
+          <button className="close" onClick={this.dismiss}/>
+          <AddressList addresses={this.props.network.hw.addresses}/>
         </section>
-      :
+        :
         <section className="frame hard-wallet">
-          <button className="back" onClick={this.props.network.stopNetwork}>
+          <button className="back" onClick={this.dismiss}>
             <Circle><BackIcon/></Circle>
           </button>
           <div className="heading">
-            <h2>Connect your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span> Wallet</h2>
+            <h2>Connect your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span> Wallet
+            </h2>
           </div>
           <div className="content">
             <div className="progress">
@@ -109,17 +118,17 @@ class HardWallet extends React.Component {
                 {
                   this.state.connectivityError
                     ?
-                      <span className="label"> Couldn't connect</span>
+                    <span className="label"> Couldn't connect</span>
                     :
-                      <React.Fragment>
-                        <Spinner styles={{width: "18px", height: "18px"}} />
-                        <span className="label"> Connecting </span>
-                      </React.Fragment>
+                    <React.Fragment>
+                      <Spinner styles={{width: "18px", height: "18px"}}/>
+                      <span className="label"> Connecting </span>
+                    </React.Fragment>
                 }
               </div>
-              <div></div>
               <div onClick={this.retry}>
-                <Circle styles={{width: "32px", height: "32px", padding: "5px", marginLeft: "16px"}}><RetryIcon /></Circle>
+                <Circle
+                  styles={{width: "32px", height: "32px", padding: "5px", marginLeft: "16px"}}><RetryIcon/></Circle>
               </div>
             </div>
             <div className="guidelines">

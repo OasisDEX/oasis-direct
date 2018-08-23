@@ -12,6 +12,7 @@ import Spinner from "../components-ui/Spinner";
 
 // Utils
 import {getCurrentProviderName} from "../utils/web3";
+import {SWITCH} from "../stores/UIStore";
 
 const logos = {
   metamask: {icon: <MetamaskIcon/>, name: "Metamask"},
@@ -21,6 +22,7 @@ const logos = {
 }
 
 @inject("network")
+@inject("ui")
 @observer
 class Wallets extends React.Component {
 
@@ -45,11 +47,13 @@ class Wallets extends React.Component {
   }
 
   connectLedger = () => {
-    this.props.network.showHW("ledger");
+    this.props.ui.toggleHWView(SWITCH.ON);
+    this.props.network.selectHW("ledger");
   }
 
   connectTrezor = () => {
-    this.props.network.showHW("trezor");
+    this.props.ui.toggleHWView(SWITCH.ON);
+    this.props.network.selectHW("trezor");
   }
 
   getToClientSelection = () => {
