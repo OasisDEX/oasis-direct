@@ -14,6 +14,7 @@ import * as blockchain from "../utils/blockchain";
 
 // Convenient console access
 window.blockchain = blockchain;
+window.ui = rootStore.ui;
 window.network = rootStore.network;
 window.profile = rootStore.profile;
 window.transactions = rootStore.transactions;
@@ -22,7 +23,7 @@ window.system = rootStore.system;
 class App extends React.Component {
   render() {
     return (
-      <Provider network={rootStore.network} profile={rootStore.profile} transactions={rootStore.transactions} system={rootStore.system}>
+      <Provider ui={rootStore.ui} network={rootStore.network} profile={rootStore.profile} transactions={rootStore.transactions} system={rootStore.system}>
         <BrowserRouter>
           <Routes />
         </BrowserRouter>

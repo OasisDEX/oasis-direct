@@ -12,17 +12,19 @@ import Wallets from "./Wallets";
 import {isAddress} from "../utils/helpers";
 
 @inject("network")
+@inject("ui")
 @observer
 class Widget extends React.Component {
   render() {
     return (
       <div className={`Widget ${this.props.section}`}>
+        {console.log(this.props.ui.hw)}
         {
-          this.props.network.hw.showSelector
+          this.props.ui.hw
           ?
             <HardWallet />
           :
-            !this.props.network.isConnected || this.props.network.loadingFirstAddress
+            !this.props.network.isConnected
             ?
               <Wallets />
             :

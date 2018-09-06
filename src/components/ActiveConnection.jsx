@@ -1,19 +1,22 @@
 // Libraries
 import React from "react";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 
 // UI Components
-import {IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
+import { IdentityIcon, BackIcon, Circle } from "../components-ui/Icons";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import {etherscanAddress} from "../utils/helpers";
+import { etherscanAddress } from "../utils/helpers";
 
 @inject("network")
 @observer
 class ActiveConnection extends React.Component {
   render() {
+    const {defaultAccount, network, stopNetwork} = this.props.network;
+    const ethBalance = this.props.ethBalance;
+
     return (
       <div className="frame">
         <div className="wallet-settings">
@@ -26,15 +29,15 @@ class ActiveConnection extends React.Component {
           <div className="content">
             <div className="wallet-details">
               <div>
-                <IdentityIcon address={this.props.network.defaultAccount}/>
-                <span className="label">{blockchain.getCurrentProviderName()} on {this.props.network.network}</span>
-                <TokenAmount number={this.props.ethBalance} decimal={5} token={"ETH"}/>
+                <IdentityIcon address={defaultAccount}/>
+                <span className="label">{blockchain.getCurrentProviderName()} on {network}</span>
+                <TokenAmount number={ethBalance} decimal={5} token={"ETH"}/>
               </div>
-              {etherscanAddress(this.props.network.network, this.props.network.defaultAccount, this.props.network.defaultAccount)}
+              {etherscanAddress(network, defaultAccount, defaultAccount)}
             </div>
           </div>
         </div>
-        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.stopNetwork}>
+        <button type="button" value="Disconnect" className="disconnect" onClick={stopNetwork}>
           DISCONNECT
         </button>
       </div>

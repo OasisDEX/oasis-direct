@@ -1,5 +1,5 @@
 // Libraries
-import {observable} from "mobx";
+import {observable, action} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -7,7 +7,6 @@ import * as blockchain from "../utils/blockchain";
 export default class NetworkStore {
   @observable stopIntervals = false;
   @observable loadingAddress = false;
-  @observable loadingFirstAddress = false;
   @observable accounts = [];
   @observable defaultAccount = null;
   @observable isConnected = false;
@@ -15,8 +14,7 @@ export default class NetworkStore {
   @observable network = "";
   @observable outOfSync = true;
   @observable isHw = false;
-  @observable hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
-  @observable downloadClient = false;
+  @observable hw = {active: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -37,13 +35,13 @@ export default class NetworkStore {
     }
   }
 
-  stopNetwork = () => {
+  @action stopNetwork = () => {
     this.stopIntervals = true;
     blockchain.stopProvider();
     clearInterval(this.setAccountInterval);
     clearInterval(this.setNetworkInterval);
     this.network = "";
-    this.hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
+    this.hw = {active: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
     this.accounts = [];
     this.defaultAccount = null;
     this.isConnected = false;
@@ -52,7 +50,7 @@ export default class NetworkStore {
     this.isHw = false;
   }
 
-  setAccount = () => {
+  @action setAccount = () => {
     blockchain.getAccounts().then(async accounts => {
       if (this.network && !this.hw.active && accounts && accounts[0] !== blockchain.getDefaultAccount()) {
         const account = await blockchain.getDefaultAccountByIndex(0);
@@ -83,23 +81,17 @@ export default class NetworkStore {
       this.setNetworkInterval = setInterval(this.setNetwork, 3000);
     } catch (e) {
       this.loadingAddress = false;
-      this.downloadClient = true;
       console.log(e);
     }
   }
 
   // Hardwallets
-  showHW = option => {
+  @action selectHW = option => {
     this.hw.option = option;
-    this.hw.showSelector = true;
   }
 
-  hideHw = () => {
-    this.hw.active = false;
-    this.hw.loading = false;
-    this.hw.showSelector = false;
+  @action resetSelection = () => {
     this.hw.option = "";
-    this.hw.derivationPath = false;
   }
 
   loadHWAddresses = async (network, amount, derivationPath = this.hw.derivationPath) => {
@@ -134,7 +126,5 @@ export default class NetworkStore {
 
   stopLoadingAddress = () => {
     this.loadingAddress = false;
-    this.loadingFirstAddress = false;
-    this.hw.showSelector = false;
   }
 }

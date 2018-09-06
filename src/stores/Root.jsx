@@ -3,15 +3,22 @@ import NetworkStore from "./Network";
 import ProfileStore from "./Profile";
 import SystemStore from "./System";
 import TransactionsStore from "./Transactions";
+import UIStore from "./UIStore";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
 
 // Settings
 import * as settings from "../settings";
+import { configure } from "mobx";
+
+configure({
+  enforceActions: true
+});
 
 class RootStore {
   constructor() {
+    this.ui = new UIStore();
     this.network = new NetworkStore(this);
     this.profile = new ProfileStore(this);
     this.system = new SystemStore(this);
