@@ -18,21 +18,11 @@
 }
 
 .network-indicator.kovan {
-  color: #bc6cc9;
-  border: 1px solid #bc6cc9;
-}
-
-.network-indicator.kovan:hover {
   color: #AB47BC;
   border: 1px solid #AB47BC;
 }
 
-.network-indicator.main {
-  color: #85C988;
-  border: 1px solid #85C988;
-}
-
-.network-indicator.main:hover {
+.network-indicator.main{
   color: #66bb6a;
   border: 1px solid #66bb6a;
 }
