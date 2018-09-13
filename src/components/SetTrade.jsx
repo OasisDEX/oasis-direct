@@ -14,6 +14,7 @@ import {toWei} from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";
+import NetworkIndicator from "./NetworkIndicator";
 
 @inject("network")
 @inject("system")
@@ -135,6 +136,9 @@ class SetTrade extends React.Component {
               <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount} /></Circle>
             </span>
             <h2>Enter Order Details</h2>
+            <span className="network-indicator-placeholder">
+              <NetworkIndicator network={this.props.network.network}/>
+            </span>
           </div>
           <div className={`info-box ${this.hasDetails() ? "" : " info-box--hidden"} ${this.props.system.trade.errorOrders || this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy ? "has-errors" : ""}`}>
             <div className="info-box-row wrap">
