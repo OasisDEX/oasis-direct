@@ -547,6 +547,12 @@
   left: 22px;
 }
 
+.network-indicator-placeholder {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+}
+
 .identicon {
   height: 100%;
   width: 100%;

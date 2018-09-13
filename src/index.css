@@ -3,6 +3,7 @@
 @import 'styles/LandingPage.css';
 @import 'styles/NoAccount.css';
 @import 'styles/Responsive.css';
+@import 'styles/NetworkIndicator.css';
 
 body {
   margin: 0;

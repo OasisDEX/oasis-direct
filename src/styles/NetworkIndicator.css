@@ -1,0 +1,38 @@
+.network-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 68px;
+  height: 28px;
+
+  background: #FFFFFF;
+  border-radius: 4px;
+  opacity: 0.8;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+
+  text-transform: capitalize;
+}
+
+.network-indicator.kovan {
+  color: #bc6cc9;
+  border: 1px solid #bc6cc9;
+}
+
+.network-indicator.kovan:hover {
+  color: #AB47BC;
+  border: 1px solid #AB47BC;
+}
+
+.network-indicator.main {
+  color: #85C988;
+  border: 1px solid #85C988;
+}
+
+.network-indicator.main:hover {
+  color: #66bb6a;
+  border: 1px solid #66bb6a;
+}
