@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+// Libraries
+import React from "react";
 
-class NetworkIndicator extends Component {
+class NetworkIndicator extends React.Component {
 
   render = () => (
     <div className={`network-indicator ${this.props.network}`}>
@@ -8,6 +9,5 @@ class NetworkIndicator extends Component {
     </div>
   )
 }
-
 
 export default NetworkIndicator;
