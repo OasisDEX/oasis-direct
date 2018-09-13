@@ -14,6 +14,7 @@ import {etherscanUrl, quotation, toBigNumber, toWei} from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";
+import NetworkIndicator from "./NetworkIndicator";
 
 @inject("network")
 @inject("transactions")
@@ -89,6 +90,9 @@ class DoTrade extends React.Component {
       <section className="frame finalize">
         <div className="heading">
           <h2>Finalize Trade</h2>
+        </div>
+        <div className="network-indicator-placeholder">
+          <NetworkIndicator network={this.props.network.network}/>
         </div>
         <div className="info-box">
           <div className="info-box-row">

@@ -9,6 +9,7 @@ import TokenAmount from "../components-ui/TokenAmount";
 // Utils
 import * as blockchain from "../utils/blockchain";
 import {etherscanAddress} from "../utils/helpers";
+import NetworkIndicator from "./NetworkIndicator";
 
 @inject("network")
 @observer
@@ -22,6 +23,9 @@ class ActiveConnection extends React.Component {
           </button>
           <div className="heading">
             <h2>Active Wallet Connection</h2>
+          </div>
+          <div className="network-indicator-placeholder">
+            <NetworkIndicator network={this.props.network.network}/>
           </div>
           <div className="content">
             <div className="wallet-details">
