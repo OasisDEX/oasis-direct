@@ -7,15 +7,18 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 
 const settings = require('./settings');
 
-export const getCurrentProviderName = () => {
-  if (!window.web3 || typeof window.web3.currentProvider === 'undefined')
-    return '';
+export const getCurrentProviderName = ( provider = window.web3.currentProvider ) => {
+  if (!provider)
+    return "";
 
-  if (window.web3.currentProvider.isMetaMask)
-    return 'metamask';
+  if (provider.isMetaMask)
+    return "metamask";
 
-  if (window.web3.currentProvider.isTrust)
-    return 'trust';
+  if (provider.isTrust)
+    return "trust";
+
+  if (window.web3.currentProvider.isStatus)
+    return "status";
 
   if (typeof window.SOFA !== 'undefined')
     return 'coinbase';
@@ -23,16 +26,16 @@ export const getCurrentProviderName = () => {
   if (typeof window.__CIPHER__ !== 'undefined')
     return 'cipher';
 
-  if (window.web3.currentProvider.constructor.name === 'EthereumProvider')
+  if (provider.constructor.name === 'EthereumProvider')
     return 'mist';
 
-  if (window.web3.currentProvider.constructor.name === 'Web3FrameProvider')
+  if (provider.constructor.name === 'Web3FrameProvider')
     return 'parity';
 
-  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('infura') !== -1)
+  if (provider.host && provider.host.indexOf('infura') !== -1)
     return 'infura';
 
-  if (window.web3.currentProvider.host && window.web3.currentProvider.host.indexOf('localhost') !== -1)
+  if (provider.host && provider.host.indexOf('localhost') !== -1)
     return 'localhost';
 
   return 'other';
@@ -61,25 +64,44 @@ class Web3Extended extends Web3 {
         this.currentProvider.start();
         this.useLogs = false;
         resolve(true);
-      } catch(e) {
+      } catch (e) {
         reject(e);
       }
     });
-  }
+  };
+
+  bindProvider = provider => {
+    console.log(provider);
+    this.setProvider(provider);
+    this.currentProvider.name = getCurrentProviderName(provider);
+  };
 
   setWebClientProvider = () => {
     this.stop();
     return new Promise(async (resolve, reject) => {
       try {
-        if (window.web3) {
-          this.setProvider(window.web3.currentProvider);
+        if (window.web3) { // This is the case for Provider Injectors which don't follow EIP1102 ( parity-extension ? )
+          console.log("Are we here?");
+          this.bindProvider(window.web3.currentProvider);
+          resolve();
         } else {
-          alert('error');
+          if (window.ethereum) { //following the new EIP1102 standard
+            window.ethereum.enable().then(
+              () => {
+                this.bindProvider(window.ethereum);
+                resolve();
+              },
+              () => {
+                alert('No Authorization!');
+                reject();
+              })
+          } else {
+            alert('No Provider found!');
+            reject();
+          }
         }
-        this.useLogs = true;
-        this.currentProvider.name = getCurrentProviderName();
         resolve(true);
-      } catch(e) {
+      } catch (e) {
         reject(e);
       }
     });
@@ -87,7 +109,7 @@ class Web3Extended extends Web3 {
 }
 
 const web3 = new Web3Extended();
-web3.BigNumber.config({EXPONENTIAL_AT:[-18,21]});
+web3.BigNumber.config({EXPONENTIAL_AT: [-18, 21]});
 window.web3Provider = web3;
 
 export default web3;
