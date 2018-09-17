@@ -168,6 +168,11 @@
   margin-top: auto;
 }
 
+.frame.network-switch-notification {
+  position: absolute;
+  z-index: 2;
+}
+
 .frame > .info-box.more-info {
   justify-content: space-evenly;
   order: 4;
