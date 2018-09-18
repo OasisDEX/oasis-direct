@@ -21,7 +21,7 @@ class NetworkSwitchNotification extends Component {
           <strong><span style={{textTransform:'capitalize'}}>{this.props.network}</span> Ethereum Network</strong>
         </p>
       </div>
-      <button type="button"> Continue</button>
+      <button type="button" onClick={this.props.onAck}> Continue</button>
     </div>
   }
 }

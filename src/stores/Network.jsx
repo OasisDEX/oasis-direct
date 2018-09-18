@@ -1,5 +1,5 @@
 // Libraries
-import {observable} from "mobx";
+import {observable, action} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -13,6 +13,7 @@ export default class NetworkStore {
   @observable isConnected = false;
   @observable latestBlock = null;
   @observable network = "";
+  @observable hasSwitched = false;
   @observable outOfSync = true;
   @observable isHw = false;
   @observable hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
@@ -22,9 +23,15 @@ export default class NetworkStore {
     this.rootStore = rootStore;
   }
 
-  setNetwork = async () => {
+  @action setNetwork = async () => {
     try {
       const result = await blockchain.checkNetwork(this.isConnected, this.network);
+
+      //This is useful to catch when the user changed the network.
+      if(this.network && this.result.data.network !== this.network) {
+        this.hasSwitched = true;
+      }
+
       Object.keys(result.data).forEach(key => { this[key] = result.data[key]; });
       if (!this.stopIntervals && result.status) {
         this.setAccount();
@@ -36,6 +43,10 @@ export default class NetworkStore {
       console.log(e);
     }
   }
+
+  @action ackNetworkSwitch =() => {
+    this.hasSwitched = false;
+  };
 
   stopNetwork = () => {
     this.stopIntervals = true;
@@ -72,6 +83,7 @@ export default class NetworkStore {
       }
     }, () => {});
   }
+
 
   // Web3 web client
   setWeb3WebClient = async () => {
