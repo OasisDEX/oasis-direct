@@ -4,6 +4,7 @@
 @import 'styles/NoAccount.css';
 @import 'styles/Responsive.css';
 @import 'styles/NetworkIndicator.css';
+@import 'styles/NetworkSwitchNotification.css';
 
 body {
   margin: 0;

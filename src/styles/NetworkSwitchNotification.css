@@ -1,0 +1,36 @@
+/*
+  This is to make the button always at the bottom of the frame.
+  The logic for doing this is duplicated and implemented in various places.
+  Most likely should be extracted as common class i.e. `button.bottom`
+*/
+.network-switch-notification button {
+  margin-top: auto;
+}
+
+.network-switch-notification .content {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: column;
+
+  border: 1px solid #F7F7F8;
+  border-radius: 4px;
+
+  height: 284px;
+
+  margin-top: 24px;
+}
+
+.network-switch-notification p {
+  opacity: 0.9;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #5B5B5C;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.network-switch-notification strong {
+  font-weight: 600;
+}
