@@ -3,6 +3,8 @@
 @import 'styles/LandingPage.css';
 @import 'styles/NoAccount.css';
 @import 'styles/NetworkIndicator.css';
+@import 'styles/ProxyToggle.css';
+@import 'styles/Allowances.css';
 @import 'styles/Responsive.css';
 
 body {

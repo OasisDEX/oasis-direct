@@ -9,7 +9,7 @@ class TokensSelector extends React.Component {
   render() {
     return (
       <div className="frame">
-        <div className="token-selector">
+        <div className="selector">
           <button className="close" onClick={this.props.back}/>
           <div className="tokens-container">
             <div className="tokens">

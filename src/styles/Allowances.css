@@ -1,0 +1,74 @@
+.frame.allowances {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+}
+
+.frame.allowances .selector {
+  margin-top: 20px;
+}
+
+.allowances .tokens-container,
+.allowances .tokens {
+  padding: 0;
+}
+
+.allowances .tokens,
+.allowances .tokens-container,
+.allowances .tokens .token-list {
+  width: 100%;
+}
+
+.allowances .tokens,
+.allowances .tokens .token-list {
+  max-width: none;
+}
+
+.allowances .tokens .token-list .token {
+  position: relative;
+
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  /*This should be max-width not a fixed*/
+  width: 212px;
+  max-height: 62px;
+
+  padding: 16px 24px;
+}
+
+.allowances .tokens .token-list .token .token-name {
+  opacity: 0.95;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #6B6B6C;
+  letter-spacing: 0.2px;
+  margin-left: 12px;
+}
+
+.done-placeholder {
+  position: absolute;
+  top: 10px !important;
+  right: 10px !important;
+
+  height: 16px;
+  width: 16px;
+}
+
+.done-placeholder svg {
+  height: 16px;
+  width: 16px;
+}
+
+.token-icon {
+  height: 28px;
+}
+
+.token-icon svg {
+  height: 28px;
+  width: 28px;
+}

@@ -221,16 +221,16 @@
     font-size: 8px;
   }
 
-  .token-selector .tokens {
+  .selector .tokens {
     justify-content: center;
     max-height: 248px;
   }
 
-  .token-selector .tokens .token-list {
+  .selector .tokens .token-list {
     width: 220px;
   }
 
-  .token-selector .tokens .token {
+  .selector .tokens .token {
     justify-content: space-evenly;
     align-items: center;
     width: 102px;
@@ -423,7 +423,7 @@
     height: auto;
   }
 
-  .token-selector .tokens .token-list {
+  .selector .tokens .token-list {
     width: 220px;
   }
 
