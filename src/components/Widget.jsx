@@ -10,10 +10,14 @@ import Wallets from "./Wallets";
 
 // Utils
 import {isAddress} from "../utils/helpers";
-
+import {setWebClientProvider}  from '../utils/blockchain';
 @inject("network")
 @observer
 class Widget extends React.Component {
+  componentDidMount() {
+    setWebClientProvider();
+    this.props.network.setNetwork();
+  }
   render() {
     return (
       <div className={`Widget ${this.props.section}`}>

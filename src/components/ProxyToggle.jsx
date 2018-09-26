@@ -3,6 +3,7 @@ import { AccountIcon, Attention } from "../components-ui/Icons";
 import { inject, observer } from "mobx-react";
 import Allowances from "./Allowances";
 import Spinner from "../components-ui/Spinner";
+import { autorun } from "mobx";
 
 @inject("profile")
 @observer
@@ -10,10 +11,32 @@ class ProxyToggle extends Component {
 
   constructor(props) {
     super(props);
+    //TODO: All of those should be extracted in the store not here I think.
     this.state = {
       showAllowancesView: false,
       isAssigningProxy: false,
+      allowedTokens : 0
     }
+  }
+
+  componentDidMount() {
+    if (this.props.profile.hasProxy) {
+      this.props.profile.loadAllowances();
+    }
+
+    this.allowanceInterval = setInterval(() => {
+      if (this.props.profile.hasProxy) {
+        this.props.profile.loadAllowances();
+      }
+    },500);
+
+    autorun(() => {
+      this.setState({allowedTokens: this.props.profile.allowedTokens})
+    })
+  }
+
+  componentWillUnmount(){
+    clearInterval(this.allowanceInterval);
   }
 
   //TODO: Probably this logic shouldn't be here. Why would this control how Allowances view is displayed..??!??
@@ -31,9 +54,6 @@ class ProxyToggle extends Component {
 
     this.props.profile
       .createProxy()
-      .then(() => {
-        console.log(this.props.profile.hasProxy);
-      })
       .finally(() => {
         this.setState({isAssigningProxy: false});
       })
@@ -63,20 +83,21 @@ class ProxyToggle extends Component {
   }
 
   render = () => (
-
     <section className="proxy-details">
       {
-        this.state.showAllowancesView && <Allowances back={this.hideAllowances}/>
+        this.state.showAllowancesView && <Allowances allowances={this.props.profile.allowances} of={this.props.profile.proxy} allow={this.props.profile.allow} back={this.hideAllowances}/>
       }
       <div className="status">
         {
           this.props.profile.hasProxy
-            ? <div className="active">
+            ? <div className="active">`
               {
                 this.accountProxyLabel()
               }
               <div style={{paddingTop: "16px"}}>
-                <span className="label" style={{margin: 0}}>0 Tokens enabled for Trading</span>
+                <span className="label" style={{margin: 0}}>
+                  {this.state.allowedTokens } Tokens enabled for Trading
+                </span>
                 <button type="button" className="create" onClick={this.showAllowances}>
                   ENABLE TOKEN
                 </button>

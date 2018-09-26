@@ -50,6 +50,19 @@
   margin-left: 12px;
 }
 
+.allowances .tokens .token-list .token.disabled {
+  pointer-events: none;
+  cursor: none;
+}
+
+.allowances .tokens .token-list .token .done-placeholder .done {
+  fill: #DEE4F4;
+}
+.allowances .tokens .token-list .token .done-placeholder.active .done {
+  fill: #448AFF;
+}
+
+
 .done-placeholder {
   position: absolute;
   top: 10px !important;

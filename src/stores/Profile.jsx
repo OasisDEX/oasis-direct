@@ -1,14 +1,21 @@
 // Libraries
-import { computed, observable, action } from "mobx";
+import { computed, observable, action, autorun } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
 
 export default class ProfileStore {
   @observable proxy = -1;
+  //TODO: build this object from supported tokens.
+  @observable allowances = {
+    "mkr": 0,
+    "dai": 0
+  };
+
 
   constructor(rootStore) {
     this.rootStore = rootStore;
+    autorun(() => console.log(this.allowedTokens))
   }
 
   getAndSetProxy = (callbacks = null) => {
@@ -21,11 +28,16 @@ export default class ProfileStore {
         resolve(proxy);
       }, () => reject(false));
     });
-  }
+  };
 
   @computed
   get hasProxy() {
     return this.proxy || false;
+  }
+
+  @computed
+  get allowedTokens() {
+    return Object.keys(this.allowances).filter(token => this.allowances[token] > 0).length;
   }
 
   @action createProxy = () => {
@@ -57,7 +69,17 @@ export default class ProfileStore {
         }
       })
     });
-  }
+  };
+
+  allow = (token) => {
+    return blockchain.setTokenAllowance(token, this.proxy);
+  };
+
+  loadAllowances = () => {
+    Object.keys(this.allowances).forEach(async token => {
+      this.allowances[token] = await blockchain.getTokenAllowance(token, this.rootStore.network.defaultAccount, this.proxy);
+    });
+  };
 
   setProxy = proxy => {
     this.proxy = proxy;
