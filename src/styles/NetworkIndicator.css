@@ -17,11 +17,11 @@
 }
 
 .network-indicator.kovan {
-  color: #AB47BC;
-  border: 1px solid #AB47BC;
+  color: #7E57C2;
+  border: 1px solid #7E57C2;
 }
 
 .network-indicator.main{
-  color: #038789;
-  border: 1px solid #038789;
+  color: #009688;
+  border: 1px solid #009688;
 }
