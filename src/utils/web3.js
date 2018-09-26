@@ -21,6 +21,9 @@ export const getCurrentProviderName = () => {
   if (window.web3.currentProvider.isTrust)
     return "trust";
 
+  if (window.web3.currentProvider.isStatus)
+    return "status";
+
   if (typeof window.SOFA !== "undefined")
     return "coinbase";
 
