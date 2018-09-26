@@ -2,8 +2,8 @@
 @import 'styles/App.css';
 @import 'styles/LandingPage.css';
 @import 'styles/NoAccount.css';
-@import 'styles/Responsive.css';
 @import 'styles/NetworkIndicator.css';
+@import 'styles/Responsive.css';
 
 body {
   margin: 0;

@@ -98,6 +98,13 @@
     left: 12px;
   }
 
+  .network-indicator-placeholder {
+    top: 7px;
+    right: 12px;
+  }
+
+
+
   .connectionless .content .heading img {
     width: 64px;
     height: 64px;
@@ -405,6 +412,11 @@
 
   .Content h2 {
     font-size: 18px;
+  }
+
+  .network-indicator {
+    width: 48px;
+    font-size: 8px;
   }
 
   .transaction-result {
