@@ -22,7 +22,7 @@ class ActiveConnection extends React.Component {
             <Circle><BackIcon/></Circle>
           </button>
           <div className="heading">
-            <h2>Active Wallet Connection</h2>
+            <h2>Active Client</h2>
           </div>
           <div className="network-indicator-placeholder">
             <NetworkIndicator network={this.props.network.network}/>
