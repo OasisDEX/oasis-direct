@@ -105,12 +105,12 @@ export const getTokenAllowance = (token, from, to) => {
   return promisify(objects[token].allowance.call)(from, to);
 }
 
-export const setTokenAllowance = (token , to) => {
+export const setTokenAllowance = (token, to, allowedAmount) => {
   return new Promise((resolve, reject) => {
-    objects[token].approve.sendTransaction(to, -1 ,{}, (e, tx) => {
+    objects[token].approve.sendTransaction(to, allowedAmount ,{}, (e, tx) => {
       if(!e){
         const pending_token_allowance = setInterval(async () => {
-          const receipt = await getTransactionReceipt(tx).catch(() => reject());
+          const receipt = await getTransactionReceipt(tx);
           if (receipt) {
             if (receipt.status === "0x1") {
               resolve();
@@ -121,7 +121,7 @@ export const setTokenAllowance = (token , to) => {
           }
         }, 1000);
       } else {
-        reject();
+        reject(e);
       }
     });
   });

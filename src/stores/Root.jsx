@@ -32,10 +32,10 @@ class RootStore {
       blockchain.loadObject("proxyregistry", addrs.proxyRegistry, "proxyRegistry");
       const setUpPromises = [blockchain.getProxy(this.network.defaultAccount)];
       Promise.all(setUpPromises).then(r => {
+        this.system.init();
         this.network.stopLoadingAddress();
         this.profile.setProxy(r[0]);
-
-        this.system.init();
+        this.profile.loadAllowances();
         this.setPendingTxInterval();
       });
     }

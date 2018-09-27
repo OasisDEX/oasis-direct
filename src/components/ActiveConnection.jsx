@@ -3,14 +3,14 @@ import React from "react";
 import { inject, observer } from "mobx-react";
 
 // UI Components
-import { IdentityIcon, BackIcon, Circle, AccountIcon, Attention } from "../components-ui/Icons";
+import { IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
 import { etherscanAddress } from "../utils/helpers";
 import NetworkIndicator from "./NetworkIndicator";
-import ProxyToggle from "./ProxyToggle";
+import ProxyDetails from "./ProxyDetails";
 
 @inject("network")
 @observer
@@ -37,7 +37,7 @@ class ActiveConnection extends React.Component {
               </div>
               {etherscanAddress(this.props.network.network, this.props.network.defaultAccount, this.props.network.defaultAccount)}
             </section>
-            <ProxyToggle/>
+            <ProxyDetails/>
           </div>
         </div>
         <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.stopNetwork}>

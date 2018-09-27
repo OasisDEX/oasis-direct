@@ -22,7 +22,7 @@ window.system = rootStore.system;
 class App extends React.Component {
   render() {
     return (
-      <Provider network={rootStore.network} profile={rootStore.profile} transactions={rootStore.transactions} system={rootStore.system}>
+      <Provider {...rootStore}>
         <BrowserRouter>
           <Routes />
         </BrowserRouter>

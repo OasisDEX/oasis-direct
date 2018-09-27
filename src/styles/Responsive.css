@@ -308,7 +308,7 @@
     font-size: 8px;
   }
 
-  .hard-wallet-addresses  button.close {
+  .frame button.close {
     top: 7px;
     right: 11px;
   }
@@ -321,6 +321,29 @@
     max-width: 70%;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .wallet-settings section {
+    padding: 12px;
+  }
+
+  .proxy-details .proxy-status {
+    padding-bottom: 8px;
+  }
+
+  .proxy-details .allowances-status {
+    padding-top: 8px;
+  }
+
+  .proxy-details .allowances-status .warning-text,
+  .proxy-details .allowances-status .label {
+    font-size: 10px;
+  }
+
+  .proxy-details button.gray {
+    font-size: 10px;
+    height: auto;
+    padding: 7px 8px;
   }
 }
 
@@ -466,5 +489,9 @@
 
   .info-box .info-box-row .holder .label, .info-box .info-box-row .holder .value {
     font-size: 8px;
+  }
+
+  .proxy-details .proxy-status.activated{
+    justify-content: center;
   }
 }

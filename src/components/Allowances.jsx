@@ -3,9 +3,8 @@ import React from "react";
 
 // UI Components
 import Spinner from "../components-ui/Spinner";
-import { DAI, Done, MKR } from "../components-ui/Icons";
-import { toBigNumber } from "../utils/helpers";
-import { observer, inject } from "mobx-react";
+import { DAI, Done, MKR } from "../components-ui/Icons";  
+import { observer } from 'mobx-react';
 
 //TODO: Remove this duplicate  ( TradeWidget ) and extract them in separate config file.
 const tokens = {
@@ -19,9 +18,8 @@ const tokens = {
     symbol: "DAI",
     name: "DAI",
   },
-}
+};
 
-@inject('profile')
 @observer
 class AllowanceToken extends React.Component {
 
@@ -31,34 +29,45 @@ class AllowanceToken extends React.Component {
     this.state = {
       isSettingAllowance: false
     }
-
   }
 
-  allow = (token) => {
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  allow(token) {
     this.setState({isSettingAllowance: true});
-    this.props.profile.allow(token)
-      .then(() => {
-        this.setState({isSettingAllowance: false});
-      });
+    this.props.onAllow(token)
+      .finally(() => {
+        if (this._isMounted) {
+          this.setState({isSettingAllowance: false});
+        }
+      })
   };
 
-  render = () => {
-    const { token, hasAllowance } = this.props;
-    return <div className={`token ${hasAllowance ? "disabled" : ""}`}
-                onClick={() => this.allow(token)}>
-      <span className="token-icon">{tokens[token].icon}</span>
-      <span className="token-name"> {tokens[token].name}</span>
-      <span className={`done-placeholder ${hasAllowance ? "active" : ""}`}>
+  render() {
+    const {token, hasAllowance} = this.props;
+    return (
+      <div className="token" onClick={() => this.allow(token)}>
+        <span className="token-icon">{tokens[token].icon}</span>
+        <span className="token-name"> {tokens[token].name}</span>
+        <span className={`done-placeholder ${hasAllowance ? "active" : ""}`}>
         {
           this.state.isSettingAllowance
             ? <Spinner/>
             : <Done/>
         }
       </span>
-    </div>
+      </div>
+    )
   }
 }
 
+@observer
 class Allowances extends React.Component {
 
   tokens = () => {
@@ -66,7 +75,7 @@ class Allowances extends React.Component {
   };
 
   hasTokenAllowance = (token) => {
-    return this.props.allowances[tokens[token].symbol.toLowerCase()].gt(toBigNumber(0));
+    return this.props.allowances[token] > 0;
   };
 
   render() {
@@ -82,7 +91,13 @@ class Allowances extends React.Component {
               <div className="tokens">
                 <div className="token-list">
                   {
-                    this.tokens().map((token, index) => <AllowanceToken key={index} hasAllowance={this.hasTokenAllowance(token)} token={token}/>)
+                    this.tokens().map(
+                      (token, index) =>
+                        <AllowanceToken key={index}
+                                        onAllow={this.props.onAllow}
+                                        hasAllowance={this.hasTokenAllowance(token)}
+                                        token={token}/>
+                    )
                   }
                 </div>
               </div>

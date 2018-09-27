@@ -729,10 +729,6 @@ input.has-errors {
   margin-top: 24px;
 }
 
-.wallet-settings section.proxy-details {
-  margin-top: 12px;
-}
-
 .wallet-settings .wallet-details > div {
   display: inline-flex;
   justify-content: flex-start;
@@ -741,18 +737,6 @@ input.has-errors {
   margin-bottom: 20px;
 }
  /*TODO: REfactor this and remove dependency to raw tags x 3*/
-.wallet-settings .proxy-details .status > div {
-  display: inline-flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.wallet-settings .proxy-details .status > div > div {
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 
 .wallet-settings .proxy-details .status > div > div > div:first-child {
   flex-grow: 1;

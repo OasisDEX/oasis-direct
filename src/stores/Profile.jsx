@@ -1,21 +1,17 @@
 // Libraries
-import { computed, observable, action, autorun } from "mobx";
+import { computed, observable, action } from "mobx";
+import { tokens } from "../utils/tokens"
 
 // Utils
 import * as blockchain from "../utils/blockchain";
 
 export default class ProfileStore {
   @observable proxy = -1;
-  //TODO: build this object from supported tokens.
-  @observable allowances = {
-    "mkr": 0,
-    "dai": 0
-  };
-
+  @observable isCreatingProxy = false;
+  @observable allowances = {};
 
   constructor(rootStore) {
     this.rootStore = rootStore;
-    autorun(() => console.log(this.allowedTokens))
   }
 
   getAndSetProxy = (callbacks = null) => {
@@ -23,6 +19,7 @@ export default class ProfileStore {
       blockchain.getProxy(this.rootStore.network.defaultAccount).then(proxy => {
         if (proxy) {
           this.setProxy(proxy);
+          this.loadAllowances();
           callbacks && this.rootStore.transactions.executeCallbacks(callbacks);
         }
         resolve(proxy);
@@ -31,16 +28,12 @@ export default class ProfileStore {
   };
 
   @computed
-  get hasProxy() {
-    return this.proxy || false;
-  }
-
-  @computed
-  get allowedTokens() {
-    return Object.keys(this.allowances).filter(token => this.allowances[token] > 0).length;
+  get allowedTokensCount() {
+    return tokens.filter(token => this.allowances[token] > 0).length;
   }
 
   @action createProxy = () => {
+    this.isCreatingProxy = true;
     return new Promise((resolve, reject) => {
       blockchain.objects.proxyRegistry.build({}, (e, tx) => {
         if (!e) {
@@ -51,6 +44,7 @@ export default class ProfileStore {
                 const pending_proxy_setup = setInterval(() => {
                   this.getAndSetProxy().then((proxy) => {
                     if (proxy) {
+                      this.isCreatingProxy = false;
                       clearInterval(pending_proxy_setup);
                       resolve();
                     }
@@ -60,28 +54,33 @@ export default class ProfileStore {
                 clearInterval(pending_proxy_creation);
               } else {
                 reject();
+                this.isCreatingProxy = false;
                 clearInterval(pending_proxy_creation);
               }
             }
           }, 1000);
         } else {
+          this.isCreatingProxy = false;
           reject();
         }
       })
     });
   };
 
-  allow = (token) => {
-    return blockchain.setTokenAllowance(token, this.proxy);
-  };
-
-  loadAllowances = () => {
-    Object.keys(this.allowances).forEach(async token => {
-      this.allowances[token] = await blockchain.getTokenAllowance(token, this.rootStore.network.defaultAccount, this.proxy);
+  toggleAllowance = (token) => {
+    const amount  = this.allowances[token] === 0 ? -1 : 0;
+    return blockchain.setTokenAllowance(token, this.proxy, amount).then(() => {
+      this.allowances[token] = this.allowances[token] === 0 ? 1 : 0;
     });
   };
 
-  setProxy = proxy => {
+  @action loadAllowances = () => {
+    tokens.forEach(async token => {
+      this.allowances[token] = (await blockchain.getTokenAllowance(token, this.rootStore.network.defaultAccount, this.proxy)).toNumber();
+    });
+  };
+
+  @action setProxy = proxy => {
     this.proxy = proxy;
     blockchain.loadObject("dsproxy", this.proxy, "proxy");
     console.log("proxy", this.proxy);
