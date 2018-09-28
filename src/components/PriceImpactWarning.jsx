@@ -20,7 +20,7 @@ export class PriceImpactWarning extends Component {
           </div>
         </section>
         <button type="button" value="Start transaction" className="start" onClick={this.props.onAcknowledge}>
-          START TRANSACTION
+          PROCEED WITH ORDER
         </button>
       </section>
     )
