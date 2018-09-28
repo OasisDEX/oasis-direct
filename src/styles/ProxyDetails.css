@@ -14,7 +14,7 @@
 .proxy-details button.gray {
   border: 1px solid #DEE4F4;
   opacity: 0.9;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 12px;
   color: #5B5B5C;
   background-color: white;
@@ -23,6 +23,10 @@
   margin-left: auto;
   padding: 6px 14px;
   letter-spacing: 0.3px;
+}
+
+.proxy-details button.gray:hover {
+  border-color:#c7d1eb;
 }
 
 .proxy-details .proxy-status {

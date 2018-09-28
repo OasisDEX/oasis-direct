@@ -65,7 +65,7 @@
 }
 
 
-.done-placeholder {
+.allowances .done-placeholder {
   position: absolute;
   top: 10px !important;
   right: 10px !important;
@@ -74,16 +74,16 @@
   width: 16px;
 }
 
-.done-placeholder svg {
+.allowances g.done-placeholder svg {
   height: 16px;
   width: 16px;
 }
 
-.token-icon {
+.allowances .token-icon {
   height: 28px;
 }
 
-.token-icon svg {
+.allowances .token-icon svg {
   height: 28px;
   width: 28px;
 }
