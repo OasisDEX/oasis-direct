@@ -1,20 +1,21 @@
 // Libraries
 import React from "react";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
 // UI Components
-import {SwapArrows, IdentityIcon, Circle, Attention} from "../components-ui/Icons";
+import { SwapArrows, IdentityIcon, Circle, Attention } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import TokensSelector from "../components-ui/TokensSelector";
 
 // Utils
-import {toWei} from "../utils/helpers";
+import { toWei } from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";
 import NetworkIndicator from "./NetworkIndicator";
+import { PriceImpactWarning } from "./PriceImpactWarning";
 
 @inject("network")
 @inject("system")
@@ -27,6 +28,7 @@ class SetTrade extends React.Component {
       to: this.props.system.trade.to,
       selectedSide: null,
       showTokenSelector: false,
+      showPriceImpactWarning: false,
       hasAcceptedTerms: false,
       priceInUSD: 0
     }
@@ -86,9 +88,25 @@ class SetTrade extends React.Component {
 
   nextStep = e => {
     e.preventDefault();
-    this.props.system.doTrade();
+    if (this.priceImpact() > 5) {
+      this.setState({
+        showPriceImpactWarning: true
+      });
+    } else {
+      this.props.system.doTrade();
+    }
     return false;
-  }
+  };
+
+  acceptPriceImpact = () => {
+    this.props.system.doTrade();
+  };
+
+  rejectPriceImpact = () => {
+    this.setState({
+      showPriceImpactWarning: false
+    });
+  };
 
   calculateBuyAmount = () => {
     const amountToPay = this.amountPay.value;
@@ -103,7 +121,7 @@ class SetTrade extends React.Component {
     const amountToBuy = this.amountBuy.value;
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
-    if (whole.length <=15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.system.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
   }
@@ -125,11 +143,18 @@ class SetTrade extends React.Component {
     .valueOf();
 
   render() {
-    return (
-      this.state.showTokenSelector
-      ?
-        <TokensSelector tokens={this.props.tokens} balances={this.props.system.balances} select={this.select} back={() => this.setState({showTokenSelector: false})} />
-      :
+    return <React.Fragment>
+      {
+        this.state.showTokenSelector &&
+        <TokensSelector tokens={this.props.tokens} balances={this.props.system.balances} select={this.select}
+                        back={() => this.setState({showTokenSelector: false})}/>
+      }
+      {
+        this.state.showPriceImpactWarning &&
+        <PriceImpactWarning priceImpact={this.priceImpact()} onDismiss={this.rejectPriceImpact} onAcknowledge={this.acceptPriceImpact}/>
+      }
+      {
+        !this.state.showTokenSelector && !this.state.showPriceImpactWarning &&
         <section className="frame">
           <div className="heading">
             <span className={`identicon-placeholder ${this.props.network.loadingAddress ? "disabled" : ""}`}
@@ -305,7 +330,8 @@ class SetTrade extends React.Component {
             START TRANSACTION
           </button>
         </section>
-    )
+      }
+    </React.Fragment>
   }
 }
 

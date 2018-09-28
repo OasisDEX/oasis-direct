@@ -6,6 +6,7 @@
 @import 'styles/NetworkIndicator.css';
 @import 'styles/ProxyDetails.css';
 @import 'styles/Allowances.css';
+@import "styles/PriceImpactWarning.css";
 @import 'styles/Responsive.css';
 
 body {
