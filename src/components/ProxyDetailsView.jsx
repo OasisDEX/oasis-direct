@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactTooltip from "react-tooltip";
 import { AccountIcon, Attention } from "../components-ui/Icons";
 import { inject, observer } from "mobx-react";
 import Spinner from "../components-ui/Spinner";
@@ -23,7 +24,12 @@ class ProxyDetailsView extends Component {
       <div className={`proxy-status ${this.props.profile.proxy ? "activated" : ""}`}>
         <AccountIcon/>
         <span className="label">Account Proxy</span>
-        <Attention className="warning-icon"/>
+        <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
+        <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
+          <p>
+            Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
+          </p>
+        </ReactTooltip>
         {
           !this.props.profile.proxy
             ? !this.props.profile.isCreatingProxy
@@ -51,7 +57,7 @@ class ProxyDetailsView extends Component {
             )
             : (
               <React.Fragment>
-                <Attention className="warning-icon"/>
+                <Attention className="attention-icon"/>
                 <p className="warning-text">You do not need to create an universal account manually. It will be
                                             automatically created for you.</p>
               </React.Fragment>

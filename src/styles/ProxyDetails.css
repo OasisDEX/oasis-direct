@@ -33,11 +33,6 @@
   padding-bottom: 16px;
 }
 
-.proxy-details .proxy-status .warning-icon {
-  width: 16px;
-  height: 16px;
-}
-
 .proxy-details .proxy-status .label {
   font-family: Montserrat, sans-serif;
   font-weight: 500;
@@ -63,7 +58,7 @@
   min-height: 48px;
 }
 
-.proxy-details .allowances-status .warning-icon {
+.proxy-details .allowances-status .attention-icon {
   height: 24px;
   width: 24px;
   margin-right: 16px;
