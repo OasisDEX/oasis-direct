@@ -1,1 +1,1 @@
-export const tokens = ['mkr', 'dai'];
+export const tokens = ["mkr", "dai"];

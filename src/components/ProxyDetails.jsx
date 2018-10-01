@@ -1,7 +1,10 @@
-import React, { Component } from 'react';
-import ProxyDetailsView from "./ProxyDetailsView";
+// Libraries
+import React, {Component} from "react";
+import {observer, inject} from "mobx-react";
+
+// Components
 import Allowances from "./Allowances";
-import { observer, inject } from "mobx-react";
+import ProxyDetailsView from "./ProxyDetailsView";
 
 @inject("profile")
 @observer

@@ -1,10 +1,10 @@
 // Libraries
 import React from "react";
+import {observer} from "mobx-react";
 
 // UI Components
 import Spinner from "../components-ui/Spinner";
-import { DAI, Done, MKR } from "../components-ui/Icons";  
-import { observer } from 'mobx-react';
+import {DAI, Done, MKR} from "../components-ui/Icons";
 
 //TODO: Remove this duplicate  ( TradeWidget ) and extract them in separate config file.
 const tokens = {
@@ -42,6 +42,7 @@ class AllowanceToken extends React.Component {
   allow(token) {
     this.setState({isSettingAllowance: true});
     this.props.onAllow(token)
+      .catch(e => console.log(e))
       .finally(() => {
         if (this._isMounted) {
           this.setState({isSettingAllowance: false});

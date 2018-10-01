@@ -48,7 +48,7 @@ class ProxyDetailsView extends Component {
             ? (
               <React.Fragment>
                 <span className="label">
-                  {this.props.profile.allowedTokensCount} Tokens enabled for Trading
+                  {this.props.profile.allowedTokensCount} Token{this.props.profile.allowedTokensCount !== 1 ? "s" : ""} enabled for Trading
                 </span>
                 <button type="button" className="gray" onClick={this.props.onEnableTokenClick}>
                   ENABLE TOKEN
