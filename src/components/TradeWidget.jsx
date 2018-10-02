@@ -11,7 +11,6 @@ import SetTrade from "./SetTrade";
 import {Ether, MKR, DAI} from "../components-ui/Icons";
 
 // Utils
-import * as blockchain from "../utils/blockchain";
 import {fetchETHPriceInUSD} from "../utils/helpers";
 
 @inject("network")
