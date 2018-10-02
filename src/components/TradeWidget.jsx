@@ -46,9 +46,6 @@ class TradeWidget extends React.Component {
 
   componentDidMount() {
     this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
-    blockchain.getEthBalanceOf(this.props.network.defaultAccount).then((balance) => {
-      this.setState({ethBalance: balance.valueOf()});
-    });
   }
 
   fetchPriceInUSD = () => {
@@ -73,7 +70,7 @@ class TradeWidget extends React.Component {
           ?
             this.state.showActiveConnection
             ?
-              <ActiveConnection ethBalance={this.state.ethBalance} back={this.hideConnectionDetails} />
+              <ActiveConnection ethBalance={this.props.system.balances.eth} back={this.hideConnectionDetails} />
             :
               <SetTrade tokens={this.tokens} showConnectionDetails={this.showConnectionDetails} priceInUSD={this.state.priceInUSD} />
           :
