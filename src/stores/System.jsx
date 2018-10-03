@@ -1,9 +1,9 @@
 // Libraries
-import {observable} from "mobx";
+import { observable } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import {toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice} from "../utils/helpers";
+import { toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from "../utils/helpers";
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 
@@ -33,6 +33,8 @@ export default class SystemStore {
     txs: null,
     proxy: null
   };
+
+  @observable error = {};
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -81,11 +83,13 @@ export default class SystemStore {
     if (token === "weth") {
       blockchain.getEthBalanceOf(this.rootStore.network.defaultAccount).then(r => {
         this.balances.eth = r;
-      }, () => {});
+      }, () => {
+      });
     } else {
       blockchain.getTokenBalanceOf(token, this.rootStore.network.defaultAccount).then(r => {
         this.balances[token] = r;
-      }, () => {});
+      }, () => {
+      });
     }
   }
 
@@ -94,7 +98,7 @@ export default class SystemStore {
     setInterval(() => this.saveBalance(token), 5000);
     this.saveBalance(token);
   }
-  
+
   checkAllowance = (token, dst, value, callbacks) => {
     if (dst === "proxy") dst = this.rootStore.profile.proxy; // It needs to be done as proxy might not be created when setAllowance is added to the queue of functions to be executed
     const valueObj = toBigNumber(toWei(value));
@@ -128,7 +132,8 @@ export default class SystemStore {
           });
         });
       }
-    }, () => {});
+    }, () => {
+    });
   }
 
   executeProxyTx = (amount, limit) => {
@@ -225,222 +230,223 @@ export default class SystemStore {
     }
   }
 
-  calculateBuyAmount = (from, to, amount) => {
-    const rand = Math.random();
+  calculateBuyAmount = (from, to, amountToPay) => {
+    const rand = Math.random(); //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
     this.trade.to = to;
     this.trade.amountBuy = toBigNumber(0);
-    this.trade.amountPay = toBigNumber(amount);
+    this.trade.amountPay = toBigNumber(amountToPay);
     this.trade.amountBuyInput = "";
-    this.trade.amountPayInput = amount;
+    this.trade.amountPayInput = amountToPay;
     this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
     this.trade.operation = "sellAll";
     this.trade.txCost = toBigNumber(0);
-    this.trade.errorInputSell = null;
-    this.trade.errorInputBuy = null;
-    this.trade.errorOrders = null;
+    this.trade.error = null;
 
-    if (toBigNumber(amount).eq(0)) {
-      if (this.trade.rand === rand) {
-        this.trade.amountBuy = fromWei(toBigNumber(0));
-        this.trade.amountBuyInput = "";
-      }
+    const {network, defaultAccount} = this.rootStore.network;
+
+    if (toBigNumber(amountToPay).eq(0)) {
+      this.trade.amountBuy = fromWei(toBigNumber(0));
+      this.trade.amountBuyInput = "";
       return;
     }
-    const minValue = settings.chain[this.rootStore.network.network].tokens[from.replace("eth", "weth")].minValue;
-    if (this.trade.amountPay.lt(minValue)) {
-      if (this.trade.rand === rand) {
-        this.trade.errorInputSell = `minValue:${new BigNumber(minValue).valueOf()}`;
+
+    const evaluateTrade = async (amountPay, amountBuy) => {
+      let error = null;
+      const amountBuyInput = amountBuy.valueOf();
+      const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
+      let givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
+      const balance = await blockchain.getBalanceOf(from, defaultAccount);
+
+      let costs = await this.estimateAllGasCosts("sellAll", from, to, amountPay, rand);
+
+      // The user doesn't have enough balance to place the trade
+      if (!error && balance.lt(toWei(amountPay))) {
+        error = {
+          cause: `You don't have enough ${amountPay} ${from.toUpperCase()} in your wallet`,
+          onTradeSide: `sell`,
+        };
       }
-      return;
-    }
-    blockchain.loadObject("matchingmarket", settings.chain[this.rootStore.network.network].otc).getBuyAmount(
-      settings.chain[this.rootStore.network.network].tokens[to.replace("eth", "weth")].address,
-      settings.chain[this.rootStore.network.network].tokens[from.replace("eth", "weth")].address,
-      toWei(amount),
-      async (e, r) => {
-        if (!e) {
-          const calculatedReceiveValue = fromWei(toBigNumber(r));
-          const bestPriceOffer = await oasis.getBestPriceOffer(this.rootStore.network.network, this.trade.from, this.trade.to);
-          if (this.trade.rand === rand) {
-            this.trade.amountBuy = calculatedReceiveValue;
-            this.trade.amountBuyInput = this.trade.amountBuy.valueOf();
-            this.trade = {...this.trade, ...calculateTradePrice(this.trade.from, this.trade.amountPay, this.trade.to, this.trade.amountBuy)}; // TODO: VER
-            this.trade.bestPriceOffer = bestPriceOffer;
-          }
 
-          const balance = from === "eth"
-                          ? await blockchain.getEthBalanceOf(this.rootStore.network.defaultAccount)
-                          : await blockchain.getTokenBalanceOf(from, this.rootStore.network.defaultAccount);
-          const errorInputSell = balance.lt(toWei(amount))
-                                  ? "funds" // `Not enough balance to sell ${amount} ${from.toUpperCase()}`
-                                  : "";
-          const errorOrders = this.trade.amountBuy.eq(0)
-                              ?
-                                {
-                                  type: "sell",
-                                  amount,
-                                  token: from.toUpperCase()
-                                }
-                              :
-                                null;
-          if (errorInputSell || errorOrders) {
-            if (this.trade.rand === rand) {
-              this.trade.errorInputSell = errorInputSell;
-              this.trade.errorOrders = errorOrders;
-            }
-            return;
-          }
+      const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
+      if (!error && amountPay.lt(minValueToSell)) {
+        error = {
+          cause: `${from.toUpperCase()} Minimum value is ${new BigNumber(minValueToSell).valueOf()}`,
+          onTradeSide: `sell`,
+        };
+      }
+      /*
+      * Even thought the user entered how much he wants to pay
+      * we still must calculate if what he will receive is higher than
+      * the min value for the receive token.
+      *
+      * If the amount of the calculated buying value is under the min value
+      * an error message is displayed for violating min value.
+      *
+      * */
+      const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
+      if (!error && amountBuy.lt(minValueToBuy)) {
+        error = {
+          cause: `${to.toUpperCase()} Minimum value is ${new BigNumber(minValueToBuy).valueOf()}`,
+          onTradeSide: `buy`,
+        };
+      }
 
-          /*
-          * Even thought the user entered how much he wants to pay
-          * we still must calculate if what he will receive is higher than
-          * the min value for the receive token.
-          *
-          * If the amount of the calculated buying value is under the min value
-          * an error message is displayed for violating min value.
-          *
-          * */
-          const calculatedReceiveValueMin = settings.chain[this.rootStore.network.network].tokens[to.replace("eth", "weth")].minValue;
+      let ethBalance = balance;
 
-          if (calculatedReceiveValue.lt(calculatedReceiveValueMin)) {
-            if (this.trade.rand === rand) {
-              this.trade.amountBuyInput = calculatedReceiveValue.valueOf();
-              this.trade.errorInputBuy = `minValue:${new BigNumber(calculatedReceiveValueMin).valueOf()}`;
-            }
-            return;
-          }
+      if (this.trade.from === "eth") {
+        costs = costs.add(toWei(amountPay));
+      } else {
+        ethBalance = await blockchain.getEthBalanceOf(defaultAccount);
+      }
 
-          let expenses = await this.estimateAllGasCosts("sellAll", from, to, amount, rand);
-          let ethBalance = balance;
+      if (!error && costs.gt(ethBalance)) {
+        error = {
+          cause: "You won't have enough ETH to pay for the gas!",
+        };
+      }
 
-          if (this.trade.from === "eth") {
-            expenses = expenses.add(toWei(this.trade.amountPay));
+      return {
+        error,
+        amountBuy,
+        amountBuyInput,
+        ...givenPrice,
+        bestPriceOffer
+      }
+    };
+
+
+    blockchain.loadObject("matchingmarket", settings.chain[network].otc).getBuyAmount(
+      settings.chain[network].tokens[to.replace("eth", "weth")].address,
+      settings.chain[network].tokens[from.replace("eth", "weth")].address,
+      toWei(amountToPay),
+      async (e, amountToBuy) => {
+        if (this.trade.rand === rand) {
+          if(!e){
+            const evaluation = await evaluateTrade(toBigNumber(amountToPay), fromWei(amountToBuy));
+            this.trade = {...this.trade, ...evaluation};
           } else {
-            ethBalance = await blockchain.getEthBalanceOf(this.rootStore.network.defaultAccount);
+            this.trade.error = {
+              cause: `No orders available to sell ${amountToPay} ${from.toUpperCase()}`,
+              onTradeSide: `buy`,
+              isCritical: true
+            }
           }
-
-          this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
-        } else {
-          console.log(e);
         }
       });
-  }
+  };
 
-  calculatePayAmount = (from, to, amount) => {
-    const rand = Math.random();
+  calculatePayAmount = (from, to, amountToBuy) => {
+    const rand = Math.random();  //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
     this.trade.to = to;
-    this.trade.amountBuy = toBigNumber(amount);
+    this.trade.amountBuy = toBigNumber(amountToBuy);
     this.trade.amountPay = toBigNumber(0);
-    this.trade.amountBuyInput = amount;
+    this.trade.amountBuyInput = amountToBuy;
     this.trade.amountPayInput = "";
     this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
     this.trade.operation = "buyAll";
     this.trade.txCost = toBigNumber(0);
-    this.trade.errorInputSell = null;
-    this.trade.errorInputBuy = null;
-    this.trade.errorOrders = null;
+    this.trade.error = null;
 
-    if (toBigNumber(amount).eq(0)) {
-      if (this.trade.rand === rand) {
-        this.trade.amountPay = fromWei(toBigNumber(0));
-        this.trade.amountPayInput = "";
-      }
+    const {defaultAccount, network} = this.rootStore.network;
+
+    if (toBigNumber(amountToBuy).eq(0)) {
+      this.trade.amountPay = fromWei(toBigNumber(0));
+      this.trade.amountPayInput = "";
+      this.trade.error = null;
       return;
     }
-    const minValue = settings.chain[this.rootStore.network.network].tokens[to.replace("eth", "weth")].minValue;
-    if (this.trade.amountBuy.lt(minValue)) {
-      if (this.trade.rand === rand) {
-        this.trade.errorInputBuy = `minValue:${new BigNumber(minValue).valueOf()}`;
+
+    const evaluateTrade = async (amountPay, amountBuy) => {
+      let error = null;
+      const amountPayInput = amountPay.valueOf();
+      const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
+      const givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
+
+      const balance = await blockchain.getBalanceOf(from, defaultAccount);
+
+      // The user doesn't have enough balance to place the trade
+      if (!error && balance.lt(toWei(amountPay))) {
+        error = {
+          cause: `You don't have enough ${from.toUpperCase()} in your wallet`,
+          onTradeSide: `sell`,
+        }
       }
-      return;
+
+      const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
+      if (!error && amountBuy.lt(minValueToBuy)) {
+        error = {
+          cause: `${to.toUpperCase()} Minimum value is ${new BigNumber(minValueToBuy).valueOf()}`,
+          onTradeSide: `buy`,
+        }
+      }
+
+      /*
+      * Even thought the user entered how much he wants to receive
+      * we still must calculate if what he has to pay is higher than
+      * the min value for the pay token.
+      *
+      * If the amount of the calculated selling  value is under the min value
+      * an error message is displayed for violating min value.
+      *
+      * */
+      const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
+      if (!error && amountPay.lt(minValueToSell)) {
+        error = {
+          cause: `${from.toUpperCase()} Minimum value is ${new BigNumber(minValueToSell).valueOf()}`,
+          onTradeSide: `sell`,
+        };
+      }
+
+      let expenses = await this.estimateAllGasCosts("buyAll", from, to, amountToBuy, rand);
+      let ethBalance = balance;
+
+      if (this.trade.from === "eth") {
+        expenses = expenses.add(toWei(amountPay));
+      } else {
+        ethBalance = await blockchain.getEthBalanceOf(defaultAccount);
+      }
+
+      if (!error && expenses.gt(ethBalance)) {
+        error = {
+          cause: "You won't have enough ETH to pay for the gas!",
+        };
+      }
+
+      return {
+        error,
+        amountPay,
+        amountPayInput,
+        ...givenPrice,
+        bestPriceOffer
+      }
     }
-    blockchain.loadObject("matchingmarket", settings.chain[this.rootStore.network.network].otc).getPayAmount(
-      settings.chain[this.rootStore.network.network].tokens[from.replace("eth", "weth")].address,
-      settings.chain[this.rootStore.network.network].tokens[to.replace("eth", "weth")].address,
-      toWei(amount),
-      async (e, r) => {
-        if (!e) {
-          const calculatedPayValue = fromWei(toBigNumber(r));
-          const bestPriceOffer = await oasis.getBestPriceOffer(this.rootStore.network.network, this.trade.from, this.trade.to);
-          if (this.trade.rand === rand) {
-            this.trade.amountPay = calculatedPayValue;
-            this.trade.amountPayInput = this.trade.amountPay.valueOf();
-            this.trade = {...this.trade, ...calculateTradePrice(this.trade.from, this.trade.amountPay, this.trade.to, this.trade.amountBuy)}; // TODO: VERRRR
-            this.trade.bestPriceOffer = bestPriceOffer;
-          }
 
-          const balance = from === "eth"
-                          ? await blockchain.getEthBalanceOf(this.rootStore.network.defaultAccount)
-                          : await blockchain.getTokenBalanceOf(from, this.rootStore.network.defaultAccount);
-          const errorInputSell = balance.lt(toWei(this.trade.amountPay))
-                                  ? "funds" // `Not enough balance to sell ${this.trade.amountPay} ${from.toUpperCase()}`
-                                  : null;
-          const errorOrders = this.trade.amountPay.eq(0)
-                              ?
-                                {
-                                  type: "buy",
-                                  amount,
-                                  token: to.toUpperCase()
-                                }
-                              :
-                                null;
-          if (errorInputSell || errorOrders) {
-            if (this.trade.rand === rand) {
-              this.trade.errorInputSell = errorInputSell;
-              this.trade.errorOrders = errorOrders;
-            }
-            return;
-          }
-
-          /*
-          * Even thought the user entered how much he wants to receive
-          * we still must calculate if what he has to pay is higher than
-          * the min value for the pay token.
-          *
-          * If the amount of the calculated selling  value is under the min value
-          * an error message is displayed for violating min value.
-          *
-          * */
-          const calculatePayValueMin = settings.chain[this.rootStore.network.network].tokens[from.replace("eth", "weth")].minValue;
-
-          if (calculatedPayValue.lt(calculatePayValueMin)) {
-            if (this.trade.rand === rand) {
-              this.trade.amountPayInput = calculatedPayValue.valueOf();
-              this.trade.errorInputSell = `minValue:${new BigNumber(calculatePayValueMin).valueOf()}`;
-            }
-            return;
-          }
-
-          let expenses = await this.estimateAllGasCosts("buyAll", from, to, amount, rand);
-          let ethBalance = balance;
-
-          if (this.trade.from === "eth") {
-            expenses = expenses.add(toWei(this.trade.amountPay));
+    blockchain.loadObject("matchingmarket", settings.chain[network].otc).getPayAmount(
+      settings.chain[network].tokens[from.replace("eth", "weth")].address,
+      settings.chain[network].tokens[to.replace("eth", "weth")].address,
+      toWei(amountToBuy),
+      async (e, amountToPay) => {
+        if (this.trade.rand === rand) {
+          if(!e){
+            const evaluation = await evaluateTrade(fromWei(amountToPay), toBigNumber(amountToBuy));
+            this.trade = {...this.trade, ...evaluation};
           } else {
-            ethBalance = await blockchain.getEthBalanceOf(this.rootStore.network.defaultAccount);
+            this.trade.error = {
+              cause: `No orders available to buy ${amountToBuy} ${to.toUpperCase()}`,
+              onTradeSide: `buy`,
+              isCritical: true
+            };
           }
-
-          this.checkIfOneCanPayForGas(ethBalance, expenses, rand);
-        } else {
-          console.log(e);
         }
       });
-  }
-
-  checkIfOneCanPayForGas = (balance, expenses, rand) => {
-    if (balance.lte(expenses)) {
-      if (this.trade.rand === rand) {
-        this.trade.errorInputSell = "gasCost";
-      }
-    }
   };
 
   estimateAllGasCosts = async (operation, from, to, amount, rand) => {
