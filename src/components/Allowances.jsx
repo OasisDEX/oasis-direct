@@ -50,10 +50,16 @@ class AllowanceToken extends React.Component {
       })
   };
 
+  setAllowance = () => {
+    if(!this.state.isSettingAllowance) {
+      this.allow(this.props.token);
+    }
+  };
+
   render() {
     const {token, hasAllowance} = this.props;
     return (
-      <div className="token" onClick={() => this.allow(token)}>
+      <button className='token' disabled={this.state.isSettingAllowance} onClick={this.setAllowance}>
         <span className="token-icon">{tokens[token].icon}</span>
         <span className="token-name"> {tokens[token].name}</span>
         <span className={`done-placeholder ${hasAllowance ? "active" : ""}`}>
@@ -63,7 +69,7 @@ class AllowanceToken extends React.Component {
             : <Done/>
         }
       </span>
-      </div>
+      </button>
     )
   }
 }

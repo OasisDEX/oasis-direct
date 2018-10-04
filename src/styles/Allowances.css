@@ -40,6 +40,8 @@
   border-radius: 4px;
 
   padding: 16px 24px;
+
+  background: transparent;
 }
 
 .allowances .tokens .token-list .token .token-name {
