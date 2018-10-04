@@ -325,14 +325,18 @@ export default class SystemStore {
       toWei(amountToPay),
       async (e, amountToBuy) => {
         if (this.trade.rand === rand) {
-          if(!e){
+          if (!e) {
             const evaluation = await evaluateTrade(toBigNumber(amountToPay), fromWei(amountToBuy));
-            this.trade = {...this.trade, ...evaluation};
+            if (this.trade.rand === rand) {
+              this.trade = {...this.trade, ...evaluation};
+            }
           } else {
-            this.trade.error = {
-              cause: `No orders available to sell ${amountToPay} ${from.toUpperCase()}`,
-              onTradeSide: `buy`,
-              isCritical: true
+            if (this.trade.rand === rand) {
+              this.trade.error = {
+                cause: `No orders available to sell ${amountToPay} ${from.toUpperCase()}`,
+                onTradeSide: `buy`,
+                isCritical: true
+              }
             }
           }
         }
@@ -435,15 +439,17 @@ export default class SystemStore {
       toWei(amountToBuy),
       async (e, amountToPay) => {
         if (this.trade.rand === rand) {
-          if(!e){
+          if (!e) {
             const evaluation = await evaluateTrade(fromWei(amountToPay), toBigNumber(amountToBuy));
-            this.trade = {...this.trade, ...evaluation};
+            if (this.trade.rand === rand) this.trade = {...this.trade, ...evaluation};
           } else {
-            this.trade.error = {
-              cause: `No orders available to buy ${amountToBuy} ${to.toUpperCase()}`,
-              onTradeSide: `buy`,
-              isCritical: true
-            };
+            if (this.trade.rand === rand) {
+              this.trade.error = {
+                cause: `No orders available to buy ${amountToBuy} ${to.toUpperCase()}`,
+                onTradeSide: `buy`,
+                isCritical: true
+              };
+            }
           }
         }
       });
