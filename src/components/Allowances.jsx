@@ -16,7 +16,7 @@ const tokens = {
   dai: {
     icon: <DAI/>,
     symbol: "DAI",
-    name: "DAI",
+    name: "Dai",
   },
 };
 

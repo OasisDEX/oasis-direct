@@ -52,6 +52,7 @@
   color: #6B6B6C;
   letter-spacing: 0.2px;
   margin-left: 12px;
+  text-transform: capitalize;
 }
 
 .allowances .tokens .token-list .token.disabled {
