@@ -23,8 +23,12 @@ class ProxyDetailsView extends Component {
     return <section className="proxy-details">
       <div className={`proxy-status ${this.props.profile.proxy ? "activated" : ""}`}>
         <AccountIcon/>
-        <span className="label">Account Proxy</span>
-        <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
+        <span className="label">
+          {
+            this.props.profile.proxy ? "Proxy already created" : "Proxy not created"
+          }
+        </span>
+        <Attention data-tip data-for="proxy-tooltip" className="attention-icon"/>
         <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
           <p>
             Proxy is a supporting contract owned by you that groups different actions as one Ethereum transaction.
@@ -58,7 +62,7 @@ class ProxyDetailsView extends Component {
             : (
               <React.Fragment>
                 <Attention className="attention-icon"/>
-                <p className="warning-text">You do not need to create an universal account manually. It will be
+                <p className="warning-text">You do not need to create a proxy manually. It will be
                                             automatically created for you.</p>
               </React.Fragment>
             )
