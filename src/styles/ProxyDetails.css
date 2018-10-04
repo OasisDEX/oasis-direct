@@ -25,8 +25,12 @@
   letter-spacing: 0.3px;
 }
 
-.proxy-details button.gray:hover {
+.proxy-details button.gray:hover:not(:disabled) {
   border-color:#c7d1eb;
+}
+
+.proxy-details button.gray[disabled] {
+  color: #DEE4F4;
 }
 
 .proxy-details .proxy-status {

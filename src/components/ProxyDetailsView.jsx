@@ -23,40 +23,12 @@ class ProxyDetailsView extends Component {
       this.allowanceInterval = setInterval(() => {
         this.props.profile.loadAllowances();
       }, 1000);
-    } else {
-      this.checkIfUserHasEnoughFunds().then((hasFunds) => {
-        this.setState({hasFunds});
-      });
     }
-
-    autorun(() => {
-      if (!this.props.profile.proxy) {
-        this.checkIfUserHasEnoughFunds().then((hasFunds) => {
-          this.setState({hasFunds});
-        });
-      }
-    })
   }
 
   componentWillUnmount() {
     clearInterval(this.allowanceInterval);
   }
-
-  checkIfUserHasEnoughFunds = async () => {
-    const account = this.props.profile.rootStore.network.defaultAccount;
-
-    const txData = {
-      to: blockchain.objects.proxyRegistry.address,
-      data: blockchain.objects.proxyRegistry.build.getData(),
-      value: 0,
-      from: account
-    };
-
-    const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from);
-    const price = await this.props.profile.rootStore.transactions.getGasPrice();
-    const balance = await blockchain.getEthBalanceOf(account);
-    return balance.gt(toBigNumber(gas * price));
-  };
 
   render() {
 
@@ -78,7 +50,7 @@ class ProxyDetailsView extends Component {
           !this.props.profile.proxy
             ? !this.props.profile.isCreatingProxy
             ? (
-              <button type="button" className="gray" onClick={this.props.profile.createProxy}>
+              <button type="button" className="gray"  disabled={!this.props.profile.proxy && !this.props.profile.hasFunds} onClick={this.props.profile.createProxy}>
                 CREATE
               </button>
             )
@@ -92,8 +64,7 @@ class ProxyDetailsView extends Component {
             ? (
               <React.Fragment>
                 <span className="label">
-                  {this.props.profile.allowedTokensCount} Token{this.props.profile.allowedTokensCount !== 1 ? "s" : ""}
-                                                          enabled for Trading
+                  {this.props.profile.allowedTokensCount} Token{this.props.profile.allowedTokensCount !== 1 ? "s" : ""} enabled for Trading
                 </span>
                 <button type="button" className="gray" onClick={this.props.onEnableTokenClick}>
                   ENABLE TOKEN
@@ -103,7 +74,7 @@ class ProxyDetailsView extends Component {
             : (
               <div>
                 {
-                  !this.state.hasFunds &&
+                  !this.props.profile.hasFunds &&
                   <div className="attention">
                     <Attention className="attention-icon"/>
                     <p className="attention-text">You don't have enough Ether to pay for the transaction</p>

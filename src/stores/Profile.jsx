@@ -4,10 +4,12 @@ import { tokens } from "../utils/tokens"
 
 // Utils
 import * as blockchain from "../utils/blockchain";
+import { toBigNumber } from "../utils/helpers";
 
 export default class ProfileStore {
   @observable proxy = -1;
   @observable isCreatingProxy = false;
+  @observable hasFundsToCreateProxy = true;
   @observable allowances = {};
 
   constructor(rootStore) {
@@ -30,6 +32,28 @@ export default class ProfileStore {
   @computed
   get allowedTokensCount() {
     return tokens.filter(token => this.allowances[token] > 0).length;
+  }
+
+  @computed
+  get hasFunds() {
+    if(!this.proxy){
+      const account = this.rootStore.network.defaultAccount;
+
+      const txData = {
+        to: blockchain.objects.proxyRegistry.address,
+        data: blockchain.objects.proxyRegistry.build.getData(),
+        value: 0,
+        from: account
+      };
+      console.log(txData);
+      ( async () => {
+        const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from).catch((e) => console.log());
+        const price = await this.rootStore.transactions.getGasPrice();
+        const balance = await blockchain.getEthBalanceOf(account);
+        this.hasFundsToCreateProxy = balance.gt(toBigNumber(gas * price));
+      })();
+    }
+    return this.hasFundsToCreateProxy;
   }
 
   @action createProxy = () => {
