@@ -62,13 +62,23 @@
   min-height: 48px;
 }
 
+.proxy-details .allowances-status .attention {
+  display:flex;
+  align-items: center;
+}
+
+.proxy-details .allowances-status .attention:not(:first-child){
+  margin-top: 8px;
+}
+
 .proxy-details .allowances-status .attention-icon {
+  flex-shrink: 0;
   height: 24px;
   width: 24px;
   margin-right: 16px;
 }
 
-.proxy-details .allowances-status .warning-text {
+.proxy-details .allowances-status .attention-text {
   width: fit-content;
   margin: 0;
   font-size: 13px;
@@ -84,6 +94,6 @@
   letter-spacing: 0.6px
 }
 
-.activated .account-icon {
+.proxy-details .activated .account-icon {
   fill: #66BB6A;
 }
