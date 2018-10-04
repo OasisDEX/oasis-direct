@@ -266,7 +266,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have enough ${amountPay} ${from.toUpperCase()} in your wallet`,
+          cause: `You don't have ${amountPay} ${from.toUpperCase()} in your wallet`,
           onTradeSide: `sell`,
         };
       }
@@ -274,7 +274,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: `${from.toUpperCase()} Minimum value is ${new BigNumber(minValueToSell).valueOf()}`,
+          cause: `The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
           onTradeSide: `sell`,
         };
       }
@@ -290,7 +290,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `${to.toUpperCase()} Minimum value is ${new BigNumber(minValueToBuy).valueOf()}`,
+          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
           onTradeSide: `buy`,
         };
       }
@@ -305,7 +305,7 @@ export default class SystemStore {
 
       if (!error && costs.gt(ethBalance)) {
         error = {
-          cause: "You won't have enough ETH to pay for the gas!",
+          cause: "You will not have enough Ether to pay for the transaction!",
         };
       }
 
@@ -375,7 +375,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have enough ${from.toUpperCase()} in your wallet`,
+          cause: `You don't have ${from.toUpperCase()} in your wallet`,
           onTradeSide: `sell`,
         }
       }
@@ -383,7 +383,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `${to.toUpperCase()} Minimum value is ${new BigNumber(minValueToBuy).valueOf()}`,
+          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
           onTradeSide: `buy`,
         }
       }
@@ -400,7 +400,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: `${from.toUpperCase()} Minimum value is ${new BigNumber(minValueToSell).valueOf()}`,
+          cause: ` The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
           onTradeSide: `sell`,
         };
       }
@@ -416,7 +416,7 @@ export default class SystemStore {
 
       if (!error && expenses.gt(ethBalance)) {
         error = {
-          cause: "You won't have enough ETH to pay for the gas!",
+          cause: "You will not have enough  Ether to pay for the transaction!",
         };
       }
 
