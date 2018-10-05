@@ -4,7 +4,7 @@ import { inject, observer } from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
 // UI Components
-import { SwapArrows, IdentityIcon, Circle, Attention } from "../components-ui/Icons";
+import { SwapArrows, IdentityIcon, Circle, Attention, CogWheel } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import TokensSelector from "../components-ui/TokensSelector";
@@ -30,7 +30,6 @@ class SetTrade extends React.Component {
       showTokenSelector: false,
       showPriceImpactWarning: false,
       hasAcceptedTerms: false,
-      priceInUSD: 0
     }
   }
 
@@ -88,7 +87,7 @@ class SetTrade extends React.Component {
 
   nextStep = e => {
     e.preventDefault();
-    if (this.priceImpact() > 5) {
+    if (this.props.system.priceImpact > 5) {
       this.setState({
         showPriceImpactWarning: true
       });
@@ -145,15 +144,16 @@ class SetTrade extends React.Component {
     .valueOf();
 
   render() {
+    const { priceImpact, balances } = this.props.system;
     return <React.Fragment>
       {
         this.state.showTokenSelector &&
-        <TokensSelector tokens={this.props.tokens} balances={this.props.system.balances} select={this.select}
+        <TokensSelector tokens={this.props.tokens} balances={balances} select={this.select}
                         back={() => this.setState({showTokenSelector: false})}/>
       }
       {
         this.state.showPriceImpactWarning &&
-        <PriceImpactWarning priceImpact={this.priceImpact()} onDismiss={this.rejectPriceImpact}
+        <PriceImpactWarning priceImpact={this.props.system.priceImpact} onDismiss={this.rejectPriceImpact}
                             onAcknowledge={this.acceptPriceImpact}/>
       }
       {
@@ -167,6 +167,12 @@ class SetTrade extends React.Component {
                   ? <Spinner styles={{width: "26px", height: "26px"}}/>
                   : <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
               }
+            </span>
+            <span className={`advanced-settings-placeholder ${!this.hasDetails() ? "disabled" : ""}`}
+                  onClick={this.props.showTradeSettings}>
+              <Circle hover={true}>
+                <CogWheel/>
+              </Circle>
             </span>
             <h2>Enter Order Details</h2>
             <span className="network-indicator-placeholder">
@@ -219,7 +225,7 @@ class SetTrade extends React.Component {
                       this.props.system.trade.txCost.gt(0)
                         ?
                         <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
-                          number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2}
+                          number={toWei(this.props.system.trade.txCost) * this.props.system.ethPriceInUSD} decimal={2}
                           token={"USD"}/></span>
                         :
                         <Spinner/>
@@ -235,8 +241,8 @@ class SetTrade extends React.Component {
                       </p>
                     </ReactTooltip>
                   </span>
-                  <span style={{color: this.priceImpact() > 5 ? "#E53935" : ""}}
-                        className="value">{this.priceImpact()}%</span>
+                  <span style={{color: priceImpact > 5 ? "#E53935" : ""}}
+                        className="value">{priceImpact}%</span>
                   </span>
                 </React.Fragment>
               }
@@ -248,12 +254,12 @@ class SetTrade extends React.Component {
                 <div className="token" onClick={() => this.pickToken("from")}>
                   <span className="token-icon">{this.props.tokens[this.state.from].icon}</span>
                   {
-                    !this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
+                    !balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                                   number={balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
@@ -275,12 +281,12 @@ class SetTrade extends React.Component {
                 <div className="token" onClick={() => this.pickToken("to")}>
                   <span className="token-icon">{this.props.tokens[this.state.to].icon}</span>
                   {
-                    !this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
+                    !balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                   number={balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }

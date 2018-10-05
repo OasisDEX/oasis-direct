@@ -1,13 +1,14 @@
 // Libraries
-import { observable } from "mobx";
+import { computed, observable } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import { toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from "../utils/helpers";
+import { toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice, fetchETHPriceInUSD } from "../utils/helpers";
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 
 export default class SystemStore {
+  @observable ethPriceInUSD = 0;
   @observable balances = {
     dai: null,
     eth: null,
@@ -38,6 +39,17 @@ export default class SystemStore {
 
   constructor(rootStore) {
     this.rootStore = rootStore;
+  }
+
+  @computed
+  get priceImpact() {
+    return this.trade.bestPriceOffer
+      .minus(this.trade.price)
+      .abs()
+      .div(this.trade.bestPriceOffer)
+      .times(100)
+      .round(2)
+      .valueOf()
   }
 
   init = () => {
@@ -77,6 +89,12 @@ export default class SystemStore {
     this.trade.errorInputSell = null;
     this.trade.errorInputBuy = null;
     this.trade.errorOrders = null;
+  }
+
+  getETHPriceInUSD = () => {
+    fetchETHPriceInUSD().then(price => {
+      this.ethPriceInUSD = price;
+    });
   }
 
   saveBalance = token => {
