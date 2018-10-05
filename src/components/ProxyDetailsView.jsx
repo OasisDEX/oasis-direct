@@ -3,9 +3,6 @@ import ReactTooltip from "react-tooltip";
 import { AccountIcon, Attention } from "../components-ui/Icons";
 import { inject, observer } from "mobx-react";
 import Spinner from "../components-ui/Spinner";
-import * as blockchain from "../utils/blockchain";
-import { toBigNumber } from "../utils/helpers";
-import { autorun } from "mobx";
 
 @inject("profile")
 @observer
