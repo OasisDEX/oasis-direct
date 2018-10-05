@@ -36,7 +36,7 @@ export default class ProfileStore {
 
   @computed
   get hasFunds() {
-    if(!this.proxy){
+    if(this.rootStore.network.defaultAccount && !this.proxy){
       const account = this.rootStore.network.defaultAccount;
 
       const txData = {
