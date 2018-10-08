@@ -105,6 +105,28 @@ export const getTokenAllowance = (token, from, to) => {
   return promisify(objects[token].allowance.call)(from, to);
 }
 
+export const setTokenAllowance = (token, to, allowedAmount) => {
+  return new Promise((resolve, reject) => {
+    objects[token].approve.sendTransaction(to, allowedAmount ,{}, (e, tx) => {
+      if(!e){
+        const pending_token_allowance = setInterval(async () => {
+          const receipt = await getTransactionReceipt(tx);
+          if (receipt) {
+            if (receipt.status === "0x1") {
+              resolve();
+            } else {
+              reject();
+            }
+            clearInterval(pending_token_allowance);
+          }
+        }, 1000);
+      } else {
+        reject(e);
+      }
+    });
+  });
+}
+
 export const getTokenTrusted = (token, from, to) => {
   return promisify(objects[token].allowance.call)(from, to)
     .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));

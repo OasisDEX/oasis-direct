@@ -1,0 +1,92 @@
+.frame.allowances {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+}
+
+.frame.allowances .selector {
+  margin-top: 20px;
+}
+
+.allowances .tokens-container,
+.allowances .tokens {
+  padding: 0;
+}
+
+.allowances .tokens,
+.allowances .tokens-container,
+.allowances .tokens .token-list {
+  width: 100%;
+}
+
+.allowances .tokens,
+.allowances .tokens .token-list {
+  max-width: none;
+}
+
+.allowances .tokens .token-list .token {
+  position: relative;
+
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  /*This should be max-width not a fixed*/
+  width: 212px;
+  max-height: 62px;
+
+  border-radius: 4px;
+
+  padding: 16px 24px;
+
+  background: transparent;
+}
+
+.allowances .tokens .token-list .token .token-name {
+  opacity: 0.95;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #6B6B6C;
+  letter-spacing: 0.2px;
+  margin-left: 12px;
+  text-transform: capitalize;
+}
+
+.allowances .tokens .token-list .token.disabled {
+  pointer-events: none;
+  cursor: none;
+}
+
+.allowances .tokens .token-list .token .done-placeholder .done {
+  fill: #DEE4F4;
+}
+.allowances .tokens .token-list .token .done-placeholder.active .done {
+  fill: #448AFF;
+}
+
+
+.allowances .done-placeholder {
+  position: absolute;
+  top: 10px !important;
+  right: 10px !important;
+
+  height: 16px;
+  width: 16px;
+}
+
+.allowances .done-placeholder svg {
+  height: 16px;
+  width: 16px;
+}
+
+.allowances .token-icon {
+  height: 28px;
+}
+
+.allowances .token-icon svg {
+  height: 28px;
+  width: 28px;
+}

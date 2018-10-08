@@ -89,10 +89,10 @@ export class Done extends React.PureComponent {
     return (
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <g id="old" fill="none" fillRule="evenodd">
-          <g id="Artboard-3" fill="#9E9E9E" fillRule="nonzero">
+          <g id="Artboard-3" fill="#9E9E9E" fillRule="nonzero" className="done">
             <path
               d="M12,0 C18.624,0 24,5.376 24,12 C24,18.624 18.624,24 12,24 C5.376,24 0,18.624 0,12 C0,5.376 5.376,0 12,0 Z M9.85714286,15 L6.85714286,12 L5.85714286,13 L9.85714286,17 L18.4285714,8.42857143 L17.4285714,7.42857143 L9.85714286,15 Z"
-              id="Combined-Shape"/>
+              id="Combined-Shape" />
           </g>
         </g>
       </svg>
@@ -435,20 +435,20 @@ export const StatusIcon = () => (
 );
 
 export const CoinbaseIcon = () => (
-  <svg width='28' height='28' viewBox='0 0 28 28' xmlns='http://www.w3.org/2000/svg'>
+  <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient x1='50%' y1='50%' x2='15.315%' y2='85.486%' id='linearGradient-1'>
-        <stop stopColor='#2059EB' offset='0%'/>
-        <stop stopColor='#1C54E6' offset='100%'/>
+      <linearGradient x1="50%" y1="50%" x2="15.315%" y2="85.486%" id="linearGradient-1">
+        <stop stopColor="#2059EB" offset="0%"/>
+        <stop stopColor="#1C54E6" offset="100%"/>
       </linearGradient>
     </defs>
-    <g fill='none' fillRule='evenodd'>
+    <g fill="none" fillRule="evenodd">
       <path
-        d='M14,28 C6.2680135,28 0,21.7319865 0,14 C0,6.2680135 6.2680135,0 14,0 C21.7319865,0 28,6.2680135 28,14 C28,21.7319865 21.7319865,28 14,28 Z'
-        className="filterable" fill='url(#linearGradient-1)' fillRule='nonzero'/>
+        d="M14,28 C6.2680135,28 0,21.7319865 0,14 C0,6.2680135 6.2680135,0 14,0 C21.7319865,0 28,6.2680135 28,14 C28,21.7319865 21.7319865,28 14,28 Z"
+        className="filterable" fill="url(#linearGradient-1)" fillRule="nonzero"/>
       <path
-        d='M14,22.2 C9.47126505,22.2 5.8,18.5287349 5.8,14 C5.8,9.47126505 9.47126505,5.8 14,5.8 C18.5287349,5.8 22.2,9.47126505 22.2,14 C22.2,18.5287349 18.5287349,22.2 14,22.2 Z M11.9937709,11.4 C11.6658403,11.4 11.4,11.6658403 11.4,11.9937709 L11.4,16.0062291 C11.4,16.3341597 11.6658403,16.6 11.9937709,16.6 L16.0062291,16.6 C16.3341597,16.6 16.6,16.3341597 16.6,16.0062291 L16.6,11.9937709 C16.6,11.6658403 16.3341597,11.4 16.0062291,11.4 L11.9937709,11.4 Z'
-        id='Combined-Shape' fill='#FFF' fillRule='nonzero'/>
+        d="M14,22.2 C9.47126505,22.2 5.8,18.5287349 5.8,14 C5.8,9.47126505 9.47126505,5.8 14,5.8 C18.5287349,5.8 22.2,9.47126505 22.2,14 C22.2,18.5287349 18.5287349,22.2 14,22.2 Z M11.9937709,11.4 C11.6658403,11.4 11.4,11.6658403 11.4,11.9937709 L11.4,16.0062291 C11.4,16.3341597 11.6658403,16.6 11.9937709,16.6 L16.0062291,16.6 C16.3341597,16.6 16.6,16.3341597 16.6,16.0062291 L16.6,11.9937709 C16.6,11.6658403 16.3341597,11.4 16.0062291,11.4 L11.9937709,11.4 Z"
+        id="Combined-Shape" fill="#FFF" fillRule="nonzero"/>
     </g>
   </svg>
 );
@@ -559,7 +559,7 @@ export const AccountIcon = () => (
     <g fill="none">
       <path
         d="M12,0 C5.376,0 0,5.376 0,12 C0,18.624 5.376,24 12,24 C18.624,24 24,18.624 24,12 C24,5.376 18.624,0 12,0 Z M12,3.6 C13.992,3.6 15.6,5.208 15.6,7.2 C15.6,9.192 13.992,10.8 12,10.8 C10.008,10.8 8.4,9.192 8.4,7.2 C8.4,5.208 10.008,3.6 12,3.6 Z M12,20.64 C9,20.64 6.348,19.104 4.8,16.776 C4.836,14.388 9.6,13.08 12,13.08 C14.388,13.08 19.164,14.388 19.2,16.776 C17.652,19.104 15,20.64 12,20.64 Z"
-        id="Account" fill="#9E9E9E"/>
+        className="account-icon" fill="#9E9E9E"/>
     </g>
   </svg>
 );

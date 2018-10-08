@@ -132,8 +132,13 @@ class SetTrade extends React.Component {
       :
         <section className="frame">
           <div className="heading">
-            <span className="identicon-placeholder" onClick={this.props.showConnectionDetails}>
-              <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount} /></Circle>
+            <span className={`identicon-placeholder ${this.props.network.loadingAddress ? "disabled" : ""}`}
+                  onClick={this.props.showConnectionDetails}>
+              {
+                this.props.network.loadingAddress
+                  ? <Spinner styles={{width: "26px", height: "26px"}}/>
+                  : <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
+              }
             </span>
             <h2>Enter Order Details</h2>
             <span className="network-indicator-placeholder">
