@@ -1,0 +1,82 @@
+.graph {
+  --base : 4px;
+  --baselength: calc(45 * var(--base));
+
+  --bar-background:#69F0AE;
+  --bar-border:#5ED69C;
+
+  --bar-background--danger: #FF8A80;
+  --bar-border--danger: #E67C73;
+
+  --arrow-color:  #FF5252;
+}
+
+.graph {
+  width: var(--baselength);
+
+  margin-bottom: calc(8  * var(--base));
+}
+
+.bar {
+  background: var(--bar-background);
+  border: 1px solid var(--bar-border);
+  border-radius: 1px;
+
+  height: calc(5  * var(--base));
+  margin-top: calc(2.5  * var(--base));
+}
+
+.bar-1 {
+  margin-top: 0;
+  width: calc(var(--baselength) / 3);
+}
+
+.bar-2 {
+  width: calc(var(--baselength) / 2);
+}
+
+.bar-3 {
+  width: calc(var(--baselength) * 3 / 4);
+}
+
+.bar-4 {
+  width: var(--baselength);
+}
+
+.bar.danger {
+  background: var(--bar-background--danger);
+  border: 1px solid var(--bar-border--danger);
+}
+
+.arrow-placeholder {
+  display: inline-block;
+  width: calc(var(--baselength) / 4);
+  height: calc(20 * var(--base));
+}
+
+.arrow {
+  position: relative;
+  display: block;
+  top: 0;
+
+  width: 4px;
+  height: calc(18.5  * var(--base));
+  background-color: var(--arrow-color);
+
+  margin: auto;
+}
+
+.arrow:after {
+  position: absolute;
+  display: block;
+  content: "";
+  width: 0;
+  height: 0;
+  bottom: -6px;
+  right: -4px;
+  border-top:  6px solid var(--arrow-color);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+

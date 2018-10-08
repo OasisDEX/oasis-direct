@@ -345,6 +345,10 @@
     height: auto;
     padding: 7px 8px;
   }
+
+  .price-impact-warning .container {
+    padding: 18px;
+  }
 }
 
 @media all and (max-width: 399px) {
