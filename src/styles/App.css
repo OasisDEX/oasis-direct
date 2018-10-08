@@ -1173,6 +1173,16 @@ a.clickable .transaction-info-box:hover {
   opacity: 1;
 }
 
+.terms-and-conditions.info-box.has-errors {
+  min-height: inherit;
+  font-size: 12px;
+  cursor: auto;
+}
+
+.terms-and-conditions.info-box.has-errors .label {
+  color: #EF5350;
+}
+
 .checkbox {
   height: 14px;
   width: 14px;
