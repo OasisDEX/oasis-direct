@@ -81,3 +81,21 @@ export const getActionCreateProxyAndSellETH = (network, operation, to, amount, l
   }
   return result;
 }
+
+export const roughTradeCost = (network, operation, tok1, amountTok1, tok2) => {
+  return new Promise((resolve, reject) => {
+    blockchain.loadObject("supportmethods", settings.chain[network].supportMethods)[`getOffersAmountTo${operation}`](
+      settings.chain[network].otc,
+      blockchain.objects[tok1].address,
+      toWei(amountTok1),
+      blockchain.objects[tok2.replace("eth", "weth")].address,
+      (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      })
+  });
+}
+  

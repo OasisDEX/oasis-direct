@@ -15,6 +15,7 @@ schema.legacyproxyregistry = require("../abi/legacyproxyregistry");
 schema.dsproxy = require("../abi/dsproxy");
 schema.matchingmarket = require("../abi/matchingmarket");
 schema.proxycreateandexecute = require("../abi/proxycreateandexecute");
+schema.supportmethods = require("../abi/supportmethods");
 
 export const objects = {}
 
