@@ -4,13 +4,14 @@ import { observer, inject } from "mobx-react";
 
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
-import { Attention } from "../components-ui/Icons";
+import { Attention, BackIcon, Circle } from "../components-ui/Icons";
 
 import { toWei } from "../utils/helpers";
 
 import * as settings from "../settings";
 import GasPriceDropdown from "./GasPriceDropdown";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
+import NetworkIndicator from "./NetworkIndicator";
 
 @inject("network")
 @inject("quotes")
@@ -18,11 +19,8 @@ import { GAS_PRICE_LEVELS } from "../utils/constants";
 @observer
 export default class TradeSettings extends Component {
 
-  updateGasPrice = (quote) => {
-    this.props.quotes.select(quote.level);
-  };
-
   updateCustom = (event) => {
+    this.props.quotes.select(GAS_PRICE_LEVELS.CUSTOM);
     this.props.quotes.update(event.target.value);
   };
 
@@ -32,8 +30,13 @@ export default class TradeSettings extends Component {
     return (
       <div className="frame trade-settings">
         <div className="heading">
+          <button className="back" onClick={this.props.onDismiss}>
+            <Circle><BackIcon/></Circle>
+          </button>
           <h2>Advanced Settings</h2>
-          <button className="close" onClick={this.props.onDismiss}/>
+          <div className="network-indicator-placeholder">
+            <NetworkIndicator network={this.props.network.network}/>
+          </div>
         </div>
         <div className="content">
           <div className={`info-box`}>
@@ -99,13 +102,12 @@ export default class TradeSettings extends Component {
                 <label className={`parameter-name`}>Transaction Fee</label>
                 <GasPriceDropdown quotes={this.props.quotes.priceList}
                                   default={this.props.quotes.selected}
-                                  onSelect={quote => this.updateGasPrice(quote)}/>
+                                  onSelect={quote => this.props.quotes.select(quote.level)}/>
               </div>
 
               <div className={`parameter column`}>
                 <div className={`parameter-value`}>
                   <input type="number"
-                         disabled={this.props.quotes.selected.level !== GAS_PRICE_LEVELS.CUSTOM}
                          onChange={this.updateCustom}
                          value={this.props.quotes.priceList[this.props.quotes.selected.level].price}/>
                   <span className={`parameter-unit`}>GWEI</span>
