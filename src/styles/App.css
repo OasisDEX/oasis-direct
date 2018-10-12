@@ -549,7 +549,11 @@
 }
 
 .cogwheel-icon {
-  fill: #CCD2E0;
+  fill: #6B6B6C;
+}
+
+.disabled .cogwheel-icon {
+  fill: #CCD2E0
 }
 
 .network-indicator-placeholder {
