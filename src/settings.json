@@ -65,6 +65,7 @@
       "fromBlock": 0
     }
   },
-  "gasPriceIncreaseInGwei":3
+  "gasPriceIncreaseInGwei":3,
+  "gasPriceRefreshRateInMilliseconds": 5000
 }
     

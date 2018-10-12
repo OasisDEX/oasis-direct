@@ -1,5 +1,5 @@
 // Libraries
-import { computed, observable } from "mobx";
+import { computed, observable, reaction } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -14,6 +14,8 @@ export default class SystemStore {
     eth: null,
     mkr: null
   };
+
+  @observable gasPrice = toBigNumber(this.rootStore.quotes.selected.price);
 
   @observable trade = {
     step: 1,
@@ -39,17 +41,42 @@ export default class SystemStore {
 
   constructor(rootStore) {
     this.rootStore = rootStore;
+
+    reaction(
+      () => this.rootStore.quotes.selected.price,
+      price => {
+        this.gasPrice = price;
+        if (this.trade.operation === "sellAll") {
+          this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
+        }
+        if (this.trade.operation === "buyAll") {
+          this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
+        }
+      }
+    )
   }
 
   @computed
   get priceImpact() {
-    return this.trade.bestPriceOffer
+
+    const priceImpact = this.trade.bestPriceOffer
       .minus(this.trade.price)
       .abs()
       .div(this.trade.bestPriceOffer)
       .times(100)
       .round(2)
-      .valueOf()
+      .valueOf();
+
+    if (isNaN(priceImpact)) {
+      return 0;
+    }
+
+    return priceImpact;
+  }
+
+  @computed
+  get threshold() {
+    return this.userSettings.threshold || settings.chain[this.rootStore.network.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")];
   }
 
   init = () => {
@@ -129,25 +156,22 @@ export default class SystemStore {
       } else {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 2;
-
-        this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.rootStore.transactions.logRequestTransaction("approval").then(() => {
-            const tokenObj = blockchain.objects[token];
-            const params = [dst, -1];
-            tokenObj.approve(...params.concat([{gasPrice}, (e, tx) => {
-              if (!e) {
-                this.rootStore.transactions.logPendingTransaction(tx, "approval", callbacks);
+        this.rootStore.transactions.logRequestTransaction("approval").then(() => {
+          const tokenObj = blockchain.objects[token];
+          const params = [dst, -1];
+          tokenObj.approve(...params.concat([{gasPrice: this.gasPrice}, (e, tx) => {
+            if (!e) {
+              this.rootStore.transactions.logPendingTransaction(tx, "approval", callbacks);
+            } else {
+              if (this.rootStore.transactions.isErrorDevice(e)) {
+                this.rootStore.transactions.logTransactionErrorDevice("approval");
               } else {
-                if (this.rootStore.transactions.isErrorDevice(e)) {
-                  this.rootStore.transactions.logTransactionErrorDevice("approval");
-                } else {
-                  this.rootStore.transactions.logTransactionRejected("approval");
-                }
+                this.rootStore.transactions.logTransactionRejected("approval");
               }
-            }]));
-          }, e => {
-            console.debug("Couldn't calculate gas price because of", e);
-          });
+            }
+          }]));
+        }, e => {
+          console.debug("Couldn't calculate gas price because of", e);
         });
       }
     }, () => {
@@ -157,47 +181,45 @@ export default class SystemStore {
   executeProxyTx = (amount, limit) => {
     const data = oasis.getCallDataAndValue(this.rootStore.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
     this.rootStore.transactions.logRequestTransaction("trade").then(() => {
-      this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-        const proxy = blockchain.objects.proxy;
-        const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
-        proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice}, (e, tx) => {
-          if (!e) {
-            this.rootStore.transactions.logPendingTransaction(tx, "trade");
+      const proxy = blockchain.objects.proxy;
+      const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
+      proxy.execute["address,bytes"](...params.concat([{value: data.value, price: this.gasPrice}, (e, tx) => {
+        if (!e) {
+          this.rootStore.transactions.logPendingTransaction(tx, "trade");
+        } else {
+          console.log(e);
+          if (this.rootStore.transactions.isErrorDevice(e)) {
+            this.rootStore.transactions.logTransactionErrorDevice("trade");
           } else {
-            console.log(e);
-            if (this.rootStore.transactions.isErrorDevice(e)) {
-              this.rootStore.transactions.logTransactionErrorDevice("trade");
-            } else {
-              this.rootStore.transactions.logTransactionRejected("trade");
-            }
+            this.rootStore.transactions.logTransactionRejected("trade");
           }
-        }]));
-      }, () => {
-      });
+        }
+      }]));
     }, () => {
     });
   }
 
   executeProxyCreateAndSellETH = (amount, limit) => {
     const data = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, this.trade.operation, this.trade.to, amount, limit);
-    this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-      this.rootStore.transactions.logRequestTransaction("trade").then(() => {
-        const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
-        proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
-          if (!e) {
-            this.rootStore.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+    this.rootStore.transactions.logRequestTransaction("trade").then(() => {
+      const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
+      proxyCreateAndExecute[data.method](...data.params.concat([{
+        value: data.value,
+        gasPrice: this.gasPrice
+      }, (e, tx) => {
+        if (!e) {
+          this.rootStore.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+        } else {
+          console.log(e);
+          if (this.rootStore.transactions.isErrorDevice(e)) {
+            this.rootStore.transactions.logTransactionErrorDevice("trade");
           } else {
-            console.log(e);
-            if (this.rootStore.transactions.isErrorDevice(e)) {
-              this.rootStore.transactions.logTransactionErrorDevice("trade");
-            } else {
-              this.rootStore.transactions.logTransactionRejected("trade");
-            }
+            this.rootStore.transactions.logTransactionRejected("trade");
           }
-        }]));
-      }, () => {
-      });
-    }, e => console.debug("Couldn't calculate gas price because of:", e));
+        }
+      }]));
+    }, () => {
+    });
   }
 
   doTrade = () => {
@@ -226,22 +248,20 @@ export default class SystemStore {
       if (this.rootStore.profile.proxy) {
         this.rootStore.transactions.executeCallbacks(callbacks);
       } else {
-        this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.rootStore.transactions.logRequestTransaction("proxy").then(() => {
-            callbacks = [["profile/getAndSetProxy", callbacks]];
-            this.trade.txs = 3;
-            this.trade.step = 2;
-            blockchain.objects.proxyRegistry.build({gasPrice}, (e, tx) => {
-              if (!e) {
-                this.rootStore.transactions.logPendingTransaction(tx, "proxy", callbacks);
+        this.rootStore.transactions.logRequestTransaction("proxy").then(() => {
+          callbacks = [["profile/getAndSetProxy", callbacks]];
+          this.trade.txs = 3;
+          this.trade.step = 2;
+          blockchain.objects.proxyRegistry.build({gasPrice: this.gasPrice}, (e, tx) => {
+            if (!e) {
+              this.rootStore.transactions.logPendingTransaction(tx, "proxy", callbacks);
+            } else {
+              if (this.rootStore.transactions.isErrorDevice(e)) {
+                this.rootStore.transactions.logTransactionErrorDevice("proxy");
               } else {
-                if (this.rootStore.transactions.isErrorDevice(e)) {
-                  this.rootStore.transactions.logTransactionErrorDevice("proxy");
-                } else {
-                  this.rootStore.transactions.logTransactionRejected("proxy");
-                }
+                this.rootStore.transactions.logTransactionRejected("proxy");
               }
-            });
+            }
           });
         });
       }
@@ -571,38 +591,42 @@ export default class SystemStore {
           this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)
         ]
       ).then(r => {
-                    // 150K gas as base cost
-                    // 133K per each complete offer taken
-                    // 70K if partially order taken
-                    const gasCost = r[0][0].times(136500).add(r[0][1] ? 70000 : 0).add(141100);
-                    console.log("Rough trade cost:", gasCost.valueOf(), "gas")
-                    console.log("Rough trade gas Price:", r[1].valueOf(), "Gwei")
-                    resolve(r[1].times(gasCost));
-                  },
-             e => reject(e)
+          // 150K gas as base cost
+          // 133K per each complete offer taken
+          // 70K if partially order taken
+          const gasCost = r[0][0].times(136500).add(r[0][1] ? 70000 : 0).add(141100);
+          console.log("Rough trade cost:", gasCost.valueOf(), "gas")
+          console.log("Rough trade gas Price:", r[1].valueOf(), "Gwei")
+          resolve(r[1].times(gasCost));
+        },
+        e => reject(e)
       );
     });
   }
 
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
-      Promise.all([blockchain.estimateGas(to, data, value, from), this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
+      console.log("Calculating cost...");
+
+      blockchain.estimateGas(to, data, value, from).then(gas => {
+        console.log(to, data, value, from);
+        console.log(gas, this.gasPrice.valueOf());
+
         if (data === "0x8e1a55fc") {
-          console.log("Create proxy cost:", r[0].toString(), "gas");
-          console.log("Create proxy gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Create proxy cost:", gas.toString(), "gas");
+          console.log("Create proxy gas Price:", this.gasPrice.valueOf(), "Gwei");
         } else if (data.substr(0, 10) === "0x095ea7b3") {
-          console.log("Approve cost:", r[0].toString(), "gas");
-          console.log("Approve gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Approve cost:", gas.toString(), "gas");
+          console.log("Approve gas Price:", this.gasPrice.valueOf(), "Gwei");
         } else {
-          console.log("Trade cost:", r[0].toString(), "gas")
-          console.log("Trade gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Trade cost:", gas.toString(), "gas");
+          console.log("Trade gas Price:", this.gasPrice.valueOf(), "Gwei");
         }
-        // console.log(to, data, value, from);
-        
-        resolve(r[1].times(r[0]));
+
+        resolve(this.gasPrice.times(gas));
       }, e => {
         reject(e);
       });
-    });
+    })
   }
 }

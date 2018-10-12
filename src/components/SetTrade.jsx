@@ -13,7 +13,6 @@ import TokensSelector from "../components-ui/TokensSelector";
 import { toWei } from "../utils/helpers";
 
 // Settings
-import * as settings from "../settings";
 import NetworkIndicator from "./NetworkIndicator";
 import { PriceImpactWarning } from "./PriceImpactWarning";
 
@@ -217,7 +216,7 @@ class SetTrade extends React.Component {
                       </ReactTooltip>
                     </span>
                     <span
-                      className="value">{settings.chain[this.props.network.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join("")]}%</span>
+                      className="value">{this.props.system.threshold}%</span>
                   </span>
                   <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
