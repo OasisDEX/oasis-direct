@@ -88,6 +88,10 @@ export const setFilter = (fromBlock, address) => {
   return promisify(web3.eth.filter)({fromBlock, address});
 }
 
+export const setFilter2 = (fromBlock, address, cb) => {
+  return web3.eth.filter({fromBlock, address}).watch(cb);
+}
+
 export const resetFilters = bool => {
   web3.reset(bool);
 }

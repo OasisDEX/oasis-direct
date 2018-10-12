@@ -321,20 +321,20 @@ class App extends Component {
           } else {
             // Check if the transaction was replaced by a new one
             // Using logs:
-            Blockchain.setFilter(
+            Blockchain.setFilter2(
               transactions[type].checkFromBlock,
-              settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-            ).then(r => {
-              r.forEach(v => {
-                Blockchain.getTransaction(v.transactionHash).then(r2 => {
-                  if (r2.from === this.state.network.defaultAccount &&
-                    r2.nonce === transactions[type].nonce) {
-                    this.saveReplacedTransaction(type, v.transactionHash);
-                  }
-                })
-              });
-            }, () => {
-            });
+              settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
+              (err, r) => {
+                [r].forEach(v => {
+                  Blockchain.getTransaction(v.transactionHash).then(r2 => {
+                    if (r2.from === this.state.network.defaultAccount &&
+                      r2.nonce === transactions[type].nonce) {
+                      this.saveReplacedTransaction(type, v.transactionHash);
+                    }
+                  })
+                });
+              }
+            )
             // Using Etherscan API (backup)
             this.getTransactionsByAddressFromEtherscan(this.state.network.defaultAccount, transactions[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
@@ -352,11 +352,11 @@ class App extends Component {
       } else {
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountSell !== 'undefined' && transactions[type].amountSell.eq(-1)) {
           // Using Logs
-          Blockchain.setFilter(
+          Blockchain.setFilter2(
             transactions[type].checkFromBlock,
-            settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('sell', logs), () => {
-          });
+            settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
+            (err, logs) => this.saveTradedValue('sell', [logs])
+          )
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.from.replace('eth', 'weth')].address,
             transactions[type].checkFromBlock).then(logs => {
@@ -368,12 +368,11 @@ class App extends Component {
         }
         if (typeof transactions[type] !== 'undefined' && typeof transactions[type].amountBuy !== 'undefined' && transactions[type].amountBuy.eq(-1)) {
           // Using Logs
-          Blockchain.setFilter(
+          Blockchain.setFilter2(
             transactions[type].checkFromBlock,
-            settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address
-          ).then(logs => this.saveTradedValue('buy', logs), () => {
-          }, () => {
-          });
+            settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
+            (err, logs) => this.saveTradedValue('buy', [logs])
+          );
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.state.network.network].tokens[this.state.trade.to.replace('eth', 'weth')].address,
             transactions[type].checkFromBlock).then(logs => {
