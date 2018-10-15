@@ -24,14 +24,13 @@
           "minValue": 0.00001
         }
       },
+      "supportMethods": "0xa8cdfab5b739040348e0e521f58372fe62590acf",
       "proxyRegistry": "0x64a436ae831c1672ae81f674cab8b6775df3475c",
       "proxyFactory": "0xe11e3b391f7e8bc47247866af32af67dd58dc800",
       "proxyCreationAndExecute": "0xee419971e63734fed782cfe49110b1544ae8a773",
       "proxyContracts": {
         "oasisDirect": "0xe635f5f52220a114fea0985abf7ec8144710507b"
       },
-      "addrEstimation": "0xdb33dfd3d61308c33c63209845dad3e6bfb2c674",
-      "proxyEstimation": "0x1b68f4c1681e723f5c6db120cc6a7da58db37c37",
       "fromBlock": 0
     },
     "main": {
@@ -56,14 +55,13 @@
           "minValue": 30
         }
       },
+      "supportMethods": "0xe5decbdcca2e9957b525fb04293f1eeeb547baab",
       "proxyRegistry": "0x4678f0a6958e4d2bc4f1baf7bc52e8f3564f3fe4",
       "proxyFactory": "0xa26e15c895efc0616177b7c1e7270a4c7d51c997",
       "proxyCreationAndExecute": "0x793ebbe21607e4f04788f89c7a9b97320773ec59",
       "proxyContracts": {
         "oasisDirect": "0x279594b6843014376a422ebb26a6eab7a30e36f0"
       },
-      "addrEstimation": "0x1f3d07be27601f9a7c17b0564d53b55552026337",
-      "proxyEstimation": "0x407368b59d8d27afad7321944eb811b935d5b974",
       "fromBlock": 0
     }
   },
