@@ -1,5 +1,6 @@
 // Libraries
 import React from "react";
+import { GAS_PRICE_LEVELS } from "../utils/constants";
 
 class GasPriceDropdown extends React.Component {
   constructor(props) {
@@ -34,7 +35,10 @@ class GasPriceDropdown extends React.Component {
                         this.setState({selected: quote})
                       }}>
                   <span> {quote.level} </span>
-                  <span className={`Details`}>{quote.price} GWEI</span>
+                  {
+                    quote.level !== GAS_PRICE_LEVELS.CUSTOM
+                    && <span className={`Details`}>{quote.price} GWEI</span>
+                  }
                 </span>
               )
             })

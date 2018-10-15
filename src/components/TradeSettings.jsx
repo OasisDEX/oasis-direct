@@ -22,9 +22,7 @@ export default class TradeSettings extends Component {
     super();
     this.state = {
       threshold: '',
-      gasPrice: props.quotes.selected.level === GAS_PRICE_LEVELS.CUSTOM
-        ? ''
-        : fromWei(props.quotes.selected.price, "GWEI")
+      gasPrice: fromWei(props.quotes.selected.price, "GWEI")
     }
   }
 
@@ -46,10 +44,8 @@ export default class TradeSettings extends Component {
   };
 
   changeGasPriceLevel = (quote) => {
-    if (quote.level === GAS_PRICE_LEVELS.CUSTOM) {
-      this.setState({gasPrice: ''});
-    }
     this.props.quotes.select(quote.level);
+    this.setState({gasPrice: fromWei(this.props.quotes.selected.price, "GWEI")});
   };
 
   hasEmptyValues = () => !this.props.quotes.selected.price || !this.props.system.threshold;
@@ -165,8 +161,8 @@ export default class TradeSettings extends Component {
                   <label className={`parameter-name`}>Slippage Limit</label>
                   <div className={`parameter-value`}>
                     <input type="number"
-                           placeholder={this.props.system.threshold}
                            value={this.state.threshold}
+                           placeholder={this.props.system.threshold}
                            onChange={this.updateThresholdPercentage}
                     />
                     <span className={`parameter-unit`}>%</span>

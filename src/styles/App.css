@@ -548,7 +548,10 @@
   left: 22px;
 }
 
-.cogwheel-icon,
+.cogwheel-icon {
+  fill: #757575;
+}
+
 .back-icon {
   fill: #6B6B6C;
 }

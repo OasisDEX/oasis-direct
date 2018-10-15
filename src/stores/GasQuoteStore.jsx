@@ -41,7 +41,10 @@ export default class GasQuoteStore {
                 average: toBigNumber(fromWei(estimation, "GWEI")).add(settings.gasPriceIncreaseInGwei).toNumber()
               }
             },
-            error => console.debug("Cannot estimate GAS cost: ", error));
+            error => {
+              console.debug("Cannot estimate GAS cost: ", error);
+              return {average: 0};
+            });
       });
     return estimate.then(price => {
       this.priceList = {
@@ -55,7 +58,7 @@ export default class GasQuoteStore {
         },
         [GAS_PRICE_LEVELS.CUSTOM]: {
           level: GAS_PRICE_LEVELS.CUSTOM,
-          price: (this.priceList[GAS_PRICE_LEVELS.CUSTOM] && this.priceList[GAS_PRICE_LEVELS.CUSTOM].price) || 0,
+          price: (this.priceList[GAS_PRICE_LEVELS.CUSTOM] && this.priceList[GAS_PRICE_LEVELS.CUSTOM].price) || price.average,
         }
       };
 
@@ -71,6 +74,8 @@ export default class GasQuoteStore {
   @action update = (price) => {
     this.priceList[GAS_PRICE_LEVELS.CUSTOM].price = price;
     this.selected.price = toBigNumber(toWei(price, 'GWEI'));
-  }
+  };
+
+  priceOf = (level) => this.priceList[level].price;
 }
 
