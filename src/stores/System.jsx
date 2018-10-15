@@ -214,7 +214,8 @@ export default class SystemStore {
     this.rootStore.transactions.logRequestTransaction("trade").then(() => {
       const proxy = blockchain.objects.proxy;
       const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
-      proxy.execute["address,bytes"](...params.concat([{value: data.value, price: this.gasPrice}, (e, tx) => {
+
+      proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice: this.gasPrice}, (e, tx) => {
         if (!e) {
           this.rootStore.transactions.logPendingTransaction(tx, "trade");
         } else {
@@ -256,7 +257,7 @@ export default class SystemStore {
   doTrade = () => {
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
     const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
-    console.log(limit);
+
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
@@ -619,7 +620,7 @@ export default class SystemStore {
       Promise.all(
         [
           oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2),
-          this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)
+          this.gasPrice
         ]
       ).then(r => {
           // 150K gas as base cost
