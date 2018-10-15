@@ -2,6 +2,38 @@
   "hwNetwork": "main",
   "etherscanApiKey": "34JVYM6RPM3J1SK8QXQFRNSHD9XG4UHXVU",
   "chain": {
+    "private": {
+      "nodeURL": "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
+      "threshold": {
+        "daieth": 2,
+        "daimkr": 1,
+        "ethmkr": 1
+      },
+      "otc": "0x4e5F802405B29fFae4AE2a7dA1d9cEEB53904D55",
+      "tokens": {
+        "weth": {
+          "address": "0x28085CEfA9103d3a55Fb5AfCcf07eD2038d31cD4",
+          "minValue": 0.00000001
+        },
+        "mkr": {
+          "address": "0xe80C262f63df9376d2ce9eDd373832EDc9FCA46E",
+          "minValue": 0.00000001
+        },
+        "dai": {
+          "address": "0xff500C51399A282f4563F2713fFCBe9e53cfb6Fa",
+          "minValue": 0.00001
+        }
+      },
+      "proxyRegistry": "0xaaFA8e458298D75ADb5C418a8026A28696086fC8",
+      "proxyFactory": "0x587635C60eC92BA1AE5db1e1DD7839FED9d23700",
+      "proxyCreationAndExecute": "0xbe84036C11964E9743F056f4e780a99d302a77c4",
+      "proxyContracts": {
+        "oasisDirect": "0x174805bDBE92fBb6eC91D602BE4DDaF7F7E51EA6"
+      },
+      "addrEstimation": "0xf18938a83cff0ae67dc105155469556d4224c48f",
+      "proxyEstimation": "0x6F2CCd7D1703E5666e6e00783286Cf418C153E38",
+      "fromBlock": 0
+    },
     "kovan": {
       "nodeURL" : "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
