@@ -255,8 +255,8 @@ export default class SystemStore {
 
   doTrade = () => {
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
-    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold) : this.trade.amountPay.times(1 + this.threshold)).round(0);
-
+    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
+    console.log(limit);
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
