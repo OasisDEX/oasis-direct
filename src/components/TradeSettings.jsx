@@ -6,7 +6,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import { Attention, BackIcon, Circle } from "../components-ui/Icons";
 
-import { calculateTradePrice, toBigNumber, toWei } from "../utils/helpers";
+import { calculateTradePrice, fromWei, toBigNumber, toWei } from "../utils/helpers";
 
 import GasPriceDropdown from "./GasPriceDropdown";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
@@ -18,25 +18,38 @@ import NetworkIndicator from "./NetworkIndicator";
 @observer
 export default class TradeSettings extends Component {
 
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       threshold: '',
-      gasPrice: ''
+      gasPrice: props.quotes.selected.level === GAS_PRICE_LEVELS.CUSTOM
+        ? ''
+        : fromWei(props.quotes.selected.price, "GWEI")
     }
   }
 
   updateCustom = (event) => {
     const gasPrice = event.target.value;
-    this.setState({ gasPrice });
-    this.props.quotes.select(GAS_PRICE_LEVELS.CUSTOM);
-    this.props.quotes.update(gasPrice);
+    this.setState({gasPrice});
+    if (gasPrice) {
+      this.props.quotes.select(GAS_PRICE_LEVELS.CUSTOM);
+      this.props.quotes.update(gasPrice);
+    }
   };
 
   updateThresholdPercentage = (event) => {
-    const threshold = event.target.value;
-    this.setState({ threshold});
-    this.props.system.threshold = event.target.value;
+    let threshold = event.target.value;
+    if (threshold) {
+      this.props.system.threshold = event.target.value;
+    }
+    this.setState({threshold});
+  };
+
+  changeGasPriceLevel = (quote) => {
+    if (quote.level === GAS_PRICE_LEVELS.CUSTOM) {
+      this.setState({gasPrice: ''});
+    }
+    this.props.quotes.select(quote.level);
   };
 
   hasEmptyValues = () => !this.props.quotes.selected.price || !this.props.system.threshold;
@@ -132,7 +145,7 @@ export default class TradeSettings extends Component {
                 <label className={`parameter-name`}>Transaction Fee</label>
                 <GasPriceDropdown quotes={this.props.quotes.priceList}
                                   default={this.props.quotes.selected}
-                                  onSelect={quote => this.props.quotes.select(quote.level)}/>
+                                  onSelect={quote => this.changeGasPriceLevel(quote) }/>
               </div>
 
               <div className={`parameter column`}>
