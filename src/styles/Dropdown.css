@@ -58,6 +58,10 @@
   justify-content: space-between;
 }
 
+.Selected:hover {
+  border-color: #C7D1EB;
+}
+
 .Option:hover {
   background: rgba(248, 250, 253, 0.50);
 }

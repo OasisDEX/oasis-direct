@@ -18,12 +18,24 @@ import NetworkIndicator from "./NetworkIndicator";
 @observer
 export default class TradeSettings extends Component {
 
+  constructor() {
+    super();
+    this.state = {
+      threshold: '',
+      gasPrice: ''
+    }
+  }
+
   updateCustom = (event) => {
+    const gasPrice = event.target.value;
+    this.setState({ gasPrice });
     this.props.quotes.select(GAS_PRICE_LEVELS.CUSTOM);
-    this.props.quotes.update(event.target.value);
+    this.props.quotes.update(gasPrice);
   };
 
   updateThresholdPercentage = (event) => {
+    const threshold = event.target.value;
+    this.setState({ threshold});
     this.props.system.threshold = event.target.value;
   };
 
@@ -32,8 +44,8 @@ export default class TradeSettings extends Component {
   calculateSlippage = () => {
     const {threshold, trade} = this.props.system;
     return this.props.system.trade.operation === "sellAll"
-      ? toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(5).toNumber()
-      : toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(5).toNumber();
+      ? toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber()
+      : toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber();
   };
 
   currencyPair = () => {
@@ -126,8 +138,9 @@ export default class TradeSettings extends Component {
               <div className={`parameter column`}>
                 <div className={`parameter-value`}>
                   <input type="number"
+                         placeholder={this.props.quotes.priceList[this.props.quotes.selected.level].price}
                          onChange={this.updateCustom}
-                         value={this.props.quotes.priceList[this.props.quotes.selected.level].price}/>
+                         value={this.state.gasPrice}/>
                   <span className={`parameter-unit`}>GWEI</span>
                 </div>
               </div>
@@ -139,7 +152,8 @@ export default class TradeSettings extends Component {
                   <label className={`parameter-name`}>Slippage Limit</label>
                   <div className={`parameter-value`}>
                     <input type="number"
-                           value={this.props.system.threshold}
+                           placeholder={this.props.system.threshold}
+                           value={this.state.threshold}
                            onChange={this.updateThresholdPercentage}
                     />
                     <span className={`parameter-unit`}>%</span>

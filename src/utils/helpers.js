@@ -162,7 +162,6 @@ export const quotation = (from, to) => {
 };
 
 export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
-  console.log(amountSell, amountBuy);
   return (tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
     ?
     {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}/${tokenSell}`}

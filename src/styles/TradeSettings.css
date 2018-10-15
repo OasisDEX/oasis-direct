@@ -84,6 +84,10 @@
   color: rgba(73, 73, 74, 0.90);
 }
 
+input::placeholder {
+  color:#CCD2E0;
+}
+
 .trade-settings .settings-panel .info-box {
   padding: 14px;
 }
