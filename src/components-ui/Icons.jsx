@@ -469,7 +469,7 @@ export const BackIcon = () => (
       <g id="Icons/Navigation/Back" transform="translate(-8 -8)">
         <g id="Group" transform="translate(4 4)">
           <polygon id="Shape" points="0 0 20 0 20 20 0 20"/>
-          <polygon id="Shape" fill="#6B6B6C" fillRule="nonzero"
+          <polygon id="Shape"  className="back-icon" fillRule="nonzero"
                    points="15.3333333 9.33333333 7.22 9.33333333 10.9466667 5.60666667 10 4.66666667 4.66666667 10 10 15.3333333 10.94 14.3933333 7.22 10.6666667 15.3333333 10.6666667"
           />
         </g>

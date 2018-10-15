@@ -548,11 +548,13 @@
   left: 22px;
 }
 
-.cogwheel-icon {
+.cogwheel-icon,
+.back-icon {
   fill: #6B6B6C;
 }
 
-.disabled .cogwheel-icon {
+.disabled .cogwheel-icon,
+.disabled .back-icon {
   fill: #CCD2E0
 }
 

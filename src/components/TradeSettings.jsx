@@ -6,9 +6,8 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import { Attention, BackIcon, Circle } from "../components-ui/Icons";
 
-import { toWei } from "../utils/helpers";
+import { calculateTradePrice, toBigNumber, toWei } from "../utils/helpers";
 
-import * as settings from "../settings";
 import GasPriceDropdown from "./GasPriceDropdown";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
 import NetworkIndicator from "./NetworkIndicator";
@@ -24,18 +23,37 @@ export default class TradeSettings extends Component {
     this.props.quotes.update(event.target.value);
   };
 
+  updateThresholdPercentage = (event) => {
+    this.props.system.threshold = event.target.value;
+  };
+
+  hasEmptyValues = () => !this.props.quotes.selected.price || !this.props.system.threshold;
+
+  calculateSlippage = () => {
+    const {threshold, trade} = this.props.system;
+    return this.props.system.trade.operation === "sellAll"
+      ? toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(5).toNumber()
+      : toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(5).toNumber();
+  };
+
+  currencyPair = () => {
+    const {from, amountPay, to, amountBuy} = this.props.system.trade;
+    const result = calculateTradePrice(from, amountPay, to, amountBuy).priceUnit.split("/");
+    return {base: result[0], quote: result[1]}
+  };
+
   render() {
     const {trade, priceImpact, ethPriceInUSD} = this.props.system;
     const {network} = this.props.network;
     return (
       <div className="frame trade-settings">
         <div className="heading">
-          <button className="back" onClick={this.props.onDismiss}>
+          <button className={`back ${this.hasEmptyValues() ? 'disabled' : ''}`} onClick={this.props.onDismiss}>
             <Circle><BackIcon/></Circle>
           </button>
           <h2>Advanced Settings</h2>
           <div className="network-indicator-placeholder">
-            <NetworkIndicator network={this.props.network.network}/>
+            <NetworkIndicator network={network}/>
           </div>
         </div>
         <div className="content">
@@ -67,7 +85,7 @@ export default class TradeSettings extends Component {
                       </ReactTooltip>
                     </span>
                     <span
-                      className="value">{settings.chain[network].threshold[[trade.from, trade.to].sort((a, b) => a > b).join("")]}%</span>
+                      className="value">{this.props.system.threshold}%</span>
                   </span>
               <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
@@ -116,19 +134,16 @@ export default class TradeSettings extends Component {
             </div>
 
             <div className={`row`} style={{paddingBottom: `12px`}}>
-              <div className={`parameter column`}>
-                <label className={`parameter-name`}>Price Slippage Limit</label>
-                <div className={`parameter-value`}>
-                  <input type="number"/>
-                  <span className={`parameter-unit`}>ETH</span>
-                </div>
-              </div>
-
-              <div className={`parameter column`}>
-                <label className={`parameter-name`}>Slippage Limit</label>
-                <div className={`parameter-value`}>
-                  <input type="number"/>
-                  <span className={`parameter-unit`}>%</span>
+              <div style={{width: "50%"}}>
+                <div className={`parameter column`}>
+                  <label className={`parameter-name`}>Slippage Limit</label>
+                  <div className={`parameter-value`}>
+                    <input type="number"
+                           value={this.props.system.threshold}
+                           onChange={this.updateThresholdPercentage}
+                    />
+                    <span className={`parameter-unit`}>%</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -136,8 +151,12 @@ export default class TradeSettings extends Component {
             <div className={`attention info-box`}>
               <Attention className="attention-icon"/>
               <p className="attention-text">
-                The transaction will fail (and gas will be spent), if
-                the price of 1 MKR is higher then 1.23456 ETH
+                The transaction will fail (and gas will be spent), if the price of 1
+                <strong> {this.currencyPair().base.toUpperCase()}</strong> is
+                {
+                  this.props.system.trade.operation === "sellAll" ? " higher " : " lower "
+                } than ~{this.calculateSlippage()}
+                <strong> {this.currencyPair().quote.toUpperCase()}</strong>
               </p>
             </div>
           </div>

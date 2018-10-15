@@ -58,6 +58,10 @@
   margin-right: 0;
 }
 
+.trade-settings .settings-panel .row .parameter:first-child:last-child {
+  margin-right: 24px;
+}
+
 .trade-settings .parameter-name {
   color: #5B5B5C;
   letter-spacing: 1px;
@@ -109,3 +113,6 @@
   margin: 0;
 }
 
+.trade-settings strong {
+  font-weight: 600;
+}

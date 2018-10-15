@@ -3,12 +3,22 @@ import { computed, observable, reaction } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import { toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice, fetchETHPriceInUSD } from "../utils/helpers";
+import {
+  toBigNumber,
+  toWei,
+  fromWei,
+  BigNumber,
+  calculateTradePrice,
+  fetchETHPriceInUSD,
+  threshold as defaultThresholdFor
+} from "../utils/helpers";
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 
 export default class SystemStore {
   @observable ethPriceInUSD = 0;
+  @observable customThreshold;
+  @observable customSlippagePrice;
   @observable balances = {
     dai: null,
     eth: null,
@@ -43,6 +53,13 @@ export default class SystemStore {
     this.rootStore = rootStore;
 
     reaction(
+      () => this.rootStore.network.network,
+      network => {
+        this.customThreshold = defaultThresholdFor(network, this.trade.from, this.trade.to);
+      }
+    )
+
+    reaction(
       () => this.rootStore.quotes.selected.price,
       price => {
         this.gasPrice = price;
@@ -74,9 +91,23 @@ export default class SystemStore {
     return priceImpact;
   }
 
+  set threshold(value) {
+    this.customThreshold = value;
+  }
+
   @computed
   get threshold() {
-    return this.userSettings.threshold || settings.chain[this.rootStore.network.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")];
+    this.slippagePrice = this.trade.price * this.customThreshold / 100;
+    return this.customThreshold;
+  }
+
+  set slippagePrice(value) {
+    this.customSlippagePrice = value;
+  }
+
+  @computed
+  get slippagePrice() {
+    return this.customSlippagePrice;
   }
 
   init = () => {
@@ -224,8 +255,8 @@ export default class SystemStore {
 
   doTrade = () => {
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
-    const threshold = settings.chain[this.rootStore.network.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")] * 0.01;
-    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - threshold) : this.trade.amountPay.times(1 + threshold)).round(0);
+    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold) : this.trade.amountPay.times(1 + this.threshold)).round(0);
+
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
@@ -627,6 +658,6 @@ export default class SystemStore {
       }, e => {
         reject(e);
       });
-    })
+    });
   }
 }
