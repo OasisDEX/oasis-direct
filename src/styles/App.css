@@ -671,8 +671,7 @@ input[type=number]::-webkit-outer-spin-button {
   color: rgba(73, 73, 74, 0.90);
 }
 
-.info-box.has-errors {
-  border: 1px solid rgba(239, 83, 80, 0.20);
+.info-box.critical-error {
   min-height: 74px;
 }
 
