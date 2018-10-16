@@ -9,6 +9,7 @@ before_script:
 
 script:
   - yarn build
+  - ./cypress/scripts/run-e2e.sh
   - cd build
   - echo "oasis.direct" > CNAME
 

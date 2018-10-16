@@ -61,6 +61,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
+    "cypress:run": "cypress run",
     "cypress:dev": "cypress open"
   },
   "jest": {
@@ -106,6 +107,7 @@
   },
   "devDependencies": {
     "cypress": "^3.1.0",
+    "http-server": "^0.11.1",
     "truffle-privatekey-provider": "^0.1.0"
   }
 }

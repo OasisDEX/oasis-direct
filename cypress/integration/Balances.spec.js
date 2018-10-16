@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import { visitWithWeb3, tid } from "./utils";
+import { visitWithWeb3, tid } from "../utils";
 
 context('Balances', () => {
   beforeEach(() => {
