@@ -1,0 +1,39 @@
+version: 2
+
+jobs:
+  test:
+    machine:
+      enabled: true
+      image: circleci/classic:edge
+      docker_layer_caching: true
+
+    working_directory: /home/circleci/app
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v0-dependencies-{{ checksum "package.json" }}
+
+      - run: ./.circleci/install-yarn.sh
+
+      - run: source /opt/circleci/.nvm/nvm.sh && yarn install # --frozen-lockfile disabled for now since we heve to lockfiles :/
+
+      - save_cache:
+          paths:
+            - node_modules
+            - ~/.cache
+          key: v0-dependencies-{{ checksum "package.json" }}
+
+      - run: source /opt/circleci/.nvm/nvm.sh && yarn build
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker run -d -p 8545:8545 oasisdex/localnode
+      - run: source /opt/circleci/.nvm/nvm.sh && ./cypress/scripts/run-e2e.sh
+
+workflows:
+  version: 2
+
+  mainflow:
+    jobs:
+      - test

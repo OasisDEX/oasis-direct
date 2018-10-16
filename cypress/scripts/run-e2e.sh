@@ -8,5 +8,4 @@ server_pid=$!
 
 yarn cypress:run
 
-
 kill -9 $server_pid
