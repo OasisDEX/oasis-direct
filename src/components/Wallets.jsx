@@ -139,11 +139,11 @@ class Wallets extends React.Component {
                             <div className="client-summary">
                               {this.logoFor(getCurrentProviderName())}
                               <div>
-                                <span className="label status">Connected</span>
-                                <span className="label">{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
+                                <span className="label status" data-test-id="wallets-connection-status">Connected</span>
+                                <span className="label" data-test-id="wallets-name" >{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
                               </div>
                             </div>
-                            <button type="button" onClick={this.selectWallet}>
+                            <button type="button" data-test-id="wallets-continue" onClick={this.selectWallet}>
                               {
                                 this.props.network.loadingAddress
                                 ?
