@@ -1377,3 +1377,17 @@ a.clickable .transaction-info-box:hover {
   top: 0;
   box-shadow: 3px -3px 5px -2px rgba(0, 0, 0, .15);
 }
+
+.tilde {
+  position: absolute;
+  top:24px;
+  left: 16px;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 700;
+  opacity: 0.9;
+  font-size: 14px;
+  color: #CCD2E0;
+  letter-spacing: 0;
+  text-align: right;
+}

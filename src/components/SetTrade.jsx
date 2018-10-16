@@ -110,7 +110,7 @@ class SetTrade extends React.Component {
     const amountToPay = this.amountPay.value;
     const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
-    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 5))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.system.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
     }
   }
@@ -119,7 +119,7 @@ class SetTrade extends React.Component {
     const amountToBuy = this.amountBuy.value;
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
-    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 5))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.system.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
   }
@@ -263,7 +263,11 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
                 </div>
-                <div>
+                <div style={{position:"relative"}}>
+                  {
+                    (this.hasDetails() && this.props.system.trade.operation === "buyAll")
+                    && <span className="tilde">~</span>
+                  }
                   <input type="number"
                          className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "sell") ? "has-errors" : ""} `}
                          ref={(input) => this.amountPay = input}
@@ -290,7 +294,11 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }
                 </div>
-                <div>
+                <div style={{position:"relative"}}>
+                  {
+                    (this.hasDetails() && this.props.system.trade.operation === "sellAll")
+                    && <span className="tilde">~</span>
+                  }
                   <input type="number"
                          className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "buy") ? "has-errors" : ""} `}
                          ref={(input) => this.amountBuy = input}

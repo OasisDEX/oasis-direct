@@ -326,7 +326,7 @@ export default class SystemStore {
 
     const evaluateTrade = async (amountPay, amountBuy) => {
       let error = null;
-      const amountBuyInput = amountBuy.valueOf();
+      const amountBuyInput = amountBuy.toFixed(5).valueOf();
       const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
       let givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
       const balance = await blockchain.getBalanceOf(from, defaultAccount);
@@ -440,7 +440,7 @@ export default class SystemStore {
 
     const evaluateTrade = async (amountPay, amountBuy) => {
       let error = null;
-      const amountPayInput = amountPay.valueOf();
+      const amountPayInput = amountPay.toFixed(5).valueOf();
       const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
       const givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
 
