@@ -55,7 +55,9 @@ export default class SystemStore {
     reaction(
       () => this.rootStore.network.network,
       network => {
-        this.customThreshold = defaultThresholdFor(network, this.trade.from, this.trade.to);
+        if(network){
+          this.customThreshold = defaultThresholdFor(network, this.trade.from, this.trade.to);
+        }
       }
     )
 
@@ -63,11 +65,21 @@ export default class SystemStore {
       () => this.rootStore.quotes.selected.price,
       price => {
         this.gasPrice = price;
-        if (this.trade.operation === "sellAll") {
-          this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
-        }
-        if (this.trade.operation === "buyAll") {
-          this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
+        this.recalculate();
+      }
+    )
+
+    reaction(
+      () => this.trade.price,
+      price => {
+        if (price.gt(0)) {
+          this.priceTicker = setInterval(() => {
+           this.recalculate();
+          }, settings.priceTickerInterval);
+        } else {
+          if (this.priceTicker) {
+            this.stopPriceTicker();
+          }
         }
       }
     )
@@ -138,6 +150,13 @@ export default class SystemStore {
     };
   }
 
+  stopPriceTicker = () => {
+    if (this.priceTicker) {
+      clearInterval(this.priceTicker);
+      this.priceTicker = null;
+    }
+  };
+
   cleanInputs = () => {
     this.trade.amountPay = toBigNumber(0);
     this.trade.amountBuy = toBigNumber(0);
@@ -147,6 +166,15 @@ export default class SystemStore {
     this.trade.errorInputSell = null;
     this.trade.errorInputBuy = null;
     this.trade.errorOrders = null;
+  }
+
+  recalculate = () => {
+    if (this.trade.operation === "sellAll") {
+      this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
+    }
+    if (this.trade.operation === "buyAll") {
+      this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
+    }
   }
 
   getETHPriceInUSD = () => {
@@ -255,6 +283,7 @@ export default class SystemStore {
   }
 
   doTrade = () => {
+    this.stopPriceTicker();
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
     const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
 
