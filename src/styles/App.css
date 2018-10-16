@@ -443,7 +443,7 @@
   letter-spacing: 1.09px;
   font-size: 12px;
   text-align: right;
-  line-height: 15px;
+  line-height: 1.5;
 }
 
 .info-box .info-box-row--left {
@@ -637,12 +637,54 @@ input {
   border-radius: 2px;
 
   padding: 9px;
-
-  margin-top: 16px;
 }
 
 input:hover {
   border-color: #C7D1EB;
+}
+
+.tilde {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 700;
+  opacity: 0.9;
+  font-size: 14px;
+  color: #dee4f4;
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.amount-input-placeholder {
+  margin-top: 16px;
+  position: relative;
+}
+
+.amount-input-placeholder:hover input {
+  border-color: #C7D1EB;
+}
+
+.amount-input-placeholder:hover .tilde {
+  color: #C7D1EB;
+}
+
+.amount-input-placeholder.has-errors .tilde {
+  color: rgba(239, 83, 80, 0.20);
+}
+
+.amount-input-placeholder.has-errors input {
+  color: #EF5350;
+  border: 1px solid rgba(239, 83, 80, 0.20);
+}
+
+.amount-input-placeholder.has-errors:hover .tilde {
+  color: #FAC5C3;
+}
+
+.amount-input-placeholder.has-errors:hover input {
+  border: 1px solid #FAC5C3;
 }
 
 input[type=number] {
@@ -680,9 +722,8 @@ input[type=number]::-webkit-outer-spin-button {
   color: #EF5350;
 }
 
-input.has-errors {
-  color: #EF5350;
-  border: 1px solid rgba(239, 83, 80, 0.20);
+.error-msg.value {
+  font-size: 12px;
 }
 
 .separator {
@@ -1375,18 +1416,4 @@ a.clickable .transaction-info-box:hover {
 .od-tooltip.show.place-bottom:after {
   top: 0;
   box-shadow: 3px -3px 5px -2px rgba(0, 0, 0, .15);
-}
-
-.tilde {
-  position: absolute;
-  top:24px;
-  left: 16px;
-
-  font-family: Montserrat, sans-serif;
-  font-weight: 700;
-  opacity: 0.9;
-  font-size: 14px;
-  color: #dee4f4;
-  letter-spacing: 0;
-  text-align: right;
 }

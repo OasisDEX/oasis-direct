@@ -163,11 +163,11 @@
     padding: 7px;
   }
 
-  .frame > .info-box .info-box-row .holder:nth-child(even) {
+  .info-box .info-box-row .holder:nth-child(even) {
     padding-left: 6px;
   }
 
-  .frame > .info-box .info-box-row .holder:nth-child(odd) {
+  .info-box .info-box-row .holder:nth-child(odd) {
     padding-right: 6px;
   }
 
