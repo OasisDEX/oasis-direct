@@ -1,6 +1,6 @@
 // Libraries
 import React from "react";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 
 // Components
 import ActiveConnection from "./ActiveConnection";
@@ -8,10 +8,11 @@ import DoTrade from "./DoTrade";
 import SetTrade from "./SetTrade";
 
 // UI Components
-import {Ether, MKR, DAI} from "../components-ui/Icons";
+import { Ether, MKR, DAI } from "../components-ui/Icons";
 
 // Utils
-import {fetchETHPriceInUSD} from "../utils/helpers";
+import TradeSettings from "./TradeSettings";
+import { reaction } from "mobx";
 
 @inject("network")
 @inject("system")
@@ -20,61 +21,79 @@ class TradeWidget extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      ethBalance: 0,
-      showActiveConnection: false
-    }
+      view: null,
+    };
   }
 
   tokens = {
     eth: {
-      icon: <Ether />,
+      icon: <Ether/>,
       symbol: "ETH",
       name: "Ether"
     },
     mkr: {
-      icon: <MKR />,
+      icon: <MKR/>,
       symbol: "MKR",
       name: "Maker"
     },
     dai: {
-      icon: <DAI />,
+      icon: <DAI/>,
       symbol: "DAI",
       name: "DAI",
     },
   }
 
   componentDidMount() {
-    this.priceTickerInterval = (this.fetchPriceInUSD(), setInterval(this.fetchPriceInUSD, 3000000));
+    this.priceTickerInterval = (this.props.system.getETHPriceInUSD(), setInterval(this.props.system.getETHPriceInUSD, 3000000));
+    this.switchToNewTrade();
+
+    reaction(
+      () => this.props.system.trade.step,
+      step => {
+        switch (step) {
+          case 1:
+            this.switchToNewTrade();
+            break;
+          case 2:
+            this.switchToTradeFinalization();
+            break;
+          default:
+            this.switchToNewTrade();
+        }
+      });
   }
 
-  fetchPriceInUSD = () => {
-    fetchETHPriceInUSD().then(price => {
-      this.setState({priceInUSD: price});
+  switchToTradeSettings = () => {
+    this.setState({
+      view: <TradeSettings onDismiss={this.switchToNewTrade}/>
     })
-  }
+  };
 
-  showConnectionDetails = () => {
-    this.setState({showActiveConnection: true});
-  }
+  switchToActiveConnection = () => {
+    this.setState({
+      view: <ActiveConnection ethBalance={this.props.system.balances.eth} back={this.switchToNewTrade}/>
+    })
+  };
 
-  hideConnectionDetails = () => {
-    this.setState({showActiveConnection: false});
-  }
+  switchToNewTrade = () => {
+    this.setState({
+      view: <SetTrade tokens={this.tokens}
+                      showTradeSettings={this.switchToTradeSettings}
+                      showConnectionDetails={this.switchToActiveConnection}/>
+    })
+  };
+
+  switchToTradeFinalization = () => {
+    this.setState({
+      view: <DoTrade tokens={this.tokens}/>
+    })
+  };
+
 
   render() {
     return (
-      <div style={ {position: "relative"} }>
-        {
-          this.props.system.trade.step === 1
-          ?
-            this.state.showActiveConnection
-            ?
-              <ActiveConnection ethBalance={this.props.system.balances.eth} back={this.hideConnectionDetails} />
-            :
-              <SetTrade tokens={this.tokens} showConnectionDetails={this.showConnectionDetails} priceInUSD={this.state.priceInUSD} />
-          :
-            <DoTrade tokens={this.tokens} />
-        }
+      <div style={{position: "relative"}}>
+        {this.state.view}
       </div>
     )
   }

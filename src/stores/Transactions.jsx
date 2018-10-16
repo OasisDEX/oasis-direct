@@ -3,7 +3,7 @@ import {observable, computed} from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import {toWei, toBigNumber, addressToBytes32} from "../utils/helpers";
+import {toBigNumber, addressToBytes32} from "../utils/helpers";
 import * as settings from "../settings";
 
 export default class TransactionsStore {
@@ -269,46 +269,6 @@ export default class TransactionsStore {
 
   isErrorDevice = e => {
     return e.message === "invalid transport instance" || e.message.indexOf("Ledger device: UNKNOWN_ERROR") !== -1 || e.message === "Error: Window closed";
-  }
-
-  getGasPriceFromETHGasStation = () => {
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject("Request timed out!");
-      }, 3000);
-
-      fetch("https://ethgasstation.info/json/ethgasAPI.json", {
-        mode: "cors",
-        headers: {
-          "Access-Control-Request-Headers": "Content-Type",
-          "Content-Type": "text/plain",
-        }
-      }).then(stream => {
-        stream.json().then(price => {
-          clearTimeout(timeout);
-          resolve(toWei(price.average / 10, "gwei"));
-        })
-      }, e => {
-        clearTimeout(timeout);
-        reject(e);
-      });
-    })
-  }
-
-  getGasPrice = () => {
-    return new Promise((resolve, reject) => {
-      this.getGasPriceFromETHGasStation()
-        .then(estimation => resolve(estimation), () => {
-          blockchain.getGasPrice()
-            .then(estimation => resolve(estimation), error => reject(error));
-        });
-    });
-  };
-
-  fasterGasPrice = (increaseInGwei) => {
-    return this.getGasPrice().then(price => {
-      return toBigNumber(price).add(toBigNumber(toWei(increaseInGwei, "gwei")));
-    })
   }
 
   executeCallbacks = callbacks => {

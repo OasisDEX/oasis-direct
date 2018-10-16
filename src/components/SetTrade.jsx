@@ -4,7 +4,7 @@ import { inject, observer } from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
 // UI Components
-import { SwapArrows, IdentityIcon, Circle, Attention } from "../components-ui/Icons";
+import { SwapArrows, IdentityIcon, Circle, Attention, CogWheel } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import TokensSelector from "../components-ui/TokensSelector";
@@ -13,7 +13,6 @@ import TokensSelector from "../components-ui/TokensSelector";
 import { toWei } from "../utils/helpers";
 
 // Settings
-import * as settings from "../settings";
 import NetworkIndicator from "./NetworkIndicator";
 import { PriceImpactWarning } from "./PriceImpactWarning";
 
@@ -30,7 +29,6 @@ class SetTrade extends React.Component {
       showTokenSelector: false,
       showPriceImpactWarning: false,
       hasAcceptedTerms: false,
-      priceInUSD: 0
     }
   }
 
@@ -58,6 +56,7 @@ class SetTrade extends React.Component {
       return;
     }
 
+    this.props.system.trade.error = null;
     // If we have ETH / DAI for DEPOSIT / RECEIVE respectively  and we click on
     // DEPOSIT token and select DAI -> we swap the pair so it has DAI / ETH for
     // DEPOSIT / RECEIVE respectively. Close the token-picker.
@@ -88,7 +87,7 @@ class SetTrade extends React.Component {
 
   nextStep = e => {
     e.preventDefault();
-    if (this.priceImpact() > 5) {
+    if (this.props.system.priceImpact > 5) {
       this.setState({
         showPriceImpactWarning: true
       });
@@ -112,7 +111,7 @@ class SetTrade extends React.Component {
     const amountToPay = this.amountPay.value;
     const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
-    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 5))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.system.calculateBuyAmount(this.state.from, this.state.to, amountToPay);
     }
   }
@@ -121,7 +120,7 @@ class SetTrade extends React.Component {
     const amountToBuy = this.amountBuy.value;
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];
-    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 18))) { // 18 should be replaced with any token's decimals according to some sort of configuration
+    if (whole.length <= 15 && (!decimals || (decimals && decimals.length <= 5))) { // 18 should be replaced with any token's decimals according to some sort of configuration
       this.props.system.calculatePayAmount(this.state.from, this.state.to, amountToBuy);
     }
   }
@@ -145,15 +144,16 @@ class SetTrade extends React.Component {
     .valueOf();
 
   render() {
+    const { priceImpact, balances } = this.props.system;
     return <React.Fragment>
       {
         this.state.showTokenSelector &&
-        <TokensSelector tokens={this.props.tokens} balances={this.props.system.balances} select={this.select}
+        <TokensSelector tokens={this.props.tokens} balances={balances} select={this.select}
                         back={() => this.setState({showTokenSelector: false})}/>
       }
       {
         this.state.showPriceImpactWarning &&
-        <PriceImpactWarning priceImpact={this.priceImpact()} onDismiss={this.rejectPriceImpact}
+        <PriceImpactWarning priceImpact={this.props.system.priceImpact} onDismiss={this.rejectPriceImpact}
                             onAcknowledge={this.acceptPriceImpact}/>
       }
       {
@@ -168,6 +168,12 @@ class SetTrade extends React.Component {
                   : <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
               }
             </span>
+            <span className={`advanced-settings-placeholder ${!this.hasDetails() ? "disabled" : ""}`}
+                  onClick={this.props.showTradeSettings}>
+              <Circle hover={true}>
+                <CogWheel/>
+              </Circle>
+            </span>
             <h2>Enter Order Details</h2>
             <span className="network-indicator-placeholder">
               <NetworkIndicator network={this.props.network.network}/>
@@ -175,7 +181,6 @@ class SetTrade extends React.Component {
           </div>
           <div className={`info-box
               ${this.hasDetails() || this.hasCriticalErrors() ? "" : " info-box--hidden"}
-              ${this.hasCriticalErrors() ? "has-errors" : ""}
             `}>
             <div className="info-box-row wrap">
               {
@@ -211,7 +216,7 @@ class SetTrade extends React.Component {
                       </ReactTooltip>
                     </span>
                     <span
-                      className="value">{settings.chain[this.props.network.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join("")]}%</span>
+                      className="value">{this.props.system.threshold}%</span>
                   </span>
                   <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
@@ -219,7 +224,7 @@ class SetTrade extends React.Component {
                       this.props.system.trade.txCost.gt(0)
                         ?
                         <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
-                          number={toWei(this.props.system.trade.txCost) * this.props.priceInUSD} decimal={2}
+                          number={toWei(this.props.system.trade.txCost) * this.props.system.ethPriceInUSD} decimal={2}
                           token={"USD"}/></span>
                         :
                         <Spinner/>
@@ -235,8 +240,8 @@ class SetTrade extends React.Component {
                       </p>
                     </ReactTooltip>
                   </span>
-                  <span style={{color: this.priceImpact() > 5 ? "#E53935" : ""}}
-                        className="value">{this.priceImpact()}%</span>
+                  <span style={{color: priceImpact > 5 ? "#E53935" : ""}}
+                        className="value">{priceImpact}%</span>
                   </span>
                 </React.Fragment>
               }
@@ -248,17 +253,21 @@ class SetTrade extends React.Component {
                 <div className="token" onClick={() => this.pickToken("from")}>
                   <span className="token-icon">{this.props.tokens[this.state.from].icon}</span>
                   {
-                    !this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
+                    !balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={this.props.system.balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                                   number={balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
                 </div>
-                <div>
+                <div style={{position:"relative"}}>
+                  {
+                    (this.hasDetails() && this.props.system.trade.operation === "buyAll")
+                    && <span className="tilde">~</span>
+                  }
                   <input type="number"
                          className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "sell") ? "has-errors" : ""} `}
                          ref={(input) => this.amountPay = input}
@@ -275,17 +284,21 @@ class SetTrade extends React.Component {
                 <div className="token" onClick={() => this.pickToken("to")}>
                   <span className="token-icon">{this.props.tokens[this.state.to].icon}</span>
                   {
-                    !this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
+                    !balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={this.props.system.balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                   number={balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }
                 </div>
-                <div>
+                <div style={{position:"relative"}}>
+                  {
+                    (this.hasDetails() && this.props.system.trade.operation === "sellAll")
+                    && <span className="tilde">~</span>
+                  }
                   <input type="number"
                          className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "buy") ? "has-errors" : ""} `}
                          ref={(input) => this.amountBuy = input}

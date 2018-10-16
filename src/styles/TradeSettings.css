@@ -1,0 +1,122 @@
+.trade-settings .content {
+  flex-direction: column;
+
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.trade-settings .settings-panel {
+  padding: 16px;
+  border: 1px solid #F0F0F0;
+  border-radius: 4px 4px 6px 6px;
+}
+
+.trade-settings .settings-panel .row {
+  padding: 16px 0;
+}
+
+.trade-settings .settings-panel .row:first-child {
+  padding-top: 0;
+}
+
+.trade-settings .settings-panel .row:last-child {
+  padding-bottom: 0;
+}
+
+.trade-settings .settings-panel .row:not(:first-child) {
+  border-top: 1px solid #F7F7F8;
+}
+
+.trade-settings .settings-panel .row .parameter {
+  flex: 1 1 100%;
+
+  margin: 0 24px;
+
+  text-align: left;
+}
+
+.trade-settings .parameter-value .parameter-unit {
+  position: absolute;
+
+  top: 8px;
+  right: 16px;
+
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: right;
+
+  opacity: 0.9;
+  color: #CCD2E0;
+}
+
+.trade-settings .settings-panel .row .parameter:first-child {
+  margin-left: 0;
+}
+
+.trade-settings .settings-panel .row .parameter:last-child {
+  margin-right: 0;
+}
+
+.trade-settings .settings-panel .row .parameter:first-child:last-child {
+  margin-right: 24px;
+}
+
+.trade-settings .parameter-name {
+  color: #5B5B5C;
+  letter-spacing: 1px;
+
+  margin-bottom: 12px;
+}
+
+.trade-settings .parameter-value {
+  position: relative;
+}
+
+.trade-settings .parameter-value input {
+  margin: 0;
+  padding-right: 16px;
+  padding-left: 16px;
+
+  text-align: left;
+  font-weight: 500;
+
+  color: rgba(73, 73, 74, 0.90);
+}
+
+input::placeholder {
+  color:#CCD2E0;
+}
+
+.trade-settings .settings-panel .info-box {
+  padding: 14px;
+}
+
+.trade-settings .attention.info-box {
+  margin: 0;
+  flex-direction: row;
+}
+
+.trade-settings .attention .attention-icon {
+  flex-shrink: 0;
+  height: 22px;
+  width: 22px;
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+.trade-settings .attention .attention-text {
+  font-weight: 400;
+  width: fit-content;
+  color: #9C9C9D;
+
+  text-align: left;
+  letter-spacing: 0.7px;
+  line-height: 16px;
+
+  margin: 0;
+}
+
+.trade-settings strong {
+  font-weight: 600;
+}

@@ -1,18 +1,31 @@
 // Libraries
-import { observable } from "mobx";
+import { computed, observable, reaction } from "mobx";
 
 // Utils
 import * as blockchain from "../utils/blockchain";
-import { toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from "../utils/helpers";
+import {
+  toBigNumber,
+  toWei,
+  fromWei,
+  calculateTradePrice,
+  fetchETHPriceInUSD,
+  threshold as defaultThresholdFor
+} from "../utils/helpers";
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
+import { ERRORS } from "../utils/errors";
 
 export default class SystemStore {
+  @observable ethPriceInUSD = 0;
+  @observable customThreshold;
+  @observable customSlippagePrice;
   @observable balances = {
     dai: null,
     eth: null,
     mkr: null
   };
+
+  @observable gasPrice = toBigNumber(this.rootStore.quotes.selected.price);
 
   @observable trade = {
     step: 1,
@@ -27,17 +40,82 @@ export default class SystemStore {
     priceUnit: "",
     bestPriceOffer: toBigNumber(0),
     txCost: toBigNumber(0),
-    errorInputSell: null,
-    errorInputBuy: null,
-    errorOrders: null,
     txs: null,
+    error: null,
     proxy: null
   };
 
-  @observable error = {};
-
   constructor(rootStore) {
     this.rootStore = rootStore;
+
+    reaction(
+      () => this.rootStore.network.network,
+      network => {
+        if(network){
+          this.customThreshold = defaultThresholdFor(network, this.trade.from, this.trade.to);
+        }
+      }
+    )
+
+    reaction(
+      () => this.rootStore.quotes.selected.price,
+      price => {
+        this.gasPrice = price;
+        this.recalculate();
+      }
+    )
+
+    reaction(
+      () => this.trade.price,
+      price => {
+        if (price.gt(0)) {
+          this.priceTicker = setInterval(() => {
+           this.recalculate();
+          }, settings.priceTickerInterval);
+        } else {
+          if (this.priceTicker) {
+            this.stopPriceTicker();
+          }
+        }
+      }
+    )
+  }
+
+  @computed
+  get priceImpact() {
+
+    const priceImpact = this.trade.bestPriceOffer
+      .minus(this.trade.price)
+      .abs()
+      .div(this.trade.bestPriceOffer)
+      .times(100)
+      .round(2)
+      .valueOf();
+
+    if (isNaN(priceImpact)) {
+      return 0;
+    }
+
+    return priceImpact;
+  }
+
+  set threshold(value) {
+    this.customThreshold = value;
+  }
+
+  @computed
+  get threshold() {
+    this.slippagePrice = this.trade.price * this.customThreshold / 100;
+    return this.customThreshold;
+  }
+
+  set slippagePrice(value) {
+    this.customSlippagePrice = value;
+  }
+
+  @computed
+  get slippagePrice() {
+    return this.customSlippagePrice;
   }
 
   init = () => {
@@ -60,13 +138,17 @@ export default class SystemStore {
       priceUnit: "",
       bestPriceOffer: toBigNumber(0),
       txCost: toBigNumber(0),
-      errorInputSell: null,
-      errorInputBuy: null,
-      errorOrders: null,
       txs: null,
       proxy: null
     };
   }
+
+  stopPriceTicker = () => {
+    if (this.priceTicker) {
+      clearInterval(this.priceTicker);
+      this.priceTicker = null;
+    }
+  };
 
   cleanInputs = () => {
     this.trade.amountPay = toBigNumber(0);
@@ -74,9 +156,22 @@ export default class SystemStore {
     this.trade.amountPayInput = "";
     this.trade.amountBuyInput = "";
     this.trade.txCost = toBigNumber(0);
-    this.trade.errorInputSell = null;
-    this.trade.errorInputBuy = null;
-    this.trade.errorOrders = null;
+    this.trade.error = null;
+  }
+
+  recalculate = () => {
+    if (this.trade.operation === "sellAll") {
+      this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
+    }
+    if (this.trade.operation === "buyAll") {
+      this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
+    }
+  }
+
+  getETHPriceInUSD = () => {
+    fetchETHPriceInUSD().then(price => {
+      this.ethPriceInUSD = price;
+    });
   }
 
   saveBalance = token => {
@@ -111,25 +206,22 @@ export default class SystemStore {
       } else {
         this.trade.step = 2;
         this.trade.txs = this.trade.txs ? this.trade.txs : 2;
-
-        this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.rootStore.transactions.logRequestTransaction("approval").then(() => {
-            const tokenObj = blockchain.objects[token];
-            const params = [dst, -1];
-            tokenObj.approve(...params.concat([{gasPrice}, (e, tx) => {
-              if (!e) {
-                this.rootStore.transactions.logPendingTransaction(tx, "approval", callbacks);
+        this.rootStore.transactions.logRequestTransaction("approval").then(() => {
+          const tokenObj = blockchain.objects[token];
+          const params = [dst, -1];
+          tokenObj.approve(...params.concat([{gasPrice: this.gasPrice}, (e, tx) => {
+            if (!e) {
+              this.rootStore.transactions.logPendingTransaction(tx, "approval", callbacks);
+            } else {
+              if (this.rootStore.transactions.isErrorDevice(e)) {
+                this.rootStore.transactions.logTransactionErrorDevice("approval");
               } else {
-                if (this.rootStore.transactions.isErrorDevice(e)) {
-                  this.rootStore.transactions.logTransactionErrorDevice("approval");
-                } else {
-                  this.rootStore.transactions.logTransactionRejected("approval");
-                }
+                this.rootStore.transactions.logTransactionRejected("approval");
               }
-            }]));
-          }, e => {
-            console.debug("Couldn't calculate gas price because of", e);
-          });
+            }
+          }]));
+        }, e => {
+          console.debug("Couldn't calculate gas price because of", e);
         });
       }
     }, () => {
@@ -139,53 +231,53 @@ export default class SystemStore {
   executeProxyTx = (amount, limit) => {
     const data = oasis.getCallDataAndValue(this.rootStore.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
     this.rootStore.transactions.logRequestTransaction("trade").then(() => {
-      this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-        const proxy = blockchain.objects.proxy;
-        const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
-        proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice}, (e, tx) => {
-          if (!e) {
-            this.rootStore.transactions.logPendingTransaction(tx, "trade");
+      const proxy = blockchain.objects.proxy;
+      const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
+
+      proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice: this.gasPrice}, (e, tx) => {
+        if (!e) {
+          this.rootStore.transactions.logPendingTransaction(tx, "trade");
+        } else {
+          console.log(e);
+          if (this.rootStore.transactions.isErrorDevice(e)) {
+            this.rootStore.transactions.logTransactionErrorDevice("trade");
           } else {
-            console.log(e);
-            if (this.rootStore.transactions.isErrorDevice(e)) {
-              this.rootStore.transactions.logTransactionErrorDevice("trade");
-            } else {
-              this.rootStore.transactions.logTransactionRejected("trade");
-            }
+            this.rootStore.transactions.logTransactionRejected("trade");
           }
-        }]));
-      }, () => {
-      });
+        }
+      }]));
     }, () => {
     });
   }
 
   executeProxyCreateAndSellETH = (amount, limit) => {
     const data = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, this.trade.operation, this.trade.to, amount, limit);
-    this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-      this.rootStore.transactions.logRequestTransaction("trade").then(() => {
-        const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
-        proxyCreateAndExecute[data.method](...data.params.concat([{value: data.value, gasPrice}, (e, tx) => {
-          if (!e) {
-            this.rootStore.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+    this.rootStore.transactions.logRequestTransaction("trade").then(() => {
+      const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
+      proxyCreateAndExecute[data.method](...data.params.concat([{
+        value: data.value,
+        gasPrice: this.gasPrice
+      }, (e, tx) => {
+        if (!e) {
+          this.rootStore.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+        } else {
+          console.log(e);
+          if (this.rootStore.transactions.isErrorDevice(e)) {
+            this.rootStore.transactions.logTransactionErrorDevice("trade");
           } else {
-            console.log(e);
-            if (this.rootStore.transactions.isErrorDevice(e)) {
-              this.rootStore.transactions.logTransactionErrorDevice("trade");
-            } else {
-              this.rootStore.transactions.logTransactionRejected("trade");
-            }
+            this.rootStore.transactions.logTransactionRejected("trade");
           }
-        }]));
-      }, () => {
-      });
-    }, e => console.debug("Couldn't calculate gas price because of:", e));
+        }
+      }]));
+    }, () => {
+    });
   }
 
   doTrade = () => {
+    this.stopPriceTicker();
     const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
-    const threshold = settings.chain[this.rootStore.network.network].threshold[[this.trade.from, this.trade.to].sort((a, b) => a > b).join("")] * 0.01;
-    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - threshold) : this.trade.amountPay.times(1 + threshold)).round(0);
+    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
+
     if (this.trade.from === "eth") {
       this.trade.step = 2;
       this.trade.txs = 1;
@@ -208,22 +300,20 @@ export default class SystemStore {
       if (this.rootStore.profile.proxy) {
         this.rootStore.transactions.executeCallbacks(callbacks);
       } else {
-        this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei).then(gasPrice => {
-          this.rootStore.transactions.logRequestTransaction("proxy").then(() => {
-            callbacks = [["profile/getAndSetProxy", callbacks]];
-            this.trade.txs = 3;
-            this.trade.step = 2;
-            blockchain.objects.proxyRegistry.build({gasPrice}, (e, tx) => {
-              if (!e) {
-                this.rootStore.transactions.logPendingTransaction(tx, "proxy", callbacks);
+        this.rootStore.transactions.logRequestTransaction("proxy").then(() => {
+          callbacks = [["profile/getAndSetProxy", callbacks]];
+          this.trade.txs = 3;
+          this.trade.step = 2;
+          blockchain.objects.proxyRegistry.build({gasPrice: this.gasPrice}, (e, tx) => {
+            if (!e) {
+              this.rootStore.transactions.logPendingTransaction(tx, "proxy", callbacks);
+            } else {
+              if (this.rootStore.transactions.isErrorDevice(e)) {
+                this.rootStore.transactions.logTransactionErrorDevice("proxy");
               } else {
-                if (this.rootStore.transactions.isErrorDevice(e)) {
-                  this.rootStore.transactions.logTransactionErrorDevice("proxy");
-                } else {
-                  this.rootStore.transactions.logTransactionRejected("proxy");
-                }
+                this.rootStore.transactions.logTransactionRejected("proxy");
               }
-            });
+            }
           });
         });
       }
@@ -256,7 +346,7 @@ export default class SystemStore {
 
     const evaluateTrade = async (amountPay, amountBuy) => {
       let error = null;
-      const amountBuyInput = amountBuy.valueOf();
+      const amountBuyInput = amountBuy.toFixed(5).valueOf();
       const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
       let givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
       const balance = await blockchain.getBalanceOf(from, defaultAccount);
@@ -266,7 +356,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have ${amountPay} ${from.toUpperCase()} in your wallet`,
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountPay, from),
           onTradeSide: `sell`,
         };
       }
@@ -274,7 +364,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: `The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToSell,from),
           onTradeSide: `sell`,
         };
       }
@@ -290,7 +380,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToBuy, to),
           onTradeSide: `buy`,
         };
       }
@@ -305,7 +395,7 @@ export default class SystemStore {
 
       if (!error && costs.gt(ethBalance)) {
         error = {
-          cause: "You will not have enough Ether to pay for the transaction!",
+          cause: ERRORS.NO_GAS_FUNDS,
         };
       }
 
@@ -333,8 +423,7 @@ export default class SystemStore {
           } else {
             if (this.trade.rand === rand) {
               this.trade.error = {
-                cause: `No orders available to sell ${amountToPay} ${from.toUpperCase()}`,
-                onTradeSide: `buy`,
+                cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
                 isCritical: true
               }
             }
@@ -370,7 +459,7 @@ export default class SystemStore {
 
     const evaluateTrade = async (amountPay, amountBuy) => {
       let error = null;
-      const amountPayInput = amountPay.valueOf();
+      const amountPayInput = amountPay.toFixed(5).valueOf();
       const bestPriceOffer = await oasis.getBestPriceOffer(network, this.trade.from, this.trade.to);
       const givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
 
@@ -379,7 +468,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have ${from.toUpperCase()} in your wallet`,
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountBuy, to),
           onTradeSide: `sell`,
         }
       }
@@ -387,7 +476,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToBuy, to),
           onTradeSide: `buy`,
         }
       }
@@ -404,7 +493,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: ` The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToSell, from),
           onTradeSide: `sell`,
         };
       }
@@ -420,7 +509,7 @@ export default class SystemStore {
 
       if (!error && expenses.gt(ethBalance)) {
         error = {
-          cause: "You will not have enough  Ether to pay for the transaction!",
+          cause: ERRORS.NO_GAS_FUNDS,
         };
       }
 
@@ -445,8 +534,7 @@ export default class SystemStore {
           } else {
             if (this.trade.rand === rand) {
               this.trade.error = {
-                cause: `No orders available to buy ${amountToBuy} ${to.toUpperCase()}`,
-                onTradeSide: `buy`,
+                cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
                 isCritical: true
               };
             }
@@ -550,38 +638,42 @@ export default class SystemStore {
       Promise.all(
         [
           oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2),
-          this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)
+          this.gasPrice
         ]
       ).then(r => {
-                    // 150K gas as base cost
-                    // 133K per each complete offer taken
-                    // 70K if partially order taken
-                    const gasCost = r[0][0].times(136500).add(r[0][1] ? 70000 : 0).add(141100);
-                    console.log("Rough trade cost:", gasCost.valueOf(), "gas")
-                    console.log("Rough trade gas Price:", r[1].valueOf(), "Gwei")
-                    resolve(r[1].times(gasCost));
-                  },
-             e => reject(e)
+          // 150K gas as base cost
+          // 133K per each complete offer taken
+          // 70K if partially order taken
+          const gasCost = r[0][0].times(136500).add(r[0][1] ? 70000 : 0).add(141100);
+          console.log("Rough trade cost:", gasCost.valueOf(), "gas")
+          console.log("Rough trade gas Price:", r[1].valueOf(), "Gwei")
+          resolve(r[1].times(gasCost));
+        },
+        e => reject(e)
       );
     });
   }
 
   calculateCost = (to, data, value = 0, from) => {
     return new Promise((resolve, reject) => {
-      Promise.all([blockchain.estimateGas(to, data, value, from), this.rootStore.transactions.fasterGasPrice(settings.gasPriceIncreaseInGwei)]).then(r => {
+      console.log("Calculating cost...");
+
+      blockchain.estimateGas(to, data, value, from).then(gas => {
+        console.log(to, data, value, from);
+        console.log(gas, this.gasPrice.valueOf());
+
         if (data === "0x8e1a55fc") {
-          console.log("Create proxy cost:", r[0].toString(), "gas");
-          console.log("Create proxy gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Create proxy cost:", gas.toString(), "gas");
+          console.log("Create proxy gas Price:", this.gasPrice.valueOf(), "Gwei");
         } else if (data.substr(0, 10) === "0x095ea7b3") {
-          console.log("Approve cost:", r[0].toString(), "gas");
-          console.log("Approve gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Approve cost:", gas.toString(), "gas");
+          console.log("Approve gas Price:", this.gasPrice.valueOf(), "Gwei");
         } else {
-          console.log("Trade cost:", r[0].toString(), "gas")
-          console.log("Trade gas Price:", r[1].valueOf(), "Gwei");
+          console.log("Trade cost:", gas.toString(), "gas");
+          console.log("Trade gas Price:", this.gasPrice.valueOf(), "Gwei");
         }
-        // console.log(to, data, value, from);
-        
-        resolve(r[1].times(r[0]));
+
+        resolve(this.gasPrice.times(gas));
       }, e => {
         reject(e);
       });

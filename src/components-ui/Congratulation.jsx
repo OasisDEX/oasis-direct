@@ -16,6 +16,7 @@ class Congratulation extends React.Component {
     }
   }
 
+  //TODO: Remove this from here. We have this from the TradeWidget and stored in the system store.
   fetchPriceInUSD = () => {
     fetchETHPriceInUSD().then(price => {
       this.setState({priceInUSD: price});
