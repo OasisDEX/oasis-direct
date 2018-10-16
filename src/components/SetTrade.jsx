@@ -181,7 +181,6 @@ class SetTrade extends React.Component {
           </div>
           <div className={`info-box
               ${this.hasDetails() || this.hasCriticalErrors() ? "" : " info-box--hidden"}
-              ${this.hasCriticalErrors() ? "has-errors" : ""}
             `}>
             <div className="info-box-row wrap">
               {

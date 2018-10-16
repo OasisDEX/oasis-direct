@@ -7,13 +7,13 @@ import {
   toBigNumber,
   toWei,
   fromWei,
-  BigNumber,
   calculateTradePrice,
   fetchETHPriceInUSD,
   threshold as defaultThresholdFor
 } from "../utils/helpers";
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
+import { ERRORS } from "../utils/errors";
 
 export default class SystemStore {
   @observable ethPriceInUSD = 0;
@@ -356,7 +356,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have ${amountPay} ${from.toUpperCase()} in your wallet`,
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountPay, from),
           onTradeSide: `sell`,
         };
       }
@@ -364,7 +364,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: `The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToSell,from),
           onTradeSide: `sell`,
         };
       }
@@ -380,7 +380,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToBuy, to),
           onTradeSide: `buy`,
         };
       }
@@ -395,7 +395,7 @@ export default class SystemStore {
 
       if (!error && costs.gt(ethBalance)) {
         error = {
-          cause: "You will not have enough Ether to pay for the transaction!",
+          cause: ERRORS.NO_GAS_FUNDS,
         };
       }
 
@@ -423,8 +423,7 @@ export default class SystemStore {
           } else {
             if (this.trade.rand === rand) {
               this.trade.error = {
-                cause: `No orders available to sell ${amountToPay} ${from.toUpperCase()}`,
-                onTradeSide: `buy`,
+                cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
                 isCritical: true
               }
             }
@@ -469,7 +468,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: `You don't have ${from.toUpperCase()} in your wallet`,
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountBuy, to),
           onTradeSide: `sell`,
         }
       }
@@ -477,7 +476,7 @@ export default class SystemStore {
       const minValueToBuy = settings.chain[network].tokens[to.replace("eth", "weth")].minValue;
       if (!error && amountBuy.lt(minValueToBuy)) {
         error = {
-          cause: `The Minimum trade value is ${new BigNumber(minValueToBuy).valueOf()} ${to.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToBuy, to),
           onTradeSide: `buy`,
         }
       }
@@ -494,7 +493,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: ` The minimum trade value is ${new BigNumber(minValueToSell).valueOf()} ${from.toUpperCase()}`,
+          cause: ERRORS.MINIMAL_VALUE(minValueToSell, from),
           onTradeSide: `sell`,
         };
       }
@@ -510,7 +509,7 @@ export default class SystemStore {
 
       if (!error && expenses.gt(ethBalance)) {
         error = {
-          cause: "You will not have enough  Ether to pay for the transaction!",
+          cause: ERRORS.NO_GAS_FUNDS,
         };
       }
 
@@ -535,8 +534,7 @@ export default class SystemStore {
           } else {
             if (this.trade.rand === rand) {
               this.trade.error = {
-                cause: `No orders available to buy ${amountToBuy} ${to.toUpperCase()}`,
-                onTradeSide: `buy`,
+                cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
                 isCritical: true
               };
             }
