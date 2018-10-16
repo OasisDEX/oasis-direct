@@ -56,6 +56,7 @@ class SetTrade extends React.Component {
       return;
     }
 
+    this.props.system.trade.error = null;
     // If we have ETH / DAI for DEPOSIT / RECEIVE respectively  and we click on
     // DEPOSIT token and select DAI -> we swap the pair so it has DAI / ETH for
     // DEPOSIT / RECEIVE respectively. Close the token-picker.

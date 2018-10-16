@@ -40,14 +40,10 @@ export default class SystemStore {
     priceUnit: "",
     bestPriceOffer: toBigNumber(0),
     txCost: toBigNumber(0),
-    errorInputSell: null,
-    errorInputBuy: null,
-    errorOrders: null,
     txs: null,
+    error: null,
     proxy: null
   };
-
-  @observable error = {};
 
   constructor(rootStore) {
     this.rootStore = rootStore;
@@ -142,9 +138,6 @@ export default class SystemStore {
       priceUnit: "",
       bestPriceOffer: toBigNumber(0),
       txCost: toBigNumber(0),
-      errorInputSell: null,
-      errorInputBuy: null,
-      errorOrders: null,
       txs: null,
       proxy: null
     };
@@ -163,9 +156,7 @@ export default class SystemStore {
     this.trade.amountPayInput = "";
     this.trade.amountBuyInput = "";
     this.trade.txCost = toBigNumber(0);
-    this.trade.errorInputSell = null;
-    this.trade.errorInputBuy = null;
-    this.trade.errorOrders = null;
+    this.trade.error = null;
   }
 
   recalculate = () => {
