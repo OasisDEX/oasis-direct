@@ -13,8 +13,16 @@ import NetworkIndicator from "./NetworkIndicator";
 import ProxyDetails from "./ProxyDetails";
 
 @inject("network")
+@inject("system")
 @observer
 class ActiveConnection extends React.Component {
+
+  disconnect = () => {
+    this.props.system.reset();
+    this.props.system.stopPriceTicker();
+    this.props.network.stopNetwork();
+  }
+
   render() {
     return (
       <div className="frame">
@@ -40,7 +48,7 @@ class ActiveConnection extends React.Component {
             <ProxyDetails/>
           </div>
         </div>
-        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.network.stopNetwork}>
+        <button type="button" value="Disconnect" className="disconnect" onClick={this.disconnect}>
           DISCONNECT
         </button>
       </div>

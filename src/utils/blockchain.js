@@ -178,7 +178,7 @@ export const checkNetwork = (actualIsConnected, actualNetwork) => {
     getNode().then(r => {
       isConnected = true;
       getBlock("latest").then(res => {
-        if (res.number >= this.latestBlock) {
+        if (res && res.number >= this.latestBlock) {
           resolve({
             status: 0,
             data: {

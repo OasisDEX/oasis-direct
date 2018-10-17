@@ -5,6 +5,9 @@ import jazzicon from "jazzicon";
 // Utils
 import web3 from "./web3";
 
+// Settings
+import settings from "../settings.json";
+
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
 var padLeft = function (string, chars, sign) {
@@ -121,6 +124,24 @@ export const fetchETHPriceInUSD = () => {
     });
 }
 
+export const getGasPriceFromETHGasStation = () => {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject("Request timed out!");
+    }, 3000);
+
+    fetch("https://ethgasstation.info/json/ethgasAPI.json").then(stream => {
+      stream.json().then(price => {
+        clearTimeout(timeout);
+        resolve(price);
+      })
+    }, e => {
+      clearTimeout(timeout);
+      reject(e);
+    });
+  })
+};
+
 //TODO: eventually find a better solution
 export const quotation = (from, to) => {
   if (to === "dai" || from === "dai") {
@@ -141,7 +162,6 @@ export const quotation = (from, to) => {
 };
 
 export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) => {
-  console.log(amountBuy.valueOf(),amountSell.valueOf())
   return (tokenSell === "dai" || (tokenSell === "eth" && tokenBuy !== "dai"))
     ?
     {price: amountSell.div(amountBuy), priceUnit: `${tokenBuy}/${tokenSell}`}
@@ -149,4 +169,8 @@ export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) 
     {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}/${tokenBuy}`};
 }
 
-export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;
+export const calculateSlippage = ( slippageInPercentage, price) => (price * slippageInPercentage) / 100;
+
+export const threshold = (network, from , to) => settings.chain[network].threshold[[from, to].sort((a, b) => a > b).join("")];
+
+export const {toBigNumber , toWei, fromWei, isAddress, BigNumber} = web3;

@@ -9,11 +9,13 @@ import * as blockchain from "../utils/blockchain";
 
 // Settings
 import * as settings from "../settings";
+import GasQuoteStore from "./GasQuoteStore";
 
 class RootStore {
   constructor() {
     this.network = new NetworkStore(this);
     this.profile = new ProfileStore(this);
+    this.quotes = new GasQuoteStore(this);
     this.system = new SystemStore(this);
     this.transactions = new TransactionsStore(this);
   }

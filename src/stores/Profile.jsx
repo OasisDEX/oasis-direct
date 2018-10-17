@@ -45,7 +45,6 @@ export default class ProfileStore {
         value: 0,
         from: account
       };
-      console.log(txData);
       ( async () => {
         const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from).catch((e) => console.log());
         const price = await this.rootStore.transactions.getGasPrice();

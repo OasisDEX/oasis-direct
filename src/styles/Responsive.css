@@ -103,7 +103,10 @@
     right: 12px;
   }
 
-
+  .advanced-settings-placeholder {
+    top: 7px;
+    left: 46px;
+  }
 
   .connectionless .content .heading img {
     width: 64px;
@@ -145,7 +148,7 @@
     margin: auto;
   }
 
-  .frame .content .selected-token .token{
+  .frame .content .selected-token .token {
     padding: 8px;
   }
 
@@ -153,16 +156,18 @@
     border-radius: 2px;
   }
 
-  .frame > .info-box .info-box-row {
-    height: 24px;
+  .frame > .info-box .info-box-row,
+  .frame.trade-settings .info-box .info-box-row {
+    height: auto;
+    line-height: normal;
     padding: 7px;
   }
 
-  .frame > .info-box .info-box-row .holder:nth-child(even) {
+  .info-box .info-box-row .holder:nth-child(even) {
     padding-left: 6px;
   }
 
-  .frame > .info-box .info-box-row .holder:nth-child(odd) {
+  .info-box .info-box-row .holder:nth-child(odd) {
     padding-right: 6px;
   }
 
@@ -273,11 +278,6 @@
     padding: 8px 8px;
   }
 
-  .frame > .info-box .info-box-row {
-    height: auto;
-    line-height: normal;
-  }
-
   .info-box.disclaimer {
     margin-top: 6px;
   }
@@ -343,11 +343,37 @@
   .proxy-details button.gray {
     font-size: 10px;
     height: auto;
-    padding: 7px 8px;
+    padding: 7px;
   }
 
   .price-impact-warning .container {
     padding: 18px;
+  }
+
+  .trade-settings .settings-panel {
+    padding: 7px;
+  }
+
+  .trade-settings .parameter-name {
+    font-size: 10px;
+  }
+
+  .trade-settings .attention.info-box {
+    font-size: 10px;
+    padding: 7px;
+  }
+
+  .trade-settings .settings-panel .row .parameter {
+    margin: 0 12px;
+  }
+
+  .trade-settings .settings-panel .row .parameter:first-child:last-child {
+    margin-right: 12px;
+  }
+
+  .trade-settings .Option,
+  .trade-settings .Option .Details {
+    font-size: 8px;
   }
 }
 
