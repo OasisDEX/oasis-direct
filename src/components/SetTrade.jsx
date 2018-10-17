@@ -144,7 +144,7 @@ class SetTrade extends React.Component {
     .valueOf();
 
   render() {
-    const { priceImpact, balances } = this.props.system;
+    const {priceImpact, balances} = this.props.system;
     return <React.Fragment>
       {
         this.state.showTokenSelector &&
@@ -181,6 +181,7 @@ class SetTrade extends React.Component {
           </div>
           <div className={`info-box
               ${this.hasDetails() || this.hasCriticalErrors() ? "" : " info-box--hidden"}
+              ${this.hasCriticalErrors() && "critical-error"}
             `}>
             <div className="info-box-row wrap">
               {
@@ -190,7 +191,7 @@ class SetTrade extends React.Component {
               {
                 !this.hasCriticalErrors() &&
                 <React.Fragment>
-                  <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
@@ -200,12 +201,11 @@ class SetTrade extends React.Component {
                         </p>
                       </ReactTooltip>
                     </span>
-                    <span style={{lineHeight: "14px", fontSize: "12px"}}>
-                      &nbsp;~&nbsp;<TokenAmount number={toWei(this.props.system.trade.price)} decimal={2}
-                                                token={`${this.props.system.trade.priceUnit.toUpperCase()}`}/>
-                    </span>
+                    <TokenAmount isApproximation={true}
+                                 number={toWei(this.props.system.trade.price)} decimal={2}
+                                 token={`${this.props.system.trade.priceUnit.toUpperCase()}`}/>
                   </span>
-                  <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Slippage Limit
                       <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
@@ -218,14 +218,15 @@ class SetTrade extends React.Component {
                     <span
                       className="value">{this.props.system.threshold}%</span>
                   </span>
-                  <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+                  <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
                     {
                       this.props.system.trade.txCost.gt(0)
                         ?
-                        <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
+                        <TokenAmount
+                          isApproximation={true}
                           number={toWei(this.props.system.trade.txCost) * this.props.system.ethPriceInUSD} decimal={2}
-                          token={"USD"}/></span>
+                          token={"USD"}/>
                         :
                         <Spinner/>
                     }
@@ -263,13 +264,20 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
                 </div>
-                <div style={{position:"relative"}}>
+                <div
+                  className={
+                    `amount-input-placeholder
+                    ${
+                      (this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "sell")
+                        ? "has-errors"
+                        : ""
+                      }                 `
+                  }>
                   {
                     (this.hasDetails() && this.props.system.trade.operation === "buyAll")
                     && <span className="tilde">~</span>
                   }
                   <input type="number"
-                         className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "sell") ? "has-errors" : ""} `}
                          ref={(input) => this.amountPay = input}
                          value={this.props.system.trade.amountPayInput || ""}
                          onChange={this.calculateBuyAmount} placeholder="deposit amount"/>
@@ -294,13 +302,20 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }
                 </div>
-                <div style={{position:"relative"}}>
+                <div
+                  className={
+                    `amount-input-placeholder
+                    ${
+                      (this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "buy")
+                        ? "has-errors"
+                        : ""
+                      }                 `
+                  }>
                   {
                     (this.hasDetails() && this.props.system.trade.operation === "sellAll")
                     && <span className="tilde">~</span>
                   }
                   <input type="number"
-                         className={`${(this.props.system.trade.error && this.props.system.trade.error.onTradeSide === "buy") ? "has-errors" : ""} `}
                          ref={(input) => this.amountBuy = input}
                          value={this.props.system.trade.amountBuyInput || ""}
                          onChange={this.calculatePayAmount} placeholder="receive amount"/>
@@ -310,7 +325,7 @@ class SetTrade extends React.Component {
           </div>
           {
             this.hasErrors() && !this.hasCriticalErrors() &&
-            <div className={`info-box terms-and-conditions has-errors`} >
+            <div className={`info-box terms-and-conditions has-errors`}>
               <span className="label">{this.props.system.trade.error.cause}</span>
             </div>
           }

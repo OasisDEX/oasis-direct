@@ -18,6 +18,7 @@ import ProxyDetails from "./ProxyDetails";
 class ActiveConnection extends React.Component {
 
   disconnect = () => {
+    this.props.system.reset();
     this.props.system.stopPriceTicker();
     this.props.network.stopNetwork();
   }

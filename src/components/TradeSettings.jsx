@@ -80,7 +80,7 @@ export default class TradeSettings extends Component {
         <div className="content">
           <div className={`info-box`}>
             <div className={`info-box-row wrap`}>
-            <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+              <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
@@ -90,12 +90,11 @@ export default class TradeSettings extends Component {
                         </p>
                       </ReactTooltip>
                     </span>
-                    <span style={{lineHeight: "14px", fontSize: "12px"}}>
-                      &nbsp;~&nbsp;<TokenAmount number={toWei(trade.price)} decimal={2}
-                                                token={`${trade.priceUnit.toUpperCase()}`}/>
-                    </span>
+                    <TokenAmount isApproximation={true}
+                                 number={toWei(trade.price)} decimal={2}
+                                 token={`${trade.priceUnit.toUpperCase()}`}/>
                   </span>
-              <span style={{paddingBottom: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+              <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Slippage Limit
                       <Attention data-tip data-for="slippage-tooltip" className="attention-icon"/>
@@ -108,14 +107,14 @@ export default class TradeSettings extends Component {
                     <span
                       className="value">{this.props.system.threshold}%</span>
                   </span>
-              <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
+              <span style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
                 {
                   trade.txCost.gt(0)
                     ?
-                    <span style={{lineHeight: "14px", fontSize: "12px"}}> ~ <TokenAmount
-                      number={toWei(trade.txCost) * ethPriceInUSD} decimal={2}
-                      token={"USD"}/></span>
+                    <TokenAmount isApproximation={true}
+                                 number={toWei(trade.txCost) * ethPriceInUSD} decimal={2}
+                                 token={"USD"}/>
                     :
                     <Spinner/>
                 }
@@ -141,7 +140,7 @@ export default class TradeSettings extends Component {
                 <label className={`parameter-name`}>Transaction Fee</label>
                 <GasPriceDropdown quotes={this.props.quotes.priceList}
                                   default={this.props.quotes.selected}
-                                  onSelect={quote => this.changeGasPriceLevel(quote) }/>
+                                  onSelect={quote => this.changeGasPriceLevel(quote)}/>
               </div>
 
               <div className={`parameter column`}>

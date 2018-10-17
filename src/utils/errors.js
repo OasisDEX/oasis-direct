@@ -3,8 +3,8 @@ import React from 'react';
 export const ERRORS = Object.freeze({
   NO_ORDERS: (tradeSide, amount, token) =>
     (
-      <React.Fragment>
-        No orders available to {tradeSide} <strong>{amount} {token.toUpperCase()}</strong>
+      <React.Fragment key="error">
+        No orders available to {tradeSide} <span className="error-msg value" key="error-amount">{amount} {token.toUpperCase()}</span>
       </React.Fragment>
     ),
   NO_GAS_FUNDS: `You will not have enough  Ether to pay for the transaction`,

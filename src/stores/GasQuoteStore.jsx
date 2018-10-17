@@ -1,4 +1,4 @@
-import { action, autorun, observable } from "mobx";
+import { action, autorun, observable, reaction } from "mobx";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
 import { fromWei, getGasPriceFromETHGasStation, toBigNumber, toWei } from "../utils/helpers";
 import * as blockchain from "../utils/blockchain";
@@ -13,13 +13,22 @@ export default class GasQuoteStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
 
-    this.fetchQuote().then(() => {
-      this.select(GAS_PRICE_LEVELS.HIGH);
-    });
+    reaction(
+      () => this.rootStore.network.network,
+      network => {
+        if (this.gasPriceTicker) {
+          clearInterval(this.gasPriceTicker);
+        }
 
-    autorun(() => {
-      setInterval(this.fetchQuote, settings.gasPriceRefreshRateInMilliseconds);
-    })
+        this.fetchQuote().then(() => {
+          this.select(GAS_PRICE_LEVELS.HIGH);
+        });
+
+        autorun(() => {
+          this.gasPriceTicker = setInterval(this.fetchQuote, settings.gasPriceRefreshRateInMilliseconds);
+        })
+      }
+    );
   }
 
   @action fetchQuote = () => {
