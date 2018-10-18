@@ -61,7 +61,8 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
-    "cypress:run": "cypress run --record",
+    "cypress:run:ci": "cypress run --record",
+    "cypress:run": "cypress run",
     "cypress:dev": "cypress open"
   },
   "jest": {
