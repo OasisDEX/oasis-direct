@@ -9,7 +9,7 @@ export let web3;
 export let lastSnapshotId;
 
 export function visitWithWeb3(path = "") {
-  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.slice(2), Cypress.env("ETH_PROVIDER"));
+  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x",""), Cypress.env("ETH_PROVIDER"));
   web3 = new Web3(provider);
 
   return cy.then(() => saveBlockchain(web3)()).then(r => {
