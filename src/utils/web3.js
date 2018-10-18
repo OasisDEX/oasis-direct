@@ -66,7 +66,6 @@ class Web3Extended extends Web3 {
         this.currentProvider.addProvider(hwWalletSubProvider);
         this.currentProvider.addProvider(new RpcSource({rpcUrl: settings.chain[network].nodeURL}));
         this.currentProvider.start();
-        this.useLogs = false;
         resolve(true);
       } catch (e) {
         reject(e);
@@ -105,7 +104,6 @@ class Web3Extended extends Web3 {
           return;
         }
 
-        alert('No Provider found!');
         reject();
       } catch (e) {
         reject(e);
