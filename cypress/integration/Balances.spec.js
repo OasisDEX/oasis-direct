@@ -1,11 +1,10 @@
 /// <reference types="Cypress" />
 
-import { visitWithWeb3, tid } from "../utils";
+import { visitWithWeb3, tid, revertToSnapshot } from "../utils";
 
 context('Balances', () => {
-  beforeEach(() => {
-    visitWithWeb3();
-  })
+  beforeEach(() => visitWithWeb3)
+  afterEach(() => revertToSnapshot);
 
   it('should match ether balance', () => {
     cy.contains(tid("wallets-connection-status"), "Connected")

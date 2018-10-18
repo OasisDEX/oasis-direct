@@ -1,19 +1,30 @@
 import Web3 from "web3";
 import PrivateKeyProvider from "truffle-privatekey-provider";
 
+// this is exactly the same as ganache.sh file in localnode
+const ACCOUNT_1_PRIV = "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92f7d7667e1a";
+const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af";
+
+export let web3;
+export let lastSnapshotId;
+
 export function visitWithWeb3(path = "") {
-  const provider = new PrivateKeyProvider(Cypress.env("ETH_PRIV_KEY").slice(2), Cypress.env("ETH_PROVIDER"));
-  const web3 = new Web3(provider);
+  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.slice(2), Cypress.env("ETH_PROVIDER"));
+  web3 = new Web3(provider);
 
-  cy.then(() => saveBlockchain(web3)()).debug();
+  return cy.then(() => saveBlockchain(web3)()).then(r => {
+    lastSnapshotId = parseInt(r.result, 16);
 
-  cy.visit(path, {
-    onBeforeLoad: win => {
-      win.web3 = web3;
-    },
+    return cy.visit(path, {
+      onBeforeLoad: win => {
+        win.web3 = web3;
+      },
+    });
   });
+}
 
-  return web3;
+export function revertToSnapshot() {
+  cy.then(() => restoreBlockchain(web3)(lastSnapshotId));
 }
 
 // helper to generate quickly selector for data-test-ids
