@@ -83,3 +83,20 @@ Yes, even though there are no fees, you still need to cover the gas cost of the 
 Oasis.Direct is powered by fully decentralized, on-chain Smart Contracts. The transaction confirmation time depends on the current state of the Ethereum blockchain. You can increase the speed of confirmation by increasing the gas price for your transaction - please refer to this [guide](https://myetherwallet.github.io/knowledge-base/gas/what-is-gas-ethereum.html) that explains all the mechanics of the gas price and its effect on the speed of transactions. 
 
   
+## Development
+
+### Starting the app
+```
+yarn
+yarn start
+```
+
+### E2E tests
+
+First, make sure you have app and oasis-localnode already running. Then start cypress:
+
+```
+yarn cypress:dev
+```
+
+If you're trying to debug test failure on CI visit [Cypress Dashboard](https://dashboard.cypress.io/#/projects/noiqfs/runs)

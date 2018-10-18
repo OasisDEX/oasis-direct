@@ -251,7 +251,7 @@ class SetTrade extends React.Component {
           <div className="content">
             <form className="trade">
               <div className="selected-token">
-                <div className="token" onClick={() => this.pickToken("from")}>
+                <div className="token" onClick={() => this.pickToken("from")} data-test-id="set-trade-from">
                   <span className="token-icon">{this.props.tokens[this.state.from].icon}</span>
                   {
                     !balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
@@ -289,7 +289,7 @@ class SetTrade extends React.Component {
                 </span>
               </div>
               <div className="selected-token">
-                <div className="token" onClick={() => this.pickToken("to")}>
+                <div className="token" onClick={() => this.pickToken("to")} data-test-id="set-trade-to">
                   <span className="token-icon">{this.props.tokens[this.state.to].icon}</span>
                   {
                     !balances[this.props.tokens[this.state.to].symbol.toLowerCase()]

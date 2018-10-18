@@ -22,3 +22,4 @@ yarn-error.log*
 
 # ide system files
 .idea/
+cypress/videos

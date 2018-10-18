@@ -1,0 +1,9 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "projectId": "noiqfs",
+  "videoUploadOnPasses": false,
+  "env": {
+    "ETH_PRIV_KEY": "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92f7d7667e1a",
+    "ETH_PROVIDER": "http://localhost:8545"
+  }
+}
