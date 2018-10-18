@@ -93,7 +93,13 @@ yarn start
 
 ### E2E tests
 
-First, make sure you have app and oasis-localnode already running. Then start cypress:
+First, make sure you have app and oasis-localnode already running. Then run all cypress tests:
+
+```
+yarn cypress:run
+```
+
+To develop:
 
 ```
 yarn cypress:dev
