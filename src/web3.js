@@ -88,7 +88,6 @@ class Web3Extended extends Web3 {
               resolve();
             },
             () => {
-              alert('Please authorize the app to proceed!');
               reject();
             });
 
