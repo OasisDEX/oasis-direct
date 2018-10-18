@@ -80,27 +80,30 @@ class Web3Extended extends Web3 {
     this.stop();
     return new Promise(async (resolve, reject) => {
       try {
+        // Checking if the the provider is compliant with the new EIP1102 Standard.
+        if (window.ethereum) { //following the new EIP1102 standard
+          window.ethereum.enable().then(
+            () => {
+              this.bindProvider(window.ethereum);
+              resolve();
+            },
+            () => {
+              alert('Please authorize the app to proceed!');
+              reject();
+            });
+
+          return;
+        }
+
         if (window.web3) { // This is the case for Provider Injectors which don't follow EIP1102 ( parity-extension ? )
-          console.log("Are we here?");
           this.bindProvider(window.web3.currentProvider);
           resolve();
-        } else {
-          if (window.ethereum) { //following the new EIP1102 standard
-            window.ethereum.enable().then(
-              () => {
-                this.bindProvider(window.ethereum);
-                resolve();
-              },
-              () => {
-                alert('No Authorization!');
-                reject();
-              })
-          } else {
-            alert('No Provider found!');
-            reject();
-          }
+
+          return;
         }
-        resolve(true);
+
+        alert('No Provider found!');
+        reject();
       } catch (e) {
         reject(e);
       }
