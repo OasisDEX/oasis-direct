@@ -47,7 +47,7 @@ export default class ProfileStore {
       };
       ( async () => {
         const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from).catch((e) => console.log());
-        const price = await this.rootStore.transactions.getGasPrice();
+        const price = await this.rootStore.quotes.selected.price;
         const balance = await blockchain.getEthBalanceOf(account);
         this.hasFundsToCreateProxy = balance.gt(toBigNumber(gas * price));
       })();
