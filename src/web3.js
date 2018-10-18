@@ -8,9 +8,6 @@ import TrezorSubProvider from './vendor/trezor-subprovider';
 const settings = require('./settings');
 
 export const getCurrentProviderName = ( provider = window.web3.currentProvider ) => {
-  if (!provider)
-    return "";
-
   if (provider.isMetaMask)
     return "metamask";
 
@@ -70,7 +67,6 @@ class Web3Extended extends Web3 {
   };
 
   bindProvider = provider => {
-    console.log(provider);
     this.setProvider(provider);
     this.currentProvider.name = getCurrentProviderName(provider);
   };
