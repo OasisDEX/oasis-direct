@@ -29,6 +29,7 @@ jobs:
       - run: source /opt/circleci/.nvm/nvm.sh && yarn build
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker run -d -p 8545:8545 oasisdex/localnode
+      - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10
       - run: source /opt/circleci/.nvm/nvm.sh && ./cypress/scripts/run-e2e.sh
 
 workflows:
