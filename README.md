@@ -94,6 +94,9 @@ yarn start
 ### E2E tests
 
 First, make sure you have app and oasis-localnode already running. Then start cypress:
+
 ```
 yarn cypress:dev
 ```
+
+If you're trying to debug test failure on CI visit [Cypress Dashboard](https://dashboard.cypress.io/#/projects/noiqfs/runs)
