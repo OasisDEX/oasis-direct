@@ -44,8 +44,8 @@ class Congratulation extends React.Component {
         <div className="content">
           {
             this.props.hasCreatedProxy &&
-            <span className="label">
-              You have successfully created a <span className="value"> Proxy </span>
+            <span data-test-id="proxy-creation-summary" className="label">
+              You have successfully created a<span className="value"> Proxy </span>
               <br/>
               <br/>
             </span>

@@ -423,7 +423,7 @@ export default class SystemStore {
           } else {
             if (this.trade.rand === rand) {
               this.trade.error = {
-                cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
+                cause: ERRORS.NO_ORDERS(`sell`, amountToPay.valueOf(), from),
                 isCritical: true
               }
             }

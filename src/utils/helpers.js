@@ -38,7 +38,7 @@ export const addressToBytes32 = (x, prefix = true) => {
 }
 
 export const formatNumber = (number, decimals = false, isWei = true) => {
-  web3.BigNumber.config({ ROUNDING_MODE: 4 });
+  web3.BigNumber.config({ROUNDING_MODE: 4});
 
   let object = web3.toBigNumber(number);
 
@@ -52,7 +52,7 @@ export const formatNumber = (number, decimals = false, isWei = true) => {
   }
 
   const parts = object.toString().split(".");
-  const decimalsWithoutTrailingZeros = parts[1] ? parts[1].replace(/[0]+$/,"") : "";
+  const decimalsWithoutTrailingZeros = parts[1] ? parts[1].replace(/[0]+$/, "") : "";
   return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (decimalsWithoutTrailingZeros ? `.${decimalsWithoutTrailingZeros}` : "");
 }
 
@@ -62,7 +62,7 @@ export const formatDate = timestamp => {
 }
 
 export const addZero = value => {
-  return value > 9 ? value: `0${value}`;
+  return value > 9 ? value : `0${value}`;
 }
 
 export const fromRaytoWad = (x) => {
@@ -95,15 +95,17 @@ export const etherscanUrl = network => {
 }
 
 export const etherscanAddress = (network, text, address) => {
-  return <a className="address" href={ `${etherscanUrl(network)}/address/${address}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+  return <a className="address" href={`${etherscanUrl(network)}/address/${address}`} target="_blank"
+            rel="noopener noreferrer">{text}</a>
 }
 
 export const etherscanTx = (network, text, tx) => {
-  return <a href={ `${etherscanUrl(network)}/tx/${tx}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+  return <a href={`${etherscanUrl(network)}/tx/${tx}`} target="_blank" rel="noopener noreferrer">{text}</a>
 }
 
 export const etherscanToken = (network, text, token, holder = false) => {
-  return <a href={ `${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ""}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+  return <a href={`${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ""}`} target="_blank"
+            rel="noopener noreferrer">{text}</a>
 }
 
 export const methodSig = method => {
@@ -111,7 +113,7 @@ export const methodSig = method => {
 }
 
 export const generateIcon = (address) => {
-  return jazzicon(28, address.substr(0,10));
+  return jazzicon(28, address.substr(0, 10));
 }
 
 export const fetchETHPriceInUSD = () => {
@@ -169,8 +171,14 @@ export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) 
     {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}/${tokenBuy}`};
 }
 
-export const calculateSlippage = ( slippageInPercentage, price) => (price * slippageInPercentage) / 100;
+export const calculateSlippage = (slippageInPercentage, price) => (price * slippageInPercentage) / 100;
 
-export const threshold = (network, from , to) => settings.chain[network].threshold[[from, to].sort((a, b) => a > b).join("")];
+export const threshold = (network, from, to) => {
+  return settings.chain[network].threshold[[from, to].sort((a, b) => {
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+  }).join("")];
+};
 
-export const {toBigNumber , toWei, fromWei, isAddress, BigNumber} = web3;
+export const {toBigNumber, toWei, fromWei, isAddress, BigNumber} = web3;
