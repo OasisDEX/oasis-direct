@@ -14,9 +14,7 @@ context('Trading', () => {
     cy.get(tid("set-trade-from-amount"))
       .find('input').type(ETH_AMOUNT_TO_SELL);
 
-    cy.wait(1000);
-
-    cy.get(tid("set-trade-to-amount"))
+    cy.get(tid("set-trade-to-amount"),{timeout:2000})
       .find('input').should('have.value', `${DAI_AMOUNT_TO_RECEIVE}.00000`);
 
 
@@ -41,9 +39,7 @@ context('Trading', () => {
         expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} DAI`);
       });
 
-    cy.wait(20000);
-
-    cy.get(tid("proxy-creation-summary")).should((value) => {
+    cy.get(tid("proxy-creation-summary"),{timeout: 20000}).should((value) => {
       expect(value.text().trim()).to.eq('You have successfully created a Proxy')
     });
   });
