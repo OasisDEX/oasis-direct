@@ -185,13 +185,13 @@ class DoTrade extends React.Component {
                   <div className="transaction-info-box">
                     {
                       this.props.system.trade.hasToCreateProxyInTrade &&
-                      <div className="operation new-proxy">
+                      <div data-test-id="trade-with-builtin-proxy-creation" className="operation new-proxy">
                         <div className="details">
                           <span className={`icon ${this.hasTxCompleted("trade") ? "success" : ""}`}>
                             <AccountIcon />
                           </span>
                           <span className="label vertical-align">
-                            Create Proxy
+                            <span>Create Proxy</span>
                             <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
                             <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                               <p>
@@ -208,7 +208,7 @@ class DoTrade extends React.Component {
                       </div>
                     }
                     <div className="operation">
-                      <div className="details">
+                      <div className="details" data-test-id="trade-token-from">
                         <span className="icon">{this.props.tokens[this.props.system.trade.from].icon}</span>
                         <span className="label">Sell</span>
                         <span className="value">{this.props.system.trade.operation === "sellAll" ? "" : "~ "}
@@ -225,7 +225,7 @@ class DoTrade extends React.Component {
                           </React.Fragment>
                         }
                       </div>
-                      <div className="details">
+                      <div className="details" data-test-id="trade-token-to">
                         <span className="icon">{this.props.tokens[this.props.system.trade.to].icon}</span>
                         <span className="label">Buy</span>
                         <span className="value">{this.props.system.trade.operation === "buyAll" ? "" : "~ "}

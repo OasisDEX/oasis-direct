@@ -486,7 +486,7 @@ export default class SystemStore {
   };
 
   calculatePayAmount = async (from, to, amountToBuy) => {
-    const rand = Math.random();  //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
+    const rand = Math.random(); //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
     this.trade.to = to;
@@ -500,7 +500,7 @@ export default class SystemStore {
     this.trade.operation = TRADE_OPERATIONS.BUY_ALL;
     this.trade.txCost = toBigNumber(0);
     this.trade.error = null;
-
+    //
     const {defaultAccount, network} = this.rootStore.network;
 
     if (toBigNumber(amountToBuy).eq(0)) {
@@ -574,7 +574,6 @@ export default class SystemStore {
         bestPriceOffer
       }
     }
-
 
     const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
     const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
