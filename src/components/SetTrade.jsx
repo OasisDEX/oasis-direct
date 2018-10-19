@@ -196,7 +196,7 @@ class SetTrade extends React.Component {
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
                       <ReactTooltip className="od-tooltip" effect="solid" id="price-tooltip">
-                        <p>
+                        <p>A
                           The estimated price of your order is calculated based on the current depth of the OasisDEX order book and the size of your order.
                         </p>
                       </ReactTooltip>
@@ -264,7 +264,7 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
                 </div>
-                <div
+                <div data-test-id="set-trade-from-amount"
                   className={
                     `amount-input-placeholder
                     ${
@@ -302,7 +302,7 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }
                 </div>
-                <div
+                <div data-test-id="set-trade-to-amount"
                   className={
                     `amount-input-placeholder
                     ${
@@ -331,7 +331,7 @@ class SetTrade extends React.Component {
           }
           {
             !this.hasErrors() && this.hasDetails() &&
-            <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? "accepted" : ""}`}
+            <div data-test-id="terms-and-conditions" className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? "accepted" : ""}`}
                  onClick={this.acceptTermsAndConditions}>
               <div className="info-box-row">
                   <span>
@@ -343,7 +343,8 @@ class SetTrade extends React.Component {
               </div>
             </div>
           }
-          <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
+          <button data-test-id="initiate-trade"
+                  type="button" value="Start transaction" className="start" onClick={this.nextStep}
                   disabled={this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy || this.props.system.trade.errorOrders || this.props.system.trade.amountBuy.eq(0) || this.props.system.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>
