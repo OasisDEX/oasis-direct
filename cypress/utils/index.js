@@ -24,6 +24,7 @@ export function visitWithWeb3(path = "") {
 }
 
 export function revertToSnapshot() {
+  cy.log(`Reverting blockchain to snapshot #${lastSnapshotId}`)
   cy.then(() => restoreBlockchain(web3)(lastSnapshotId));
 }
 
