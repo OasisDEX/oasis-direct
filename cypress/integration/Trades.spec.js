@@ -18,7 +18,7 @@ context('Trading', () => {
       .find('input').should('have.value', `${DAI_AMOUNT_TO_RECEIVE}.00000`);
 
 
-    cy.get(tid("terms-and-conditions")).click();
+    cy.get(tid("terms-and-conditions")).click({ position: "topRight", force: true });
     cy.get(tid("initiate-trade")).click();
 
     cy.get(tid("trade-with-builtin-proxy-creation"))
