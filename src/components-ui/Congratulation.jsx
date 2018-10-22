@@ -50,7 +50,7 @@ class Congratulation extends React.Component {
               <br/>
             </span>
           }
-          <span className="label">
+          <span data-test-id="congratulation-message" className="label">
             {
               this.props.hasCreatedProxy
               ?
