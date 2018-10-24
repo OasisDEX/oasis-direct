@@ -261,7 +261,7 @@ class DoTrade extends React.Component {
           }
         </div>
 
-        <button type="submit" value="Trade again"
+        <button data-test-id="new-trade" type="submit" value="Trade again"
                 onClick={() => { this.props.system.reset(); this.props.transactions.reset(); } }
                 disabled={!this.showTradeAgainButton()}>
           TRADE AGAIN

@@ -60,7 +60,7 @@ export default class SystemStore {
     reaction(
       () => this.rootStore.quotes.selected.price,
       price => {
-        this.gasPrice = price;
+        this.gasPrice = toBigNumber(price);
         this.recalculate();
       }
     )
