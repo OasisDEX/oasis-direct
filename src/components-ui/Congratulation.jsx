@@ -58,15 +58,23 @@ class Congratulation extends React.Component {
               :
                 <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
             }
-            <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought} decimal={5}
-                        token={this.props.quotation.base.toUpperCase()} />&nbsp;
+            <span data-test-id={this.props.quotation.isCounter ? "sold-token" : "bought-token"}>
+              <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought}
+                           decimal={5}
+                           token={this.props.quotation.base.toUpperCase()}/>&nbsp;
+            </span>
+
             {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
-            <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
-                        token={this.props.quotation.quote.toUpperCase()} />
+            <span data-test-id={this.props.quotation.isCounter ? "bought-token" : "sold-token"}>
+              <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
+                           token={this.props.quotation.quote.toUpperCase()}/>
+            </span>
             <br/>
             at&nbsp;
-            <TokenAmount number={toWei(finalizedPrice.price)}
-                        token={`${finalizedPrice.priceUnit.toUpperCase()}`} />
+            <span data-test-id="final-price">
+              <TokenAmount number={toWei(finalizedPrice.price)}
+                           token={`${finalizedPrice.priceUnit.toUpperCase()}`} />
+            </span>
             &nbsp;by paying&nbsp;
             <span className="value">
               {

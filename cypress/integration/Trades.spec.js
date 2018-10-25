@@ -52,22 +52,19 @@ context('Trading', () => {
       });
 
     cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("token-amount-value"))
-      .first()
+      .find(tid("sold-token"), tid("token-amount-value"))
       .then(value =>
         expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`)
       );
 
     cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("token-amount-value"))
-      .eq(1)
+      .find(tid("bought-token"), tid("token-amount-value"))
       .then(value =>
         expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`)
       );
 
     cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("token-amount-value"))
-      .eq(2)
+      .find(tid("final-price"),tid("token-amount-value"))
       .then(value =>
         expect(value.text().trim()).to.eq(expectedPrice)
       );
