@@ -1,17 +1,17 @@
 import { visitWithWeb3, tid, revertToSnapshot } from "../utils";
 
 context('Selling', () => {
-  const ETH_AMOUNT_TO_SELL = '1';
-  const DAI_AMOUNT_TO_RECEIVE = '280';
   const waitForTradeToFinish = 20000;
 
   beforeEach(() => visitWithWeb3());
   afterEach(() => revertToSnapshot());
 
-  it("ETH for ERC20 without PROXY", () => {
+  it  ("ETH for ERC20 without PROXY", () => {
     const base = "ETH";
     const quote = "DAI";
-    const expectedPrice = `277.5 ${base}/${quote}`;
+    const ETH_AMOUNT_TO_SELL = '1';
+    const DAI_AMOUNT_TO_RECEIVE = '280';
+    const expectedPrice = `280 ${base}/${quote}`;
 
     cy.get(tid("wallets-continue")).contains("Continue").click();
 
@@ -64,6 +64,12 @@ context('Selling', () => {
   });
 
   it("ETH for ERC20 with proxy", () => {
+    const base = "ETH";
+    const quote = "DAI";
+    const ETH_AMOUNT_TO_SELL = '1';
+    const DAI_AMOUNT_TO_RECEIVE = '275';
+    const expectedPrice = `275 ${base}/${quote}`;
+
     cy.get(tid("wallets-continue")).contains("Continue").click();
 
     cy.get(tid("set-trade-from-amount"))
@@ -81,21 +87,19 @@ context('Selling', () => {
     cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
     cy.get(tid("initiate-trade")).click();
 
-    getTradeParameters();
-
     cy.get(tid("trade-with-builtin-proxy-creation"))
       .should('not.exist');
 
     cy.get(tid("trade-token-from"))
       .find(tid("token-amount-value"))
       .then((value) => {
-        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ETH`);
+        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`);
       });
 
     cy.get(tid("trade-token-to"))
       .find(tid("token-amount-value"))
       .then((value) => {
-        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} DAI`);
+        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
       });
 
     cy.get(tid("proxy-creation-summary"), {timeout: waitForTradeToFinish})
@@ -162,21 +166,21 @@ context('Selling', () => {
       .find(tid("token-amount-value"))
       .first()
       .then(value =>
-        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ETH`)
+        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`)
       );
 
     cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
       .find(tid("token-amount-value"))
       .eq(1)
       .then(value =>
-        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} DAI`)
+        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`)
       );
 
     cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
       .find(tid("token-amount-value"))
       .eq(2)
       .then(value =>
-        expect(value.text().trim()).to.eq(trade.price)
+        expect(value.text().trim()).to.eq(expectedPrice)
       );
   })
 });
