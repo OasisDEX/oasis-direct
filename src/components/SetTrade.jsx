@@ -191,12 +191,12 @@ class SetTrade extends React.Component {
               {
                 !this.hasCriticalErrors() &&
                 <React.Fragment>
-                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                  <span data-test-id="trade-parameter-price" style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
                       <ReactTooltip className="od-tooltip" effect="solid" id="price-tooltip">
-                        <p>A
+                        <p>
                           The estimated price of your order is calculated based on the current depth of the OasisDEX order book and the size of your order.
                         </p>
                       </ReactTooltip>
@@ -215,10 +215,10 @@ class SetTrade extends React.Component {
                         </p>
                       </ReactTooltip>
                     </span>
-                    <span
+                    <span data-test-id='trade-parameter-threshold'
                       className="value">{this.props.system.threshold}%</span>
                   </span>
-                  <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                  <span data-test-id="trade-parameter-gas" style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
                     {
                       this.props.system.trade.txCost.gt(0)
@@ -241,7 +241,7 @@ class SetTrade extends React.Component {
                       </p>
                     </ReactTooltip>
                   </span>
-                  <span style={{color: priceImpact > 5 ? "#E53935" : ""}}
+                  <span data-test-id="trade-parameter-impact" style={{color: priceImpact > 5 ? "#E53935" : ""}}
                         className="value">{priceImpact}%</span>
                   </span>
                 </React.Fragment>
