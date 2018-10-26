@@ -1,16 +1,13 @@
 import Web3 from "web3";
-import PrivateKeyProvider from "truffle-privatekey-provider";
 
-// this is exactly the same as ganache.sh file in localnode
-const ACCOUNT_1_PRIV = "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92f7d7667e1a";
-const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af";
+const ACCOUNT_3_PUB = "0x79d7176ae8f93a04bc73b9bc710d4b44f9e362ce";
 
 export let web3;
 export let lastSnapshotId;
 
 export function visitWithWeb3(path = "") {
-  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x",""), Cypress.env("ETH_PROVIDER"));
-  web3 = new Web3(provider);
+  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  web3.eth.defaultAccount = ACCOUNT_3_PUB;
 
   return cy.then(() => saveBlockchain(web3)()).then(r => {
     lastSnapshotId = parseInt(r.result, 16);
