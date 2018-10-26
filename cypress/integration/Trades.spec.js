@@ -51,22 +51,16 @@ context('Trading', () => {
         expect(value.text().trim()).to.eq('You have successfully created a Proxy')
       });
 
-    cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("sold-token"), tid("token-amount-value"))
-      .then(value =>
-        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`)
-      );
+    cy.get(tid("congratulation-message", (tid("sold-token"), tid("token-amount-value"))), {
+      timeout: waitForTradeToFinish,
+    }).contains(`${ETH_AMOUNT_TO_SELL} ${base}`);
 
-    cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("bought-token"), tid("token-amount-value"))
-      .then(value =>
-        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`)
-      );
+    cy.get(tid("congratulation-message", tid("bought-token", tid("token-amount-value"))), {
+      timeout: waitForTradeToFinish,
+    }).contains(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
 
-    cy.get(tid("congratulation-message"), {timeout: waitForTradeToFinish})
-      .find(tid("final-price"),tid("token-amount-value"))
-      .then(value =>
-        expect(value.text().trim()).to.eq(expectedPrice)
-      );
+    cy.get(tid("congratulation-message", tid("final-price", tid("token-amount-value"))), {
+      timeout: waitForTradeToFinish,
+    }).contains(expectedPrice);
   });
 });
