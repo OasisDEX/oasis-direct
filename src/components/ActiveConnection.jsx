@@ -28,7 +28,7 @@ class ActiveConnection extends React.Component {
       <div className="frame">
         <div className="wallet-settings">
           <button className="back" onClick={this.props.back}>
-            <Circle><BackIcon/></Circle>
+            <Circle hover><BackIcon/></Circle>
           </button>
           <div className="heading">
             <h2>Active Client</h2>
