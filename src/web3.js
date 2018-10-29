@@ -80,7 +80,7 @@ class Web3Extended extends Web3 {
           window.ethereum.enable().then(
             () => {
               this.bindProvider(window.ethereum);
-              resolve();
+              resolve(true);
             },
             () => {
               reject();
@@ -91,7 +91,7 @@ class Web3Extended extends Web3 {
 
         if (window.web3) { // This is the case for Provider Injectors which don't follow EIP1102 ( parity-extension ? )
           this.bindProvider(window.web3.currentProvider);
-          resolve();
+          resolve(true);
 
           return;
         }
