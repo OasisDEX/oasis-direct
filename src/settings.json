@@ -99,6 +99,6 @@
   },
   "gasPriceIncreaseInGwei":3,
   "gasPriceRefreshRateInMilliseconds": 5000,
-  "priceTickerInterval": 300000
+  "priceTickerInterval": 5000
 }
     

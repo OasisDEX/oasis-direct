@@ -15,10 +15,14 @@ import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 import { ERRORS } from "../utils/errors";
 
+const TRADE_OPERATIONS = Object.freeze({
+  SELL_ALL: "sellAll",
+  BUY_ALL: "buyAll"
+});
+
 export default class SystemStore {
   @observable ethPriceInUSD = 0;
   @observable customThreshold;
-  @observable customSlippagePrice;
   @observable balances = {
     dai: null,
     eth: null,
@@ -51,7 +55,7 @@ export default class SystemStore {
     reaction(
       () => this.rootStore.network.network,
       network => {
-        if(network){
+        if (network) {
           this.customThreshold = defaultThresholdFor(network, this.trade.from, this.trade.to);
         }
       }
@@ -68,14 +72,51 @@ export default class SystemStore {
     reaction(
       () => this.trade.price,
       price => {
+        this.stopPriceTicker();
         if (price.gt(0)) {
-          this.priceTicker = setInterval(() => {
-           this.recalculate();
+          this.priceTicker = setInterval(async () => {
+            const network = this.rootStore.network.network;
+            const market = blockchain.loadObject("matchingmarket", settings.chain[network].otc);
+            const {to, from} = this.trade;
+            const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
+            const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
+
+            if (this.trade.operation === TRADE_OPERATIONS.SELL_ALL) {
+              const amountToBuy = await this.getBuyAmount(
+                market,
+                toTokenAddress,
+                fromTokenAddress,
+                this.trade.amountPay
+              ).catch(e => {
+                clearInterval(this.priceTicker);
+                return 0;
+              });
+
+              //Recalculates the trade parameters only when we have different amount to buy.
+              if (!this.trade.amountBuy.eq(amountToBuy)) {
+                this.recalculate();
+              }
+
+              return;
+            }
+
+            if (this.trade.operation === TRADE_OPERATIONS.BUY_ALL) {
+              const amountToPay = await this.getPayAmount(
+                market,
+                fromTokenAddress,
+                toTokenAddress,
+                this.trade.amountBuy
+              ).catch(e => {
+                clearInterval(this.priceTicker);
+                return 0;
+              });
+
+              //Recalculates the trade parameters only when we have different amount to buy.
+              if (!this.trade.amountPay.eq(amountToPay)) {
+                this.recalculate();
+              }
+            }
           }, settings.priceTickerInterval);
-        } else {
-          if (this.priceTicker) {
-            this.stopPriceTicker();
-          }
         }
       }
     )
@@ -105,17 +146,7 @@ export default class SystemStore {
 
   @computed
   get threshold() {
-    this.slippagePrice = this.trade.price * this.customThreshold / 100;
     return this.customThreshold;
-  }
-
-  set slippagePrice(value) {
-    this.customSlippagePrice = value;
-  }
-
-  @computed
-  get slippagePrice() {
-    return this.customSlippagePrice;
   }
 
   init = () => {
@@ -160,10 +191,11 @@ export default class SystemStore {
   }
 
   recalculate = () => {
-    if (this.trade.operation === "sellAll") {
+    if (this.trade.operation === TRADE_OPERATIONS.SELL_ALL) {
       this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
     }
-    if (this.trade.operation === "buyAll") {
+
+    if (this.trade.operation === TRADE_OPERATIONS.BUY_ALL) {
       this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
     }
   }
@@ -173,6 +205,40 @@ export default class SystemStore {
       this.ethPriceInUSD = price;
     });
   }
+
+  getBuyAmount = (market, fromAddress, toAddress, amountToPay) => {
+    return new Promise((resolve, reject) => {
+      market
+        .getBuyAmount(
+          fromAddress,
+          toAddress,
+          toWei(amountToPay),
+          (e, amountToBuy) => {
+            if (e) {
+              reject(e);
+              return;
+            }
+            resolve(fromWei(amountToBuy));
+          });
+    })
+  };
+
+  getPayAmount = (market, fromAddress, toAddress, amountToBuy) => {
+    return new Promise((resolve, reject) => {
+      market
+        .getPayAmount(
+          fromAddress,
+          toAddress,
+          toWei(amountToBuy),
+          (e, amountToBuy) => {
+            if (e) {
+              reject(e);
+              return;
+            }
+            resolve(fromWei(amountToBuy));
+          });
+    })
+  };
 
   saveBalance = token => {
     if (token === "weth") {
@@ -275,8 +341,8 @@ export default class SystemStore {
 
   doTrade = () => {
     this.stopPriceTicker();
-    const amount = this.trade[this.trade.operation === "sellAll" ? "amountPay" : "amountBuy"];
-    const limit = toWei(this.trade.operation === "sellAll" ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
+    const amount = this.trade[this.trade.operation === TRADE_OPERATIONS.SELL_ALL ? "amountPay" : "amountBuy"];
+    const limit = toWei(this.trade.operation === TRADE_OPERATIONS.SELL_ALL ? this.trade.amountBuy.times(1 - this.threshold * 0.01) : this.trade.amountPay.times(1 + this.threshold * 0.01)).round(0);
 
     if (this.trade.from === "eth") {
       this.trade.step = 2;
@@ -320,7 +386,7 @@ export default class SystemStore {
     }
   }
 
-  calculateBuyAmount = (from, to, amountToPay) => {
+  calculateBuyAmount = async (from, to, amountToPay) => {
     const rand = Math.random(); //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
@@ -332,7 +398,7 @@ export default class SystemStore {
     this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
-    this.trade.operation = "sellAll";
+    this.trade.operation = TRADE_OPERATIONS.SELL_ALL;
     this.trade.txCost = toBigNumber(0);
     this.trade.error = null;
 
@@ -351,7 +417,7 @@ export default class SystemStore {
       let givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
       const balance = await blockchain.getBalanceOf(from, defaultAccount);
 
-      let costs = await this.estimateAllGasCosts("sellAll", from, to, amountPay, rand);
+      let costs = await this.estimateAllGasCosts(TRADE_OPERATIONS.SELL_ALL, from, to, amountPay, rand);
 
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
@@ -364,7 +430,7 @@ export default class SystemStore {
       const minValueToSell = settings.chain[network].tokens[from.replace("eth", "weth")].minValue;
       if (!error && amountPay.lt(minValueToSell)) {
         error = {
-          cause: ERRORS.MINIMAL_VALUE(minValueToSell,from),
+          cause: ERRORS.MINIMAL_VALUE(minValueToSell, from),
           onTradeSide: `sell`,
         };
       }
@@ -408,31 +474,26 @@ export default class SystemStore {
       }
     };
 
+    const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
+    const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
+    const market = blockchain.loadObject("matchingmarket", settings.chain[network].otc);
 
-    blockchain.loadObject("matchingmarket", settings.chain[network].otc).getBuyAmount(
-      settings.chain[network].tokens[to.replace("eth", "weth")].address,
-      settings.chain[network].tokens[from.replace("eth", "weth")].address,
-      toWei(amountToPay),
-      async (e, amountToBuy) => {
-        if (this.trade.rand === rand) {
-          if (!e) {
-            const evaluation = await evaluateTrade(toBigNumber(amountToPay), fromWei(amountToBuy));
-            if (this.trade.rand === rand) {
-              this.trade = {...this.trade, ...evaluation};
-            }
-          } else {
-            if (this.trade.rand === rand) {
-              this.trade.error = {
-                cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
-                isCritical: true
-              }
-            }
-          }
-        }
-      });
+    const amountBuy = await this.getBuyAmount(market, toTokenAddress, fromTokenAddress, amountToPay).catch(e => {
+      if (this.trade.rand === rand) {
+        this.trade.error = {
+          cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
+          isCritical: true
+        };
+      }
+    });
+
+    if (amountBuy && this.trade.rand === rand) {
+      const evaluation = await evaluateTrade(toBigNumber(amountToPay), amountBuy);
+      this.trade = {...this.trade, ...evaluation};
+    }
   };
 
-  calculatePayAmount = (from, to, amountToBuy) => {
+  calculatePayAmount = async (from, to, amountToBuy) => {
     const rand = Math.random();  //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
@@ -444,7 +505,7 @@ export default class SystemStore {
     this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
-    this.trade.operation = "buyAll";
+    this.trade.operation = TRADE_OPERATIONS.BUY_ALL;
     this.trade.txCost = toBigNumber(0);
     this.trade.error = null;
 
@@ -498,7 +559,7 @@ export default class SystemStore {
         };
       }
 
-      let expenses = await this.estimateAllGasCosts("buyAll", from, to, amountToBuy, rand);
+      let expenses = await this.estimateAllGasCosts(TRADE_OPERATIONS.BUY_ALL, from, to, amountToBuy, rand);
       let ethBalance = balance;
 
       if (this.trade.from === "eth") {
@@ -522,25 +583,24 @@ export default class SystemStore {
       }
     }
 
-    blockchain.loadObject("matchingmarket", settings.chain[network].otc).getPayAmount(
-      settings.chain[network].tokens[from.replace("eth", "weth")].address,
-      settings.chain[network].tokens[to.replace("eth", "weth")].address,
-      toWei(amountToBuy),
-      async (e, amountToPay) => {
-        if (this.trade.rand === rand) {
-          if (!e) {
-            const evaluation = await evaluateTrade(fromWei(amountToPay), toBigNumber(amountToBuy));
-            if (this.trade.rand === rand) this.trade = {...this.trade, ...evaluation};
-          } else {
-            if (this.trade.rand === rand) {
-              this.trade.error = {
-                cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
-                isCritical: true
-              };
-            }
-          }
+
+    const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
+    const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
+    const market = blockchain.loadObject("matchingmarket", settings.chain[network].otc);
+
+    const amountPay = await this.getPayAmount(market, fromTokenAddress, toTokenAddress, amountToBuy).catch(e => {
+      if (this.trade.rand === rand) {
+        this.trade.error = {
+          cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
+          isCritical: true
         }
-      });
+      }
+    });
+
+    if (amountPay && this.trade.rand === rand) {
+      const evaluation = await evaluateTrade(amountPay, toBigNumber(amountToBuy));
+      this.trade = {...this.trade, ...evaluation};
+    }
   };
 
   estimateAllGasCosts = async (operation, from, to, amount, rand) => {
@@ -575,10 +635,10 @@ export default class SystemStore {
       }
     }
 
-    const limit = operation === "sellAll" ? 0 : toWei(9999999);
+    const limit = operation === TRADE_OPERATIONS.SELL_ALL ? 0 : toWei(9999999);
     if (this.rootStore.profile.proxy || from !== "eth") {
       if (from !== "eth" && (!this.rootStore.profile.proxy || !hasAllowance)) {
-        if (operation === "sellAll") {
+        if (operation === TRADE_OPERATIONS.SELL_ALL) {
           promises.push(this.roughTradeCost("SellAll", from, amount, to));
         } else {
           promises.push(this.roughTradeCost("BuyAll", to, amount, from));
