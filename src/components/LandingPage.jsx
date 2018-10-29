@@ -11,14 +11,6 @@ const links = [
     name: "Resources",
     links: [
       {
-        label: "Documentation",
-        url: "https://developer.makerdao.com/",
-        options: {
-          target: "_blank",
-          rel: "noopener noreferrer"
-        }
-      },
-      {
         label: "Legal",
         url: "OasisToS.pdf",
         options: {}
@@ -36,27 +28,6 @@ const links = [
       {
         label: "Oasisdex.com",
         url: "https://oasisdex.com/",
-        options: {
-          target: "_blank",
-          rel: "noopener noreferrer"
-        }
-      },
-    ]
-  },
-  {
-    name: "Maker",
-    links: [
-      {
-        label: "chat",
-        url: "https://chat.makerdao.com/",
-        options: {
-          target: "_blank",
-          rel: "noopener noreferrer"
-        }
-      },
-      {
-        label: "Reddit",
-        url: "https://www.reddit.com/r/MakerDAO/",
         options: {
           target: "_blank",
           rel: "noopener noreferrer"
