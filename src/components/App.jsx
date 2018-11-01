@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import * as Blockchain from "../blockchainHandler";
-import { addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from '../helpers';
+import {
+  addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice,
+  currencyPairCompare
+} from '../helpers';
 import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
@@ -696,7 +699,7 @@ class App extends Component {
 
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
-    const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
+    const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort(currencyPairCompare).join('')] * 0.01;
     const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
     if (this.state.trade.from === 'eth') {
       this.setState(prevState => {

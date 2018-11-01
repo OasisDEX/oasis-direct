@@ -4,7 +4,7 @@ import { Ether, MKR, DAI, Done, AccountIcon, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
-import { etherscanUrl, quotation, toBigNumber, toWei } from '../helpers';
+import { etherscanUrl, quotation, currencyPairCompare, toBigNumber, toWei } from '../helpers';
 
 const settings = require('../settings');
 
@@ -221,7 +221,7 @@ class DoTrade extends Component {
                   <span
                     className="label">Perhaps the market has moved, so your order could not be filled within the</span>
                   <span className="value">
-                    {settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort((a, b) => a > b).join('')]}% slippage limit
+                    {settings.chain[this.props.network].threshold[[this.props.trade.from, this.props.trade.to].sort(currencyPairCompare).join('')]}% slippage limit
                   </span>
                 </span>
                 </div>
