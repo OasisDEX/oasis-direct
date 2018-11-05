@@ -169,8 +169,6 @@ export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) 
     {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}/${tokenBuy}`};
 }
 
-export const calculateSlippage = ( slippageInPercentage, price) => (price * slippageInPercentage) / 100;
-
 export const threshold = (network, from , to) => settings.chain[network].threshold[[from, to].sort((a, b) => a > b).join("")];
 
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber} = web3;
