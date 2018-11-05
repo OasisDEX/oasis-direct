@@ -98,7 +98,7 @@ class HardWallet extends React.Component {
       :
         <section className="frame hard-wallet">
           <button className="back" onClick={this.props.network.stopNetwork}>
-            <Circle><BackIcon/></Circle>
+            <Circle hover={true}><BackIcon/></Circle>
           </button>
           <div className="heading">
             <h2>Connect your <span style={{textTransform: "capitalize"}}>{this.props.network.hw.option}</span> Wallet</h2>
@@ -119,7 +119,7 @@ class HardWallet extends React.Component {
               </div>
               <div></div>
               <div onClick={this.retry}>
-                <Circle styles={{width: "32px", height: "32px", padding: "5px", marginLeft: "16px"}}><RetryIcon /></Circle>
+                <Circle hover={true} styles={{width: "32px", height: "32px", padding: "5px", marginLeft: "16px"}}><RetryIcon /></Circle>
               </div>
             </div>
             <div className="guidelines">

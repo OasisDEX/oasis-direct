@@ -70,7 +70,7 @@ export default class TradeSettings extends Component {
       <div className="frame trade-settings">
         <div className="heading">
           <button className={`back ${this.hasEmptyValues() ? 'disabled' : ''}`} onClick={this.props.onDismiss}>
-            <Circle><BackIcon/></Circle>
+            <Circle hover={true}><BackIcon/></Circle>
           </button>
           <h2>Advanced Settings</h2>
           <div className="network-indicator-placeholder">

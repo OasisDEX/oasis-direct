@@ -89,7 +89,7 @@ class Wallets extends React.Component {
         ?
           <section className="frame wallets">
             <div style={{position: "absolute", zIndex: 2, top: "18px"}} onClick={this.getToClientSelection}>
-              <Circle><BackIcon/></Circle>
+              <Circle hover={true}><BackIcon/></Circle>
             </div>
             <div className="decorator">
               <ul className="list">
