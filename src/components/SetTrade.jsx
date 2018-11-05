@@ -32,10 +32,6 @@ class SetTrade extends React.Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.priceTickerInterval);
-  }
-
   //Whether it's "from" or "to". Probably better name should be chosen
   pickToken = tokenType => {
     this.setState({showTokenSelector: true, selectedSide: tokenType});

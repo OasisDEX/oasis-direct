@@ -63,6 +63,10 @@ class TradeWidget extends React.Component {
       });
   }
 
+  componentWillUnmount() {
+    clearInterval(this.priceTickerInterval);
+  }
+
   switchToTradeSettings = () => {
     this.setState({
       view: <TradeSettings onDismiss={this.switchToNewTrade}/>
