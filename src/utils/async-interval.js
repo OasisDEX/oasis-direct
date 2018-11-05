@@ -30,17 +30,22 @@ const asyncInterval = (fn, interval) => {
       return;
     }
 
-    asyncFn().then(() => {
-      // Small optimization to avoid scheduling a new function call.
-      if (shouldHalt) {
-        return;
-      }
+    try {
+      asyncFn().then(() => {
+        // Small optimization to avoid scheduling a new function call.
+        if (shouldHalt) {
+          return;
+        }
 
-      setTimeout(
-        () => tick(asyncFn, interval),
-        interval
-      );
-    });
+        setTimeout(
+          () => tick(asyncFn, interval),
+          interval
+        );
+      },() => console.error("The call was rejected"));
+    } catch (error) {
+      console.error("Something went wrong with the call");
+    }
+
   };
 
   tick(fn, interval);

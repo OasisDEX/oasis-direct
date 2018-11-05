@@ -74,6 +74,10 @@ export default class SystemStore {
       () => this.trade.price,
       price => {
         if (price.gt(0)) {
+          if(this.stopPriceTicker){
+            this.stopPriceTicker();
+          }
+
           this.stopPriceTicker = asyncInterval(async () => {
             //Recalculates the trade parameters only when we have different amount to buy.
             const network = this.rootStore.network.network;
