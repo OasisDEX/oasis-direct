@@ -4,8 +4,8 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@ledgerhq/hw-app-eth": "^4.7.3",
-    "@ledgerhq/hw-transport-u2f": "^4.7.3",
+    "@ledgerhq/hw-app-eth": "4.7.3",
+    "@ledgerhq/hw-transport-u2f": "4.7.3",
     "bluebird": "^3.5.1",
     "create-react-class": "^15.6.2",
     "hdkey": "^0.8.0",
