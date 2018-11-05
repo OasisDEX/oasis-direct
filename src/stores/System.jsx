@@ -14,6 +14,7 @@ import {
 import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 import { ERRORS } from "../utils/errors";
+import asyncInterval from "../utils/async-interval";
 
 const TRADE_OPERATIONS = Object.freeze({
   SELL_ALL: "sellAll",
@@ -72,9 +73,12 @@ export default class SystemStore {
     reaction(
       () => this.trade.price,
       price => {
-        this.stopPriceTicker();
         if (price.gt(0)) {
-          this.priceTicker = setInterval(async () => {
+          if(this.stopPriceTicker){
+            this.stopPriceTicker();
+          }
+
+          this.stopPriceTicker = asyncInterval(async () => {
             //Recalculates the trade parameters only when we have different amount to buy.
             const network = this.rootStore.network.network;
             const market = blockchain.loadObject("matchingmarket", settings.chain[network].otc);
@@ -90,7 +94,7 @@ export default class SystemStore {
                   fromTokenAddress,
                   this.trade.amountPay
                 );
-  
+
                 if (!this.trade.amountBuy.eq(amountToBuy)) {
                   await this.recalculate();
                 }
@@ -100,8 +104,8 @@ export default class SystemStore {
                   fromTokenAddress,
                   toTokenAddress,
                   this.trade.amountBuy
-                )
-  
+                );
+
                 if (!this.trade.amountPay.eq(amountToPay)) {
                   await this.recalculate();
                 }
@@ -168,13 +172,6 @@ export default class SystemStore {
       proxy: null
     };
   }
-
-  stopPriceTicker = () => {
-    if (this.priceTicker) {
-      clearInterval(this.priceTicker);
-      this.priceTicker = null;
-    }
-  };
 
   cleanInputs = () => {
     this.trade.amountPay = toBigNumber(0);
