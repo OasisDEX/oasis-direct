@@ -75,46 +75,41 @@ export default class SystemStore {
         this.stopPriceTicker();
         if (price.gt(0)) {
           this.priceTicker = setInterval(async () => {
+            //Recalculates the trade parameters only when we have different amount to buy.
             const network = this.rootStore.network.network;
             const market = blockchain.loadObject("matchingmarket", settings.chain[network].otc);
             const {to, from} = this.trade;
             const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
             const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
 
-            if (this.trade.operation === TRADE_OPERATIONS.SELL_ALL) {
-              const amountToBuy = await this.getBuyAmount(
-                market,
-                toTokenAddress,
-                fromTokenAddress,
-                this.trade.amountPay
-              ).catch(e => {
-                clearInterval(this.priceTicker);
-                return 0;
-              });
-
-              //Recalculates the trade parameters only when we have different amount to buy.
-              if (!this.trade.amountBuy.eq(amountToBuy)) {
-                this.recalculate();
+            try {
+              if (this.trade.operation === TRADE_OPERATIONS.SELL_ALL) {
+                const amountToBuy = await this.getBuyAmount(
+                  market,
+                  toTokenAddress,
+                  fromTokenAddress,
+                  this.trade.amountPay
+                );
+  
+                if (!this.trade.amountBuy.eq(amountToBuy)) {
+                  await this.recalculate();
+                }
+              } else if (this.trade.operation === TRADE_OPERATIONS.BUY_ALL) {
+                const amountToPay = await this.getPayAmount(
+                  market,
+                  fromTokenAddress,
+                  toTokenAddress,
+                  this.trade.amountBuy
+                )
+  
+                if (!this.trade.amountPay.eq(amountToPay)) {
+                  await this.recalculate();
+                }
               }
-
-              return;
             }
-
-            if (this.trade.operation === TRADE_OPERATIONS.BUY_ALL) {
-              const amountToPay = await this.getPayAmount(
-                market,
-                fromTokenAddress,
-                toTokenAddress,
-                this.trade.amountBuy
-              ).catch(e => {
-                clearInterval(this.priceTicker);
-                return 0;
-              });
-
-              //Recalculates the trade parameters only when we have different amount to buy.
-              if (!this.trade.amountPay.eq(amountToPay)) {
-                this.recalculate();
-              }
+            catch(e) {
+              console.error(e);
+              clearInterval(this.priceTicker);
             }
           }, settings.priceTickerInterval);
         }
@@ -192,11 +187,11 @@ export default class SystemStore {
 
   recalculate = () => {
     if (this.trade.operation === TRADE_OPERATIONS.SELL_ALL) {
-      this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
+      return this.calculateBuyAmount(this.trade.from, this.trade.to, this.trade.amountPay);
     }
 
     if (this.trade.operation === TRADE_OPERATIONS.BUY_ALL) {
-      this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
+      return this.calculatePayAmount(this.trade.from, this.trade.to, this.trade.amountBuy);
     }
   }
 
