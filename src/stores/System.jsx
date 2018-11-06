@@ -292,7 +292,7 @@ export default class SystemStore {
       const proxy = blockchain.objects.proxy;
       const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
 
-      proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice: this.gasPrice}, (e, tx) => {
+      proxy.execute["address,bytes"](...params.concat([{value: data.value, gas: 5000000, gasPrice: this.gasPrice}, (e, tx) => {
         if (!e) {
           this.rootStore.transactions.logPendingTransaction(tx, "trade");
         } else {
