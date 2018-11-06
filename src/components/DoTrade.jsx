@@ -249,13 +249,7 @@ class DoTrade extends React.Component {
                   bought={this.props.transactions.trade.amountBuy}
                   sold={this.props.transactions.trade.amountSell}
                   quotation={quotation(this.props.system.trade.from, this.props.system.trade.to)}
-                  gas={
-                    (
-                      typeof this.props.transactions.approval.gasPrice !== "undefined"
-                      ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                      : toBigNumber(0)
-                    ).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))
-                  }
+                  gas={toBigNumber(0)}
                 />
               </a>
           }
