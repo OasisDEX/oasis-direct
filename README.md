@@ -4,6 +4,10 @@ Oasis.Direct is a convenient and user friendly fully-decentralized way to change
   
 You don’t need to think about wrapping/unwrapping ETH (and other non ERC-20 compliant tokens), you don’t need to worry about the current liquidity on the exchange and you are always guaranteed the best price you can get from Oasis.DEX exchange.
 
+## Deployments
+- [production](https://oasis.direct/)
+- [stage](https://stage-oasis-direct.surge.sh) - auto deploy branch `release/simpson`
+
 ## Sections in Oasis Direct Web App
 
  1. **Exchange** 
