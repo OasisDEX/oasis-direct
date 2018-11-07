@@ -7,14 +7,14 @@ jobs:
       image: circleci/classic:edge
       docker_layer_caching: true
 
-    working_directory: /home/circleci/app
+    working_directory: /home/circleci/project
 
     steps:
       - checkout
 
       - restore_cache:
           keys:
-            - v0-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "package.json" }}
 
       - run: ./.circleci/install-yarn.sh
 
@@ -24,7 +24,7 @@ jobs:
           paths:
             - node_modules
             - ~/.cache
-          key: v0-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: source /opt/circleci/.nvm/nvm.sh && yarn test
       - run: source /opt/circleci/.nvm/nvm.sh && yarn build
@@ -43,7 +43,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v2-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "package.json" }}
 
       - run: yarn deploy:stage
 
