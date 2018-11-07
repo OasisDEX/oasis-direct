@@ -303,7 +303,7 @@ export default class SystemStore {
 
       proxy.execute["address,bytes"](...params.concat([{
         value: data.value,
-        gas: gas+1000000,
+        gas: gas+1000000, // TODO: Figure out a way to estimate the gas precisely. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
         gasPrice: this.gasPrice
       }, (e, tx) => {
         if (!e) {
