@@ -239,9 +239,11 @@ class DoTrade extends React.Component {
               <a href={this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
                   target="_blank" rel="noopener noreferrer"
                   className="clickable"
-                  style={{textDecoration: "none"}} >
+                  style={{textDecoration: "none"}} >{
+                    console.log(this.props.transactions.approval.gasUsed,this.props.transactions.trade.gasUsed)
+              }
                 <Congratulation
-                  hasCreatedProxy={!this.props.system.trade.hasToCreateProxyInTrade}
+                  hasCreatedProxy={!this.props.system.hasToCreateProxyInTrade}
                   isCalculatingGas={
                     (typeof this.props.transactions.approval.tx !== "undefined" && typeof this.props.transactions.approval.gasPrice === "undefined")
                     || typeof this.props.transactions.trade.gasPrice === "undefined"
@@ -251,9 +253,9 @@ class DoTrade extends React.Component {
                   quotation={quotation(this.props.system.trade.from, this.props.system.trade.to)}
                   gas={
                     this.props.system.gasPrice
-                      .times(this.props.transactions.approval.gasUsed)
+                      .times(this.props.transactions.approval.gasUsed || 0)
                       .add(this.props.system.gasPrice
-                        .times(this.props.transactions.trade.gasUsed)
+                        .times(this.props.transactions.trade.gasUsed || 0)
                       )
                   }
                 />
