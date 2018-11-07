@@ -241,7 +241,7 @@ class DoTrade extends React.Component {
                   className="clickable"
                   style={{textDecoration: "none"}} >
                 <Congratulation
-                  hasCreatedProxy={!this.props.system.hasToCreateProxyInTrade}
+                  hasCreatedProxy={!this.props.system.trade.hasToCreateProxyInTrade}
                   isCalculatingGas={
                     (typeof this.props.transactions.approval.tx !== "undefined" && typeof this.props.transactions.approval.gasPrice === "undefined")
                     || typeof this.props.transactions.trade.gasPrice === "undefined"
@@ -249,7 +249,13 @@ class DoTrade extends React.Component {
                   bought={this.props.transactions.trade.amountBuy}
                   sold={this.props.transactions.trade.amountSell}
                   quotation={quotation(this.props.system.trade.from, this.props.system.trade.to)}
-                  gas={toBigNumber(0)}
+                  gas={
+                    this.props.system.gasPrice
+                      .times(this.props.transactions.approval.gasUsed)
+                      .add(this.props.system.gasPrice
+                        .times(this.props.transactions.trade.gasUsed)
+                      )
+                  }
                 />
               </a>
           }
