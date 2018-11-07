@@ -60,6 +60,7 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
+    "deploy:stage": "npm run build && surge ./build/ https://stage-oasis-direct.surge.sh",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
     "cypress:run:ci": "cypress run --record",
     "cypress:run": "cypress run",

@@ -35,9 +35,27 @@ jobs:
       - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10 && sleep 10 # @todo this needs to be improved. Wait for it doesnt really work since contract deployment happens later
       - run: source /opt/circleci/.nvm/nvm.sh && ./cypress/scripts/run-e2e.sh
 
+  deploy_stage:
+    docker:
+      - image: circleci/node:8.11.2-stretch
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v2-dependencies-{{ checksum "package.json" }}
+
+      - run: yarn deploy:stage
+
 workflows:
   version: 2
 
   mainflow:
     jobs:
       - test
+      - deploy_stage:
+          requires:
+            - test
+          filters:
+            branches:
+              only: release/simpson
