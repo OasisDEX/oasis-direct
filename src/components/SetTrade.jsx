@@ -187,7 +187,7 @@ class SetTrade extends React.Component {
               {
                 !this.hasCriticalErrors() &&
                 <React.Fragment>
-                  <span style={{paddingBottom: "4px"}} className="holder half holder--spread">
+                  <span data-test-id="trade-parameter-price" style={{paddingBottom: "4px"}} className="holder half holder--spread">
                     <span className="label vertical-align">
                       Price
                       <Attention data-tip data-for="price-tooltip" className="attention-icon"/>
@@ -211,10 +211,10 @@ class SetTrade extends React.Component {
                         </p>
                       </ReactTooltip>
                     </span>
-                    <span
+                    <span data-test-id='trade-parameter-threshold'
                       className="value">{this.props.system.threshold}%</span>
                   </span>
-                  <span style={{paddingTop: "4px"}} className="holder half holder--spread">
+                  <span data-test-id="trade-parameter-gas" style={{paddingTop: "4px"}} className="holder half holder--spread">
                   <span className="label">Gas cost</span>
                     {
                       this.props.system.trade.txCost.gt(0)
@@ -237,7 +237,7 @@ class SetTrade extends React.Component {
                       </p>
                     </ReactTooltip>
                   </span>
-                  <span style={{color: priceImpact > 5 ? "#E53935" : ""}}
+                  <span data-test-id="trade-parameter-impact" style={{color: priceImpact > 5 ? "#E53935" : ""}}
                         className="value">{priceImpact}%</span>
                   </span>
                 </React.Fragment>
@@ -260,7 +260,7 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.from].symbol}/>
                   }
                 </div>
-                <div
+                <div data-test-id="set-trade-from-amount"
                   className={
                     `amount-input-placeholder
                     ${
@@ -298,7 +298,7 @@ class SetTrade extends React.Component {
                                    token={this.props.tokens[this.state.to].symbol}/>
                   }
                 </div>
-                <div
+                <div data-test-id="set-trade-to-amount"
                   className={
                     `amount-input-placeholder
                     ${
@@ -327,7 +327,7 @@ class SetTrade extends React.Component {
           }
           {
             !this.hasErrors() && this.hasDetails() &&
-            <div className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? "accepted" : ""}`}
+            <div data-test-id="terms-and-conditions" className={`info-box terms-and-conditions ${this.state.hasAcceptedTerms ? "accepted" : ""}`}
                  onClick={this.acceptTermsAndConditions}>
               <div className="info-box-row">
                   <span>
@@ -339,7 +339,8 @@ class SetTrade extends React.Component {
               </div>
             </div>
           }
-          <button type="button" value="Start transaction" className="start" onClick={this.nextStep}
+          <button data-test-id="initiate-trade"
+                  type="button" value="Start transaction" className="start" onClick={this.nextStep}
                   disabled={this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy || this.props.system.trade.errorOrders || this.props.system.trade.amountBuy.eq(0) || this.props.system.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
             START TRANSACTION
           </button>

@@ -10,7 +10,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
 // Utils
-import {etherscanUrl, quotation, toBigNumber, toWei} from "../utils/helpers";
+import {etherscanUrl, quotation, toWei} from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";
@@ -185,13 +185,13 @@ class DoTrade extends React.Component {
                   <div className="transaction-info-box">
                     {
                       this.props.system.trade.hasToCreateProxyInTrade &&
-                      <div className="operation new-proxy">
+                      <div data-test-id="trade-with-builtin-proxy-creation" className="operation new-proxy">
                         <div className="details">
                           <span className={`icon ${this.hasTxCompleted("trade") ? "success" : ""}`}>
                             <AccountIcon />
                           </span>
                           <span className="label vertical-align">
-                            Create Proxy
+                            <span>Create Proxy</span>
                             <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
                             <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                               <p>
@@ -208,7 +208,7 @@ class DoTrade extends React.Component {
                       </div>
                     }
                     <div className="operation">
-                      <div className="details">
+                      <div className="details" data-test-id="trade-token-from">
                         <span className="icon">{this.props.tokens[this.props.system.trade.from].icon}</span>
                         <span className="label">Sell</span>
                         <span className="value">{this.props.system.trade.operation === "sellAll" ? "" : "~ "}
@@ -225,7 +225,7 @@ class DoTrade extends React.Component {
                           </React.Fragment>
                         }
                       </div>
-                      <div className="details">
+                      <div className="details" data-test-id="trade-token-to">
                         <span className="icon">{this.props.tokens[this.props.system.trade.to].icon}</span>
                         <span className="label">Buy</span>
                         <span className="value">{this.props.system.trade.operation === "buyAll" ? "" : "~ "}
@@ -239,7 +239,9 @@ class DoTrade extends React.Component {
               <a href={this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
                   target="_blank" rel="noopener noreferrer"
                   className="clickable"
-                  style={{textDecoration: "none"}} >
+                  style={{textDecoration: "none"}} >{
+                    console.log(this.props.transactions.approval.gasUsed,this.props.transactions.trade.gasUsed)
+              }
                 <Congratulation
                   hasCreatedProxy={!this.props.system.hasToCreateProxyInTrade}
                   isCalculatingGas={
@@ -250,18 +252,18 @@ class DoTrade extends React.Component {
                   sold={this.props.transactions.trade.amountSell}
                   quotation={quotation(this.props.system.trade.from, this.props.system.trade.to)}
                   gas={
-                    (
-                      typeof this.props.transactions.approval.gasPrice !== "undefined"
-                      ? this.props.transactions.approval.gasPrice.times(this.props.transactions.approval.gasUsed)
-                      : toBigNumber(0)
-                    ).add(this.props.transactions.trade.gasPrice.times(this.props.transactions.trade.gasUsed))
+                    this.props.system.gasPrice
+                      .times(this.props.transactions.approval.gasUsed || 0)
+                      .add(this.props.system.gasPrice
+                        .times(this.props.transactions.trade.gasUsed || 0)
+                      )
                   }
                 />
               </a>
           }
         </div>
 
-        <button type="submit" value="Trade again"
+        <button data-test-id="new-trade" type="submit" value="Trade again"
                 onClick={() => { this.props.system.reset(); this.props.transactions.reset(); } }
                 disabled={!this.showTradeAgainButton()}>
           TRADE AGAIN

@@ -65,7 +65,7 @@ export default class SystemStore {
     reaction(
       () => this.rootStore.quotes.selected.price,
       price => {
-        this.gasPrice = price;
+        this.gasPrice = toBigNumber(price);
         this.recalculate();
       }
     )
@@ -287,12 +287,25 @@ export default class SystemStore {
   }
 
   executeProxyTx = (amount, limit) => {
-    const data = oasis.getCallDataAndValue(this.rootStore.network.network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
-    this.rootStore.transactions.logRequestTransaction("trade").then(() => {
+    const {network, defaultAccount} = this.rootStore.network;
+    const data = oasis.getCallDataAndValue(network, this.trade.operation, this.trade.from, this.trade.to, amount, limit);
+    this.rootStore.transactions.logRequestTransaction("trade").then(async () => {
       const proxy = blockchain.objects.proxy;
-      const params = [settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect, data.calldata];
+      const params = [settings.chain[network].proxyContracts.oasisDirect, data.calldata];
+      const proxyExecuteData = proxy.execute["address,bytes"].getData(params[0], params[1]);
 
-      proxy.execute["address,bytes"](...params.concat([{value: data.value, gasPrice: this.gasPrice}, (e, tx) => {
+      const gas = await blockchain.estimateGas(
+        this.rootStore.profile.proxy,
+        proxyExecuteData,
+        data.value ? data.value : 0,
+        defaultAccount
+      );
+
+      proxy.execute["address,bytes"](...params.concat([{
+        value: data.value,
+        gas: gas+1000000, // TODO: Figure out a way to estimate the gas precisely. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
+        gasPrice: this.gasPrice
+      }, (e, tx) => {
         if (!e) {
           this.rootStore.transactions.logPendingTransaction(tx, "trade");
         } else {
@@ -309,21 +322,35 @@ export default class SystemStore {
   }
 
   executeProxyCreateAndSellETH = (amount, limit) => {
-    const data = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, this.trade.operation, this.trade.to, amount, limit);
-    this.rootStore.transactions.logRequestTransaction("trade").then(() => {
-      const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", settings.chain[this.rootStore.network.network].proxyCreationAndExecute);
+    const proxyCreateAndExecuteContractAddress = settings.chain[this.rootStore.network.network].proxyCreationAndExecute;
+    const {network, defaultAccount} = this.rootStore.network;
+    const {isErrorDevice, logRequestTransaction, logPendingTransaction, logTransactionErrorDevice, logTransactionRejected} = this.rootStore.transactions;
+    const data = oasis.getActionCreateProxyAndSellETH(network, this.trade.operation, this.trade.to, amount, limit);
+
+    logRequestTransaction("trade").then(async () => {
+      const proxyCreateAndExecute = blockchain.loadObject("proxycreateandexecute", proxyCreateAndExecuteContractAddress);
+      const proxyCreateAndExecuteData = proxyCreateAndExecute[data.method].getData(...data.params);
+
+      const gas = await blockchain.estimateGas(
+        proxyCreateAndExecuteContractAddress,
+        proxyCreateAndExecuteData,
+        data.value ? data.value : 0,
+        defaultAccount
+      );
+
       proxyCreateAndExecute[data.method](...data.params.concat([{
+        gas,
         value: data.value,
         gasPrice: this.gasPrice
       }, (e, tx) => {
         if (!e) {
-          this.rootStore.transactions.logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
+          logPendingTransaction(tx, "trade", [["profile/getAndSetProxy"]]);
         } else {
           console.log(e);
-          if (this.rootStore.transactions.isErrorDevice(e)) {
-            this.rootStore.transactions.logTransactionErrorDevice("trade");
+          if (isErrorDevice(e)) {
+            logTransactionErrorDevice("trade");
           } else {
-            this.rootStore.transactions.logTransactionRejected("trade");
+            logTransactionRejected("trade");
           }
         }
       }]));
@@ -486,7 +513,7 @@ export default class SystemStore {
   };
 
   calculatePayAmount = async (from, to, amountToBuy) => {
-    const rand = Math.random();  //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
+    const rand = Math.random(); //Used to differentiate the requests. If a former request finishes after a latter one , we shouldn't update the values.
     this.trade.rand = rand;
     this.trade.from = from;
     this.trade.to = to;
@@ -500,7 +527,7 @@ export default class SystemStore {
     this.trade.operation = TRADE_OPERATIONS.BUY_ALL;
     this.trade.txCost = toBigNumber(0);
     this.trade.error = null;
-
+    //
     const {defaultAccount, network} = this.rootStore.network;
 
     if (toBigNumber(amountToBuy).eq(0)) {
@@ -574,7 +601,6 @@ export default class SystemStore {
         bestPriceOffer
       }
     }
-
 
     const fromTokenAddress = settings.chain[network].tokens[from.replace("eth", "weth")].address;
     const toTokenAddress = settings.chain[network].tokens[to.replace("eth", "weth")].address;
