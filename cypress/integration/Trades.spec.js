@@ -75,9 +75,6 @@ context('Selling', () => {
     cy.get(tid("set-trade-from-amount"))
       .find('input').type(ETH_AMOUNT_TO_SELL);
 
-    cy.get(tid("set-trade-to-amount"), {timeout: 2000})
-      .find('input').should('have.value', `${DAI_AMOUNT_TO_RECEIVE}.00000`);
-
     cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
     cy.get(tid("initiate-trade")).click();
 
