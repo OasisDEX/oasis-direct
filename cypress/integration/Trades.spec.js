@@ -1,10 +1,9 @@
-import { visitWithWeb3, tid, revertToSnapshot } from "../utils";
+import { visitWithWeb3, tid } from "../utils";
 
 context('Selling', () => {
   const waitForTradeToFinish = 20000;
 
   beforeEach(() => visitWithWeb3());
-  afterEach(() => revertToSnapshot());
 
   it  ("ETH for ERC20 without PROXY", () => {
     const base = "ETH";
