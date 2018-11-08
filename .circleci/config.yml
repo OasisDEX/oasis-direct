@@ -30,8 +30,8 @@ jobs:
       - run: source /opt/circleci/.nvm/nvm.sh && yarn build
 
       # e2e
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS && docker pull oasisdex/localnode:latest
-      - run: docker run -d -p 8545:8545 oasisdex/localnode:latest
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS && docker pull oasisdex/localnode:ba221c672ed073817c3742794d9f47bb4e6c6c3e
+      - run: docker run -d -p 8545:8545 oasisdex/localnode:ba221c672ed073817c3742794d9f47bb4e6c6c3e
       - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10 && sleep 10 # @todo this needs to be improved. Wait for it doesnt really work since contract deployment happens later
       - run: source /opt/circleci/.nvm/nvm.sh && ./cypress/scripts/run-e2e.sh
 
