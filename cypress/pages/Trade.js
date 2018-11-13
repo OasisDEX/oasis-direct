@@ -4,25 +4,33 @@ import Finalization from "./Finalization";
 
 export default class Trade {
 
-  constructor(from, to, willPay, willReceive) {
-    this.from = from;
-    this.to = to;
-    this.willPay = willPay;
-    this.willReceive = willReceive
-  }
+  sell = token => {
+    cy.get(tid("set-trade-from"))
+      .click();
 
-  sell = (amount = this.willPay) => {
-    cy.get(tid("set-trade-from-amount"))
+    cy.get(tid(token.toLowerCase()))
+      .click();
+
+    return amount => {
+      cy.get(tid("set-trade-from-amount"))
       .find('input').type(amount);
 
-    return this;
+      return this;
+    };
   };
 
-  buy = (amount = this.willReceive) => {
-    cy.get(tid("set-trade-to-amount"))
-      .find('input').type(amount);
+  buy = (token) => {
+    cy.get(tid("set-trade-to"))
+      .click();
 
-    return this;
+    cy.get(tid(token.toLowerCase()))
+      .click();
+
+
+    return amount => {
+      cy.get(tid("set-trade-to-amount"))
+        .find('input').type(amount);
+    };
   };
 
 

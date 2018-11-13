@@ -14,7 +14,7 @@ class TokensSelector extends React.Component {
           <div className="tokens-container">
             <div className="tokens">
               <div className="token-list">
-                <div className="token" onClick={() => this.props.select("eth")}>
+                <div data-test-id="eth" className="token" onClick={() => this.props.select("eth")}>
                   <span className="token-icon">{this.props.tokens.eth.icon}</span>
                   {
                     this.props.balances.eth
@@ -27,7 +27,7 @@ class TokensSelector extends React.Component {
                 {
                   ["mkr", "dai"].map((token, index) => {
                     return (
-                      <div key={index} className="token" onClick={() => this.props.select(token)}>
+                      <div data-test-id={token} key={index} className="token" onClick={() => this.props.select(token)}>
                         <span className="token-icon">{this.props.tokens[token].icon}</span>
                         {
                           this.props.balances[token]

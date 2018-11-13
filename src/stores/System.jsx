@@ -500,7 +500,7 @@ export default class SystemStore {
     const amountBuy = await this.getBuyAmount(market, toTokenAddress, fromTokenAddress, amountToPay).catch(e => {
       if (this.trade.rand === rand) {
         this.trade.error = {
-          cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
+          cause: ERRORS.NO_ORDERS(`sell`, amountToPay.valueOf(), from),
           isCritical: true
         };
       }
@@ -609,7 +609,7 @@ export default class SystemStore {
     const amountPay = await this.getPayAmount(market, fromTokenAddress, toTokenAddress, amountToBuy).catch(e => {
       if (this.trade.rand === rand) {
         this.trade.error = {
-          cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
+          cause: ERRORS.NO_ORDERS(`buy`, amountToBuy.valueOf(), to),
           isCritical: true
         }
       }

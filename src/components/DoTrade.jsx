@@ -138,7 +138,7 @@ class DoTrade extends React.Component {
                 target="_blank" rel="noopener noreferrer"
                 className={`tx ${this.props.transactions.approval.tx ? "clickable" : "non-clickable"}`}
                 onClick={e => { if (!this.props.transactions.approval.tx) e.preventDefault(); }}>
-              <div className="transaction-info-box">
+              <div data-test-id="set-token-allowance" className="transaction-info-box">
                 <div className="operation">
                   <span className={`icon done ${this.hasTxCompleted("approval") ? "success" : ""}`}>
                     <Done/>

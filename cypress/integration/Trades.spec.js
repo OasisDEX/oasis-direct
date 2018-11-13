@@ -13,7 +13,7 @@ context('Selling', () => {
     cy.get(tid("wallets-continue")).contains("Continue").click();
   });
 
-  it("ETH for ERC20 without PROXY", () => {
+  it.skip("ETH for ERC20 without PROXY", () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -21,7 +21,7 @@ context('Selling', () => {
     const price = '280 ETH/DAI';
 
 
-    let trade = new Trade(from, to, willPay, willReceive).sell();
+    let trade = new Trade().sell(from)(willPay);
 
     expect(trade).to.receive(`${willReceive}.00000`);
 
@@ -31,7 +31,7 @@ context('Selling', () => {
 
     const summary = finalization
       .shouldCreateProxy()
-      .shouldCommitATrade();
+      .shouldCommitATrade(willPay, from, willReceive, to);
 
     summary.expectProxyBeingCreated();
     summary.expectBought(willReceive, to);
@@ -39,14 +39,14 @@ context('Selling', () => {
     summary.expectPriceOf(price)
   });
 
-  it("ETH for ERC20 with proxy", () => {
+  it.skip("ETH for ERC20 with proxy", () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
     const willReceive = '280';
     const price = '280 ETH/DAI';
 
-    let trade = new Trade(from, to, willPay, willReceive).sell();
+    let trade = new Trade().sell(from)(willPay);
 
     expect(trade).to.receive(`${willReceive}.00000`);
 
@@ -56,7 +56,7 @@ context('Selling', () => {
 
     let summary = finalization
       .shouldCreateProxy()
-      .shouldCommitATrade();
+      .shouldCommitATrade(willPay, from, willReceive, to);
 
     summary.expectProxyBeingCreated();
     summary.expectBought(willReceive, to);
@@ -68,7 +68,7 @@ context('Selling', () => {
     const willReceiveMore = '275';
     const endPrice = '275 ETH/DAI';
 
-    trade = new Trade(from, to, willPay, willReceiveMore).sell();
+    trade = new Trade().sell(from)(willPay);
 
     expect(trade).to.receive(`${willReceiveMore}.00000`);
 
@@ -78,11 +78,21 @@ context('Selling', () => {
 
     summary = finalization
       .shouldNotCreateProxy()
-      .shouldCommitATrade();
+      .shouldCommitATrade(willPay, from, willReceiveMore, to);
 
     summary.expectProxyNotBeingCreated();
     summary.expectBought(willReceiveMore, to);
     summary.expectSold(willPay, from);
     summary.expectPriceOf(endPrice);
+  });
+
+  it("ERC20 to ETH without proxy", () => {
+    const from = 'DAI';
+    const to = 'ETH';
+    const willPay = '280';
+    const willReceive = '1';
+    const price = '280 ETH/DAI';
+
+    const trade = new Trade().sell(from)(willPay);
   })
 });
