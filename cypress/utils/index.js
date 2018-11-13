@@ -6,26 +6,28 @@ const ACCOUNT_1_PRIV = "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92
 const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af";
 
 export let web3;
-export let lastSnapshotId;
+export let lastSnapshotId = 1;
 
 export function visitWithWeb3(path = "") {
-  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x",""), Cypress.env("ETH_PROVIDER"));
+  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), Cypress.env("ETH_PROVIDER"));
   web3 = new Web3(provider);
 
-  return cy.then(() => saveBlockchain(web3)()).then(r => {
-    lastSnapshotId = parseInt(r.result, 16);
+  return cy
+    .then(() => {
+      cy.log(`Reverting blockchain to snapshot #${lastSnapshotId}`);
+      return restoreBlockchain(web3)(lastSnapshotId);
+    })
+    .then(() => saveBlockchain(web3)())
+    .then(r => {
+      cy.log(`Saving snapshot #${lastSnapshotId}`);
+      lastSnapshotId = parseInt(r.result, 16);
 
-    return cy.visit(path, {
-      onBeforeLoad: win => {
-        win.web3 = web3;
-      },
+      return cy.visit(path, {
+        onBeforeLoad: win => {
+          win.web3 = web3;
+        },
+      });
     });
-  });
-}
-
-export function revertToSnapshot() {
-  cy.log(`Reverting blockchain to snapshot #${lastSnapshotId}`)
-  cy.then(() => restoreBlockchain(web3)(lastSnapshotId));
 }
 
 // helper to generate quickly selector for data-test-ids

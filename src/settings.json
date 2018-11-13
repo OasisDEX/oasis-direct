@@ -24,14 +24,14 @@
           "minValue": 0.00001
         }
       },
-      "proxyRegistry": "0xaaFA8e458298D75ADb5C418a8026A28696086fC8",
-      "proxyFactory": "0x587635C60eC92BA1AE5db1e1DD7839FED9d23700",
-      "proxyCreationAndExecute": "0xbe84036C11964E9743F056f4e780a99d302a77c4",
+      "proxyRegistry": "0x1B2c0f9b05f2ec9f77DeA9CdaEB04c396da5027B",
+      "proxyFactory": "0x82df718Dc506F3F5a6Aa037E6258F365014247fd",
+      "proxyCreationAndExecute": "0xC51E7f2766bBF92C86C55c03eEfD6a3566e9cA60",
       "proxyContracts": {
-        "oasisDirect": "0x174805bDBE92fBb6eC91D602BE4DDaF7F7E51EA6"
+        "oasisDirect": "0x278E66FAd16E4e3eFB672782D00d59b505Ec7139"
       },
       "addrEstimation": "0xf18938a83cff0ae67dc105155469556d4224c48f",
-      "proxyEstimation": "0x6F2CCd7D1703E5666e6e00783286Cf418C153E38",
+      "proxyEstimation": "0x68CA0cc660d3440C5dBDd6e5Dc17805140357C08",
       "fromBlock": 0
     },
     "kovan": {

@@ -1,4 +1,4 @@
-import { visitWithWeb3, tid, revertToSnapshot } from "../utils";
+import { visitWithWeb3, tid } from "../utils";
 import Trade from "../pages/Trade";
 
 const waitForTradeToFinish = 20000;
@@ -12,7 +12,6 @@ context('Selling', () => {
     visitWithWeb3();
     cy.get(tid("wallets-continue")).contains("Continue").click();
   });
-  afterEach(() => revertToSnapshot());
 
   it("ETH for ERC20 without PROXY", () => {
     const from = 'ETH';
