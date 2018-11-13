@@ -30,6 +30,7 @@
       "proxyContracts": {
         "oasisDirect": "0x278E66FAd16E4e3eFB672782D00d59b505Ec7139"
       },
+      "supportMethods": "0x5de139DbBFd47dd1D2cD906348Fd1887135B2804",
       "addrEstimation": "0xf18938a83cff0ae67dc105155469556d4224c48f",
       "proxyEstimation": "0x68CA0cc660d3440C5dBDd6e5Dc17805140357C08",
       "fromBlock": 0
