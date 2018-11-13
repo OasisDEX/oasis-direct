@@ -7,7 +7,7 @@ export default class Finalization {
     this.trade = trade;
   }
 
-  willCreateProxy = () => {
+  shouldCreateProxy = () => {
     cy.get(tid("trade-with-builtin-proxy-creation"))
       .find('.details')
       .find('.label.vertical-align span')
@@ -15,15 +15,13 @@ export default class Finalization {
     return this;
   };
 
-  willNotCreateProxy = () => {
+  shouldNotCreateProxy = () => {
     cy.get(tid("trade-with-builtin-proxy-creation"))
       .should('not.exist');
     return this;
   }
 
-  // willSetAllowanceOn(token)
-
-  willCommitATrade = () => {
+  shouldCommitATrade = () => {
     const {willPay, from, willReceive, to} = this.trade;
 
     cy.get(tid("trade-token-from"))

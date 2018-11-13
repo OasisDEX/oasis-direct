@@ -15,11 +15,11 @@ context('Selling', () => {
   afterEach(() => revertToSnapshot());
 
   it("ETH for ERC20 without PROXY", () => {
-    const from = 'ETH',
-      to = 'DAI',
-      willPay = '1',
-      willReceive = '280',
-      price = '280 ETH/DAI';
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '1';
+    const willReceive = '280';
+    const price = '280 ETH/DAI';
 
 
     let trade = new Trade(from, to, willPay, willReceive).sell();
@@ -31,8 +31,8 @@ context('Selling', () => {
       .execute();
 
     const summary = finalization
-      .willCreateProxy()
-      .willCommitATrade();
+      .shouldCreateProxy()
+      .shouldCommitATrade();
 
     summary.expectProxyBeingCreated();
     summary.expectBought(willReceive, to);
@@ -41,11 +41,11 @@ context('Selling', () => {
   });
 
   it("ETH for ERC20 with proxy", () => {
-    let from = 'ETH',
-      to = 'DAI',
-      willPay = '1',
-      willReceive = '280',
-      price = '280 ETH/DAI';
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '1';
+    const willReceive = '280';
+    const price = '280 ETH/DAI';
 
     let trade = new Trade(from, to, willPay, willReceive).sell();
 
@@ -56,8 +56,8 @@ context('Selling', () => {
       .execute();
 
     let summary = finalization
-      .willCreateProxy()
-      .willCommitATrade();
+      .shouldCreateProxy()
+      .shouldCommitATrade();
 
     summary.expectProxyBeingCreated();
     summary.expectBought(willReceive, to);
@@ -66,25 +66,24 @@ context('Selling', () => {
 
     newTrade();
 
-    willPay = '1';
-    willReceive = '275';
-    price = '275 ETH/DAI';
+    const willReceiveMore = '275';
+    const endPrice = '275 ETH/DAI';
 
-    trade = new Trade(from, to, willPay, willReceive).sell();
+    trade = new Trade(from, to, willPay, willReceiveMore).sell();
 
-    expect(trade).to.receive(`${willReceive}.00000`);
+    expect(trade).to.receive(`${willReceiveMore}.00000`);
 
     finalization = trade
       .acceptTerms()
       .execute();
 
     summary = finalization
-      .willNotCreateProxy()
-      .willCommitATrade();
+      .shouldNotCreateProxy()
+      .shouldCommitATrade();
 
     summary.expectProxyNotBeingCreated();
-    summary.expectBought(willReceive, to);
+    summary.expectBought(willReceiveMore, to);
     summary.expectSold(willPay, from);
-    summary.expectPriceOf(price);
+    summary.expectPriceOf(endPrice);
   })
 });
