@@ -172,7 +172,11 @@ class DoTrade extends React.Component {
                   <span>
                     <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
                     <span className="value">
-                      {settings.chain[this.props.network.network].threshold[[this.props.system.trade.from, this.props.system.trade.to].sort((a, b) => a > b).join("")]}% slippage limit
+                      {settings.chain[this.props.network.network].threshold[[this.props.system.trade.from, this.props.system.trade.to].sort((a, b) => {
+                        if ( a > b ) return 1;
+                        if ( a < b ) return -1;
+                        return 0;
+                      }).join("")]}% slippage limit
                     </span>
                   </span>
                   </div>
@@ -243,7 +247,7 @@ class DoTrade extends React.Component {
                     console.log(this.props.transactions.approval.gasUsed,this.props.transactions.trade.gasUsed)
               }
                 <Congratulation
-                  hasCreatedProxy={!this.props.system.hasToCreateProxyInTrade}
+                  hasCreatedProxy={this.props.system.trade.hasToCreateProxyInTrade}
                   isCalculatingGas={
                     (typeof this.props.transactions.approval.tx !== "undefined" && typeof this.props.transactions.approval.gasPrice === "undefined")
                     || typeof this.props.transactions.trade.gasPrice === "undefined"

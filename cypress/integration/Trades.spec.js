@@ -1,119 +1,88 @@
 import { visitWithWeb3, tid } from "../utils";
+import Trade from "../pages/Trade";
+
+const waitForTradeToFinish = 20000;
+
+const newTrade = () => {
+  cy.get(tid("new-trade")).click({timeout: waitForTradeToFinish});
+};
 
 context('Selling', () => {
-  const waitForTradeToFinish = 20000;
-
-  beforeEach(() => visitWithWeb3());
-
-  it  ("ETH for ERC20 without PROXY", () => {
-    const base = "ETH";
-    const quote = "DAI";
-    const ETH_AMOUNT_TO_SELL = '1';
-    const DAI_AMOUNT_TO_RECEIVE = '280';
-    const expectedPrice = `280 ${base}/${quote}`;
-
+  beforeEach(() => {
+    visitWithWeb3();
     cy.get(tid("wallets-continue")).contains("Continue").click();
+  });
 
-    cy.get(tid("set-trade-from-amount"))
-      .find('input').type(ETH_AMOUNT_TO_SELL);
-
-    cy.get(tid("set-trade-to-amount"), {timeout: 2000})
-      .find('input').should('have.value', `${DAI_AMOUNT_TO_RECEIVE}.00000`);
-
-    //  NOTE: we need to click this exact spot to avoid downloading PDF file instead (link is in the button as well)
-    cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
-    cy.get(tid("initiate-trade")).click();
-
-    cy.get(tid("trade-with-builtin-proxy-creation"))
-      .find('.details')
-      .find('.label.vertical-align span')
-      .then((value) => {
-        expect(value.text().trim()).to.eq('Create Proxy');
-      });
-
-    cy.get(tid("trade-token-from"))
-      .find(tid("token-amount-value"))
-      .then((value) => {
-        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`);
-      });
-
-    cy.get(tid("trade-token-to"))
-      .find(tid("token-amount-value"))
-      .then((value) => {
-        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
-      });
+  it("ETH for ERC20 without PROXY", () => {
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '1';
+    const willReceive = '280';
+    const price = '280 ETH/DAI';
 
 
-    cy.get(tid("proxy-creation-summary"), {timeout: waitForTradeToFinish})
-      .then((value) => {
-        expect(value.text().trim()).to.eq('You have successfully created a Proxy')
-      });
+    let trade = new Trade(from, to, willPay, willReceive).sell();
 
-    cy.get(tid("congratulation-message", (tid("sold-token"), tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(`${ETH_AMOUNT_TO_SELL} ${base}`);
+    expect(trade).to.receive(`${willReceive}.00000`);
 
-    cy.get(tid("congratulation-message", tid("bought-token", tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
+    const finalization = trade
+      .acceptTerms()
+      .execute();
 
-    cy.get(tid("congratulation-message", tid("final-price", tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(expectedPrice);
+    const summary = finalization
+      .shouldCreateProxy()
+      .shouldCommitATrade();
+
+    summary.expectProxyBeingCreated();
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price)
   });
 
   it("ETH for ERC20 with proxy", () => {
-    const base = "ETH";
-    const quote = "DAI";
-    const ETH_AMOUNT_TO_SELL = '1';
-    const DAI_AMOUNT_TO_RECEIVE = '275';
-    const expectedPrice = `275 ${base}/${quote}`;
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '1';
+    const willReceive = '280';
+    const price = '280 ETH/DAI';
 
-    cy.get(tid("wallets-continue")).contains("Continue").click();
+    let trade = new Trade(from, to, willPay, willReceive).sell();
 
-    cy.get(tid("set-trade-from-amount"))
-      .find('input').type(ETH_AMOUNT_TO_SELL);
+    expect(trade).to.receive(`${willReceive}.00000`);
 
-    cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
-    cy.get(tid("initiate-trade")).click();
+    let finalization = trade
+      .acceptTerms()
+      .execute();
 
-    cy.get(tid("new-trade")).click({timeout: waitForTradeToFinish});
+    let summary = finalization
+      .shouldCreateProxy()
+      .shouldCommitATrade();
 
-    cy.get(tid("set-trade-from-amount"))
-      .find('input').type(ETH_AMOUNT_TO_SELL);
+    summary.expectProxyBeingCreated();
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price);
 
-    //  NOTE: we need to click this exact spot to avoid downloading PDF file instead (link is in the button as well)
-    cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
-    cy.get(tid("initiate-trade")).click();
+    newTrade();
 
-    cy.get(tid("trade-with-builtin-proxy-creation"))
-      .should('not.exist');
+    const willReceiveMore = '275';
+    const endPrice = '275 ETH/DAI';
 
-    cy.get(tid("trade-token-from"))
-      .find(tid("token-amount-value"))
-      .then((value) => {
-        expect(value.text().trim()).to.eq(`${ETH_AMOUNT_TO_SELL} ${base}`);
-      });
+    trade = new Trade(from, to, willPay, willReceiveMore).sell();
 
-    cy.get(tid("trade-token-to"))
-      .find(tid("token-amount-value"))
-      .then((value) => {
-        expect(value.text().trim()).to.eq(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
-      });
+    expect(trade).to.receive(`${willReceiveMore}.00000`);
 
-    cy.get(tid("proxy-creation-summary"), {timeout: waitForTradeToFinish})
-      .should('not.exist');
+    finalization = trade
+      .acceptTerms()
+      .execute();
 
-    cy.get(tid("congratulation-message", tid("sold-token", tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(`${ETH_AMOUNT_TO_SELL} ${base}`);
+    summary = finalization
+      .shouldNotCreateProxy()
+      .shouldCommitATrade();
 
-    cy.get(tid("congratulation-message", tid("bought-token", tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(`${DAI_AMOUNT_TO_RECEIVE} ${quote}`);
-
-    cy.get(tid("congratulation-message", tid("final-price", tid("token-amount-value"))), {
-      timeout: waitForTradeToFinish,
-    }).contains(expectedPrice);
+    summary.expectProxyNotBeingCreated();
+    summary.expectBought(willReceiveMore, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(endPrice);
   })
 });

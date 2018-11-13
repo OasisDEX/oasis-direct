@@ -36,7 +36,7 @@ class Congratulation extends React.Component {
                             ? calculateTradePrice(this.props.quotation.base, this.props.sold, this.props.quotation.quote, this.props.bought)
                             : calculateTradePrice(this.props.quotation.base, this.props.bought, this.props.quotation.quote, this.props.sold);
     return (
-      <div className="transaction-result congratulation">
+      <div data-test-id="summary" className="transaction-result congratulation">
         <h3 className="heading">
           <span>Congratulations!</span>
           <span className="status label info">Confirmed</span>
