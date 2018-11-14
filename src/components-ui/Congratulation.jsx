@@ -54,9 +54,9 @@ class Congratulation extends React.Component {
             {
               this.props.hasCreatedProxy
               ?
-                <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+                <React.Fragment>You have {this.props.quotation.isCounter ? "sold" : "bought"} </React.Fragment>
               :
-                <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}&nbsp;</React.Fragment>
+                <React.Fragment>By using your <span className="value"> Proxy </span> you {this.props.quotation.isCounter ? "sold" : "bought"}</React.Fragment>
             }
             <span data-test-id={this.props.quotation.isCounter ? "sold-token" : "bought-token"}>
               <TokenAmount number={this.props.quotation.isCounter ? this.props.sold : this.props.bought}
@@ -64,18 +64,18 @@ class Congratulation extends React.Component {
                            token={this.props.quotation.base.toUpperCase()}/>&nbsp;
             </span>
 
-            {this.props.quotation.isCounter ? "for" : "with"}&nbsp;
+            {this.props.quotation.isCounter ? "for" : "with"}
             <span data-test-id={this.props.quotation.isCounter ? "bought-token" : "sold-token"}>
               <TokenAmount number={this.props.quotation.isCounter ? this.props.bought : this.props.sold} decimal={5}
-                           token={this.props.quotation.quote.toUpperCase()}/>
+                           token={this.props.quotation.quote.toUpperCase()}/>&nbsp;
             </span>
             <br/>
-            at&nbsp;
+            at
             <span data-test-id="final-price">
               <TokenAmount number={toWei(finalizedPrice.price)}
-                           token={`${finalizedPrice.priceUnit.toUpperCase()}`} />
+                           token={`${finalizedPrice.priceUnit.toUpperCase()}`} />&nbsp;
             </span>
-            &nbsp;by paying&nbsp;
+            by paying
             <span className="value">
               {
                 this.props.isCalculatingGas

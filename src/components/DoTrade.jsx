@@ -110,12 +110,12 @@ class DoTrade extends React.Component {
                 className={`tx ${this.props.transactions.proxy.tx ? "clickable" : "non-clickable"}`}
                 onClick={e => { if (!this.props.transactions.proxy.tx) e.preventDefault(); }}>
               <div className="transaction-info-box">
-                <div className="operation">
+                <div data-test-id="create-proxy" className="operation">
                   <span className={`icon ${this.hasTxCompleted("proxy") ? "success" : ""}`}>
                     <AccountIcon />
                   </span>
                   <span className="label vertical-align">
-                    Create Proxy
+                    <span>Create Proxy</span>
                     <Attention data-tip data-for="proxy-tooltip" className="attention-icon" />
                     <ReactTooltip className="od-tooltip" effect="solid" id="proxy-tooltip">
                       <p>
@@ -189,7 +189,7 @@ class DoTrade extends React.Component {
                   <div className="transaction-info-box">
                     {
                       this.props.system.trade.hasToCreateProxyInTrade &&
-                      <div data-test-id="trade-with-builtin-proxy-creation" className="operation new-proxy">
+                      <div data-test-id="create-proxy" className="operation new-proxy">
                         <div className="details">
                           <span className={`icon ${this.hasTxCompleted("trade") ? "success" : ""}`}>
                             <AccountIcon />

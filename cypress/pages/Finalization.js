@@ -4,22 +4,28 @@ import Summary from "./Summary";
 export default class Finalization {
 
   shouldCreateProxy = () => {
-    cy.get(tid("trade-with-builtin-proxy-creation"))
-      .find('.details')
+    this.currentTx = "proxyTx";
+
+    cy.get(tid("create-proxy"))
+      .as(this.currentTx)
       .find('.label.vertical-align span')
       .contains("Create Proxy");
+
     return this;
   };
 
   shouldNotCreateProxy = () => {
-    cy.get(tid("trade-with-builtin-proxy-creation"))
+    cy.get(tid("create-proxy"))
       .should('not.exist');
     return this;
   };
 
   shouldSetAllowanceFor = (token) => {
+    this.currentTx = "allowanceTx";
+
     cy.get(tid("set-token-allowance"))
-      .contains(`Enabling ${token.toUpperCase()} Trading`);
+      .as(this.currentTx)
+      .contains(`Enable ${token.toUpperCase()} Trading`);
 
     return this;
   };
@@ -34,8 +40,15 @@ export default class Finalization {
       .find(tid("token-amount-value"))
       .contains(`${receive} ${to.toUpperCase()}`);
 
-    cy.get(tid("summary"), {timeout: 20000});
+    cy.get(tid("summary"), {timeout: 25000});
 
     return new Summary();
   }
 }
+
+chai.Assertion.addChainableMethod("succeed", function () {
+  const tx = this._obj;
+  cy.get(`@${tx}`).find(".icon.success", {timeout: 20000});
+  cy.get(`@${tx}`).find(".status.label").contains("Confirmed");
+});
+

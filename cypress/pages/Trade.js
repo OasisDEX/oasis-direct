@@ -41,7 +41,7 @@ export default class Trade {
 
   execute = () => {
     cy.get(tid("initiate-trade")).click();
-    return new Finalization(this);
+    return new Finalization();
   };
 }
 
