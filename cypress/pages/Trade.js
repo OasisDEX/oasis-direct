@@ -12,8 +12,10 @@ export default class Trade {
       .click();
 
     return amount => {
-      cy.get(tid("set-trade-from-amount"))
-      .find('input').type(amount);
+      if(amount) {
+        cy.get(tid("set-trade-from-amount"))
+          .find('input').type(amount);
+      }
 
       return this;
     };
@@ -28,8 +30,12 @@ export default class Trade {
 
 
     return amount => {
-      cy.get(tid("set-trade-to-amount"))
-        .find('input').type(amount);
+      if(amount) {
+        cy.get(tid("set-trade-to-amount"))
+          .find('input').type(amount);
+      }
+
+      return this;
     };
   };
 
