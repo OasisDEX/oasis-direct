@@ -13,7 +13,7 @@ context('Selling', () => {
     cy.get(tid("wallets-continue")).contains("Continue").click();
   });
 
-  it("ETH for ERC20 without PROXY", () => {
+  it("ETH for ERC20 without proxy", () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -86,7 +86,7 @@ context('Selling', () => {
     summary.expectPriceOf(endPrice);
   });
 
-  it("ERC20 to ETH without proxy", () => {
+  it("ERC20 to ETH without proxy and allowance", () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
