@@ -1,19 +1,19 @@
-import { visitWithWeb3, tid } from "../utils";
-import Trade from "../pages/Trade";
+import { visitWithWeb3, tid } from '../utils';
+import Trade from '../pages/Trade';
 
-const waitForTradeToFinish = 20000;
+const waitForTradeToFinish = 40000;
 
 const nextTrade = () => {
-  cy.get(tid("new-trade")).click({timeout: waitForTradeToFinish});
+  cy.get(tid('new-trade')).click({timeout: waitForTradeToFinish});
 };
 
 context('Selling', () => {
   beforeEach(() => {
     visitWithWeb3();
-    cy.get(tid("wallets-continue")).contains("Continue").click();
+    cy.get(tid('wallets-continue')).contains('Continue').click();
   });
 
-  it("ETH for ERC20 without proxy", () => {
+  it('ETH for ERC20 without proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -39,7 +39,7 @@ context('Selling', () => {
     summary.expectPriceOf(price)
   });
 
-  it("ETH for ERC20 with proxy", () => {
+  it('ETH for ERC20 with proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -86,7 +86,7 @@ context('Selling', () => {
     summary.expectPriceOf(endPrice);
   });
 
-  it("ERC20 to ETH without proxy and allowance", () => {
+  it('ERC20 to ETH without proxy and allowance', () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
@@ -114,7 +114,7 @@ context('Selling', () => {
     summary.expectPriceOf(price);
   });
 
-  it("ERC20 to ETH with proxy and no allowance", () => {
+  it('ERC20 to ETH with proxy and no allowance', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -161,11 +161,47 @@ context('Selling', () => {
     expect(nextFinalization.currentTx).to.succeed();
 
     const finalSummary = nextFinalization
-      .shouldCommitATrade(willPayMore,to, willReceiveMore, from);
+      .shouldCommitATrade(willPayMore, to, willReceiveMore, from);
 
     finalSummary.expectProxyNotBeingCreated();
     finalSummary.expectBought(willReceiveMore, from);
     finalSummary.expectSold(willPayMore, to);
     finalSummary.expectPriceOf(newPrice);
+  });
+
+  it('ERC20 to ETH with proxy and allowance', () => {
+    const from = 'DAI';
+    const to = 'ETH';
+    const willPay = '100';
+    const willReceive = '0.33222';
+    const price = '301 ETH/DAI';
+
+    new Trade()
+      .sell(from)(willPay)
+      .acceptTerms()
+      .execute();
+
+    nextTrade();
+
+    const willPayMore = '70';
+    const willReceiveMore = '0.23255';
+
+    const trade = new Trade().sell(from)(willPayMore);
+    
+    expect(trade).to.receive(willReceiveMore);
+    
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    const summary = finalization
+      .shouldNotCreateProxy()
+      .shouldNotSetAllowance()
+      .shouldCommitATrade(willPayMore, from, willReceiveMore, to);
+
+    summary.expectProxyNotBeingCreated();
+    summary.expectBought(willReceiveMore, to);
+    summary.expectSold(willPayMore, from);
+    summary.expectPriceOf(price);
   });
 });

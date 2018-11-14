@@ -1,11 +1,11 @@
-import { tid } from "../utils";
+import { tid } from '../utils';
 
-import Finalization from "./Finalization";
+import Finalization from './Finalization';
 
 export default class Trade {
 
   sell = token => {
-    cy.get(tid("set-trade-from"))
+    cy.get(tid('set-trade-from'))
       .click();
 
     cy.get(tid(token.toLowerCase()))
@@ -13,7 +13,7 @@ export default class Trade {
 
     return amount => {
       if(amount) {
-        cy.get(tid("set-trade-from-amount"))
+        cy.get(tid('set-trade-from-amount'))
           .find('input').type(amount);
       }
 
@@ -22,7 +22,7 @@ export default class Trade {
   };
 
   buy = (token) => {
-    cy.get(tid("set-trade-to"))
+    cy.get(tid('set-trade-to'))
       .click();
 
     cy.get(tid(token.toLowerCase()))
@@ -31,7 +31,7 @@ export default class Trade {
 
     return amount => {
       if(amount) {
-        cy.get(tid("set-trade-to-amount"))
+        cy.get(tid('set-trade-to-amount'))
           .find('input').type(amount);
       }
 
@@ -41,17 +41,17 @@ export default class Trade {
 
 
   acceptTerms = () => {
-    cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
+    cy.get(tid('terms-and-conditions')).click({position: 'topRight', force: true});
     return this;
   };
 
   execute = () => {
-    cy.get(tid("initiate-trade")).click();
+    cy.get(tid('initiate-trade')).click();
     return new Finalization();
   };
 }
 
-chai.Assertion.addChainableMethod("receive", function (amount) {
-  cy.get(tid("set-trade-to-amount"), {timeout: 2000})
+chai.Assertion.addChainableMethod('receive', function (amount) {
+  cy.get(tid('set-trade-to-amount'), {timeout: 2000})
     .find('input').should('have.value', `${amount}`);
 });
