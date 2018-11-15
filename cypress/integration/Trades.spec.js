@@ -13,7 +13,7 @@ context('Selling', () => {
     cy.get(tid('wallets-continue')).contains('Continue').click();
   });
 
-  it('ETH for ERC20 without proxy', () => {
+  it.skip('ETH for ERC20 without proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -39,7 +39,7 @@ context('Selling', () => {
     summary.expectPriceOf(price)
   });
 
-  it('ETH for ERC20 with proxy', () => {
+  it.skip('ETH for ERC20 with proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -86,7 +86,7 @@ context('Selling', () => {
     summary.expectPriceOf(endPrice);
   });
 
-  it('ERC20 to ETH without proxy and allowance', () => {
+  it.skip('ERC20 to ETH without proxy and allowance', () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
@@ -114,7 +114,7 @@ context('Selling', () => {
     summary.expectPriceOf(price);
   });
 
-  it('ERC20 to ETH with proxy and no allowance', () => {
+  it.skip('ERC20 to ETH with proxy and no allowance', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -169,11 +169,10 @@ context('Selling', () => {
     finalSummary.expectPriceOf(newPrice);
   });
 
-  it('ERC20 to ETH with proxy and allowance', () => {
+  it.skip('ERC20 to ETH with proxy and allowance', () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
-    const willReceive = '0.33222';
     const price = '301 ETH/DAI';
 
     new Trade()
@@ -187,9 +186,9 @@ context('Selling', () => {
     const willReceiveMore = '0.23255';
 
     const trade = new Trade().sell(from)(willPayMore);
-    
+
     expect(trade).to.receive(willReceiveMore);
-    
+
     const finalization = trade
       .acceptTerms()
       .execute();
@@ -204,4 +203,34 @@ context('Selling', () => {
     summary.expectSold(willPayMore, from);
     summary.expectPriceOf(price);
   });
+
+  it('ERC20 to ERC20 without proxy and allowance', () => {
+    const from = 'DAI';
+    const to = 'MKR';
+    const willPay = '5';
+    const willReceive = '0.02419';
+    const price = '206.66666 MKR/DAI';
+
+    const trade = new Trade()
+      .buy(to)()
+      .sell(from)(willPay);
+
+    expect(trade).to.receive(`${willReceive}`);
+
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    finalization.shouldCreateProxy();
+    expect(finalization.currentTx).to.succeed();
+
+    finalization.shouldSetAllowanceFor(from);
+    expect(finalization.currentTx).to.succeed();
+
+    const summary = finalization.shouldCommitATrade(willPay, from, willReceive, to);
+
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price);
+  })
 });
