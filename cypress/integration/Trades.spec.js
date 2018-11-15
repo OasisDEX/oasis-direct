@@ -233,4 +233,61 @@ context('Selling', () => {
     summary.expectSold(willPay, from);
     summary.expectPriceOf(price);
   })
+
+  it('ERC20 to ERC20 with proxy and no allowance', () => {
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '1';
+    const willReceive = '280';
+    const price = '280 ETH/DAI';
+
+    const trade = new Trade().sell(from)(willPay);
+
+    expect(trade).to.receive(`${willReceive}.00000`);
+
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    const summary = finalization
+      .shouldCreateProxy()
+      .shouldCommitATrade(willPay, from, willReceive, to);
+
+    summary.expectProxyBeingCreated();
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price);
+
+    nextTrade();
+
+    const switchTo = "MKR";
+    const switchFrom ="DAI";
+    const willPayMore = '5';
+    const willReceiveMore = '0.02419';
+    const newPrice = '206.66666 MKR/DAI';
+
+    const secondTrade = new Trade()
+      .buy(switchTo)()
+      .sell(switchFrom)(willPayMore);
+
+    expect(trade).to.receive(`${willReceiveMore}`);
+
+    const nextFinalization = secondTrade
+      .acceptTerms()
+      .execute();
+
+    nextFinalization
+      .shouldNotCreateProxy()
+      .shouldSetAllowanceFor(switchFrom);
+
+    expect(nextFinalization.currentTx).to.succeed();
+
+    const finalSummary = nextFinalization
+      .shouldCommitATrade(willPayMore, switchFrom, willReceiveMore, switchTo);
+
+    finalSummary.expectProxyNotBeingCreated();
+    finalSummary.expectBought(willReceiveMore, switchTo);
+    finalSummary.expectSold(willPayMore, switchFrom);
+    finalSummary.expectPriceOf(newPrice);
+  })
 });
