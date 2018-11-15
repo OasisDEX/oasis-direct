@@ -13,7 +13,7 @@ context('Selling', () => {
     cy.get(tid('wallets-continue')).contains('Continue').click();
   });
 
-  it.skip('ETH for ERC20 without proxy', () => {
+  it('ETH for ERC20 without proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -39,7 +39,7 @@ context('Selling', () => {
     summary.expectPriceOf(price)
   });
 
-  it.skip('ETH for ERC20 with proxy', () => {
+  it('ETH for ERC20 with proxy', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -86,7 +86,7 @@ context('Selling', () => {
     summary.expectPriceOf(endPrice);
   });
 
-  it.skip('ERC20 to ETH without proxy and allowance', () => {
+  it('ERC20 to ETH without proxy and allowance', () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
@@ -114,7 +114,7 @@ context('Selling', () => {
     summary.expectPriceOf(price);
   });
 
-  it.skip('ERC20 to ETH with proxy and no allowance', () => {
+  it('ERC20 to ETH with proxy and no allowance', () => {
     const from = 'ETH';
     const to = 'DAI';
     const willPay = '1';
@@ -169,7 +169,7 @@ context('Selling', () => {
     finalSummary.expectPriceOf(newPrice);
   });
 
-  it.skip('ERC20 to ETH with proxy and allowance', () => {
+  it('ERC20 to ETH with proxy and allowance', () => {
     const from = 'DAI';
     const to = 'ETH';
     const willPay = '100';
