@@ -232,7 +232,7 @@ context('Selling', () => {
     summary.expectBought(willReceive, to);
     summary.expectSold(willPay, from);
     summary.expectPriceOf(price);
-  })
+  });
 
   it('ERC20 to ERC20 with proxy and no allowance', () => {
     const from = 'ETH';
@@ -289,5 +289,41 @@ context('Selling', () => {
     finalSummary.expectBought(willReceiveMore, switchTo);
     finalSummary.expectSold(willPayMore, switchFrom);
     finalSummary.expectPriceOf(newPrice);
-  })
+  });
+  
+  it('ERC20 to ERC20 with proxy and allowance', () => {
+    const from = 'DAI';
+    const to = 'MKR';
+    const willPay = '5';
+    const willReceive = '0.02419';
+    const price = '206.66666 MKR/DAI';
+
+    new Trade()
+      .buy(to)()
+      .sell(from)(willPay)
+      .acceptTerms()
+      .execute();
+
+    nextTrade();
+
+    const trade = new Trade()
+      .buy(to)()
+      .sell(from)(willPay);
+
+    expect(trade).to.receive(willReceive);
+
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    const summary = finalization
+      .shouldNotCreateProxy()
+      .shouldNotSetAllowance()
+      .shouldCommitATrade(willPay, from, willReceive, to);
+
+    summary.expectProxyNotBeingCreated();
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price);
+  });
 });
