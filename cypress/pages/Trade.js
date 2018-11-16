@@ -55,3 +55,8 @@ chai.Assertion.addChainableMethod('receive', function (amount) {
   cy.get(tid('set-trade-to-amount'), {timeout: 2000})
     .find('input').should('have.value', `${amount}`);
 });
+
+chai.Assertion.addChainableMethod('pay', function (amount) {
+  cy.get(tid('set-trade-from-amount'), {timeout: 2000})
+    .find('input').should('have.value', `${amount}`);
+});

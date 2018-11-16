@@ -7,7 +7,7 @@ const nextTrade = () => {
   cy.get(tid('new-trade')).click({timeout: waitForTradeToFinish});
 };
 
-context('Selling', () => {
+context.skip('Selling', () => {
   beforeEach(() => {
     visitWithWeb3();
     cy.get(tid('wallets-continue')).contains('Continue').click();
@@ -325,5 +325,38 @@ context('Selling', () => {
     summary.expectBought(willReceive, to);
     summary.expectSold(willPay, from);
     summary.expectPriceOf(price);
+  });
+});
+
+context('Buying', () => {
+  beforeEach(() => {
+    visitWithWeb3();
+    cy.get(tid('wallets-continue')).contains('Continue').click();
+  });
+
+  it('ETH for ERC20 without proxy', () => {
+    const from = 'ETH';
+    const to = 'DAI';
+    const willPay = '0.35714';
+    const willReceive = '100';
+    const price = '280 ETH/DAI';
+
+
+    let trade = new Trade().buy(to)(willReceive);
+
+    expect(trade).to.pay(`${willPay}`);
+
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    const summary = finalization
+      .shouldCreateProxy()
+      .shouldCommitATrade(willPay, from, willReceive, to);
+
+    summary.expectProxyBeingCreated();
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price)
   });
 });
