@@ -510,4 +510,35 @@ describe('Buying', () => {
     });
   });
 
+  context('ERC20 for ERC20', () => {
+    it('without proxy and allowance', () => {
+      const from = 'DAI';
+      const to = 'MKR';
+      const willPay = '103.33333';
+      const willReceive = '0.5';
+      const price = '206.66666 MKR/DAI';
+
+      const trade = new Trade()
+        .sell(from)()
+        .buy(to)(willReceive);
+
+      expect(trade).to.pay(`${willPay}`);
+
+      const finalization = trade
+        .acceptTerms()
+        .execute();
+
+      finalization.shouldCreateProxy();
+      expect(finalization.currentTx).to.succeed();
+
+      finalization.shouldSetAllowanceFor(from);
+      expect(finalization.currentTx).to.succeed();
+
+      const summary = finalization.shouldCommitATrade(willPay, from, willReceive, to);
+
+      summary.expectBought(willReceive, to);
+      summary.expectSold(willPay, from);
+      summary.expectPriceOf(price);
+    });
+  })
 });
