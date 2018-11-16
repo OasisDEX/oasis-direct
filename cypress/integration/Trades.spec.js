@@ -431,6 +431,50 @@ describe('Buying', () => {
       summary.expectSold(willPay, from);
       summary.expectPriceOf(price);
     });
+
+    it("with proxy and no allowance", () => {
+      const from = 'ETH';
+      const to = 'DAI';
+      const willPay = '1';
+
+      const trade = new Trade()
+        .sell(from)(willPay)
+        .buy(to)()
+        .acceptTerms()
+        .execute();
+
+      nextTrade();
+
+      const nextFrom = 'DAI';
+      const nextTo = 'ETH';
+      const nextWillPay = '37.25778';
+      const nextWillReceive = '0.12378';
+      const price = '301 ETH/DAI';
+
+      const secondTrade = new Trade()
+        .sell(nextFrom)()
+        .buy(nextTo)(nextWillReceive);
+
+      expect(trade).to.receive(`${nextWillReceive}`);
+
+      const nextFinalization = secondTrade
+        .acceptTerms()
+        .execute();
+
+      nextFinalization
+        .shouldNotCreateProxy()
+        .shouldSetAllowanceFor(nextFrom);
+
+      expect(nextFinalization.currentTx).to.succeed();
+
+      const finalSummary = nextFinalization
+        .shouldCommitATrade(nextWillPay, nextFrom, nextWillReceive, nextTo);
+
+      finalSummary.expectProxyNotBeingCreated();
+      finalSummary.expectBought(nextWillReceive, nextTo);
+      finalSummary.expectSold(nextWillPay, nextFrom);
+      finalSummary.expectPriceOf(price);
+    });
   });
 
 });
