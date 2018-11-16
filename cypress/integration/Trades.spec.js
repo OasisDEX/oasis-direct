@@ -266,7 +266,7 @@ describe('Selling', () => {
       nextTrade();
 
       const switchTo = "MKR";
-      const switchFrom ="DAI";
+      const switchFrom = "DAI";
       const willPayMore = '5';
       const willReceiveMore = '0.02419';
       const newPrice = '206.66666 MKR/DAI';
@@ -474,6 +474,39 @@ describe('Buying', () => {
       finalSummary.expectBought(nextWillReceive, nextTo);
       finalSummary.expectSold(nextWillPay, nextFrom);
       finalSummary.expectPriceOf(price);
+    });
+
+    it("with proxy and allowance", () => {
+      const from = 'DAI';
+      const to = 'ETH';
+      const willPay = '37.25778';
+      const willReceive = '0.12378';
+      const price = '301 ETH/DAI';
+
+      new Trade()
+        .sell(from)()
+        .buy(to)(willReceive)
+        .acceptTerms()
+        .execute();
+
+      nextTrade();
+
+      const newTrade = new Trade()
+        .sell(from)()
+        .buy(to)(willReceive);
+
+      const finalization = newTrade
+        .acceptTerms()
+        .execute();
+
+      const summary = finalization
+        .shouldNotCreateProxy()
+        .shouldNotSetAllowance()
+        .shouldCommitATrade(willPay, from, willReceive, to);
+
+      summary.expectBought(willReceive, to);
+      summary.expectSold(willPay, from);
+      summary.expectPriceOf(price);
     });
   });
 
