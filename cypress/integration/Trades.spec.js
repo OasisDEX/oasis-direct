@@ -584,5 +584,41 @@ describe('Buying', () => {
       finalSummary.expectSold(nextWillPay, nextFrom);
       finalSummary.expectPriceOf(price);
     });
+
+    it("with proxy and allowance", () => {
+      const from = 'DAI';
+      const to = 'MKR';
+      const willPay = '103.33333';
+      const willReceive = '0.5';
+      const price = '206.66666 MKR/DAI';
+
+      new Trade()
+        .sell(from)()
+        .buy(to)(willReceive)
+        .acceptTerms()
+        .execute();
+
+      nextTrade();
+
+      const nextWillReceive = '0.1';
+      const nextWillPay = '20.66666';
+
+      const newTrade = new Trade()
+        .sell(from)()
+        .buy(to)(nextWillReceive);
+
+      const finalization = newTrade
+        .acceptTerms()
+        .execute();
+
+      const summary = finalization
+        .shouldNotCreateProxy()
+        .shouldNotSetAllowance()
+        .shouldCommitATrade(nextWillPay, from, nextWillReceive, to);
+
+      summary.expectBought(nextWillReceive, to);
+      summary.expectSold(nextWillPay, from);
+      summary.expectPriceOf(price);
+    });
   })
 });
