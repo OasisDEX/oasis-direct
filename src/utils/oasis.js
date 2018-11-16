@@ -86,7 +86,7 @@ export const roughTradeCost = (network, operation, tok1, amountTok1, tok2) => {
   return new Promise((resolve, reject) => {
     blockchain.loadObject("supportmethods", settings.chain[network].supportMethods)[`getOffersAmountTo${operation}`](
       settings.chain[network].otc,
-      blockchain.objects[tok1].address,
+      blockchain.objects[tok1.replace("eth", "weth")].address,
       toWei(amountTok1),
       blockchain.objects[tok2.replace("eth", "weth")].address,
       (e, r) => {

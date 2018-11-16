@@ -394,4 +394,32 @@ context('Buying', () => {
     summary.expectSold(willPay, from);
     summary.expectPriceOf(price)
   });
+
+  it('ERC20 to ETH without proxy and allowance', () => {
+    const from = 'DAI';
+    const to = 'ETH';
+    const willPay = '37.25778';
+    const willReceive = '0.12378';
+    const price = '301 ETH/DAI';
+
+    const trade = new Trade().buy(to)(willReceive);
+
+    expect(trade).to.pay(`${willPay}`);
+
+    const finalization = trade
+      .acceptTerms()
+      .execute();
+
+    finalization.shouldCreateProxy();
+    expect(finalization.currentTx).to.succeed();
+
+    finalization.shouldSetAllowanceFor(from);
+    expect(finalization.currentTx).to.succeed();
+
+    const summary = finalization.shouldCommitATrade(willPay, from, willReceive, to);
+
+    summary.expectBought(willReceive, to);
+    summary.expectSold(willPay, from);
+    summary.expectPriceOf(price);
+  })
 });
