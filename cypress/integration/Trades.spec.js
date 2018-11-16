@@ -7,7 +7,7 @@ const nextTrade = () => {
   cy.get(tid('new-trade')).click({timeout: waitForTradeToFinish});
 };
 
-context.skip('Selling', () => {
+context('Selling', () => {
   beforeEach(() => {
     visitWithWeb3();
     cy.get(tid('wallets-continue')).contains('Continue').click();
