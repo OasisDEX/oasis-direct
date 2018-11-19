@@ -110,3 +110,7 @@ yarn cypress:dev
 ```
 
 If you're trying to debug test failure on CI visit [Cypress Dashboard](https://dashboard.cypress.io/#/projects/noiqfs/runs)
+
+#### CI
+
+Sometimes, you might want to update localnode version used in tests. There is a `LOCALNODE_SHA` in `.circleci/config.yml`. This SHA should match top of the master branch in localnode repository.
