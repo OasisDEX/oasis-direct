@@ -208,7 +208,6 @@ class App extends Component {
         }, () => {
           Blockchain.loadObject('dsproxy', this.state.proxy, 'proxy');
           this.setUpToken('weth');
-          this.setUpToken('mkr');
           this.setUpToken('dai');
           // This is necessary to finish transactions that failed after signing
           this.setPendingTxInterval();
