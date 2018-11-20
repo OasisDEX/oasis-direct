@@ -1,6 +1,6 @@
 // Libraries
 import { computed, observable, action } from "mobx";
-import { tokens } from "../utils/tokens"
+import tokens, { excludes } from "../utils/tokens"
 
 // Utils
 import * as blockchain from "../utils/blockchain";
@@ -31,7 +31,7 @@ export default class ProfileStore {
 
   @computed
   get allowedTokensCount() {
-    return tokens.filter(token => this.allowances[token] > 0).length;
+    return Object.keys(tokens).filter(token => this.allowances[token] > 0).length;
   }
 
   @computed
@@ -98,7 +98,7 @@ export default class ProfileStore {
   };
 
   @action loadAllowances = () => {
-    tokens.forEach(async token => {
+    excludes("eth").forEach(async token => {
       this.allowances[token] = (await blockchain.getTokenAllowance(token, this.rootStore.network.defaultAccount, this.proxy)).toNumber();
     });
   };

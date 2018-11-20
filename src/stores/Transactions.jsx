@@ -84,7 +84,7 @@ export default class TransactionsStore {
             // Using logs:
             blockchain.setFilter(
               this[type].checkFromBlock,
-              settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.replace('eth', 'weth')].address
+              settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace('eth', 'weth')].address
             ).then(r => {
               r.forEach(v => {
                 blockchain.getTransaction(v.transactionHash).then(r2 => {

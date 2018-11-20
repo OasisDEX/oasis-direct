@@ -11,6 +11,7 @@ import TokensSelector from "../components-ui/TokensSelector";
 
 // Utils
 import { toWei } from "../utils/helpers";
+import tokens from "../utils/tokens";
 
 // Settings
 import NetworkIndicator from "./NetworkIndicator";
@@ -144,7 +145,7 @@ class SetTrade extends React.Component {
     return <React.Fragment>
       {
         this.state.showTokenSelector &&
-        <TokensSelector tokens={this.props.tokens} balances={balances} select={this.select}
+        <TokensSelector balances={balances} select={this.select}
                         back={() => this.setState({showTokenSelector: false})}/>
       }
       {
@@ -248,16 +249,16 @@ class SetTrade extends React.Component {
             <form className="trade">
               <div className="selected-token">
                 <div className="token" onClick={() => this.pickToken("from")} data-test-id="set-trade-from">
-                  <span className="token-icon">{this.props.tokens[this.state.from].icon}</span>
+                  <span className="token-icon">{tokens[this.state.from].icon}</span>
                   {
-                    !balances[this.props.tokens[this.state.from].symbol.toLowerCase()]
+                    !balances[tokens[this.state.from].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={balances[this.props.tokens[this.state.from].symbol.toLowerCase()].valueOf()}
+                                   number={balances[tokens[this.state.from].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
-                                   token={this.props.tokens[this.state.from].symbol}/>
+                                   token={tokens[this.state.from].symbol}/>
                   }
                 </div>
                 <div data-test-id="set-trade-from-amount"
@@ -286,16 +287,16 @@ class SetTrade extends React.Component {
               </div>
               <div className="selected-token">
                 <div className="token" onClick={() => this.pickToken("to")} data-test-id="set-trade-to">
-                  <span className="token-icon">{this.props.tokens[this.state.to].icon}</span>
+                  <span className="token-icon">{tokens[this.state.to].icon}</span>
                   {
-                    !balances[this.props.tokens[this.state.to].symbol.toLowerCase()]
+                    !balances[tokens[this.state.to].symbol.toLowerCase()]
                       ?
                       <Spinner/>
                       :
                       <TokenAmount className="token-name"
-                                   number={balances[this.props.tokens[this.state.to].symbol.toLowerCase()].valueOf()}
+                                   number={balances[tokens[this.state.to].symbol.toLowerCase()].valueOf()}
                                    decimal={3}
-                                   token={this.props.tokens[this.state.to].symbol}/>
+                                   token={tokens[this.state.to].symbol}/>
                   }
                 </div>
                 <div data-test-id="set-trade-to-amount"

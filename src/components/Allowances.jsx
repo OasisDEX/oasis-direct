@@ -4,21 +4,10 @@ import {observer} from "mobx-react";
 
 // UI Components
 import Spinner from "../components-ui/Spinner";
-import {DAI, Done, MKR} from "../components-ui/Icons";
+import { Done } from "../components-ui/Icons";
 
-//TODO: Remove this duplicate  ( TradeWidget ) and extract them in separate config file.
-const tokens = {
-  mkr: {
-    icon: <MKR/>,
-    symbol: "MKR",
-    name: "Maker"
-  },
-  dai: {
-    icon: <DAI/>,
-    symbol: "DAI",
-    name: "Dai",
-  },
-};
+// Utils
+import tokens, { excludes } from '../utils/tokens';
 
 @observer
 class AllowanceToken extends React.Component {
@@ -76,11 +65,6 @@ class AllowanceToken extends React.Component {
 
 @observer
 class Allowances extends React.Component {
-
-  tokens = () => {
-    return Object.keys(tokens);
-  };
-
   hasTokenAllowance = (token) => {
     return this.props.allowances[token] > 0;
   };
@@ -98,7 +82,7 @@ class Allowances extends React.Component {
               <div className="tokens">
                 <div className="token-list">
                   {
-                    this.tokens().map(
+                    excludes("eth").map(
                       (token, index) =>
                         <AllowanceToken key={index}
                                         onAllow={this.props.onAllow}

@@ -8,6 +8,7 @@ import Congratulation from "../components-ui/Congratulation";
 import {Done, AccountIcon, Attention} from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
+import tokens from "../utils/tokens";
 
 // Utils
 import {etherscanUrl, quotation, toWei} from "../utils/helpers";
@@ -144,7 +145,7 @@ class DoTrade extends React.Component {
                     <Done/>
                   </span>
                   <span className="label vertical-align">
-                    Enable {this.props.tokens[this.props.system.trade.from].symbol} Trading
+                    Enable {tokens[this.props.system.trade.from].symbol} Trading
                     <Attention data-tip data-for="allowance-tooltip" className="attention-icon" />
                     <ReactTooltip className="od-tooltip" effect="solid" id="allowance-tooltip">
                       <p>Enabling token trading allows your Proxy to take tokens from you and trade them on the exchange.</p>
@@ -213,10 +214,10 @@ class DoTrade extends React.Component {
                     }
                     <div className="operation">
                       <div className="details" data-test-id="trade-token-from">
-                        <span className="icon">{this.props.tokens[this.props.system.trade.from].icon}</span>
+                        <span className="icon">{tokens[this.props.system.trade.from].icon}</span>
                         <span className="label">Sell</span>
                         <span className="value">{this.props.system.trade.operation === "sellAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={this.props.tokens[this.props.system.trade.from].symbol}/>
+                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={tokens[this.props.system.trade.from].symbol}/>
                         </span>
                         {
                           !this.props.system.trade.hasToCreateProxyInTrade &&
@@ -230,10 +231,10 @@ class DoTrade extends React.Component {
                         }
                       </div>
                       <div className="details" data-test-id="trade-token-to">
-                        <span className="icon">{this.props.tokens[this.props.system.trade.to].icon}</span>
+                        <span className="icon">{tokens[this.props.system.trade.to].icon}</span>
                         <span className="label">Buy</span>
                         <span className="value">{this.props.system.trade.operation === "buyAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))} token={this.props.tokens[this.props.system.trade.to].symbol} />
+                          <TokenAmount number={toWei((this.props.system.trade.amountBuy.valueOf()))} token={tokens[this.props.system.trade.to].symbol} />
                         </span>
                       </div>
                     </div>

@@ -957,7 +957,7 @@ button[disabled] {
 .selector .tokens {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-start;
   padding: 0 8px;
   max-height: 300px;
