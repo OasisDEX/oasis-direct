@@ -84,22 +84,18 @@ export default class TransactionsStore {
             // Using logs:
             blockchain.setFilter(
               this[type].checkFromBlock,
-              settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address,
-              (err, r) => {
-                if (err) {
-                  return;
-                }
-
-                [r].forEach(v => {
-                  blockchain.getTransaction(v.transactionHash).then(r2 => {
-                    if (r2.from === this.rootStore.network.defaultAccount &&
-                      r2.nonce === this[type].nonce) {
-                      this.saveReplacedTransaction(type, v.transactionHash);
-                    }
-                  })
-                });
-              }
-            )
+              settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.replace('eth', 'weth')].address
+            ).then(r => {
+              r.forEach(v => {
+                blockchain.getTransaction(v.transactionHash).then(r2 => {
+                  if (r2.from === this.rootStore.network.defaultAccount &&
+                    r2.nonce === this[type].nonce) {
+                    this.saveReplacedTransaction(type, v.transactionHash);
+                  }
+                })
+              });
+            }, () => {
+            });
             // Using Etherscan API (backup)
             this.getTransactionsByAddressFromEtherscan(this.rootStore.network.defaultAccount, this[type].checkFromBlock).then(r => {
               if (parseInt(r.status, 10) === 1 && r.result.length > 0) {
@@ -119,15 +115,9 @@ export default class TransactionsStore {
           // Using Logs
           blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address,
-            (err, logs) => {
-              if (err) {
-                return;
-              }
-              
-              this.saveTradedValue("sell", [logs]);
-            }
-          );
+            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace('eth', 'weth')].address
+          ).then(logs => this.saveTradedValue('sell', logs), () => {
+          });
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.from.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {
@@ -141,15 +131,10 @@ export default class TransactionsStore {
           // Using Logs
           blockchain.setFilter(
             this[type].checkFromBlock,
-            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address,
-            (err, logs) => {
-              if (err) {
-                return;
-              }
-
-              this.saveTradedValue("buy", [logs])
-            }
-          );
+            settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address
+          ).then(logs => this.saveTradedValue('buy', logs), () => {
+          }, () => {
+          });
           // Using Etherscan API (backup)
           this.getLogsByAddressFromEtherscan(settings.chain[this.rootStore.network.network].tokens[this.rootStore.system.trade.to.replace("eth", "weth")].address,
             this[type].checkFromBlock).then(logs => {

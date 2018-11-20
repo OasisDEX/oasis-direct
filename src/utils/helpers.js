@@ -37,18 +37,17 @@ export const addressToBytes32 = (x, prefix = true) => {
   return y;
 }
 
-export const formatNumber = (number, decimals = false, isWei = true) => {
-  web3.BigNumber.config({ROUNDING_MODE: 4});
-
+export const formatNumber = (number, decimals = 0, isWei = true) => {
   let object = web3.toBigNumber(number);
 
   if (isWei) object = web3.fromWei(object.round(0));
 
+  object = object.valueOf();
+
   if (decimals) {
-    const d = web3.toBigNumber(10).pow(decimals);
-    object = object.mul(d).trunc().div(d).toFixed(decimals);
-  } else {
-    object = object.valueOf();
+    const whole = object.toString().split(".")[0];
+    const decimal = object.toString().split(".")[1];
+    object = whole.concat(".").concat(decimal ? decimal.substr(0,decimals) : "");
   }
 
   const parts = object.toString().split(".");

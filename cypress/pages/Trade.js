@@ -1,43 +1,62 @@
-import { tid } from "../utils";
+import { tid } from '../utils';
 
-import Finalization from "./Finalization";
+import Finalization from './Finalization';
 
 export default class Trade {
 
-  constructor(from, to, willPay, willReceive) {
-    this.from = from;
-    this.to = to;
-    this.willPay = willPay;
-    this.willReceive = willReceive
-  }
+  sell = token => {
+    cy.get(tid('set-trade-from'))
+      .click();
 
-  sell = (amount = this.willPay) => {
-    cy.get(tid("set-trade-from-amount"))
-      .find('input').type(amount);
+    cy.get(tid(token.toLowerCase()))
+      .click();
 
-    return this;
+    return amount => {
+      if(amount) {
+        cy.get(tid('set-trade-from-amount'))
+          .find('input').type(amount);
+      }
+
+      return this;
+    };
   };
 
-  buy = (amount = this.willReceive) => {
-    cy.get(tid("set-trade-to-amount"))
-      .find('input').type(amount);
+  buy = (token) => {
+    cy.get(tid('set-trade-to'))
+      .click();
 
-    return this;
+    cy.get(tid(token.toLowerCase()))
+      .click();
+
+
+    return amount => {
+      if(amount) {
+        cy.get(tid('set-trade-to-amount'))
+          .find('input').type(amount);
+      }
+
+      return this;
+    };
   };
 
 
   acceptTerms = () => {
-    cy.get(tid("terms-and-conditions")).click({position: "topRight", force: true});
+    cy.get(tid('terms-and-conditions')).click({position: 'topRight', force: true});
     return this;
   };
 
   execute = () => {
-    cy.get(tid("initiate-trade")).click();
-    return new Finalization(this);
+    cy.get(tid('initiate-trade')).click();
+    return new Finalization();
   };
 }
 
-chai.Assertion.addChainableMethod("receive", function (amount) {
-  cy.get(tid("set-trade-to-amount"), {timeout: 2000})
+chai.Assertion.addChainableMethod('receive', function (amount) {
+  cy.get(tid('set-trade-to-amount'), {timeout: 2000})
+    .find('input').should('have.value', `${amount}`);
+});
+
+chai.Assertion.addChainableMethod('pay', function (amount) {
+  cy.get(tid('set-trade-from-amount'), {timeout: 2000})
     .find('input').should('have.value', `${amount}`);
 });

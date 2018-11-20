@@ -3,6 +3,7 @@
   "projectId": "noiqfs",
   "videoUploadOnPasses": false,
   "env": {
-    "ETH_PROVIDER": "http://localhost:8545"
+    "ETH_PROVIDER": "http://localhost:8545",
+    "TRADE_TIMEOUT": 40000
   }
 }

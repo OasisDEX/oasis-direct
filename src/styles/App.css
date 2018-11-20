@@ -1183,7 +1183,7 @@ button[disabled] {
   fill: #66bb66;
 }
 
-.success #Account {
+.success .account-icon {
   fill: #66bb66
 }
 

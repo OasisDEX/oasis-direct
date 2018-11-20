@@ -339,7 +339,7 @@ export default class SystemStore {
       );
 
       proxyCreateAndExecute[data.method](...data.params.concat([{
-        gas,
+        gas: gas+1000000, // TODO: Figure out a way to estimate the gas precisely. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
         value: data.value,
         gasPrice: this.gasPrice
       }, (e, tx) => {
@@ -500,7 +500,7 @@ export default class SystemStore {
     const amountBuy = await this.getBuyAmount(market, toTokenAddress, fromTokenAddress, amountToPay).catch(e => {
       if (this.trade.rand === rand) {
         this.trade.error = {
-          cause: ERRORS.NO_ORDERS(`sell`, amountToPay, from),
+          cause: ERRORS.NO_ORDERS(`sell`, amountToPay.valueOf(), from),
           isCritical: true
         };
       }
@@ -609,7 +609,7 @@ export default class SystemStore {
     const amountPay = await this.getPayAmount(market, fromTokenAddress, toTokenAddress, amountToBuy).catch(e => {
       if (this.trade.rand === rand) {
         this.trade.error = {
-          cause: ERRORS.NO_ORDERS(`buy`, amountToBuy, to),
+          cause: ERRORS.NO_ORDERS(`buy`, amountToBuy.valueOf(), to),
           isCritical: true
         }
       }

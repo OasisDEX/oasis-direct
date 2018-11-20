@@ -87,8 +87,16 @@ export const getBlock = block => {
   return promisify(web3.eth.getBlock)(block);
 }
 
-export const setFilter = (fromBlock, address, cb) => {
-  return web3.eth.filter({fromBlock, address}).watch(cb);
+export const setFilter = (fromBlock, address) => {
+  return new Promise((resolve, reject) => {
+    web3.eth.filter({fromBlock, address}).get((e, r) => {
+      if (!e) {
+        resolve(r);
+      } else {
+        reject(e);
+      }
+    })
+  })
 }
 
 export const resetFilters = bool => {
