@@ -157,7 +157,7 @@ class SetTrade extends React.Component {
         !this.state.showTokenSelector && !this.state.showPriceImpactWarning &&
         <section className="frame">
           <div className="heading">
-            <span className={`identicon-placeholder ${this.props.network.loadingAddress ? "disabled" : ""}`}
+            <span data-test-id="check-session-details" className={`identicon-placeholder ${this.props.network.loadingAddress ? "disabled" : ""}`}
                   onClick={this.props.showConnectionDetails}>
               {
                 this.props.network.loadingAddress

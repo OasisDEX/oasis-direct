@@ -30,7 +30,7 @@ class ProxyDetailsView extends Component {
   render() {
 
     return <section className="proxy-details">
-      <div className={`proxy-status ${this.props.profile.proxy ? "activated" : ""}`}>
+      <div data-test-id="proxy-status" className={`proxy-status ${this.props.profile.proxy ? "activated" : ""}`}>
         <AccountIcon/>
         <span className="label">
           {
@@ -47,7 +47,8 @@ class ProxyDetailsView extends Component {
           !this.props.profile.proxy
             ? !this.props.profile.isCreatingProxy
             ? (
-              <button type="button" className="gray"  disabled={!this.props.profile.proxy && !this.props.profile.hasFunds} onClick={this.props.profile.createProxy}>
+              <button data-test-id="create-proxy" type="button" className="gray"
+                      disabled={!this.props.profile.proxy && !this.props.profile.hasFunds} onClick={this.props.profile.createProxy}>
                 CREATE
               </button>
             )

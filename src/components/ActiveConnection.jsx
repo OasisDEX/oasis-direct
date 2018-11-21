@@ -27,7 +27,7 @@ class ActiveConnection extends React.Component {
     return (
       <div className="frame">
         <div className="wallet-settings">
-          <button className="back" onClick={this.props.back}>
+          <button data-test-id="go-back" className="back" onClick={this.props.back}>
             <Circle hover><BackIcon/></Circle>
           </button>
           <div className="heading">
