@@ -15,6 +15,7 @@ import * as oasis from "../utils/oasis";
 import * as settings from "../settings";
 import { ERRORS } from "../utils/errors";
 import asyncInterval from "../utils/async-interval";
+import tokens from "../utils/tokens";
 
 const TRADE_OPERATIONS = Object.freeze({
   SELL_ALL: "sellAll",
@@ -24,11 +25,7 @@ const TRADE_OPERATIONS = Object.freeze({
 export default class SystemStore {
   @observable ethPriceInUSD = 0;
   @observable customThreshold;
-  @observable balances = {
-    dai: null,
-    eth: null,
-    mkr: null
-  };
+  @observable balances = {};
 
   @observable gasPrice = toBigNumber(this.rootStore.quotes.selected.price);
 
@@ -149,10 +146,10 @@ export default class SystemStore {
   }
 
   init = () => {
-    this.setUpToken("weth");
-    this.setUpToken("mkr");
-    this.setUpToken("dai");
-  }
+    Object.keys(tokens).forEach(token => {
+      this.setUpToken(token.replace("eth","weth"));
+    });
+  };
 
   reset = () => {
     this.trade = {

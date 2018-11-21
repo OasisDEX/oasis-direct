@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DAI, Ether, MKR } from "../components-ui/Icons"
+import { DAI, Ether } from "../components-ui/Icons"
 
 const eth = {
   icon: <Ether/>,
@@ -13,18 +13,18 @@ const dai = {
   name: "DAI",
 };
 
-const mkr = {
-  icon: <MKR/>,
-  symbol: "MKR",
-  name: "Maker"
+const ukn = {
+  icon: <Ether/>,
+  symbol: "UKN",
+  name:"UKN"
 };
 
-const tokens = process.env.REACT_APP_ENV === "prod" ? Object.freeze({eth, dai}) : Object.freeze({eth, dai, mkr}, );
+const tokens = process.env.REACT_APP_ENV === "prod" ? Object.freeze({eth, dai}) : Object.freeze({eth, dai, ukn},);
 
 export const excludes = (symbol = "") => {
   const symbols = Object.keys(tokens);
 
-  if(typeof symbol === "string") {
+  if (typeof symbol === "string") {
     return symbols.filter(token => token.toLowerCase() !== symbol.toLowerCase());
   }
 

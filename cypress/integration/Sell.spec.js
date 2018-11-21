@@ -209,10 +209,10 @@ describe('Selling', () => {
   context('ERC20 for ERC20', () => {
     it('without proxy and allowance', () => {
       const from = 'DAI';
-      const to = 'MKR';
+      const to = 'UKN';
       const willPay = '5';
       const willReceive = '0.02419';
-      const price = '206.66666 MKR/DAI';
+      const price = '206.66666 UKN/DAI';
 
       const trade = new Trade()
         .buy(to)()
@@ -263,11 +263,11 @@ describe('Selling', () => {
 
       nextTrade();
 
-      const switchTo = "MKR";
+      const switchTo = "UKN";
       const switchFrom = "DAI";
       const willPayMore = '5';
       const willReceiveMore = '0.02419';
-      const newPrice = '206.66666 MKR/DAI';
+      const newPrice = '206.66666 UKN/DAI';
 
       const secondTrade = new Trade()
         .buy(switchTo)()
@@ -296,10 +296,10 @@ describe('Selling', () => {
 
     it('with proxy and allowance', () => {
       const from = 'DAI';
-      const to = 'MKR';
+      const to = 'UKN';
       const willPay = '5';
       const willReceive = '0.02419';
-      const price = '206.66666 MKR/DAI';
+      const price = '206.66666 UKN/DAI';
 
       new Trade()
         .buy(to)()

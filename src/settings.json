@@ -5,9 +5,7 @@
     "private": {
       "nodeURL": "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "threshold": {
-        "daieth": 2,
-        "daimkr": 1,
-        "ethmkr": 1
+        "daieth": 2
       },
       "otc": "0x4e5F802405B29fFae4AE2a7dA1d9cEEB53904D55",
       "tokens": {
@@ -15,7 +13,7 @@
           "address": "0x28085CEfA9103d3a55Fb5AfCcf07eD2038d31cD4",
           "minValue": 0.00000001
         },
-        "mkr": {
+        "ukn": {
           "address": "0xe80C262f63df9376d2ce9eDd373832EDc9FCA46E",
           "minValue": 0.00000001
         },
@@ -39,17 +37,11 @@
       "nodeURL" : "https://kovan.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x8cf1cab422a0b6b554077a361f8419cdf122a9f9",
       "threshold": {
-        "daieth": 2,
-        "daimkr": 1,
-        "ethmkr": 1
+        "daieth": 2
       },
       "tokens": {
         "weth": {
           "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
-          "minValue": 0.00000001
-        },
-        "mkr": {
-          "address": "0xaaf64bfcc32d0f15873a02163e7e500671a4ffcd",
           "minValue": 0.00000001
         },
         "dai": {
@@ -70,17 +62,11 @@
       "nodeURL" : "https://mainnet.infura.io/mtXsTjGvCTFRFFHwzn1f",
       "otc": "0x14fbca95be7e99c15cc2996c6c9d841e54b79425",
       "threshold": {
-        "daieth": 2,
-        "daimkr": 1,
-        "ethmkr": 1
+        "daieth": 2
       },
       "tokens": {
         "weth": {
           "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "minValue": 0.03
-        },
-        "mkr": {
-          "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
           "minValue": 0.03
         },
         "dai": {
