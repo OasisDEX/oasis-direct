@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Ether, MKR, DAI, Done, AccountIcon, Attention } from './Icons';
+import { Ether, DAI, Done, AccountIcon, Attention } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
 import Congratulation from './Congratulation';
@@ -14,11 +14,6 @@ const tokens = {
     symbol: "ETH",
     name: "Ether"
   },
-  'mkr': {
-    icon: <MKR/>,
-    symbol: "MKR",
-    name: "Maker"
-  },
   'dai': {
     icon: <DAI/>,
     symbol: "DAI",
@@ -31,7 +26,6 @@ class DoTrade extends Component {
   token = (key) => {
     const tokens = {
       'eth': 'Ether',
-      'mkr': 'Maker',
       'dai': 'Dai'
     };
     return tokens[key];
