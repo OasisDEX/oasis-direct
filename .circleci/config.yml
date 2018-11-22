@@ -27,7 +27,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: source /opt/circleci/.nvm/nvm.sh && yarn test
-      - run: source /opt/circleci/.nvm/nvm.sh && yarn build
+      - run: source /opt/circleci/.nvm/nvm.sh && yarn build:test
 
       # e2e
       - run: |

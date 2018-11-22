@@ -5,6 +5,9 @@ import React from "react";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 
+// Utils
+import tokens from "../utils/tokens";
+
 class TokensSelector extends React.Component {
   render() {
     return (
@@ -14,21 +17,11 @@ class TokensSelector extends React.Component {
           <div className="tokens-container">
             <div className="tokens">
               <div className="token-list">
-                <div data-test-id="eth" className="token" onClick={() => this.props.select("eth")}>
-                  <span className="token-icon">{this.props.tokens.eth.icon}</span>
-                  {
-                    this.props.balances.eth
-                      ?
-                        <TokenAmount className="token-name" number={this.props.balances.eth.valueOf()} decimal={3} token={"ETH"} />
-                      :
-                        <Spinner />
-                  }
-                </div>
                 {
-                  ["mkr", "dai"].map((token, index) => {
+                  Object.keys(tokens).map((token, index) => {
                     return (
                       <div data-test-id={token} key={index} className="token" onClick={() => this.props.select(token)}>
-                        <span className="token-icon">{this.props.tokens[token].icon}</span>
+                        <span className="token-icon">{tokens[token].icon}</span>
                         {
                           this.props.balances[token]
                             ?

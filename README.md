@@ -36,7 +36,7 @@ Oasis.Direct is the most convenient, fully-decentralized way to change tokens. Y
 **Are you going to support more trading pairs in the future ?**
 
 
-Yes, more trading pairs will be supported in the future. In the beginning the following pairs are available: DAI/ETH, MKR/DAI and ETH/MKR. 
+Yes, more trading pairs will be supported in the future. In the beginning the following pair is available: DAI/ETH. 
 
 **Why do I sometimes need to confirm two transactions, and sometimes only one ?**
 
@@ -57,7 +57,7 @@ The slippage limits were decided by analyzing the volatility and book depth hist
 
 **Can you list order estimation variations (thresholds) for all assets/tokens ?** 
 
-Right now there is  a fixed threshold of 1% for ETH/MKR and DAI/MKR pairs, and 2% for DAI/ETH pair. 
+Right now there is  a fixed threshold of  2% for DAI/ETH pair. 
 
 **What is the maximum value I can trade through Oasis.Direct ?**
 
@@ -72,7 +72,7 @@ This functionality will be included in the future release of Oasis.Direct
 As the gas cost for a transaction is fixed and doesn’t  depend on the amount you want to trade, the bigger amount, the less (percentage-wise) you pay for gas. Minimum trade sizes were introduced to make sure that the total transaction cost is minimal with respect to the traded amount. Currently the minimum trade sizes are:
  * 30 DAI
  * 0.03 ETH
- * 0.03 MKR
+ 
 Note that both buy and sell amounts of a transaction need to be above the minimum trade size.
 
 

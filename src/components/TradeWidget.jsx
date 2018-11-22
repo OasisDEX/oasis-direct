@@ -7,9 +7,6 @@ import ActiveConnection from "./ActiveConnection";
 import DoTrade from "./DoTrade";
 import SetTrade from "./SetTrade";
 
-// UI Components
-import { Ether, MKR, DAI } from "../components-ui/Icons";
-
 // Utils
 import TradeSettings from "./TradeSettings";
 import { reaction } from "mobx";
@@ -23,24 +20,6 @@ class TradeWidget extends React.Component {
     this.state = {
       view: null,
     };
-  }
-
-  tokens = {
-    eth: {
-      icon: <Ether/>,
-      symbol: "ETH",
-      name: "Ether"
-    },
-    mkr: {
-      icon: <MKR/>,
-      symbol: "MKR",
-      name: "Maker"
-    },
-    dai: {
-      icon: <DAI/>,
-      symbol: "DAI",
-      name: "DAI",
-    },
   }
 
   componentDidMount() {
@@ -81,15 +60,14 @@ class TradeWidget extends React.Component {
 
   switchToNewTrade = () => {
     this.setState({
-      view: <SetTrade tokens={this.tokens}
-                      showTradeSettings={this.switchToTradeSettings}
+      view: <SetTrade showTradeSettings={this.switchToTradeSettings}
                       showConnectionDetails={this.switchToActiveConnection}/>
     })
   };
 
   switchToTradeFinalization = () => {
     this.setState({
-      view: <DoTrade tokens={this.tokens}/>
+      view: <DoTrade />
     })
   };
 
