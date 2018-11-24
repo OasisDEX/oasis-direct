@@ -149,8 +149,12 @@ export const getTokenTrusted = (token, from, to) => {
     .then((result) => result.eq(web3.toBigNumber(2).pow(256).minus(1)));
 }
 
+export function isEmptyProxy(address) {
+  return address === "0x0000000000000000000000000000000000000000" || address === "0x0"
+}
+
 export const getProxy = account => {
-  return promisify(objects.proxyRegistry.proxies)(account).then(r => r === "0x0000000000000000000000000000000000000000" ? null : getProxyOwner(r).then(r2 => r2 === account ? r : null));
+  return promisify(objects.proxyRegistry.proxies)(account).then(r => isEmptyProxy(r) ? null : getProxyOwner(r).then(r2 => r2 === account ? r : null));
 }
 
 /*
