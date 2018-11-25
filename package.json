@@ -66,7 +66,7 @@
     "cypress:run:ci": "cypress run --record",
     "cypress:run": "cypress run",
     "cypress:dev": "cypress open",
-    "metamask-e2e:dev": "NODE_ENV=dev babel-node ./metamask-e2e/tests.js",
+    "metamask-e2e:dev": "NODE_ENV=test DEV=1 babel-node ./metamask-e2e/tests.js",
     "metamask-e2e:run": "NODE_ENV=test babel-node ./metamask-e2e/tests.js"
   },
   "jest": {
