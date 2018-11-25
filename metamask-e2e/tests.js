@@ -1,6 +1,6 @@
 const Puppeteer = require("puppeteer");
 const { launchPuppeteerWithMetamask, setupMetamask } = require("metamask-puppeteer");
-const { click, waitForText } = require("puppeteer-utils");
+const { click, waitForText } = require("puppeteer-better-utils");
 
 const { tid } = require("../cypress/utils/");
 

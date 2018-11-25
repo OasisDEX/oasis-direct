@@ -114,7 +114,9 @@
     "babel-cli": "^6.26.0",
     "cypress": "^3.1.0",
     "http-server": "^0.11.1",
+    "metamask-puppeteer": "^0.0.1",
     "puppeteer": "^1.10.0",
+    "puppeteer-better-utils": "^0.0.1",
     "surge": "^0.20.1",
     "truffle-privatekey-provider": "^0.1.0"
   }
