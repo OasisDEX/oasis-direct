@@ -6155,13 +6155,13 @@ mersenne-twister@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/mersenne-twister/-/mersenne-twister-1.1.0.tgz#f916618ee43d7179efcf641bec4531eb9670978a"
 
-metamask-puppeteer@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/metamask-puppeteer/-/metamask-puppeteer-0.0.1.tgz#c7eb70d35cb4d278fee0fa26e5aa650d1f9ed702"
-  integrity sha512-z6PwxET4aySOyrgFXO5KkUMxYcRg3mKWGO36iPSxo4xGl1yUj4SMJv8wNma/Q/+o03NLjZ06Dp1dKwhNmaSWcw==
+metamask-puppeteer@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/metamask-puppeteer/-/metamask-puppeteer-0.0.2.tgz#4dc94c07b325f747da9164df7404c4098e718ef5"
+  integrity sha512-D7mBenPaDlUPlCdYM1TlMUqwKxHVjKjUTWkQUT3fUgmL3J7EOCzPJP390+/xWTRbS0wngEH5mbOql5SJndHTIQ==
   dependencies:
     lodash "^4.17.11"
-    puppeteer-better-utils "^0.0.1"
+    puppeteer-better-utils "^0.0.2"
 
 methods@~1.1.2:
   version "1.1.2"
@@ -7455,10 +7455,10 @@ punycode@^1.2.4, punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
 
-puppeteer-better-utils@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/puppeteer-better-utils/-/puppeteer-better-utils-0.0.1.tgz#df5c2aa48525da05f9e0cbedc2153c00d602d085"
-  integrity sha512-JepPmQ7z5e1U509Vif1nQnD0MR/p9lacc2XHEUp7Sc0a+O//ychW/M6Us8i36mlMXsPXmuEX184VmzHciCImFg==
+puppeteer-better-utils@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/puppeteer-better-utils/-/puppeteer-better-utils-0.0.2.tgz#2d55f523752209c733423c5b67ffda9978c8fa94"
+  integrity sha512-HzHe9N0CvvmjEo5+YjyuLggu+7zlyMrpDdTNb8gxSkoRVYEKbCzVWdscVhsjV2Rce/M0c1y6hLdEOZtS3RCy3Q==
 
 puppeteer@^1.10.0:
   version "1.10.0"
