@@ -32,7 +32,7 @@ jobs:
 
       # e2e
       - run: |
-         LOCALNODE_SHA=c389bf39768d36dd2ce85fa95c756a5bcc3c4892
+         LOCALNODE_SHA=c24df3ebf5c339df8aafaa3a8787787139f328f1
          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker pull oasisdex/localnode:$LOCALNODE_SHA
          docker run -d -p 8545:8545 oasisdex/localnode:$LOCALNODE_SHA
       - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10 && sleep 10 # @todo this needs to be improved. Wait for it doesnt really work since contract deployment happens later
