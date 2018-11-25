@@ -65,7 +65,9 @@
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
     "cypress:run:ci": "cypress run --record",
     "cypress:run": "cypress run",
-    "cypress:dev": "cypress open"
+    "cypress:dev": "cypress open",
+    "metamask-e2e:dev": "NODE_ENV=dev babel-node ./metamask-e2e/tests.js",
+    "metamask-e2e:run": "NODE_ENV=test babel-node ./metamask-e2e/tests.js"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -109,6 +111,7 @@
     "extends": "react-app"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "cypress": "^3.1.0",
     "http-server": "^0.11.1",
     "puppeteer": "^1.10.0",
