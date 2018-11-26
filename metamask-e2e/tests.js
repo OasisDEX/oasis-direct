@@ -1,4 +1,5 @@
 import { click, waitForText, delay } from "puppeteer-better-utils";
+import { expect } from "chai";
 
 import { tid, ACCOUNT_3_PRIV } from "../cypress/utils/";
 import { puppeteerVisitWithWeb3 } from "./utils";
@@ -30,11 +31,10 @@ describe("Oasis Direct with metamask", () => {
 
   afterEach(async () => {
     // block the execution in dev mode. Usably only with .only
-    if (IS_DEV) {
-      await delay(1000000);
+    if (!IS_DEV) {
+      await oasisPage.close();
+      await browser.close();
     }
-    await oasisPage.close();
-    await browser.close();
   });
 
   it("should work after accepting connection", async () => {
@@ -48,5 +48,18 @@ describe("Oasis Direct with metamask", () => {
 
     await waitForText(oasisPage, tid("set-trade-from", tid("token-amount-value")), /8,999.... ETH/);
     await waitForText(oasisPage, tid("set-trade-to", tid("token-amount-value")), /170 DAI/);
+  });
+
+  it("should work after rejecting connection", async () => {
+    await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
+    await metamaskController.changeNetwork("localhost");
+
+    await click(oasisPage, tid("wallets-continue"));
+
+    await metamaskController.disallowToConnect();
+    await oasisPage.bringToFront();
+
+    // there should not be a next request to connect to page
+    expect((await browser.pages()).length).to.be.eq(2); // 1 is blank page, 2 is oasis page
   });
 });
