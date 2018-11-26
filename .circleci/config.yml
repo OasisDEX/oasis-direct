@@ -32,9 +32,9 @@ jobs:
 
       # e2e
       - run: |
-         LOCALNODE_SHA=c24df3ebf5c339df8aafaa3a8787787139f328f1
+         LOCALNODE_SHA=786aedd3652a96b7039bfe762e77fb60cc52993c
          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker pull oasisdex/localnode:$LOCALNODE_SHA
-         docker run -d -p 8545:8545 oasisdex/localnode:$LOCALNODE_SHA /bin/bash -c "source /home/tester/.nix-profile/etc/profile.d/nix.sh && ./start.sh -q master"
+         docker run -d -p 8545:8545 oasisdex/localnode:$LOCALNODE_SHA
       - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10 && sleep 10 # @todo this needs to be improved. Wait for it doesnt really work since contract deployment happens later
       - run: source /opt/circleci/.nvm/nvm.sh && ./cypress/scripts/run-e2e.sh
 
