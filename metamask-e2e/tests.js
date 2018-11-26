@@ -1,12 +1,20 @@
+import Web3 from "web3";
+import PrivateKeyProvider from "truffle-privatekey-provider";
 const Puppeteer = require("puppeteer");
 const { launchPuppeteerWithMetamask, setupMetamask } = require("metamask-puppeteer");
 const { click, waitForText } = require("puppeteer-better-utils");
 
-const { tid } = require("../cypress/utils/");
+const { tid, restoreBlockchain, lastSnapshotId, ACCOUNT_3_PRIV } = require("../cypress/utils/");
 
 const IS_DEV = process.env.DEV === "1";
+const ETH_PROVIDER = process.env.ETH_PROVIDER;
+console.assert(ETH_PROVIDER, "Missing ETH_PROVIDER env");
 
 async function main() {
+  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), ETH_PROVIDER);
+  const web3 = new Web3(provider);
+  await restoreBlockchain(web3)(lastSnapshotId);
+
   console.log("Starting browser...");
   const browser = await launchPuppeteerWithMetamask(Puppeteer, {
     headless: false,
