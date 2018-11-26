@@ -150,7 +150,9 @@ export const getTokenTrusted = (token, from, to) => {
 }
 
 export function isEmptyProxy(address) {
-  return address === "0x0000000000000000000000000000000000000000" || address === "0x0"
+  if (!address) 
+    return true;
+  return address === "0x0000000000000000000000000000000000000000" || address === "0x0" || address === "0x"
 }
 
 export const getProxy = account => {
