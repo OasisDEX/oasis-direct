@@ -1,4 +1,4 @@
-import { visitWithWeb3, tid } from '../utils';
+import { cypressVisitWithWeb3, tid } from '../utils';
 import Trade from '../pages/Trade';
 
 const nextTrade = () => {
@@ -7,7 +7,7 @@ const nextTrade = () => {
 
 describe('Selling', () => {
   beforeEach(() => {
-    visitWithWeb3();
+    cypressVisitWithWeb3();
     cy.get(tid('wallets-continue')).contains('Continue').click();
   });
 

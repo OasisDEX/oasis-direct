@@ -1,32 +1,14 @@
-import Web3 from "web3";
-import PrivateKeyProvider from "truffle-privatekey-provider";
-const Puppeteer = require("puppeteer");
-const { launchPuppeteerWithMetamask, setupMetamask } = require("metamask-puppeteer");
 const { click, waitForText } = require("puppeteer-better-utils");
 
-const { tid, restoreBlockchain, lastSnapshotId, ACCOUNT_3_PRIV } = require("../cypress/utils/");
+const { tid, ACCOUNT_3_PRIV, puppeteerVisitWithWeb3 } = require("../cypress/utils/");
 
 const IS_DEV = process.env.DEV === "1";
-const ETH_PROVIDER = process.env.ETH_PROVIDER;
-console.assert(ETH_PROVIDER, "Missing ETH_PROVIDER env");
+console.assert(process.env.ETH_PROVIDER, "Missing ETH_PROVIDER env");
 
 async function main() {
-  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), ETH_PROVIDER);
-  const web3 = new Web3(provider);
-  await restoreBlockchain(web3)(lastSnapshotId);
+  const { oasisPage, metamaskController, browser } = await puppeteerVisitWithWeb3();
 
-  console.log("Starting browser...");
-  const browser = await launchPuppeteerWithMetamask(Puppeteer, {
-    headless: false,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-  console.log("Browser started");
-  const metamaskController = await setupMetamask(browser);
-
-  const oasisPage = await browser.newPage();
-  await oasisPage.goto("http://localhost:3000");
-
-  await metamaskController.loadPrivateKey("0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af");
+  await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
   await metamaskController.changeNetwork("localhost");
 
   await click(oasisPage, tid("wallets-continue"));

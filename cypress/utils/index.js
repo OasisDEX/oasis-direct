@@ -1,5 +1,7 @@
 import Web3 from "web3";
 import PrivateKeyProvider from "truffle-privatekey-provider";
+import Puppeteer from "puppeteer";
+import { launchPuppeteerWithMetamask, setupMetamask } from "metamask-puppeteer";
 
 // this is exactly the same as ganache.sh file in localnode
 const ACCOUNT_1_PRIV = "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92f7d7667e1a";
@@ -8,7 +10,7 @@ export const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d2
 export let web3;
 export let lastSnapshotId = 1;
 
-export function visitWithWeb3(path = "") {
+export function cypressVisitWithWeb3(path = "") {
   const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), Cypress.env("ETH_PROVIDER"));
   web3 = new Web3(provider);
 
@@ -28,6 +30,30 @@ export function visitWithWeb3(path = "") {
         },
       });
     });
+}
+
+export async function puppeteerVisitWithWeb3(path = "http://localhost:3000") {
+  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), process.env.ETH_PROVIDER);
+  web3 = new Web3(provider);
+
+  console.log(`Reverting blockchain to snapshot #${lastSnapshotId}`);
+  await restoreBlockchain(web3)(lastSnapshotId);
+  console.log(`Saving new snapshot`);
+  const rawSnapshotId = await saveBlockchain(web3)();
+  lastSnapshotId = parseInt(rawSnapshotId.result, 16);
+
+  console.log("Starting browser...");
+  const browser = await launchPuppeteerWithMetamask(Puppeteer, {
+    headless: false,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+  console.log("Browser started");
+  const metamaskController = await setupMetamask(browser);
+
+  const page = await browser.newPage();
+  await page.goto(path);
+
+  return { page, browser, metamaskController };
 }
 
 // helper to generate quickly selector for data-test-ids
