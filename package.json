@@ -115,10 +115,10 @@
     "chai": "^4.2.0",
     "cypress": "^3.1.0",
     "http-server": "^0.11.1",
-    "metamask-puppeteer": "^0.0.2",
+    "metamask-puppeteer": "^0.0.3",
     "mocha": "^5.2.0",
     "puppeteer": "^1.10.0",
-    "puppeteer-better-utils": "^0.0.2",
+    "puppeteer-better-utils": "^0.0.3",
     "surge": "^0.20.1",
     "truffle-privatekey-provider": "^0.1.0"
   }

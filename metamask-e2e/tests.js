@@ -1,21 +1,14 @@
-import { click, waitForText, delay } from "puppeteer-better-utils";
+import { click, waitForText, delay, type } from "puppeteer-better-utils";
 import { expect } from "chai";
 
 import { tid, ACCOUNT_3_PRIV } from "../cypress/utils/";
 import { puppeteerVisitWithWeb3 } from "./utils";
+import { get } from "http";
 
 const IS_DEV = process.env.DEV === "1";
 console.assert(process.env.ETH_PROVIDER, "Missing ETH_PROVIDER env");
 
-async function main() {}
-
-main().catch(e => {
-  console.error(e);
-  // don't close window to early in dev mode
-  if (!IS_DEV) {
-    process.exit(1);
-  }
-});
+const LONG_DELAY = 60 * 1000;
 
 describe("Oasis Direct with metamask", () => {
   let oasisPage;
@@ -51,7 +44,6 @@ describe("Oasis Direct with metamask", () => {
   });
 
   it("should work after rejecting connection", async () => {
-    await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
     await metamaskController.changeNetwork("localhost");
 
     await click(oasisPage, tid("wallets-continue"));
@@ -61,5 +53,42 @@ describe("Oasis Direct with metamask", () => {
 
     // there should not be a next request to connect to page
     expect((await browser.pages()).length).to.be.eq(2); // 1 is blank page, 2 is oasis page
+  });
+
+  it("should accept tx", async () => {
+    await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
+
+    await click(oasisPage, tid("wallets-continue"));
+
+    await metamaskController.allowToConnect();
+    await oasisPage.bringToFront();
+
+    await type(oasisPage, tid("set-trade-from-amount", "> input"), "1");
+    await click(oasisPage, tid("terms-and-conditions"));
+    await click(oasisPage, tid("initiate-trade"));
+
+    await metamaskController.acceptTx();
+
+    await waitForText(oasisPage, tid("proxy-creation-summary"), /You have successfully created a Proxy/, {
+      timeout: LONG_DELAY,
+    });
+    await waitForText(oasisPage, tid("bought-token", tid("token-amount-value")), /280 DAI/);
+  });
+
+  it("should reject tx", async () => {
+    await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
+
+    await click(oasisPage, tid("wallets-continue"));
+
+    await metamaskController.allowToConnect();
+    await oasisPage.bringToFront();
+
+    await type(oasisPage, tid("set-trade-from-amount", "> input"), "1");
+    await click(oasisPage, tid("terms-and-conditions"));
+    await click(oasisPage, tid("initiate-trade"));
+
+    await metamaskController.rejectTx();
+
+    await waitForText(oasisPage, tid("create-proxy", ".status"), /Rejected/);
   });
 });

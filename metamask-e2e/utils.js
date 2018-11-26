@@ -23,6 +23,7 @@ export async function puppeteerVisitWithWeb3(path = "http://localhost:3000") {
   });
   console.log("Browser started");
   const metamaskController = await setupMetamask(browser);
+  await metamaskController.changeNetwork("localhost");
 
   const page = await browser.newPage();
   await page.goto(path);
