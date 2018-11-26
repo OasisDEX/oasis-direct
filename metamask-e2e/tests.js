@@ -3,12 +3,11 @@ import { expect } from "chai";
 
 import { tid, ACCOUNT_3_PRIV } from "../cypress/utils/";
 import { puppeteerVisitWithWeb3 } from "./utils";
-import { get } from "http";
 
 const IS_DEV = process.env.DEV === "1";
 console.assert(process.env.ETH_PROVIDER, "Missing ETH_PROVIDER env");
 
-const LONG_DELAY = 60 * 1000;
+const TX_MINING_DELAY = 60 * 1000;
 
 describe("Oasis Direct with metamask", () => {
   let oasisPage;
@@ -16,10 +15,7 @@ describe("Oasis Direct with metamask", () => {
   let browser;
 
   beforeEach(async () => {
-    const setupRes = await puppeteerVisitWithWeb3();
-    oasisPage = setupRes.page;
-    metamaskController = setupRes.metamaskController;
-    browser = setupRes.browser;
+    ({ page: oasisPage, metamaskController, browser } = await puppeteerVisitWithWeb3());
   });
 
   afterEach(async () => {
@@ -70,7 +66,7 @@ describe("Oasis Direct with metamask", () => {
     await metamaskController.acceptTx();
 
     await waitForText(oasisPage, tid("proxy-creation-summary"), /You have successfully created a Proxy/, {
-      timeout: LONG_DELAY,
+      timeout: TX_MINING_DELAY,
     });
     await waitForText(oasisPage, tid("bought-token", tid("token-amount-value")), /280 DAI/);
   });
