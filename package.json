@@ -66,8 +66,8 @@
     "cypress:run:ci": "cypress run --record",
     "cypress:run": "cypress run",
     "cypress:dev": "cypress open",
-    "metamask-e2e:dev": "NODE_ENV=test DEV=1 ETH_PROVIDER=http://localhost:8545 babel-node ./metamask-e2e/tests.js",
-    "metamask-e2e:run": "NODE_ENV=test ETH_PROVIDER=http://localhost:8545 babel-node ./metamask-e2e/tests.js"
+    "metamask-e2e:dev": "NODE_ENV=test DEV=1 ETH_PROVIDER=http://localhost:8545 mocha --timeout 30000 --require babel-register ./metamask-e2e/tests.js",
+    "metamask-e2e:run": "NODE_ENV=test ETH_PROVIDER=http://localhost:8545 mocha --timeout 30000 --require babel-register --exit ./metamask-e2e/tests.js"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -115,6 +115,7 @@
     "cypress": "^3.1.0",
     "http-server": "^0.11.1",
     "metamask-puppeteer": "^0.0.2",
+    "mocha": "^5.2.0",
     "puppeteer": "^1.10.0",
     "puppeteer-better-utils": "^0.0.2",
     "surge": "^0.20.1",
