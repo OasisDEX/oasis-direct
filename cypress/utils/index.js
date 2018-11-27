@@ -3,14 +3,18 @@ import PrivateKeyProvider from "truffle-privatekey-provider";
 
 // this is exactly the same as ganache.sh file in localnode
 const ACCOUNT_1_PRIV = "0x47be2b1589bb515b76b47c514be96b23cd60ee37e81d63c2ae9c92f7d7667e1a";
-const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af";
+export const ACCOUNT_3_PRIV = "0x1ff8271bf14ac9bef0b641cced40dc2a7ebd2e37d8e16d25b4aa1911364219af";
 
 export let web3;
 export let lastSnapshotId = 1;
 
-export function visitWithWeb3(path = "") {
-  const provider = new PrivateKeyProvider(ACCOUNT_3_PRIV.replace("0x", ""), Cypress.env("ETH_PROVIDER"));
-  web3 = new Web3(provider);
+export function createWeb3Provider(privKey, providerUrl) {
+  const provider = new PrivateKeyProvider(privKey.replace("0x", ""), providerUrl);
+  return new Web3(provider);
+}
+
+export function cypressVisitWithWeb3(path = "") {
+  web3 = createWeb3Provider(ACCOUNT_3_PRIV, Cypress.env("ETH_PROVIDER"))
 
   return cy
     .then(() => {

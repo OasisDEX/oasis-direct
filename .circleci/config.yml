@@ -16,7 +16,8 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
 
-      - run: ./.circleci/install-yarn.sh
+      - run: .circleci/install-yarn.sh
+      - run: .circleci/update-chrome.sh
 
       - run: source /opt/circleci/.nvm/nvm.sh && yarn install --frozen-lockfile
 
@@ -31,7 +32,7 @@ jobs:
 
       # e2e
       - run: |
-         LOCALNODE_SHA=c389bf39768d36dd2ce85fa95c756a5bcc3c4892
+         LOCALNODE_SHA=786aedd3652a96b7039bfe762e77fb60cc52993c
          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker pull oasisdex/localnode:$LOCALNODE_SHA
          docker run -d -p 8545:8545 oasisdex/localnode:$LOCALNODE_SHA
       - run: ./.circleci/wait-for-it.sh localhost:8545 -t 10 && sleep 10 # @todo this needs to be improved. Wait for it doesnt really work since contract deployment happens later

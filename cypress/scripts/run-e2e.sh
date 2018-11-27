@@ -7,5 +7,6 @@ cd ../../
 server_pid=$!
 
 yarn cypress:run:ci
+yarn metamask-e2e:run
 
 kill -9 $server_pid
