@@ -1,5 +1,8 @@
 import { cypressVisitWithWeb3, tid } from '../utils';
 import Trade from '../pages/Trade';
+import { ERRORS } from "../../src/utils/errors";
+import settings from '../../src/settings';
+
 
 const nextTrade = () => {
   cy.get(tid('new-trade')).click({timeout: Cypress.env('TRADE_TIMEOUT')});
@@ -291,5 +294,31 @@ describe('Buying', () => {
       summary.expectSold(nextWillPay, from);
       summary.expectPriceOf(price);
     });
+  })
+
+  context('ANY for ANY', () => {
+    it('without reaching the receive token min value', () => {
+      const from = "ETH";
+      const to = "DAI";
+
+      const minValue = settings.chain.private.tokens[to.toLowerCase()].minValue;
+
+      const trade = new Trade()
+        .sell(from)()
+        .buy(to)(0.00014);
+
+      trade.containsError(ERRORS.MINIMAL_VALUE(minValue, to));
+    });
+
+    it('without having enough trade volume for receive token', () => {
+      const from = "ETH";
+      const to = "DAI";
+
+      const trade = new Trade()
+        .sell(from)()
+        .buy(to)(10000);
+
+      trade.containsError(`No orders available to buy ${10000} ${to}`);
+    })
   })
 });

@@ -49,6 +49,10 @@ export default class Trade {
     cy.get(tid('initiate-trade')).click();
     return new Finalization();
   };
+
+  containsError = (error) => {
+    cy.get(tid('error-message')).contains(error);
+  }
 }
 
 chai.Assertion.addChainableMethod('receive', function (amount) {

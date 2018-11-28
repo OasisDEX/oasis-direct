@@ -14,7 +14,7 @@ export function createWeb3Provider(privKey, providerUrl) {
 }
 
 export function cypressVisitWithWeb3(path = "") {
-  web3 = createWeb3Provider(ACCOUNT_3_PRIV, Cypress.env("ETH_PROVIDER"))
+  web3 = createWeb3Provider(ACCOUNT_3_PRIV, Cypress.env("ETH_PROVIDER"));
 
   return cy
     .then(() => {
