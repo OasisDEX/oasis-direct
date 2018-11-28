@@ -48,10 +48,10 @@ class AllowanceToken extends React.Component {
   render() {
     const {token, hasAllowance} = this.props;
     return (
-      <button className='token' disabled={this.state.isSettingAllowance} onClick={this.setAllowance}>
+      <button data-test-id={`${tokens[token].symbol}-token`} className='token' disabled={this.state.isSettingAllowance} onClick={this.setAllowance}>
         <span className="token-icon">{tokens[token].icon}</span>
         <span className="token-name"> {tokens[token].name}</span>
-        <span className={`done-placeholder ${hasAllowance ? "active" : ""}`}>
+        <span data-test-id="allowance-status" className={`done-placeholder ${hasAllowance ? "active" : ""}`}>
         {
           this.state.isSettingAllowance
             ? <Spinner/>
@@ -75,7 +75,7 @@ class Allowances extends React.Component {
         <div className="heading">
           <h2> Enable Token for Trading </h2>
         </div>
-        <button className="close" onClick={this.props.back}/>
+        <button data-test-id="close-allowances-panel" className="close" onClick={this.props.back}/>
         <div className="content">
           <div className="selector">
             <div className="tokens-container">
