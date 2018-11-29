@@ -183,7 +183,7 @@ class SetTrade extends React.Component {
             <div className="info-box-row wrap">
               {
                 this.hasCriticalErrors() &&
-                <span className="label"> {this.props.system.trade.error.cause} </span>
+                <span data-test-id="error-message" className="label"> {this.props.system.trade.error.cause} </span>
               }
               {
                 !this.hasCriticalErrors() &&
@@ -322,7 +322,7 @@ class SetTrade extends React.Component {
           </div>
           {
             this.hasErrors() && !this.hasCriticalErrors() &&
-            <div className={`info-box terms-and-conditions has-errors`}>
+            <div data-test-id="error-message" className={`info-box terms-and-conditions has-errors`}>
               <span className="label">{this.props.system.trade.error.cause}</span>
             </div>
           }
