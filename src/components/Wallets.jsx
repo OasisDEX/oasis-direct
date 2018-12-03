@@ -5,7 +5,7 @@ import {inject, observer} from "mobx-react";
 // UI Components
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
-  StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon, SupportedClient, TrustIcon, ImTokenIcon
+  StatusIcon, EthereumIcon, Grayscale, SupportedClient, TrustIcon, ImTokenIcon
 } from "../components-ui/Icons";
 import Product from "../components-ui/Product";
 import Spinner from "../components-ui/Spinner";
