@@ -178,10 +178,12 @@ describe('Selling', () => {
       const willPay = '100';
       const price = '301 ETH/DAI';
 
-      new Trade()
+      const firstFinalization = new Trade()
         .sell(from)(willPay)
         .acceptTerms()
         .execute();
+
+      firstFinalization.shouldCommitATrade(willPay,from,'0.33222',to);
 
       nextTrade();
 
@@ -303,11 +305,13 @@ describe('Selling', () => {
       const willReceive = '0.02419';
       const price = '206.66666 MKR/DAI';
 
-      new Trade()
+      const firstFinalization = new Trade()
         .buy(to)()
         .sell(from)(willPay)
         .acceptTerms()
         .execute();
+
+      firstFinalization.shouldCommitATrade(willPay,from,willReceive,to);
 
       nextTrade();
 

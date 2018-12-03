@@ -48,9 +48,11 @@ describe('Buying', () => {
 
       const trade = new Trade().buy(to)(willReceive);
 
-      trade
+      const firstFinalization = trade
         .acceptTerms()
         .execute();
+
+      firstFinalization.shouldCommitATrade('0.35714', from , willReceive, to);
 
       nextTrade();
 
@@ -111,11 +113,13 @@ describe('Buying', () => {
       const to = 'DAI';
       const willPay = '1';
 
-      const trade = new Trade()
+      const finalization = new Trade()
         .sell(from)(willPay)
         .buy(to)()
         .acceptTerms()
         .execute();
+
+      finalization.shouldCommitATrade(willPay,from, '280', to);
 
       nextTrade();
 
@@ -129,7 +133,7 @@ describe('Buying', () => {
         .sell(nextFrom)()
         .buy(nextTo)(nextWillReceive);
 
-      expect(trade).to.receive(`${nextWillReceive}`);
+      expect(secondTrade).to.receive(`${nextWillReceive}`);
 
       const nextFinalization = secondTrade
         .acceptTerms()
@@ -157,11 +161,13 @@ describe('Buying', () => {
       const willReceive = '0.12378';
       const price = '301 ETH/DAI';
 
-      new Trade()
+      const firstFinalization = new Trade()
         .sell(from)()
         .buy(to)(willReceive)
         .acceptTerms()
         .execute();
+
+      firstFinalization.shouldCommitATrade(willPay,from, willReceive,to);
 
       nextTrade();
 
@@ -220,11 +226,13 @@ describe('Buying', () => {
       const to = 'DAI';
       const willPay = '1';
 
-      const trade = new Trade()
+      const finalization = new Trade()
         .sell(from)(willPay)
         .buy(to)()
         .acceptTerms()
         .execute();
+
+      finalization.shouldCommitATrade(willPay, from, '280', to);
 
       nextTrade();
 
@@ -238,7 +246,7 @@ describe('Buying', () => {
         .sell(nextFrom)()
         .buy(nextTo)(nextWillReceive);
 
-      expect(trade).to.receive(`${nextWillReceive}`);
+      expect(secondTrade).to.receive(`${nextWillReceive}`);
 
       const nextFinalization = secondTrade
         .acceptTerms()
@@ -266,11 +274,13 @@ describe('Buying', () => {
       const willReceive = '0.5';
       const price = '206.66666 MKR/DAI';
 
-      new Trade()
+      const firstFinalization = new Trade()
         .sell(from)()
         .buy(to)(willReceive)
         .acceptTerms()
         .execute();
+
+      firstFinalization.shouldCommitATrade(willPay,from, willReceive, to);
 
       nextTrade();
 

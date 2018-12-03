@@ -47,7 +47,7 @@ export default class Finalization {
       .find(tid('token-amount-value'))
       .contains(`${receive} ${to.toUpperCase()}`);
 
-    cy.get(tid('summary'), {timeout: 25000});
+    cy.get(tid('summary'), {timeout: Cypress.env('TRADE_TIMEOUT')});
 
     return new Summary();
   }
