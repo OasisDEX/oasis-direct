@@ -56,16 +56,15 @@
   justify-content: flex-start;
 }
 
-.wallets .hw-wallet:hover {
+.wallets .product:hover {
   border-color: #C7D1EB;
 }
 
-.wallets .hw-wallet:hover .label {
+.wallets .product:hover .label {
   color: #8B8B8C;
 }
 
-.wallets .clients .logo:hover svg *:not(.ornament),
-.wallets .hw-wallet:hover .logo svg * {
+.wallets .product:hover .logo svg *:not(.ornament) {
   fill: #8B8B8C;
 }
 

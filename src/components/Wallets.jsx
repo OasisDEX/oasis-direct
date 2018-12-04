@@ -107,10 +107,10 @@ class Wallets extends React.Component {
                   </div>
                   <div className="column-flex">
                     <a href="https://metamask.io/" target="_blank" rel="noopener noreferrer">
-                      <Product logo={SupportedClient.METAMASK}/>
+                      <Product className="product" logo={SupportedClient.METAMASK}/>
                     </a>
                     <a href="https://www.parity.io/" target="_blank" rel="noopener noreferrer">
-                      <Product logo={SupportedClient.PARITY}/>
+                      <Product className="product" logo={SupportedClient.PARITY}/>
                     </a>
                   </div>
                 </li>
@@ -120,13 +120,13 @@ class Wallets extends React.Component {
                   </div>
                   <div className="column-flex">
                     <a href="https://status.im/" target="_blank" rel="noopener noreferrer">
-                      <Product logo={SupportedClient.STATUS}/>
+                      <Product className="product" logo={SupportedClient.STATUS}/>
                     </a>
                     <a href="https://trustwallet.com/" target="_blank" rel="noopener noreferrer">
-                      <Product logo={SupportedClient.TRUST}/>
+                      <Product className="product" logo={SupportedClient.TRUST}/>
                     </a>
                     <a href="https://wallet.coinbase.com" target="_blank" rel="noopener noreferrer">
-                      <Product logo={SupportedClient.COINBASE}/>
+                      <Product className="product" logo={SupportedClient.COINBASE}/>
                     </a>
                   </div>
                 </li>
@@ -176,9 +176,9 @@ class Wallets extends React.Component {
                   </li>
                   <li className="list-item">
                     <div className="row-flex">
-                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} disabled={this.props.network.loadingAddress}
+                      <Product className="product" label="Ledger" logo={LedgerIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectLedger}/>
-                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} disabled={this.props.network.loadingAddress}
+                      <Product className="product" label="Trezor" logo={TrezorIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectTrezor}/>
                     </div>
                   </li>
