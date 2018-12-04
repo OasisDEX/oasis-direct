@@ -18,7 +18,7 @@ export const getCurrentProviderName = ( provider = window.web3.currentProvider )
   if (provider.isTrust)
     return "trust";
 
-  if (window.web3.currentProvider.isStatus)
+  if (provider.isStatus)
     return "status";
 
   if (typeof window.SOFA !== "undefined")
@@ -27,10 +27,10 @@ export const getCurrentProviderName = ( provider = window.web3.currentProvider )
   if (typeof window.__CIPHER__ !== "undefined")
     return "cipher";
 
-  if (provider.constructor.name === "EthereumProvider")
+  if (provider.constructor && provider.constructor.name === "EthereumProvider")
     return "mist";
 
-  if (provider.constructor.name === "Web3FrameProvider")
+  if (provider.constructor && provider.constructor.name === "Web3FrameProvider")
     return "parity";
 
   if (provider.host && provider.host.indexOf("infura") !== -1)
@@ -39,7 +39,10 @@ export const getCurrentProviderName = ( provider = window.web3.currentProvider )
   if (provider.host && provider.host.indexOf("localhost") !== -1)
     return "localhost";
 
-  return "other";
+  if (provider.isImToken)
+    return 'imToken';
+
+  return 'other';
 };
 
 class Web3Extended extends Web3 {

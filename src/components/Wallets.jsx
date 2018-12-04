@@ -37,7 +37,9 @@ class Wallets extends React.Component {
   }
 
   componentWillMount = () => {
-    if (window.web3) {
+    if(window.ethereum) {
+      this.setState({hasProvider: true, provider: getCurrentProviderName(window.ethereum)});
+    } else if (window.web3) {
       this.setState({hasProvider: true, provider: getCurrentProviderName()});
     }
   }
@@ -146,7 +148,7 @@ class Wallets extends React.Component {
                         ?
                           <React.Fragment>
                             <div className="client-summary">
-                              {this.logoFor(getCurrentProviderName())}
+                              {this.logoFor(this.state.provider)}
                               <div>
                                 <span className="label status" data-test-id="wallets-connection-status">Connected</span>
                                 <span className="label" data-test-id="wallets-name" >{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
