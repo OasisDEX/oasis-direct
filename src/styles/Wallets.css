@@ -64,6 +64,7 @@
   color: #8B8B8C;
 }
 
+.wallets .clients .logo:hover svg *:not(.ornament),
 .wallets .hw-wallet:hover .logo svg * {
   fill: #8B8B8C;
 }
