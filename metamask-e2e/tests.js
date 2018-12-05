@@ -14,22 +14,20 @@ describe("Oasis Direct with metamask", () => {
   let metamaskController;
   let browser;
 
-  beforeEach(async done => {
+  beforeEach(async () => {
     ({ page: oasisPage, metamaskController, browser } = await puppeteerVisitWithWeb3());
-    done();
   });
 
-  afterEach(async done => {
+  afterEach(async () => {
     // block the execution in dev mode. Usably only with .only
-    if (!IS_DEV) {
-      await oasisPage.close();
-      await browser.close();
-    }
+    // if (!IS_DEV) {
+    //   await oasisPage.close();
+    //   await browser.close();
+    // }
 
-    done();
   });
 
-  it("should work after accepting connection", async () => {
+  it("should work after accepting connection", async done => {
     await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
     await metamaskController.changeNetwork("localhost");
 
@@ -44,9 +42,11 @@ describe("Oasis Direct with metamask", () => {
     await waitForText(oasisPage, tid("set-trade-to", tid("token-amount-value"),{
       timeout: TX_MINING_DELAY
     }), /170 DAI/);
+
+    done();
   });
 
-  it("should work after rejecting connection", async () => {
+  it("should work after rejecting connection", async done => {
     await metamaskController.changeNetwork("localhost");
 
     await click(oasisPage, tid("wallets-continue"));
@@ -56,9 +56,10 @@ describe("Oasis Direct with metamask", () => {
 
     // there should not be a next request to connect to page
     expect((await browser.pages()).length).to.be.eq(2); // 1 is blank page, 2 is oasis page
+    done();
   });
 
-  it("should accept tx", async () => {
+  it("should accept tx", async done => {
     await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
 
     await click(oasisPage, tid("wallets-continue"));
@@ -78,9 +79,11 @@ describe("Oasis Direct with metamask", () => {
     await waitForText(oasisPage, tid("bought-token", tid("token-amount-value"), {
       timeout: TX_MINING_DELAY
     }), /280 DAI/);
+
+    done();
   });
 
-  it("should reject tx", async () => {
+  it("should reject tx", async done => {
     await metamaskController.loadPrivateKey(ACCOUNT_3_PRIV);
 
     await click(oasisPage, tid("wallets-continue"));
@@ -97,5 +100,7 @@ describe("Oasis Direct with metamask", () => {
     await waitForText(oasisPage, tid("create-proxy", ".status",{
       timeout: TX_MINING_DELAY
     }), /Rejected/);
+
+    done();
   });
 });
