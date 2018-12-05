@@ -14,16 +14,19 @@ describe("Oasis Direct with metamask", () => {
   let metamaskController;
   let browser;
 
-  beforeEach(async () => {
+  beforeEach(async done => {
     ({ page: oasisPage, metamaskController, browser } = await puppeteerVisitWithWeb3());
+    done();
   });
 
-  afterEach(async () => {
+  afterEach(async done => {
     // block the execution in dev mode. Usably only with .only
     if (!IS_DEV) {
       await oasisPage.close();
       await browser.close();
     }
+
+    done();
   });
 
   it("should work after accepting connection", async () => {
