@@ -35,8 +35,12 @@ describe("Oasis Direct with metamask", () => {
     await metamaskController.allowToConnect();
     await oasisPage.bringToFront();
 
-    await waitForText(oasisPage, tid("set-trade-from", tid("token-amount-value")), /8,999.... ETH/);
-    await waitForText(oasisPage, tid("set-trade-to", tid("token-amount-value")), /170 DAI/);
+    await waitForText(oasisPage, tid("set-trade-from", tid("token-amount-value"), {
+      timeout: TX_MINING_DELAY
+    }), /8,999.... ETH/);
+    await waitForText(oasisPage, tid("set-trade-to", tid("token-amount-value"),{
+      timeout: TX_MINING_DELAY
+    }), /170 DAI/);
   });
 
   it("should work after rejecting connection", async () => {
@@ -68,7 +72,9 @@ describe("Oasis Direct with metamask", () => {
     await waitForText(oasisPage, tid("proxy-creation-summary"), /You have successfully created a Proxy/, {
       timeout: TX_MINING_DELAY,
     });
-    await waitForText(oasisPage, tid("bought-token", tid("token-amount-value")), /280 DAI/);
+    await waitForText(oasisPage, tid("bought-token", tid("token-amount-value"), {
+      timeout: TX_MINING_DELAY
+    }), /280 DAI/);
   });
 
   it("should reject tx", async () => {
@@ -85,6 +91,8 @@ describe("Oasis Direct with metamask", () => {
 
     await metamaskController.rejectTx();
 
-    await waitForText(oasisPage, tid("create-proxy", ".status"), /Rejected/);
+    await waitForText(oasisPage, tid("create-proxy", ".status",{
+      timeout: TX_MINING_DELAY
+    }), /Rejected/);
   });
 });
