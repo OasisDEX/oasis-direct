@@ -74,7 +74,7 @@ export default class SystemStore {
       () => this.trade.price,
       price => {
         if (price.gt(0)) {
-          if(this.stopPriceTicker){
+          if (this.stopPriceTicker) {
             this.stopPriceTicker();
           }
 
@@ -111,7 +111,7 @@ export default class SystemStore {
                 }
               }
             }
-            catch(e) {
+            catch (e) {
               console.error(e);
               clearInterval(this.priceTicker);
             }
@@ -631,8 +631,6 @@ export default class SystemStore {
     let hasAllowance = true;
     let action = null;
     let data = null;
-    let target = null;
-    let addrFrom = null;
     const operations = [];
 
     if (from !== "eth") {
@@ -682,7 +680,7 @@ export default class SystemStore {
       }
     } else {
       action = oasis.getActionCreateProxyAndSellETH(network, operation, to, amount, limit);
-      data = blockchain.loadObject("proxycreateandexecute",proxyCreationAndExecute)[action.method].getData(...action.params);
+      data = blockchain.loadObject("proxycreateandexecute", proxyCreationAndExecute)[action.method].getData(...action.params);
 
       operations.push(this.calculateGasCostOf({
         to: proxyCreationAndExecute,
@@ -707,25 +705,13 @@ export default class SystemStore {
   };
 
 
-  roughTradeCost = (operation, tok1, amountTok1, tok2) => {
-    return oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2).then(
-      r => {
-        const ordersCount = r[0];
-        const hasPartiallyFilled = r[1];
-        const gasCost = ordersCount.times(136500).add(hasPartiallyFilled ? 70000 : 0).add(141100);
-        console.log("Rough trade cost:", gasCost.valueOf(), "gas");
-        console.log("Rough trade gas Price:", this.gasPrice.valueOf(), "Gwei");
-        return this.gasPrice.times(gasCost);
-      },
-      error => Promise.reject(error)
-    );
+  roughTradeCost = async (operation, tok1, amountTok1, tok2) => {
+    const [ordersCount, hasPartiallyFilled] = await oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2);
+    const gasCost = ordersCount.times(136500).add(hasPartiallyFilled ? 70000 : 0).add(141100);
+    console.log("Rough trade cost:", gasCost.valueOf(), "gas");
+    console.log("Rough trade gas Price:", this.gasPrice.valueOf(), "Gwei");
+    return this.gasPrice.times(gasCost);
   };
 
-  calculateGasCostOf = ({to, data, value = 0, from}) => blockchain
-    .estimateGas(to, data, value, from)
-    .then(
-      gas => this.gasPrice.times(gas),
-      error => Promise.reject(error)
-    );
-
+  calculateGasCostOf = async ({to, data, value = 0, from}) => this.gasPrice.times(await blockchain.estimateGas(to, data, value, from));
 }
