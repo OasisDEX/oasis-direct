@@ -33,7 +33,6 @@ export default class NetworkStore {
         }
       }
     } catch(e) {
-      console.log(e);
     }
   }
 

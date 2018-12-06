@@ -1,17 +1,17 @@
 // Libraries
 import React from "react";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 import ReactTooltip from "react-tooltip";
 
 // UI Components
 import Congratulation from "../components-ui/Congratulation";
-import {Done, AccountIcon, Attention} from "../components-ui/Icons";
+import { Done, AccountIcon, Attention } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import tokens from "../utils/tokens";
 
 // Utils
-import {etherscanUrl, quotation, toWei} from "../utils/helpers";
+import { etherscanUrl, quotation, toWei } from "../utils/helpers";
 
 // Settings
 import * as settings from "../settings";
@@ -43,57 +43,61 @@ class DoTrade extends React.Component {
   }
 
   renderInitialStatus = initiating => {
-    return  initiating
-            ?
-              <React.Fragment>
-                <span className="status label">Initiating transaction</span><Spinner />
-              </React.Fragment>
-            :
-              <span className="status label">Waiting</span>
+    return initiating
+      ?
+      <React.Fragment>
+        <span className="status label">Initiating transaction</span><Spinner />
+      </React.Fragment>
+      :
+      <span className="status label">Waiting</span>
   }
 
   renderStatus = type => {
-    return  this.props.transactions[type].errorDevice
+    return this.props.transactions[type].errorDevice
+      ?
+      <span className="status label error">Error connecting device</span>
+      :
+      this.props.transactions[type].rejected
+        ?
+        <span className="status label error">Rejected</span>
+        :
+        this.props.transactions[type].requested
+          ?
+          <React.Fragment>
+            <span className="status label">Signing transaction</span><Spinner />
+          </React.Fragment>
+          :
+          this.props.transactions[type].pending
             ?
-              <span className="status label error">Error connecting device</span>
+            <React.Fragment>
+              <span className="status label info">View on Etherscan</span><Spinner />
+            </React.Fragment>
             :
-              this.props.transactions[type].rejected
+            this.props.transactions[type].error
               ?
-                <span className="status label error">Rejected</span>
+              <span className="status label error">Failed</span>
               :
-                this.props.transactions[type].requested
+              type === "trade" && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
                 ?
-                  <React.Fragment>
-                    <span className="status label">Signing transaction</span><Spinner />
-                  </React.Fragment>
+                <React.Fragment>
+                  <span className="status label info">Confirmed. Loading...</span><Spinner />
+                </React.Fragment>
                 :
-                  this.props.transactions[type].pending
-                  ?
-                    <React.Fragment>
-                      <span className="status label info">View on Etherscan</span><Spinner />
-                    </React.Fragment>
-                  :
-                    this.props.transactions[type].error
-                    ?
-                      <span className="status label error">Failed</span>
-                    :
-                      type === "trade" && (this.props.transactions.trade.amountBuy.eq(-1) || this.props.transactions.trade.amountSell.eq(-1))
-                      ?
-                        <React.Fragment>
-                          <span className="status label info">Confirmed. Loading...</span><Spinner />
-                        </React.Fragment>
-                      :
-                        <span className="status label info">Confirmed</span>
+                <span className="status label info">Confirmed</span>
   }
 
   render() {
+    if (this.props.system.trade.amountPay.toString() === "0" || this.props.system.trade.amountBuy.toString() === "0") {
+      debugger;
+    }
+
     return (
       <section className="frame finalize">
         <div className="heading">
           <h2>Finalize Trade</h2>
         </div>
         <div className="network-indicator-placeholder">
-          <NetworkIndicator network={this.props.network.network}/>
+          <NetworkIndicator network={this.props.network.network} />
         </div>
         <div className="info-box">
           <div className="info-box-row">
@@ -107,9 +111,9 @@ class DoTrade extends React.Component {
           {
             this.props.system.trade.txs === 3 &&
             <a href={this.props.transactions.proxy.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.proxy.tx}` : "#"}
-                target="_blank" rel="noopener noreferrer"
-                className={`tx ${this.props.transactions.proxy.tx ? "clickable" : "non-clickable"}`}
-                onClick={e => { if (!this.props.transactions.proxy.tx) e.preventDefault(); }}>
+              target="_blank" rel="noopener noreferrer"
+              className={`tx ${this.props.transactions.proxy.tx ? "clickable" : "non-clickable"}`}
+              onClick={e => { if (!this.props.transactions.proxy.tx) e.preventDefault(); }}>
               <div className="transaction-info-box">
                 <div data-test-id="create-proxy" className="operation">
                   <span className={`icon ${this.hasTxCompleted("proxy") ? "success" : ""}`}>
@@ -126,8 +130,8 @@ class DoTrade extends React.Component {
                   </span>
                   {
                     !this.props.transactions.hasProxyTx
-                    ? this.renderInitialStatus(true)
-                    : this.renderStatus("proxy")
+                      ? this.renderInitialStatus(true)
+                      : this.renderStatus("proxy")
                   }
                 </div>
               </div>
@@ -136,13 +140,13 @@ class DoTrade extends React.Component {
           {
             this.props.system.trade.txs >= 2 &&
             <a href={this.props.transactions.approval.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.approval.tx}` : "#"}
-                target="_blank" rel="noopener noreferrer"
-                className={`tx ${this.props.transactions.approval.tx ? "clickable" : "non-clickable"}`}
-                onClick={e => { if (!this.props.transactions.approval.tx) e.preventDefault(); }}>
+              target="_blank" rel="noopener noreferrer"
+              className={`tx ${this.props.transactions.approval.tx ? "clickable" : "non-clickable"}`}
+              onClick={e => { if (!this.props.transactions.approval.tx) e.preventDefault(); }}>
               <div data-test-id="set-token-allowance" className="transaction-info-box">
                 <div className="operation">
                   <span className={`icon done ${this.hasTxCompleted("approval") ? "success" : ""}`}>
-                    <Done/>
+                    <Done />
                   </span>
                   <span className="label vertical-align">
                     Enable {tokens[this.props.system.trade.from].symbol} Trading
@@ -153,8 +157,8 @@ class DoTrade extends React.Component {
                   </span>
                   {
                     !this.props.transactions.hasApprovalTx
-                    ? this.renderInitialStatus(this.props.system.trade.txs <= 2 || (this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false))
-                    : this.renderStatus("approval")
+                      ? this.renderInitialStatus(this.props.system.trade.txs <= 2 || (this.props.transactions.proxy.pending === false && this.props.transactions.proxy.error === false))
+                      : this.renderStatus("approval")
                   }
                 </div>
               </div>
@@ -162,31 +166,31 @@ class DoTrade extends React.Component {
           }
           {
             !this.hasTxCompleted("trade")
-            ?
-              this.props.transactions.hasTradeTx && this.props.transactions.trade.error
               ?
+              this.props.transactions.hasTradeTx && this.props.transactions.trade.error
+                ?
                 <div className="transaction-result">
                   <h3 className="heading">
                     <span>Failed to execute trade</span>
                   </h3>
                   <div className="content">
-                  <span>
-                    <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
-                    <span className="value">
-                      {settings.chain[this.props.network.network].threshold[[this.props.system.trade.from, this.props.system.trade.to].sort((a, b) => {
-                        if ( a > b ) return 1;
-                        if ( a < b ) return -1;
-                        return 0;
-                      }).join("")]}% slippage limit
+                    <span>
+                      <span className="label">Perhaps the market has moved, so your order could not be filled within the</span>
+                      <span className="value">
+                        {settings.chain[this.props.network.network].threshold[[this.props.system.trade.from, this.props.system.trade.to].sort((a, b) => {
+                          if (a > b) return 1;
+                          if (a < b) return -1;
+                          return 0;
+                        }).join("")]}% slippage limit
                     </span>
-                  </span>
+                    </span>
                   </div>
                 </div>
-              :
+                :
                 <a href={this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#"}
-                    target="_blank" rel="noopener noreferrer"
-                    className={`tx ${this.props.transactions.trade.tx ? "clickable" : "non-clickable"}`}
-                    onClick={e => { if (!this.props.transactions.trade.tx) e.preventDefault(); }}>
+                  target="_blank" rel="noopener noreferrer"
+                  className={`tx ${this.props.transactions.trade.tx ? "clickable" : "non-clickable"}`}
+                  onClick={e => { if (!this.props.transactions.trade.tx) e.preventDefault(); }}>
                   <div className="transaction-info-box">
                     {
                       this.props.system.trade.hasToCreateProxyInTrade &&
@@ -206,26 +210,27 @@ class DoTrade extends React.Component {
                           </span>
                           {
                             !this.props.transactions.hasTradeTx
-                            ? this.renderInitialStatus(this.props.system.trade.txs === 1)
-                            : this.renderStatus("trade")
+                              ? this.renderInitialStatus(this.props.system.trade.txs === 1)
+                              : this.renderStatus("trade")
                           }
                         </div>
                       </div>
                     }
+                    {console.debug("---- DEBUG: ", this.props.system.trade.amountPay)}
                     <div className="operation">
                       <div className="details" data-test-id="trade-token-from">
                         <span className="icon">{tokens[this.props.system.trade.from].icon}</span>
                         <span className="label">Sell</span>
                         <span className="value">{this.props.system.trade.operation === "sellAll" ? "" : "~ "}
-                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={tokens[this.props.system.trade.from].symbol}/>
+                          <TokenAmount number={toWei((this.props.system.trade.amountPay.valueOf()))} token={tokens[this.props.system.trade.from].symbol} />
                         </span>
                         {
                           !this.props.system.trade.hasToCreateProxyInTrade &&
                           <React.Fragment>
                             {
                               !this.props.transactions.hasTradeTx
-                              ? this.renderInitialStatus(this.props.system.trade.txs === 1)
-                              : this.renderStatus("trade")
+                                ? this.renderInitialStatus(this.props.system.trade.txs === 1)
+                                : this.renderStatus("trade")
                             }
                           </React.Fragment>
                         }
@@ -240,13 +245,11 @@ class DoTrade extends React.Component {
                     </div>
                   </div>
                 </a>
-            :
+              :
               <a href={this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
-                  target="_blank" rel="noopener noreferrer"
-                  className="clickable"
-                  style={{textDecoration: "none"}} >{
-                    console.log(this.props.transactions.approval.gasUsed,this.props.transactions.trade.gasUsed)
-              }
+                target="_blank" rel="noopener noreferrer"
+                className="clickable"
+                style={{ textDecoration: "none" }} >
                 <Congratulation
                   hasCreatedProxy={this.props.system.trade.hasToCreateProxyInTrade}
                   isCalculatingGas={
@@ -269,8 +272,8 @@ class DoTrade extends React.Component {
         </div>
 
         <button data-test-id="new-trade" type="submit" value="Trade again"
-                onClick={() => { this.props.system.reset(); this.props.transactions.reset(); } }
-                disabled={!this.showTradeAgainButton()}>
+          onClick={() => { this.props.system.reset(); this.props.transactions.reset(); }}
+          disabled={!this.showTradeAgainButton()}>
           TRADE AGAIN
         </button>
       </section>

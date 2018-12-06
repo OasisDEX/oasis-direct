@@ -46,7 +46,8 @@ export default class ProfileStore {
         from: account
       };
       ( async () => {
-        const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from).catch((e) => console.log());
+        const gas = await blockchain.estimateGas(txData.to, txData.data, txData.value, txData.from).catch((e) => console.log(e));
+        debugger;
         const price = await this.rootStore.quotes.selected.price;
         const balance = await blockchain.getEthBalanceOf(account);
         this.hasFundsToCreateProxy = balance.gt(toBigNumber(gas * price));
@@ -106,6 +107,5 @@ export default class ProfileStore {
   @action setProxy = proxy => {
     this.proxy = proxy;
     blockchain.loadObject("dsproxy", this.proxy, "proxy");
-    console.log("proxy", this.proxy);
   }
 }

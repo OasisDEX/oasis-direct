@@ -105,6 +105,7 @@ class SetTrade extends React.Component {
   };
 
   calculateBuyAmount = () => {
+    console.log("SetTrade.JSX calculateBuyAmount", this.amountPay.value); // KK: this can be execture twice?
     const amountToPay = this.amountPay.value;
     const whole = amountToPay.split(".")[0];
     const decimals = amountToPay.split(".")[1];
@@ -114,6 +115,7 @@ class SetTrade extends React.Component {
   }
 
   calculatePayAmount = () => {
+    console.log("SetTrade.JSX calculatePayAmount");
     const amountToBuy = this.amountBuy.value;
     const whole = amountToBuy.split(".")[0];
     const decimals = amountToBuy.split(".")[1];

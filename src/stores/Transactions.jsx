@@ -35,7 +35,6 @@ export default class TransactionsStore {
     }
     return new Promise((resolve, reject) => {
       const url = `https://api${this.rootStore.network.network !== "main" ? `-${this.rootStore.network.network}` : ""}.etherscan.io/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=latest&address=${address}${filterString}&apikey=${settings.etherscanApiKey}`
-      console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
       xhr.onreadystatechange = () => {
@@ -53,7 +52,6 @@ export default class TransactionsStore {
   getTransactionsByAddressFromEtherscan = (address, fromBlock) => {
     return new Promise((resolve, reject) => {
       const url = `https://api${this.rootStore.network.network !== "main" ? `-${this.rootStore.network.network}` : ""}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${fromBlock}&sort=desc&apikey=${settings.etherscanApiKey}`
-      console.log(url);
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
       xhr.onreadystatechange = () => {
@@ -198,15 +196,12 @@ export default class TransactionsStore {
   logPendingTransaction = async (tx, type, callbacks = []) => {
     const nonce = await blockchain.getTransactionCount(this.rootStore.network.defaultAccount);
     const checkFromBlock = (await blockchain.getBlock("latest")).number;
-    console.log("nonce", nonce);
-    console.log("checkFromBlock", checkFromBlock);
     const msgTemp = "Transaction TX was created. Waiting for confirmation...";
     this[type] = {tx, pending: true, error: false, errorDevice: false, nonce, checkFromBlock, callbacks}
     if (type === "trade") {
       this[type].amountSell = toBigNumber(-1);
       this[type].amountBuy = toBigNumber(-1);
     }
-    console.log(msgTemp.replace("TX", tx));
   }
 
   logTransactionConfirmed = (tx, gasUsed) => {
@@ -229,7 +224,6 @@ export default class TransactionsStore {
       this[type].pending = false;
       this[type].gasUsed = parseInt(gasUsed, 10);
 
-      console.log(msgTemp.replace("TX", tx));
       blockchain.getTransaction(tx).then(r => {
         if (r) {
           this[type].gasPrice = r.gasPrice;
@@ -281,7 +275,6 @@ export default class TransactionsStore {
     const timeout = ["system/executeProxyTx", "system/executeProxyCreateAndSellETH", "system/checkAllowance"].indexOf(method) !== -1 ? 0 : 5000;
     setTimeout(() => {
       method = method.split("/");
-      console.log("executeCallback", `${method[0]}.${method[1]}`, args);
       if (method[0] === "transactions") {
         this[method[1]](...args);
       } else {

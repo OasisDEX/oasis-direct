@@ -12,7 +12,6 @@ import FAQ_DATA from "../misc/faq";
 
 class FAQ extends React.Component {
   componentDidUpdate = prevProps => {
-    console.log(this.props.location)
     if (this.props.location.pathname !== prevProps.location.pathname) {
       window.scrollTo(0, 0);
     }

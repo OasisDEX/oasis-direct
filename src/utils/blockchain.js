@@ -52,7 +52,6 @@ export const getDefaultAccountByIndex = index => {
 
 export const setDefaultAccount = account => {
   web3.eth.defaultAccount = account;
-  console.log(`Address ${account} loaded`);
 }
 
 export const getNetwork = () => {
@@ -218,8 +217,6 @@ export const checkNetwork = (actualIsConnected, actualNetwork) => {
                 network = "main";
                 break;
               default:
-                console.log("setting network to private");
-                console.log("res.hash:", res.hash);
                 network = "private";
             }
             if (actualNetwork !== network) {
