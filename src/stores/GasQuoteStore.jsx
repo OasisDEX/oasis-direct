@@ -24,9 +24,9 @@ export default class GasQuoteStore {
           this.select(GAS_PRICE_LEVELS.HIGH);
         });
 
-        autorun(() => {
-          this.gasPriceTicker = setInterval(this.fetchQuote, settings.gasPriceRefreshRateInMilliseconds);
-        })
+        // autorun(() => {
+        //   this.gasPriceTicker = setInterval(this.fetchQuote, settings.gasPriceRefreshRateInMilliseconds);
+        // })
       }
     );
   }

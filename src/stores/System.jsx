@@ -426,11 +426,11 @@ export default class SystemStore {
     this.trade.rand = rand;
     this.trade.from = from;
     this.trade.to = to;
-    // this.trade.amountBuy = toBigNumber(0);
+    this.trade.amountBuy = toBigNumber(0);
     this.trade.amountPay = toBigNumber(amountToPay);
     this.trade.amountBuyInput = "";
     this.trade.amountPayInput = amountToPay;
-    // this.trade.price = toBigNumber(0);
+    this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
     this.trade.operation = TRADE_OPERATIONS.SELL_ALL;
@@ -535,10 +535,10 @@ export default class SystemStore {
     this.trade.from = from;
     this.trade.to = to;
     this.trade.amountBuy = toBigNumber(amountToBuy);
-    // this.trade.amountPay = toBigNumber(0);
+    this.trade.amountPay = toBigNumber(0);
     this.trade.amountBuyInput = amountToBuy;
     this.trade.amountPayInput = "";
-    // this.trade.price = toBigNumber(0);
+    this.trade.price = toBigNumber(0);
     this.trade.priceUnit = "";
     this.trade.bestPriceOffer = toBigNumber(0);
     this.trade.operation = TRADE_OPERATIONS.BUY_ALL;

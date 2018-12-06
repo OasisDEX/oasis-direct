@@ -1,4 +1,4 @@
-import { tid } from '../utils';
+import { tid, cypressVisitWithWeb3 } from '../utils';
 
 import Finalization from './Finalization';
 
@@ -42,6 +42,7 @@ export default class Trade {
 
   acceptTerms = () => {
     cy.get(tid('terms-and-conditions')).click({position: 'topRight', force: true});
+    cy.wait(1000);
     return this;
   };
 
