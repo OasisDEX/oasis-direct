@@ -4,6 +4,8 @@ import {observable} from "mobx";
 // Utils
 import * as blockchain from "../utils/blockchain";
 
+import * as settings from "../settings";
+
 export default class NetworkStore {
   @observable stopIntervals = false;
   @observable loadingAddress = false;
@@ -89,8 +91,8 @@ export default class NetworkStore {
   }
 
   // Hardwallets
-  showHW = option => {
-    this.hw.option = option;
+  showHW = wallet => {
+    this.hw.wallet = wallet;
     this.hw.showSelector = true;
   }
 
@@ -98,13 +100,13 @@ export default class NetworkStore {
     this.hw.active = false;
     this.hw.loading = false;
     this.hw.showSelector = false;
-    this.hw.option = "";
+    this.hw.wallet = "";
     this.hw.derivationPath = false;
   }
 
-  loadHWAddresses = async (network, amount, derivationPath = this.hw.derivationPath) => {
+  loadHWAddresses = async (derivationPath = this.hw.derivationPath, amount = 100) => {
     try {
-      await blockchain.setHWProvider(this.hw.option, network, `${derivationPath.replace("m/", "")}/0`, 0, amount);
+      await blockchain.setHWProvider(this.hw.wallet, settings.hwNetwork, `${derivationPath.replace("m/", "")}/0`, 0, amount);
       const accounts = await blockchain.getAccounts();
       this.hw.addresses = accounts;
       this.hw.derivationPath = derivationPath;
@@ -112,7 +114,7 @@ export default class NetworkStore {
       return accounts;
     } catch (e) {
       blockchain.stopProvider();
-      console.log(`Error connecting ${this.hw.option}`, e.message);
+      console.log(`Error connecting ${this.hw.wallet}`, e.message);
       return [];
     }
   }

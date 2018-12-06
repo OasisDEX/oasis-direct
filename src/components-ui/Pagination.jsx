@@ -34,7 +34,7 @@ class Pagination extends React.Component {
       end: nextPage
     };
 
-    this.props.enlist(this.props.items.slice(this.page.start, this.page.end));
+    this.props.onPage(this.props.items.slice(this.page.start, this.page.end));
   };
 
   previous = () => {
@@ -48,7 +48,7 @@ class Pagination extends React.Component {
       end: start
     };
 
-    this.props.enlist(this.props.items.slice(this.page.start, this.page.end));
+    this.props.onPage(this.props.items.slice(this.page.start, this.page.end));
   };
 
 

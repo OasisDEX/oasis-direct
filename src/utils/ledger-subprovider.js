@@ -17,7 +17,8 @@ function makeError(msg, id) {
 
 function obtainPathComponentsFromDerivationPath(derivationPath) {
   // check if derivation path follows 44'/60'/x'/n pattern
-  const regExp = /^(44'\/(?:1|60|61)'\/\d+'?\/)(\d+)$/;
+  const regExp = /^(44'\/(?:1|60|61)'\/\d+'?\/(?:\d+'?\/)?)(\d+)$/;
+  console.log(derivationPath);
   const matchResult = regExp.exec(derivationPath);
   if (matchResult === null) {
     throw makeError("To get multiple accounts your derivation path must follow pattern 44'/60|61'/x'/n ", "InvalidDerivationPath");

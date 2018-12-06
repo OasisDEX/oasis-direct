@@ -894,6 +894,18 @@ button {
   cursor: pointer;
 }
 
+button.light {
+  background-color: white;
+  border: 1px solid #DEE4F4;
+  color: #777778;
+}
+
+button.light:hover {
+  color:  #656566;
+  background: rgba(222,228,244,0.08);
+  border-color: #C7D1EB;
+}
+
 button:hover {
   background-color: #337EFF;
   border-color: #3978E6;
