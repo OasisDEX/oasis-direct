@@ -106,7 +106,7 @@ export default class NetworkStore {
 
   loadHWAddresses = async (derivationPath = this.hw.derivationPath, amount = 100) => {
     try {
-      await blockchain.setHWProvider(this.hw.wallet, settings.hwNetwork, `${derivationPath.replace("m/", "")}/0`, 0, amount);
+      await blockchain.setHWProvider(this.hw.wallet, settings.hwNetwork, derivationPath, 0, amount);
       const accounts = await blockchain.getAccounts();
       this.hw.addresses = accounts;
       this.hw.derivationPath = derivationPath;

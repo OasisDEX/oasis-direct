@@ -1,3 +1,4 @@
+/* eslint-disable */
 //@flow
 import AppEth from "@ledgerhq/hw-app-eth";
 import type Transport from "@ledgerhq/hw-transport";
@@ -15,13 +16,14 @@ function makeError(msg, id) {
   return err;
 }
 
-function obtainPathComponentsFromDerivationPath(derivationPath) {
+const ledgerLiveRegex = /^(44'\/(?:1|60|61)'\/)(\d+)('?)$/;
+
+export function obtainPathComponentsFromDerivationPath(derivationPath) {
   // check if derivation path follows 44'/60'/x'/n pattern
   const regExp = /^(44'\/(?:1|60|61)'\/\d+'?\/(?:\d+'?\/)?)(\d+)$/;
-  console.log(derivationPath);
   const matchResult = regExp.exec(derivationPath);
   if (matchResult === null) {
-    throw makeError("To get multiple accounts your derivation path must follow pattern 44'/60|61'/x'/n ", "InvalidDerivationPath");
+    throw makeError("invalid derivation path", "InvalidDerivationPath");
   }
   return { basePath: matchResult[1], index: parseInt(matchResult[2], 10) };
 }
@@ -43,7 +45,7 @@ type SubproviderOptions = {
 
 const defaultOptions = {
   networkId: 1, // mainnet
-  path: "44'/60'/0'/0", // ledger default derivation path
+  path: "44'/60'/0'/0",
   askConfirm: false,
   accountsLength: 1,
   accountsOffset: 0
@@ -53,20 +55,20 @@ const defaultOptions = {
  * Create a HookedWalletSubprovider for Ledger devices.
  * @param getTransport gets lazily called each time the device is needed. It is a function that returns a Transport instance. You can typically give `()=>TransportU2F.create()`
  * @example
-import Web3 from "web3";
-import createLedgerSubprovider from "@ledgerhq/web3-subprovider";
-import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import ProviderEngine from "web3-provider-engine";
-import RpcSubprovider from "web3-provider-engine/subproviders/rpc";
-const engine = new ProviderEngine();
-const getTransport = () => TransportU2F.create();
-const ledger = createLedgerSubprovider(getTransport, {
+ import Web3 from "web3";
+ import createLedgerSubprovider from "@ledgerhq/web3-subprovider";
+ import TransportU2F from "@ledgerhq/hw-transport-u2f";
+ import ProviderEngine from "web3-provider-engine";
+ import RpcSubprovider from "web3-provider-engine/subproviders/rpc";
+ const engine = new ProviderEngine();
+ const getTransport = () => TransportU2F.create();
+ const ledger = createLedgerSubprovider(getTransport, {
   accountsLength: 5
 });
-engine.addProvider(ledger);
-engine.addProvider(new RpcSubprovider({ rpcUrl }));
-engine.start();
-const web3 = new Web3(engine);
+ engine.addProvider(ledger);
+ engine.addProvider(new RpcSubprovider({ rpcUrl }));
+ engine.start();
+ const web3 = new Web3(engine);
  */
 export default function createLedgerSubprovider(
   getTransport: () => Transport<*>,
@@ -77,10 +79,13 @@ export default function createLedgerSubprovider(
     ...options
   };
   if (!allowedHdPaths.some(hdPref => path.startsWith(hdPref))) {
-    throw makeError(`Ledger derivation path allowed are ${allowedHdPaths.join(", ")}. ${path} is not supported`, "InvalidDerivationPath");
+    throw makeError(
+      `Ledger derivation path allowed are ${allowedHdPaths.join(
+        ", "
+      )}. ${path} is not supported`,
+      "InvalidDerivationPath"
+    );
   }
-
-  const pathComponents = obtainPathComponentsFromDerivationPath(path);
 
   const addressToPathMap = {};
 
@@ -88,15 +93,34 @@ export default function createLedgerSubprovider(
     const transport = await getTransport();
     try {
       const eth = new AppEth(transport);
-      const addressGenerator = await new AddressGenerator(await eth.getAddress(pathComponents.basePath, askConfirm, true));
-
       const addresses = {};
-      for (let i = accountsOffset; i < accountsOffset + accountsLength; i++){
-        const path = pathComponents.basePath + (pathComponents.index + i).toString();
-        const address = addressGenerator.getAddressString(i);
-        addresses[path] = address;
-        addressToPathMap[address.toLowerCase()] = path;
+
+      if (path.match(ledgerLiveRegex)) {
+        for (let i = 0; i < accountsLength; i++) {
+          const newPath =
+            path.replace(
+              ledgerLiveRegex,
+              (_, g1, g2, g3) =>
+                g1 + String(parseInt(g2) + accountsOffset + i) + g3
+            ) + "/0/0";
+          const { address } = await eth.getAddress(newPath, askConfirm, true);
+          addresses[newPath] = address;
+          addressToPathMap[address.toLowerCase()] = newPath;
+        }
+      } else {
+        const pathComponents = obtainPathComponentsFromDerivationPath(path);
+        const addressGenerator = await new AddressGenerator(
+          await eth.getAddress(pathComponents.basePath, askConfirm, true)
+        );
+        for (let i = accountsOffset; i < accountsOffset + accountsLength; i++) {
+          const path =
+            pathComponents.basePath + (pathComponents.index + i).toString();
+          const address = addressGenerator.getAddressString(i);
+          addresses[path] = address;
+          addressToPathMap[address.toLowerCase()] = path;
+        }
       }
+
       return addresses;
     } finally {
       transport.close();
@@ -105,7 +129,7 @@ export default function createLedgerSubprovider(
 
   async function signPersonalMessage(msgData) {
     const path = addressToPathMap[msgData.from.toLowerCase()];
-    if (!path) throw new Error(`address unknown '${msgData.from}'`);
+    if (!path) throw new Error(`address unknown "${msgData.from}"`);
     const transport = await getTransport();
     try {
       const eth = new AppEth(transport);
@@ -126,7 +150,7 @@ export default function createLedgerSubprovider(
 
   async function signTransaction(txData) {
     const path = addressToPathMap[txData.from.toLowerCase()];
-    if (!path) throw new Error(`address unknown '${txData.from}'`);
+    if (!path) throw new Error(`address unknown "${txData.from}"`);
     const transport = await getTransport();
     try {
       const eth = new AppEth(transport);
@@ -152,7 +176,10 @@ export default function createLedgerSubprovider(
       const signedChainId = Math.floor((tx.v[0] - 35) / 2);
       const validChainId = networkId & 0xff; // FIXME this is to fixed a current workaround that app don't support > 0xff
       if (signedChainId !== validChainId) {
-        throw makeError(`Invalid networkId signature returned. Expected: ${networkId}, Got: ${signedChainId}`, "InvalidNetworkId");
+        throw makeError(
+          `Invalid networkId signature returned. Expected: ${networkId}, Got: ${signedChainId}`,
+          "InvalidNetworkId"
+        );
       }
 
       return `0x${tx.serialize().toString("hex")}`;
@@ -161,14 +188,22 @@ export default function createLedgerSubprovider(
     }
   }
 
-  const subprovider = new HookedWalletSubprovider({
+  if (options.promisify) {
+    return new HookedWalletSubprovider({
+      getAccounts,
+      signPersonalMessage,
+      signTransaction
+    });
+  }
+
+  return new HookedWalletSubprovider({
     getAccounts: callback => {
-      getAccounts()
+      return getAccounts()
         .then(res => callback(null, Object.values(res)))
         .catch(err => callback(err, null));
     },
     signPersonalMessage: (txData, callback) => {
-      signPersonalMessage(txData)
+      return signPersonalMessage(txData)
         .then(res => callback(null, res))
         .catch(err => callback(err, null));
     },
@@ -178,6 +213,4 @@ export default function createLedgerSubprovider(
         .catch(err => callback(err, null));
     }
   });
-
-  return subprovider;
 }

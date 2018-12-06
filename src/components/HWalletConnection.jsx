@@ -53,9 +53,10 @@ const style = {
 @observer
 export default class HWalletConnection extends React.Component {
 
-  constructor() {
-    super();
-    this.derivationPath = "m/44'/60'/0'/0";
+  constructor(props) {
+    super(props);
+    this.derivationPath =  props.wallet === "ledger" ? "44'/60'/0'" : "44'/60'/0'/0/0";
+    this.amount = props.wallet === "ledger" ? 10 : 100;
     this.state = {
       connectivityError: false
     }
@@ -66,7 +67,7 @@ export default class HWalletConnection extends React.Component {
   }
 
   waitForDeviceToConnect = async (derivationPath = this.derivationPath) => {
-    const addresses = await this.props.network.loadHWAddresses(derivationPath);
+    const addresses = await this.props.network.loadHWAddresses(derivationPath, this.amount);
 
     if (!addresses.length) {
       this.setState({connectivityError: true});

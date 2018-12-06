@@ -60,7 +60,7 @@ export default class HWalletAddresses extends React.Component {
   };
 
   loadLegacy = async () => {
-    const accounts = await this.props.network.loadHWAddresses("m/44'/60'/0'");
+    const accounts = await this.props.network.loadHWAddresses("44'/60'/0'/0", 100);
 
     if (accounts.length) {
       this.setState({
@@ -70,7 +70,7 @@ export default class HWalletAddresses extends React.Component {
   }
 
   loadLive = async () => {
-    const accounts = await this.props.network.loadHWAddresses("m/44'/60'/0'/0");
+    const accounts = await this.props.network.loadHWAddresses("44'/60'/0'", 10);
 
     if (accounts.length) {
       this.setState({

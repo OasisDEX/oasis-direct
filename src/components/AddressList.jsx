@@ -4,8 +4,6 @@ import { inject, observer } from "mobx-react";
 
 // UI Components
 import Address from "../components-ui/Address";
-import Pagination from "../components-ui/Pagination";
-import Spinner from "../components-ui/Spinner";
 
 @inject("network")
 @observer
