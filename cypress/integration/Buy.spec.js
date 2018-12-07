@@ -12,7 +12,6 @@ describe('Buying', () => {
   beforeEach(() => {
     cypressVisitWithWeb3();
     cy.get(tid('wallets-continue')).contains('Continue').click();
-    cy.wait(2000);
   });
 
   context('ETH for ERC20', () => {
