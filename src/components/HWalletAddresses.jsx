@@ -22,6 +22,7 @@ export default class HWalletAddresses extends React.Component {
     super();
 
     this.state = {
+      key: 1,
       isLegacy: false,
       isLoadingAddresses: false,
       address: "",
@@ -61,7 +62,7 @@ export default class HWalletAddresses extends React.Component {
   };
 
   loadLegacy = async () => {
-    this.setState({isLoadingAddresses: true});
+    this.setState({isLoadingAddresses: true, key: 2});
     this.props.network.hw.wallet = "ledger-legacy";
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'/0", 100);
 
@@ -78,7 +79,7 @@ export default class HWalletAddresses extends React.Component {
     this.props.network.hw.wallet = "ledger-live";
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'", 10);
 
-    this.setState({isLoadingAddresses: false});
+    this.setState({isLoadingAddresses: false, key: 1});
     if (accounts.length) {
       this.setState({
         isLegacy: false
@@ -123,7 +124,7 @@ export default class HWalletAddresses extends React.Component {
               : <React.Fragment/>
           }
 
-          <Pagination items={this.props.network.hw.addresses} onPage={this.enlist}/>
+          <Pagination key={this.state.key} items={this.props.network.hw.addresses} onPage={this.enlist}/>
         </div>
 
         <button disabled={!this.state.address} onClick={this.importAddress}>
