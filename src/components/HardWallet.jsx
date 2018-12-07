@@ -11,12 +11,13 @@ import HWalletAddresses from "./HWalletAddresses";
 class HardWallet extends React.Component {
   render() {
     const {isConnected, wallet} = this.props.network.hw;
+    const name = wallet.includes("ledger") ? "ledger" : "trezor";
     return (
       isConnected
         ?
-        <HWalletAddresses  wallet={wallet}/>
+        <HWalletAddresses  wallet={name}/>
         :
-        <HWalletConnection wallet={wallet}/>
+        <HWalletConnection wallet={name}/>
     )
   }
 }

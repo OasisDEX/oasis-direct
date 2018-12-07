@@ -62,6 +62,7 @@ export default class HWalletAddresses extends React.Component {
 
   loadLegacy = async () => {
     this.setState({isLoadingAddresses: true});
+    this.props.network.hw.wallet = "ledger-legacy";
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'/0", 100);
 
     this.setState({isLoadingAddresses: false});
@@ -74,6 +75,7 @@ export default class HWalletAddresses extends React.Component {
 
   loadLive = async () => {
     this.setState({isLoadingAddresses: true});
+    this.props.network.hw.wallet = "ledger-live";
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'", 10);
 
     this.setState({isLoadingAddresses: false});
@@ -87,7 +89,7 @@ export default class HWalletAddresses extends React.Component {
   render() {
     return <section className="frame hard-wallet-addresses">
       <div className="heading">
-        <h2>Select <span style={{textTransform: "capitalize"}}>{this.props.device}</span> Wallet</h2>
+        <h2>Select <span style={{textTransform: "capitalize"}}>{this.props.wallet}</span> Wallet</h2>
       </div>
 
       <button className="close" onClick={this.props.network.stopNetwork}/>
@@ -97,7 +99,7 @@ export default class HWalletAddresses extends React.Component {
 
         <div className="row-flex" style={style}>
           {
-            this.props.wallet === "ledger"
+            this.props.wallet.includes("ledger")
               ? <React.Fragment>
                 {
                   this.state.isLegacy
