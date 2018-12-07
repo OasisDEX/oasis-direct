@@ -2,7 +2,7 @@
 import React from "react";
 
 // UI Components
-import {ArrowLeft, ArrowRight, Circle} from "./Icons";
+import { ArrowLeft, ArrowRight, Circle } from "./Icons";
 
 const circularButtonStyle = {
   width: "32px",
@@ -54,11 +54,11 @@ class Pagination extends React.Component {
 
   render = () => (
     <div className="pagination">
-      <span onClick={this.previous}>
-        <Circle styles={circularButtonStyle}><ArrowLeft /></Circle>
+      <span onClick={this.previous} className={this.page.start === 0 ? "disabled" : ""}>
+        <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
       </span>
-      <span onClick={this.next}>
-        <Circle styles={circularButtonStyle}><ArrowRight /></Circle>
+      <span onClick={this.next} className={this.page.end === this.props.items.length ? "disabled" : ""}>
+        <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
       </span>
     </div>
   )

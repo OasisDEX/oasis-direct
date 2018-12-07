@@ -556,6 +556,15 @@
   fill: #6B6B6C;
 }
 
+.disabled .circle-icon {
+  border-color: #EEF1F9;
+}
+
+.disabled .od-icon_right-arrow,
+.disabled .od-icon_left-arrow {
+  fill: #E5E8EF;
+}
+
 .disabled .cogwheel-icon,
 .disabled .back-icon {
   fill: #CCD2E0
