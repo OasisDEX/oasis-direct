@@ -23,6 +23,7 @@ export default class HWalletAddresses extends React.Component {
 
     this.state = {
       isLegacy: false,
+      isLoadingAddresses: false,
       address: "",
       addresses: []
     }
@@ -60,18 +61,22 @@ export default class HWalletAddresses extends React.Component {
   };
 
   loadLegacy = async () => {
+    this.setState({isLoadingAddresses: true});
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'/0", 100);
 
+    this.setState({isLoadingAddresses: false});
     if (accounts.length) {
       this.setState({
-        isLegacy: true
+        isLegacy: true,
       })
     }
   }
 
   loadLive = async () => {
+    this.setState({isLoadingAddresses: true});
     const accounts = await this.props.network.loadHWAddresses("44'/60'/0'", 10);
 
+    this.setState({isLoadingAddresses: false});
     if (accounts.length) {
       this.setState({
         isLegacy: false
@@ -96,8 +101,21 @@ export default class HWalletAddresses extends React.Component {
               ? <React.Fragment>
                 {
                   this.state.isLegacy
-                    ? <button className="light" onClick={this.loadLive}> View Live Addresses </button>
-                    : <button className="light" onClick={this.loadLegacy}> View Legacy Addresses </button>
+                    ? <button className="light" onClick={this.loadLive}>
+                      {
+                        this.state.isLoadingAddresses
+                          ? <Spinner/>
+                          : "View Live Addresses"
+                      }
+
+                    </button>
+                    : <button className="light" onClick={this.loadLegacy}>
+                      {
+                        this.state.isLoadingAddresses
+                          ? <Spinner/>
+                          : "View Legacy Addresses"
+                      }
+                    </button>
                 }
               </React.Fragment>
               : <React.Fragment/>
