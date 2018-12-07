@@ -19,7 +19,9 @@ class ActiveConnection extends React.Component {
 
   disconnect = () => {
     this.props.system.reset();
-    this.props.system.stopPriceTicker();
+    if(this.props.system.stopPriceTicker) {
+      this.props.system.stopPriceTicker();
+    }
     this.props.network.stopNetwork();
   }
 

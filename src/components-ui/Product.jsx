@@ -7,8 +7,14 @@ export default class extends React.Component {
 
     return (
       <div className={`product-cover ${this.props.className || ""}`} onClick={this.props.disabled ? () => false : this.props.onClick}>
-        <span className="logo"><Logo/></span>
-        <span className="label">{this.props.label}</span>
+        {
+          this.props.logo &&
+          <span className="logo"><Logo/></span>
+        }
+        {
+          this.props.label &&
+          <span className="label">{this.props.label}</span>
+        }
       </div>
     )
   }

@@ -113,7 +113,7 @@ export default class SystemStore {
             }
             catch (e) {
               console.error(e);
-              clearInterval(this.priceTicker);
+              this.stopPriceTicker();
             }
           }, settings.priceTickerInterval);
         }
