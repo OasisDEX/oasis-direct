@@ -56,6 +56,11 @@ export default class GasQuoteStore {
             });
       });
     return estimate.then(price => {
+      const txInProgress = (this.rootStore.system.trade.txs || []).length > 0
+      if (txInProgress) {
+        return;
+      }
+      
       this.priceList = {
         [GAS_PRICE_LEVELS.HIGH]: {
           level: GAS_PRICE_LEVELS.HIGH,

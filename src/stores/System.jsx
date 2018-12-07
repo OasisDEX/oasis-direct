@@ -67,7 +67,14 @@ export default class SystemStore {
       price => {
         this.gasPrice = toBigNumber(price);
         this.recalculate();
-      }
+      }, {
+        equals: (a, b) => {
+          if (!a.equals) {
+            return a === b;
+          }
+          return a.equals(b);
+        }
+      }	      
     )
 
     reaction(
@@ -117,8 +124,12 @@ export default class SystemStore {
             }
           }, settings.priceTickerInterval);
         }
-      }
-    )
+      }, {
+        equals: (a, b) => {
+          return a.equals(b);
+        }
+      }	  
+    )    
   }
 
   @computed
