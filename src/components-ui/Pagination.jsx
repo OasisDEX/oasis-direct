@@ -8,7 +8,7 @@ const circularButtonStyle = {
   width: "32px",
   height: "32px",
   padding: "5px",
-  marginLeft: "16px"
+  marginLeft: "8px"
 };
 
 class Pagination extends React.Component {
@@ -55,10 +55,10 @@ class Pagination extends React.Component {
   render = () => (
     <div className="pagination">
       <span onClick={this.previous} className={this.page.start === 0 ? "disabled" : ""}>
-        <Circle styles={circularButtonStyle}><ArrowLeft/></Circle>
+        <Circle hover={true} styles={circularButtonStyle}><ArrowLeft/></Circle>
       </span>
       <span onClick={this.next} className={this.page.end === this.props.items.length ? "disabled" : ""}>
-        <Circle styles={circularButtonStyle}><ArrowRight/></Circle>
+        <Circle hover={true} styles={circularButtonStyle}><ArrowRight/></Circle>
       </span>
     </div>
   )
