@@ -556,7 +556,7 @@
   fill: #6B6B6C;
 }
 
-.disabled .circle-icon {
+.disabled .circle-icon,.disabled .circle-icon:hover {
   border-color: #EEF1F9;
 }
 
