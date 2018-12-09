@@ -1,4 +1,4 @@
-import { cypressVisitWithWeb3, tid } from '../utils';
+import { cypressVisitApp, tid } from '../utils';
 import Trade from '../pages/Trade';
 import { ERRORS } from "../../src/utils/errors";
 import settings from '../../src/settings';
@@ -8,11 +8,7 @@ const nextTrade = () => {
 };
 
 describe('Selling', () => {
-  beforeEach(() => {
-    cypressVisitWithWeb3();
-    cy.get(tid('wallets-continue')).contains('Continue').click();
-    cy.wait(2000);
-  });
+  beforeEach(cypressVisitApp);
 
   context('ETH for ERC20 ', () => {
     it('without proxy', () => {

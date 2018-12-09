@@ -34,6 +34,12 @@ export function cypressVisitWithWeb3(path = "") {
     });
 }
 
+export function cypressVisitApp() {
+  cypressVisitWithWeb3();
+  cy.get(tid('wallets-continue')).contains('Continue').click();
+  cy.wait(2000);
+}
+
 // helper to generate quickly selector for data-test-ids
 export function tid(id, rest = "") {
   return `[data-test-id="${id}"]` + (rest ? ` ${rest}` : "");

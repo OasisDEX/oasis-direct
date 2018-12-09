@@ -1,11 +1,10 @@
-import { cypressVisitWithWeb3, tid } from "../utils";
+import { cypressVisitApp, tid } from "../utils";
 import Session from "../pages/Session";
 import Proxy from "../pages/Proxy";
 
 context('Proxy', () => {
   beforeEach(() => {
-    cypressVisitWithWeb3();
-    cy.get(tid('wallets-continue')).contains('Continue').click();
+    cypressVisitApp();
     Session.settings();
   });
 
