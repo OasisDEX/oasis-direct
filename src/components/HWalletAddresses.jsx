@@ -56,6 +56,7 @@ export default class HWalletAddresses extends React.Component {
   enlist = addresses => {
     this.setState(prevState => {
       const state = {...prevState};
+      state.address = "";
       state.addresses = addresses;
       return state;
     });
