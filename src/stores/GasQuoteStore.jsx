@@ -1,4 +1,4 @@
-import { action, autorun, observable, reaction } from "mobx";
+import { action, autorun, observable, reaction, computed } from "mobx";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
 import { fromWei, getGasPriceFromETHGasStation, toBigNumber, toWei } from "../utils/helpers";
 import * as blockchain from "../utils/blockchain";
@@ -9,6 +9,10 @@ export default class GasQuoteStore {
   @observable priceList = [];
   @observable customPrice = 0;
   @observable selected = {level: GAS_PRICE_LEVELS.CUSTOM, price: 0};
+
+  @computed get isReady() {
+    return this.priceList.length !== 0
+  }
 
   constructor(rootStore) {
     this.rootStore = rootStore;

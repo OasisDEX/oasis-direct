@@ -19,6 +19,7 @@ import { PriceImpactWarning } from "./PriceImpactWarning";
 
 @inject("network")
 @inject("system")
+@inject("quotes")
 @observer
 class SetTrade extends React.Component {
   constructor(props) {
@@ -342,7 +343,7 @@ class SetTrade extends React.Component {
           }
           <button data-test-id="initiate-trade"
                   type="button" value="Start transaction" className="start" onClick={this.nextStep}
-                  disabled={this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy || this.props.system.trade.errorOrders || this.props.system.trade.amountBuy.eq(0) || this.props.system.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms}>
+                  disabled={this.props.system.trade.errorInputSell || this.props.system.trade.errorInputBuy || this.props.system.trade.errorOrders || this.props.system.trade.amountBuy.eq(0) || this.props.system.trade.amountPay.eq(0) || !this.state.hasAcceptedTerms || !this.props.quotes.isReady}>
             START TRANSACTION
           </button>
         </section>
