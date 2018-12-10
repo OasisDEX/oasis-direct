@@ -17,7 +17,7 @@ export default class NetworkStore {
   @observable network = "";
   @observable outOfSync = true;
   @observable isHw = false;
-  @observable hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null, cache: {}};
+  @observable hw = {active: false, showSelector: false, wallet: null, derivationPath: null, addresses: [], loading: false, error: null, cache: {}};
   @observable downloadClient = false;
 
   constructor(rootStore) {
@@ -45,13 +45,14 @@ export default class NetworkStore {
     clearInterval(this.setAccountInterval);
     clearInterval(this.setNetworkInterval);
     this.network = "";
-    this.hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
+    this.hw = {active: false, showSelector: false, wallet: null, derivationPath: null, addresses: [], loading: false, error: null, cache:{}};
     this.accounts = [];
     this.defaultAccount = null;
     this.isConnected = false;
     this.latestBlock = null;
     this.outOfSync = true;
     this.isHw = false;
+    console.log(this.hw);
   }
 
   setAccount = () => {
