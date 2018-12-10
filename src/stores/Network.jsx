@@ -52,7 +52,6 @@ export default class NetworkStore {
     this.latestBlock = null;
     this.outOfSync = true;
     this.isHw = false;
-    console.log(this.hw);
   }
 
   setAccount = () => {
