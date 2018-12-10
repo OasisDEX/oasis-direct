@@ -317,7 +317,7 @@ export default class SystemStore {
 
       proxy.execute["address,bytes"](...params.concat([{
         value: data.value,
-        gas: gas+1000000, // TODO: Figure out a way to estimate the gas precisely. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
+        gas: fixGasCalc(gas),
         gasPrice: this.gasPrice
       }, (e, tx) => {
         if (!e) {
@@ -353,7 +353,7 @@ export default class SystemStore {
       );
 
       proxyCreateAndExecute[data.method](...data.params.concat([{
-        gas: gas+1000000, // TODO: Figure out a way to estimate the gas precisely. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
+        gas: fixGasCalc(gas),
         value: data.value,
         gasPrice: this.gasPrice
       }, (e, tx) => {
@@ -718,7 +718,6 @@ export default class SystemStore {
     return totalCosts;
   };
 
-
   roughTradeCost = async (operation, tok1, amountTok1, tok2) => {
     const [ordersCount, hasPartiallyFilled] = await oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2);
     const gasCost = ordersCount.times(136500).add(hasPartiallyFilled ? 70000 : 0).add(141100);
@@ -728,4 +727,10 @@ export default class SystemStore {
   };
 
   calculateGasCostOf = async ({to, data, value = 0, from}) => this.gasPrice.times(await blockchain.estimateGas(to, data, value, from));
+}
+
+function fixGasCalc(gas) {
+  // Ganache gas estimation is wrong. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
+  // To avoid this we add big constant value
+  return gas + process.env.OASIS_GANACHE_COMPATIBILITY === "1" ? 1000000 : 0;
 }

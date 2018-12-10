@@ -57,9 +57,9 @@
     "whatwg-fetch": "2.0.3"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "REACT_APP_ENV='prod' node scripts/build.js",
-    "build:test": "REACT_APP_ENV='test' node scripts/build.js",
+    "start": "OASIS_ALLOWED_TOKENS=mkr,dai,eth node scripts/start.js",
+    "build": "OASIS_ALLOWED_TOKENS=mkr,dai,eth REACT_APP_ENV='prod' node scripts/build.js",
+    "build:test": "OASIS_GANACHE_COMPATIBILITY=1 OASIS_ALLOWED_TOKENS=mkr,dai,eth REACT_APP_ENV='test' node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "deploy:stage": "npm run build && surge ./build/ https://stage-oasis-direct.surge.sh",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
