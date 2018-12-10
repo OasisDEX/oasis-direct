@@ -933,6 +933,8 @@ button.back {
 
   background: transparent;
   border: transparent;
+
+  z-index: 5;
 }
 
 button.back:hover {

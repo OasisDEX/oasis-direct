@@ -42,34 +42,29 @@
   border: 0;
 }
 
-.wallets .clients {
-  justify-content: center;
-}
-
-.wallets .clients:first-child {
-  margin-bottom: 42px;
-}
-
 .wallets .clients .heading {
   margin-bottom: 20px;
 }
 
 .wallets .list {
   display: flex;
-  flex-direction: column;
   margin: auto;
   width: 100%;
 }
 
-.wallets .hw-wallet:hover {
+.wallets .list .list-item {
+  justify-content: flex-start;
+}
+
+.wallets .product:hover {
   border-color: #C7D1EB;
 }
 
-.wallets .hw-wallet:hover .label {
+.wallets .product:hover .label {
   color: #8B8B8C;
 }
 
-.wallets .hw-wallet:hover .logo  svg *{
+.wallets .product:hover .logo svg *:not(.ornament) {
   fill: #8B8B8C;
 }
 
@@ -142,7 +137,7 @@
   padding: 0 15px;
   max-height: 28px;
   border-radius: 3px;
-  box-shadow: 0 0 2px 0 rgba(0,0,0,0.15);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.15);
   font-weight: 500;
   font-size: 12px;
   letter-spacing: 0.2px;
@@ -151,6 +146,30 @@
 .wallets .browser-wallet button:hover {
   background-color: #337EFF;
   border: 1px solid #376ECC;
-  box-shadow: 0 0 2px 0 rgba(0,0,0,0.25);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.25);
+}
 
+.wallets .clients {
+  margin-left: 24px;
+  flex: 1 1 100%;
+}
+
+.wallets .clients a {
+  margin-bottom: 20px;
+}
+
+.wallets .clients a:last-child {
+  margin-bottom: 0;
+}
+
+.wallets .clients:first-child {
+  margin: 0;
+}
+
+.wallets .clients .product-cover {
+  height: 60px;
+}
+
+.wallets .clients .column-flex {
+  width: 100%;
 }

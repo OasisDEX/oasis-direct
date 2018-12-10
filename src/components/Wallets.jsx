@@ -5,7 +5,7 @@ import {inject, observer} from "mobx-react";
 // UI Components
 import {
   LedgerIcon, TrezorIcon, Circle, BackIcon, MetamaskIcon, ParityIcon, CoinbaseIcon,
-  StatusIcon, EthereumIcon, Grayscale, GrayMetamaskIcon
+  StatusIcon, EthereumIcon, Grayscale, SupportedClient, TrustIcon, ImTokenIcon
 } from "../components-ui/Icons";
 import Product from "../components-ui/Product";
 import Spinner from "../components-ui/Spinner";
@@ -17,8 +17,10 @@ const logos = {
   metamask: {icon: <MetamaskIcon/>, name: "Metamask"},
   parity: {icon: <ParityIcon/>, name: "Parity"},
   coinbase: {icon: <CoinbaseIcon/>, name: "Coinbase Wallet"},
-  status: {icon: <StatusIcon/>, name: "Status"}
-}
+  status: {icon: <StatusIcon/>, name: "Status"},
+  trust: {icon: <TrustIcon/>, name: "Trust wallet"},
+  imToken: {icon: <ImTokenIcon/>, name: "imToken"}
+};
 
 @inject("network")
 @observer
@@ -35,7 +37,9 @@ class Wallets extends React.Component {
   }
 
   componentWillMount = () => {
-    if (window.web3) {
+    if(window.ethereum) {
+      this.setState({hasProvider: true, provider: getCurrentProviderName(window.ethereum)});
+    } else if (window.web3) {
       this.setState({hasProvider: true, provider: getCurrentProviderName()});
     }
   }
@@ -88,34 +92,41 @@ class Wallets extends React.Component {
         this.state.shouldDisplayAvailableClients
         ?
           <section className="frame wallets">
-            <div style={{position: "absolute", zIndex: 2, top: "18px"}} onClick={this.getToClientSelection}>
+            <button className="back" onClick={this.getToClientSelection}>
               <Circle hover={true}><BackIcon/></Circle>
+            </button>
+            <div className="heading">
+              <h2>Available Clients</h2>
             </div>
+
             <div className="decorator">
-              <ul className="list">
+              <ul className="list row-flex">
                 <li className="list-item column-flex clients">
                   <div className="heading">
-                    <h2>Desktop Clients</h2>
+                    <h2>Desktop</h2>
                   </div>
-                  <div className="row-flex">
+                  <div className="column-flex">
                     <a href="https://metamask.io/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Metamask" logo={GrayMetamaskIcon}/>
+                      <Product className="product" logo={SupportedClient.METAMASK}/>
                     </a>
                     <a href="https://www.parity.io/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Parity" logo={this.grayScale(ParityIcon)}/>
+                      <Product className="product" logo={SupportedClient.PARITY}/>
                     </a>
                   </div>
                 </li>
                 <li className="list-item column-flex clients">
                   <div className="heading">
-                    <h2>Mobile Clients</h2>
+                    <h2>Mobile</h2>
                   </div>
-                  <div className="row-flex">
+                  <div className="column-flex">
                     <a href="https://status.im/" target="_blank" rel="noopener noreferrer">
-                      <Product label="Status" logo={this.grayScale(StatusIcon)}/>
+                      <Product className="product" logo={SupportedClient.STATUS}/>
+                    </a>
+                    <a href="https://trustwallet.com/" target="_blank" rel="noopener noreferrer">
+                      <Product className="product" logo={SupportedClient.TRUST}/>
                     </a>
                     <a href="https://wallet.coinbase.com" target="_blank" rel="noopener noreferrer">
-                      <Product label="Coinbase Wallet" logo={this.grayScale(CoinbaseIcon)}/>
+                      <Product className="product" logo={SupportedClient.COINBASE}/>
                     </a>
                   </div>
                 </li>
@@ -129,7 +140,7 @@ class Wallets extends React.Component {
             </div>
             <div className="decorator">
               <div className="content">
-                <ul className="list">
+                <ul className="list column-flex">
                   <li className="list-item">
                     <div className="browser-wallet">
                       {
@@ -137,7 +148,7 @@ class Wallets extends React.Component {
                         ?
                           <React.Fragment>
                             <div className="client-summary">
-                              {this.logoFor(getCurrentProviderName())}
+                              {this.logoFor(this.state.provider)}
                               <div>
                                 <span className="label status" data-test-id="wallets-connection-status">Connected</span>
                                 <span className="label" data-test-id="wallets-name" >{logos[this.state.provider] ? logos[this.state.provider].name : this.state.provider}</span>
@@ -165,9 +176,9 @@ class Wallets extends React.Component {
                   </li>
                   <li className="list-item">
                     <div className="row-flex">
-                      <Product className="hw-wallet" label="Ledger" logo={LedgerIcon} disabled={this.props.network.loadingAddress}
+                      <Product className="product" label="Ledger" logo={LedgerIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectLedger}/>
-                      <Product className="hw-wallet" label="Trezor" logo={TrezorIcon} disabled={this.props.network.loadingAddress}
+                      <Product className="product" label="Trezor" logo={TrezorIcon} disabled={this.props.network.loadingAddress}
                                onClick={this.connectTrezor}/>
                     </div>
                   </li>

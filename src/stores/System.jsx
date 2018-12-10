@@ -81,7 +81,7 @@ export default class SystemStore {
       () => this.trade.price,
       price => {
         if (price.gt(0)) {
-          if(this.stopPriceTicker){
+          if (this.stopPriceTicker) {
             this.stopPriceTicker();
           }
 
@@ -118,9 +118,9 @@ export default class SystemStore {
                 }
               }
             }
-            catch(e) {
+            catch (e) {
               console.error(e);
-              clearInterval(this.priceTicker);
+              this.stopPriceTicker();
             }
           }, settings.priceTickerInterval);
         }
@@ -633,139 +633,96 @@ export default class SystemStore {
   };
 
   estimateAllGasCosts = async (operation, from, to, amount, rand) => {
+    const account = this.rootStore.network.defaultAccount;
+    const proxy = this.rootStore.profile.proxy;
+    const network = this.rootStore.network.network;
+    const proxyRegistry = blockchain.objects.proxyRegistry;
+    const proxyCreationAndExecute = settings.chain[network].proxyCreationAndExecute;
+
     let hasAllowance = true;
     let action = null;
     let data = null;
-    let target = null;
-    let addrFrom = null;
-    const txs = [];
-    const promises = [];
+    const operations = [];
 
     if (from !== "eth") {
-      hasAllowance = this.rootStore.profile.proxy &&
-        (await blockchain.getTokenTrusted(from, this.rootStore.network.defaultAccount, this.rootStore.profile.proxy) ||
-          (await blockchain.getTokenAllowance(from, this.rootStore.network.defaultAccount, this.rootStore.profile.proxy)).gt(toWei(amount)));
+      hasAllowance = proxy &&
+        (await blockchain.getTokenTrusted(from, account, proxy) ||
+          (await blockchain.getTokenAllowance(from, account, proxy)).gt(toWei(amount)));
 
       if (!hasAllowance) {
-        if (!this.rootStore.profile.proxy) {
-          txs.push({
-            to: blockchain.objects.proxyRegistry.address,
-            data: blockchain.objects.proxyRegistry.build.getData(),
+        if (!proxy) {
+          operations.push(this.calculateGasCostOf({
+            to: proxyRegistry.address,
+            data: proxyRegistry.build.getData(),
             value: 0,
-            from: this.rootStore.network.defaultAccount
-          });
+            from: account
+          }));
         }
-        txs.push({
+        operations.push(this.calculateGasCostOf({
           to: blockchain.objects[from].address,
-          data: blockchain.objects[from].approve.getData(this.rootStore.profile.proxy ? this.rootStore.profile.proxy : "0x0000000000000000000000000000000000000000", -1),
+          data: blockchain.objects[from].approve.getData(proxy ? proxy : "0x0000000000000000000000000000000000000000", -1),
           value: 0,
-          from: this.rootStore.network.defaultAccount
-        });
+          from: account
+        }));
       }
     }
 
     const limit = operation === TRADE_OPERATIONS.SELL_ALL ? 0 : toWei(9999999);
-    if (this.rootStore.profile.proxy || from !== "eth") {
-      if (from !== "eth" && (!this.rootStore.profile.proxy || !hasAllowance)) {
+    if (proxy || from !== "eth") {
+      if (from !== "eth" && (!proxy || !hasAllowance)) {
         if (operation === TRADE_OPERATIONS.SELL_ALL) {
-          promises.push(this.roughTradeCost("SellAll", from, amount, to));
+          operations.push(this.roughTradeCost("SellAll", from, amount, to));
         } else {
-          promises.push(this.roughTradeCost("BuyAll", to, amount, from));
+          operations.push(this.roughTradeCost("BuyAll", to, amount, from));
         }
       } else {
-        target = this.rootStore.profile.proxy;
-        addrFrom = this.rootStore.network.defaultAccount;
-        action = oasis.getCallDataAndValue(this.rootStore.network.network, operation, from, to, amount, limit);
-        data = blockchain.loadObject("dsproxy", target).execute["address,bytes"].getData(
-          settings.chain[this.rootStore.network.network].proxyContracts.oasisDirect,
+        action = oasis.getCallDataAndValue(network, operation, from, to, amount, limit);
+        data = blockchain.loadObject("dsproxy", proxy).execute["address,bytes"].getData(
+          settings.chain[network].proxyContracts.oasisDirect,
           action.calldata
         );
 
-        txs.push({
-          to: target,
+        operations.push(this.calculateGasCostOf({
+          to: proxy,
           data,
-          value: action.value ? action.value : 0,
-          from: addrFrom
-        });
+          value: action.value, // there might be cases where value can be undefined but calculateGasCost function will handle it by assigning 0
+          from: account
+        }));
       }
     } else {
-      target = settings.chain[this.rootStore.network.network].proxyCreationAndExecute;
-      addrFrom = this.rootStore.network.defaultAccount;
-      action = oasis.getActionCreateProxyAndSellETH(this.rootStore.network.network, operation, to, amount, limit);
-      data = blockchain.loadObject("proxycreateandexecute", target)[action.method].getData(...action.params);
+      action = oasis.getActionCreateProxyAndSellETH(network, operation, to, amount, limit);
+      data = blockchain.loadObject("proxycreateandexecute", proxyCreationAndExecute)[action.method].getData(...action.params);
 
-      txs.push({
-        to: target,
+      operations.push(this.calculateGasCostOf({
+        to: proxyCreationAndExecute,
         data,
-        value: action.value ? action.value : 0,
-        from: addrFrom
-      });
+        value: action.value, // there might be cases where value can be undefined but calculateGasCost function will handle it by assigning 0
+        from: account
+      }));
     }
 
-    return await this.saveCost(txs, promises, rand);
-  }
-
-  saveCost = (txs = [], promises, rand) => {
-    let total = toBigNumber(0);
-    txs.forEach(tx => {
-      promises.push(this.calculateCost(tx.to, tx.data, tx.value, tx.from));
-    });
-    return Promise.all(promises).then(costs => {
-      costs.forEach(cost => {
-        total = total.add(cost);
+    const totalCosts = await Promise.all(operations)
+      .then(costs => {
+        return costs.reduce((total, currentCost) => total.add(currentCost), toBigNumber(0))
       });
-      if (this.trade.rand === rand) {
-        this.trade.txCost = fromWei(total);
-      }
-      console.log("Total cost:", fromWei(total).valueOf(), " ETH")
-      return total;
-    })
-  }
 
-  roughTradeCost = (operation, tok1, amountTok1, tok2) => {
-    return new Promise((resolve, reject) => {
-      Promise.all(
-        [
-          oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2),
-          this.gasPrice
-        ]
-      ).then(r => {
-          // 150K gas as base cost
-          // 133K per each complete offer taken
-          // 70K if partially order taken
-          const gasCost = r[0][0].times(136500).add(r[0][1] ? 70000 : 0).add(141100);
-          console.log("Rough trade cost:", gasCost.valueOf(), "gas")
-          console.log("Rough trade gas Price:", r[1].valueOf(), "Gwei")
-          resolve(r[1].times(gasCost));
-        },
-        e => reject(e)
-      );
-    });
-  }
+    if (this.trade.rand === rand) {
+      this.trade.txCost = fromWei(totalCosts);
 
-  calculateCost = (to, data, value = 0, from) => {
-    return new Promise((resolve, reject) => {
-      console.log("Calculating cost...");
+      console.log("Total cost:", this.trade.txCost.valueOf(), " ETH")
+    }
 
-      blockchain.estimateGas(to, data, value, from).then(gas => {
-        console.log(to, data, value, from);
-        console.log(gas, this.gasPrice.valueOf());
+    return totalCosts;
+  };
 
-        if (data === "0x8e1a55fc") {
-          console.log("Create proxy cost:", gas.toString(), "gas");
-          console.log("Create proxy gas Price:", this.gasPrice.valueOf(), "Gwei");
-        } else if (data.substr(0, 10) === "0x095ea7b3") {
-          console.log("Approve cost:", gas.toString(), "gas");
-          console.log("Approve gas Price:", this.gasPrice.valueOf(), "Gwei");
-        } else {
-          console.log("Trade cost:", gas.toString(), "gas");
-          console.log("Trade gas Price:", this.gasPrice.valueOf(), "Gwei");
-        }
 
-        resolve(this.gasPrice.times(gas));
-      }, e => {
-        reject(e);
-      });
-    });
-  }
+  roughTradeCost = async (operation, tok1, amountTok1, tok2) => {
+    const [ordersCount, hasPartiallyFilled] = await oasis.roughTradeCost(this.rootStore.network.network, operation, tok1, amountTok1, tok2);
+    const gasCost = ordersCount.times(136500).add(hasPartiallyFilled ? 70000 : 0).add(141100);
+    console.log("Rough trade cost:", gasCost.valueOf(), "gas");
+    console.log("Rough trade gas Price:", this.gasPrice.valueOf(), "Gwei");
+    return this.gasPrice.times(gasCost);
+  };
+
+  calculateGasCostOf = async ({to, data, value = 0, from}) => this.gasPrice.times(await blockchain.estimateGas(to, data, value, from));
 }

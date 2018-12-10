@@ -1,6 +1,5 @@
 // Libraries
 import React from "react";
-import {Link} from "react-router-dom";
 
 // UI Components
 import LinksGroup from "../components-ui/LinksGroup";
@@ -63,7 +62,7 @@ const LandingPage = props => (
     <section>
       <header className="Container">
         <div className="Logo Logo--no-margin">
-          <Link to="/"><Logo/></Link>
+          <a href="/"><Logo/></a>
         </div>
       </header>
     </section>
