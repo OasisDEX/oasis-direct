@@ -7,6 +7,7 @@ cd ../../
 server_pid=$!
 
 yarn cypress:run:ci
-yarn metamask-e2e:run
+# disable metamask tests since they are not stable
+# yarn metamask-e2e:run
 
 kill -9 $server_pid

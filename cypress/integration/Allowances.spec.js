@@ -1,4 +1,4 @@
-import { cypressVisitWithWeb3, tid } from '../utils';
+import { cypressVisitApp, tid } from '../utils';
 import Proxy from "../pages/Proxy";
 import Session from "../pages/Session";
 import Allowance from "../pages/Allowance";
@@ -6,8 +6,7 @@ import Allowance from "../pages/Allowance";
 describe('Allowance', () => {
 
   beforeEach(() => {
-    cypressVisitWithWeb3();
-    cy.get(tid('wallets-continue')).contains('Continue').click();
+    cypressVisitApp();
     Session.settings();
     Proxy.create();
     Allowance.open();
