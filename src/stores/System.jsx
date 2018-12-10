@@ -68,6 +68,7 @@ export default class SystemStore {
         this.gasPrice = toBigNumber(price);
         this.recalculate();
       }, {
+        // we want to avoid recomputation if values are the same
         equals: (a, b) => {
           // sometimes it's not a bignumber instance. In this case we fallback to strict equality check.
           // I couldn't trace why it's sometimes just a number so this is just a ugly workaround (KK)
