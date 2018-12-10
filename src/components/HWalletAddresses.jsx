@@ -70,6 +70,7 @@ export default class HWalletAddresses extends React.Component {
     this.setState({isLoadingAddresses: false});
     if (accounts.length) {
       this.setState({
+        address:"",
         isLegacy: true,
       })
     }
@@ -83,6 +84,7 @@ export default class HWalletAddresses extends React.Component {
     this.setState({isLoadingAddresses: false, key: 1});
     if (accounts.length) {
       this.setState({
+        address:"",
         isLegacy: false
       })
     }

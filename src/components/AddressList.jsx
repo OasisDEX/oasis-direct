@@ -26,6 +26,12 @@ class AddressList extends React.Component {
     });
   };
 
+  componentDidUpdate = (prevProps) => {
+    if(prevProps.addresses !== this.props.addresses){
+      this.setState({selectedAddress: null});
+    }
+  };
+
   render() {
     return (
       <ul className="list">
