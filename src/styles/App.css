@@ -2,6 +2,18 @@
 @import './HardWallet.css';
 @import '../styles/Product.css';
 
+:focus {
+  outline: none !important;
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .notify-container {
   display: flex;
   flex-direction: column;
@@ -900,7 +912,8 @@ button {
   font-weight: 400;
   letter-spacing: 1.4px;
 
-  cursor: pointer;
+  cursor: auto
+;
 }
 
 button.light {
