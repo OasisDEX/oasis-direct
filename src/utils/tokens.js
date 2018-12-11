@@ -19,7 +19,8 @@ const mkr = {
   name: "Maker"
 };
 
-const tokens = process.env.REACT_APP_ENV === "prod" ? Object.freeze({eth, dai}) : Object.freeze({eth, dai, mkr}, );
+const tokens = process.env.OASIS_HIDE_MKR === "1" ? Object.freeze({eth, dai}) : Object.freeze({eth, dai, mkr}, );
+
 
 export const excludes = (symbol = "") => {
   const symbols = Object.keys(tokens);
@@ -28,7 +29,7 @@ export const excludes = (symbol = "") => {
     return symbols.filter(token => token.toLowerCase() !== symbol.toLowerCase());
   }
 
-  return symbols
+  return symbols;
 };
 
 export default tokens;

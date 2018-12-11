@@ -114,3 +114,10 @@ If you're trying to debug test failure on CI visit [Cypress Dashboard](https://d
 #### CI
 
 Sometimes, you might want to update localnode version used in tests. There is a `LOCALNODE_SHA` in `.circleci/config.yml`. This SHA should match top of the master branch in localnode repository.
+
+## Env variables
+
+```sh
+OASIS_GANACHE_COMPATIBILITY=1                # optional, if enabled we are gonna adjust gas estimations
+OASIS_HIDE_MKR=1                             # optional
+```
