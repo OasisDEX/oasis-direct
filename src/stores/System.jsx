@@ -672,7 +672,7 @@ export default class SystemStore {
 
     const limit = operation === TRADE_OPERATIONS.SELL_ALL ? 0 : toWei(9999999);
     if (proxy || from !== "eth") {
-      if (from !== "eth" && (!proxy || !hasAllowance)) {
+      if (from !== "eth" && (!proxy || !hasAllowance || this.balances[from].lessThan(toWei(amount)))) {
         if (operation === TRADE_OPERATIONS.SELL_ALL) {
           operations.push(this.roughTradeCost("SellAll", from, amount, to));
         } else {
