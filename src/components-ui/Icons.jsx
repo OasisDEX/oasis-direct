@@ -710,15 +710,15 @@ export const PicInPicIcon = () => (
 );
 
 export const ArrowRight = () => (
-  <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <path fill="rgba(73,73,74,0.70)" d="M8.59,16.59L13.17,12L8.59,7.41L10,6l6,6l-6,6L8.59,16.59z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path className="od-icon_right-arrow" fill="rgba(73,73,74,0.70)" d="M8.59,16.59L13.17,12L8.59,7.41L10,6l6,6l-6,6L8.59,16.59z"/>
     <path fill="none" d="M0,0h24v24H0V0z"/>
   </svg>
 )
 
 export const ArrowLeft = () => (
-  <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <path fill="rgba(73,73,74,0.70)" d="M15.41,16.59L10.83,12l4.58-4.59L14,6l-6,6l6,6L15.41,16.59z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path className="od-icon_left-arrow" fill="rgba(73,73,74,0.70)" d="M15.41,16.59L10.83,12l4.58-4.59L14,6l-6,6l6,6L15.41,16.59z"/>
     <path fill="none" d="M0,0h24v24H0V0z"/>
   </svg>
 );

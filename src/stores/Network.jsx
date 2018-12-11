@@ -4,6 +4,8 @@ import {observable} from "mobx";
 // Utils
 import * as blockchain from "../utils/blockchain";
 
+import * as settings from "../settings";
+
 export default class NetworkStore {
   @observable stopIntervals = false;
   @observable loadingAddress = false;
@@ -15,7 +17,7 @@ export default class NetworkStore {
   @observable network = "";
   @observable outOfSync = true;
   @observable isHw = false;
-  @observable hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
+  @observable hw = {active: false, showSelector: false, wallet: null, derivationPath: null, addresses: [], loading: false, error: null, cache: {}};
   @observable downloadClient = false;
 
   constructor(rootStore) {
@@ -43,7 +45,7 @@ export default class NetworkStore {
     clearInterval(this.setAccountInterval);
     clearInterval(this.setNetworkInterval);
     this.network = "";
-    this.hw = {active: false, showSelector: false, option: null, derivationPath: null, addresses: [], loading: false, error: null};
+    this.hw = {active: false, showSelector: false, wallet: null, derivationPath: null, addresses: [], loading: false, error: null, cache:{}};
     this.accounts = [];
     this.defaultAccount = null;
     this.isConnected = false;
@@ -89,8 +91,8 @@ export default class NetworkStore {
   }
 
   // Hardwallets
-  showHW = option => {
-    this.hw.option = option;
+  showHW = wallet => {
+    this.hw.wallet = wallet;
     this.hw.showSelector = true;
   }
 
@@ -98,21 +100,28 @@ export default class NetworkStore {
     this.hw.active = false;
     this.hw.loading = false;
     this.hw.showSelector = false;
-    this.hw.option = "";
+    this.hw.wallet = "";
     this.hw.derivationPath = false;
   }
 
-  loadHWAddresses = async (network, amount, derivationPath = this.hw.derivationPath) => {
+  loadHWAddresses = async (derivationPath = this.hw.derivationPath, amount = 100) => {
+    const { wallet } = this.hw;
     try {
-      await blockchain.setHWProvider(this.hw.option, network, `${derivationPath.replace("m/", "")}/0`, 0, amount);
-      const accounts = await blockchain.getAccounts();
-      this.hw.addresses = accounts;
+      await blockchain.setHWProvider(wallet, settings.hwNetwork, derivationPath, 0, amount);
+
+      if(this.hw.cache[wallet]){
+        this.hw.addresses = this.hw.cache[wallet];
+      } else {
+        this.hw.addresses = await blockchain.getAccounts();
+        this.hw.cache[wallet] = this.hw.addresses;
+      }
+
       this.hw.derivationPath = derivationPath;
       this.hw.isConnected = true;
-      return accounts;
+      return this.hw.addresses;
     } catch (e) {
       blockchain.stopProvider();
-      console.log(`Error connecting ${this.hw.option}`, e.message);
+      console.log(`Error connecting ${wallet}`, e.message);
       return [];
     }
   }

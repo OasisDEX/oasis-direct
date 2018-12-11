@@ -2,13 +2,13 @@
 import React from "react";
 
 // UI Components
-import {ArrowLeft, ArrowRight, Circle} from "./Icons";
+import { ArrowLeft, ArrowRight, Circle } from "./Icons";
 
 const circularButtonStyle = {
   width: "32px",
   height: "32px",
   padding: "5px",
-  marginLeft: "16px"
+  marginLeft: "8px"
 };
 
 class Pagination extends React.Component {
@@ -34,7 +34,7 @@ class Pagination extends React.Component {
       end: nextPage
     };
 
-    this.props.enlist(this.props.items.slice(this.page.start, this.page.end));
+    this.props.onPage(this.props.items.slice(this.page.start, this.page.end));
   };
 
   previous = () => {
@@ -48,17 +48,17 @@ class Pagination extends React.Component {
       end: start
     };
 
-    this.props.enlist(this.props.items.slice(this.page.start, this.page.end));
+    this.props.onPage(this.props.items.slice(this.page.start, this.page.end));
   };
 
 
   render = () => (
-    <div className="pagination">
-      <span onClick={this.previous}>
-        <Circle styles={circularButtonStyle}><ArrowLeft /></Circle>
+    <div className="no-select pagination">
+      <span onClick={this.previous}  onDoubleClick={this.crashAndBurn} className={this.page.start === 0 ? "disabled" : ""}>
+        <Circle hover={true} styles={circularButtonStyle}><ArrowLeft/></Circle>
       </span>
-      <span onClick={this.next}>
-        <Circle styles={circularButtonStyle}><ArrowRight /></Circle>
+      <span onClick={this.next}  className={this.page.end === this.props.items.length ? "disabled" : ""}>
+        <Circle hover={true} styles={circularButtonStyle}><ArrowRight/></Circle>
       </span>
     </div>
   )

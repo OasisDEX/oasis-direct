@@ -53,9 +53,16 @@
 
 .hard-wallet-addresses .content .pagination {
   display: flex;
+  max-width: 50%;
   width: 100%;
   justify-content: flex-end;
-  margin-top: 12px;
+}
+
+.hard-wallet-addresses .content button.light {
+  font-size: 12px;
+  letter-spacing: 1px;
+  max-width: 50%;
+  height: 32px;
 }
 
 .hard-wallet .progress {

@@ -59,7 +59,7 @@ class Web3Extended extends Web3 {
       try {
         const networkId = network === "main" ? 1 : (network === "kovan" ? 42 : "");
         this.setProvider(new Web3ProviderEngine());
-        const hwWalletSubProvider = device === "ledger"
+        const hwWalletSubProvider = device.includes("ledger")
           ? LedgerSubProvider(async () => await Transport.create(), {networkId, path, accountsOffset, accountsLength})
           : TrezorSubProvider({networkId, path, accountsOffset, accountsLength});
         this.currentProvider.name = device;
