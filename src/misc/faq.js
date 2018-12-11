@@ -27,11 +27,11 @@ const FAQ = [
   },
   {
     question: "Can you list the Slippage Limit for all assets/tokens ?",
-    answer: "Right now the slippage limit is 1% for MKR/ETH and MKR/DAI pairs, and 2% for ETH/DAI pair."
+    answer: "Right now the slippage limit is 2% for ETH/DAI pair."
   },
   {
     question: "Are you going to support more trading pairs in the future ?",
-    answer: "Yes, more trading pairs will be supported in the future. In the beginning the following pairs are available: DAI/ETH, MKR/DAI and ETH/MKR."
+    answer: "Yes, more trading pairs will be supported in the future. In the beginning the following pair is available: DAI/ETH"
   },
   {
     question: "Why do I sometimes need to confirm three transactions, sometimes two transactions, and sometimes only one? ",
@@ -55,7 +55,6 @@ const FAQ = [
       <ul>
          <li>30 DAI</li>
          <li>0.03 ETH</li>
-         <li>0.03 MKR Note that both buy and sell amounts of a transaction need to be above the minimum trade size.</li>
       </ul>
     </pre>
   },

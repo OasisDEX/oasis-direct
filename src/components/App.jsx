@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import * as Blockchain from "../blockchainHandler";
-import { addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice } from '../helpers';
+import {
+  addressToBytes32, toBigNumber, toWei, fromWei, BigNumber, calculateTradePrice,
+  currencyPairCompare
+} from '../helpers';
 import Widget from './Widget';
 import { Logo } from "./Icons";
 import FAQ from "./FAQ";
@@ -93,7 +96,7 @@ class App extends Component {
                 network = 'private';
             }
             if (!this.state.network.stopIntervals // To avoid race condition
-                && this.state.network.network !== network) {
+              && this.state.network.network !== network) {
               this.initNetwork(network);
             }
           }, () => {
@@ -158,7 +161,8 @@ class App extends Component {
           })
         }
       });
-    }, () => {});
+    }, () => {
+    });
   }
 
   componentDidMount = () => {
@@ -204,7 +208,6 @@ class App extends Component {
         }, () => {
           Blockchain.loadObject('dsproxy', this.state.proxy, 'proxy');
           this.setUpToken('weth');
-          this.setUpToken('mkr');
           this.setUpToken('dai');
           // This is necessary to finish transactions that failed after signing
           this.setPendingTxInterval();
@@ -695,7 +698,7 @@ class App extends Component {
 
   doTrade = () => {
     const amount = this.state.trade[this.state.trade.operation === 'sellAll' ? 'amountPay' : 'amountBuy'];
-    const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort((a, b) => a > b).join('')] * 0.01;
+    const threshold = settings.chain[this.state.network.network].threshold[[this.state.trade.from, this.state.trade.to].sort(currencyPairCompare).join('')] * 0.01;
     const limit = toWei(this.state.trade.operation === 'sellAll' ? this.state.trade.amountBuy.times(1 - threshold) : this.state.trade.amountPay.times(1 + threshold)).round(0);
     if (this.state.trade.from === 'eth') {
       this.setState(prevState => {
@@ -1178,10 +1181,23 @@ class App extends Component {
       network.stopIntervals = false;
       return {network};
     }, async () => {
-      await Blockchain.setWebClientProvider();
-      this.checkNetwork();
-      this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
-      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+      const isSet = await Blockchain.setWebClientProvider().catch(_ => {
+        return false;
+      });
+
+      if (isSet) {
+        this.checkNetwork();
+        this.checkAccountsInterval = setInterval(this.checkAccounts, 1000);
+        this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+      } else {
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          network.loadingAddress = false;
+          network.loadingFirstAddress = false;
+          network.stopIntervals = true;
+          return {network};
+        });
+      }
     });
   }
 
@@ -1268,30 +1284,30 @@ class App extends Component {
 
   renderWidget = () => {
     return <Widget isConnected={this.state.network.isConnected}
-            section={this.state.section}
-            network={this.state.network.network}
-            loadingAddress={this.state.network.loadingAddress}
-            loadingFirstAddress={this.state.network.loadingFirstAddress}
-            account={this.state.network.defaultAccount}
-            proxy={this.state.proxy}
-            trade={this.state.trade}
-            balances={this.state.balances}
-            showTxMessage={this.state.showTxMessage}
-            transactions={this.state.transactions}
-            setMainState={this.setMainState}
-            fasterGasPrice={this.fasterGasPrice}
-            doTrade={this.doTrade}
-            reset={this.reset}
-            calculateBuyAmount={this.calculateBuyAmount}
-            calculatePayAmount={this.calculatePayAmount}
-            cleanInputs={this.cleanInputs}
-            setWeb3WebClient={this.setWeb3WebClient}
-            hw={this.state.hw}
-            showHW={this.showHW}
-            showClientChoice={this.showClientChoice}
-            loadHWAddresses={this.loadHWAddresses}
-            selectHWAddress={this.selectHWAddress}
-            importAddress={this.importAddress}/>
+                   section={this.state.section}
+                   network={this.state.network.network}
+                   loadingAddress={this.state.network.loadingAddress}
+                   loadingFirstAddress={this.state.network.loadingFirstAddress}
+                   account={this.state.network.defaultAccount}
+                   proxy={this.state.proxy}
+                   trade={this.state.trade}
+                   balances={this.state.balances}
+                   showTxMessage={this.state.showTxMessage}
+                   transactions={this.state.transactions}
+                   setMainState={this.setMainState}
+                   fasterGasPrice={this.fasterGasPrice}
+                   doTrade={this.doTrade}
+                   reset={this.reset}
+                   calculateBuyAmount={this.calculateBuyAmount}
+                   calculatePayAmount={this.calculatePayAmount}
+                   cleanInputs={this.cleanInputs}
+                   setWeb3WebClient={this.setWeb3WebClient}
+                   hw={this.state.hw}
+                   showHW={this.showHW}
+                   showClientChoice={this.showClientChoice}
+                   loadHWAddresses={this.loadHWAddresses}
+                   selectHWAddress={this.selectHWAddress}
+                   importAddress={this.importAddress}/>
   }
 
   render = () => {

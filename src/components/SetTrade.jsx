@@ -3,11 +3,11 @@ import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
-  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
+  Ether, DAI, SwapArrows, IdentityIcon, Circle, Attention,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
-import { fetchETHPriceInUSD, toWei } from '../helpers'
+import { currencyPairCompare, fetchETHPriceInUSD, toWei } from '../helpers'
 import * as Blockchain from "../blockchainHandler";
 
 const settings = require('../settings');
@@ -18,11 +18,6 @@ const tokens = {
     icon: <Ether/>,
     symbol: "ETH",
     name: "Ether",
-  },
-  mkr: {
-    icon: <MKR/>,
-    symbol: "MKR",
-    name: "Maker"
   },
   dai: {
     icon: <DAI/>,
@@ -240,7 +235,7 @@ class SetTrade extends Component {
                             </p>
                           </ReactTooltip>
                         </span>
-                        <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort((a, b) => a > b).join('')]}%</span>
+                        <span className="value">{settings.chain[this.props.network].threshold[[this.state.from, this.state.to].sort(currencyPairCompare).join('')]}%</span>
                       </span>
                       <span style={{paddingTop: "4px", lineHeight: "18px"}} className="holder half holder--spread">
                       <span className="label">Gas cost</span>

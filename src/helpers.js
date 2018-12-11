@@ -145,4 +145,10 @@ export const calculateTradePrice = (tokenSell, amountSell, tokenBuy, amountBuy) 
     {price: amountBuy.div(amountSell), priceUnit: `${tokenSell}/${tokenBuy}`};
 }
 
+export const currencyPairCompare = ( firstToken, secondToken ) => {
+  if ( firstToken > secondToken ) return 1;
+  if ( firstToken < secondToken ) return -1;
+  return 0;
+}
+
 export const {toBigNumber , toWei, fromWei, isAddress, BigNumber, toHex} = web3;
