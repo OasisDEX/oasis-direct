@@ -562,7 +562,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: ERRORS.INSUFFICIENT_FUNDS(amountBuy, to),
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountPay, from),
           onTradeSide: `sell`,
         }
       }
