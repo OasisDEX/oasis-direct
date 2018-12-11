@@ -197,20 +197,14 @@ export default function createLedgerSubprovider(
   }
 
   return new HookedWalletSubprovider({
-    getAccounts: callback => {
-      return getAccounts()
+    getAccounts: callback => getAccounts()
         .then(res => callback(null, Object.values(res)))
-        .catch(err => callback(err, null));
-    },
-    signPersonalMessage: (txData, callback) => {
-      return signPersonalMessage(txData)
+        .catch(err => callback(err, null)),
+    signPersonalMessage: (txData, callback) => signPersonalMessage(txData)
         .then(res => callback(null, res))
-        .catch(err => callback(err, null));
-    },
-    signTransaction: (txData, callback) => {
-      signTransaction(txData)
+        .catch(err => callback(err, null)),
+    signTransaction: (txData, callback) => signTransaction(txData)
         .then(res => callback(null, res))
-        .catch(err => callback(err, null));
-    }
+        .catch(err => callback(err, null))
   });
 }
