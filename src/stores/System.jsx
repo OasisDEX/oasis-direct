@@ -732,5 +732,5 @@ export default class SystemStore {
 function fixGasCalc(gas) {
   // Ganache gas estimation is wrong. We are hitting https://github.com/ethereum/go-ethereum/issues/1590
   // To avoid this we add big constant value
-  return gas + process.env.OASIS_GANACHE_COMPATIBILITY === "1" ? 1000000 : 0;
+  return gas + (process.env.OASIS_GANACHE_COMPATIBILITY === "1" ? 1000000 : 0);
 }

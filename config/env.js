@@ -85,15 +85,7 @@ function getClientEnvironment(publicUrl) {
     }, {}),
   };
 
-  checkRequiredEnvironment(raw);
-
   return { raw, stringified };
-}
-
-function checkRequiredEnvironment(env) {
-  if (!env.OASIS_ALLOWED_TOKENS) {
-    throw new Error("OASIS_ALLOWED_TOKENS is required env!");
-  }
 }
 
 module.exports = getClientEnvironment;

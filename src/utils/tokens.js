@@ -19,20 +19,8 @@ const mkr = {
   name: "Maker"
 };
 
-const enabledTokens = { }
+const tokens = process.env.OASIS_HIDE_MKR === "1" ? Object.freeze({eth, dai}) : Object.freeze({eth, dai, mkr}, );
 
-const envEnabledTokens = process.env.OASIS_ALLOWED_TOKENS.split(",")
-if (envEnabledTokens.indexOf("dai")) {
-  enabledTokens.dai = dai;
-}
-if (envEnabledTokens.indexOf("eth")) {
-  enabledTokens.eth = eth;
-}
-if (envEnabledTokens.indexOf("mkr")) {
-  enabledTokens.mkr = mkr;
-}
-
-const tokens = Object.freeze(enabledTokens);
 
 export const excludes = (symbol = "") => {
   const symbols = Object.keys(tokens);

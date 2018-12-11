@@ -118,6 +118,6 @@ Sometimes, you might want to update localnode version used in tests. There is a 
 ## Env variables
 
 ```sh
-OASIS_ALLOWED_TOKENS=mkr,dai,eth
+OASIS_HIDE_MKR=1                   # optional
 OASIS_GANACHE_COMPATIBILITY=1                # optional, if enabled we are gonna adjust gas estimations
 ```
