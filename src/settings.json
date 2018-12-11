@@ -31,8 +31,6 @@
         "oasisDirect": "0x1B2c0f9b05f2ec9f77DeA9CdaEB04c396da5027B"
       },
       "supportMethods": "0x5de139DbBFd47dd1D2cD906348Fd1887135B2804",
-      "addrEstimation": "0xf18938a83cff0ae67dc105155469556d4224c48f",
-      "proxyEstimation": "0x3f8a5254DE521c93Ef094c35a4CBc079EF20f184",
       "fromBlock": 0
     },
     "kovan": {
