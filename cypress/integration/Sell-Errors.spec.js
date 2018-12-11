@@ -1,4 +1,4 @@
-import { cypressVisitApp } from '../utils';
+import { cypressVisitApp, tid } from '../utils';
 import Trade from '../pages/Trade';
 import { ERRORS } from "../../src/utils/errors";
 import settings from '../../src/settings';
@@ -73,6 +73,26 @@ describe("Errors selling", ()=> {
     it('without having enough balance for the deposit token', () => {
       const from = "DAI";
       const to = "ETH";
+
+      const trade = new Trade()
+        .sell(from)(1000)
+        .buy(to)();
+
+      trade.containsError(ERRORS.INSUFFICIENT_FUNDS(1000, from));
+    });
+
+    it('on account with proxy and allowance set and having not enough balance for the deposit token',()=>{
+      const from = 'DAI';
+      const to = 'ETH';
+      const willPay = '70';
+
+      new Trade()
+        .sell(from)(willPay)
+        .buy(to)()
+        .acceptTerms()
+        .execute();
+
+      cy.get(tid('new-trade')).click({timeout: Cypress.env('TRADE_TIMEOUT')});
 
       const trade = new Trade()
         .sell(from)(1000)
