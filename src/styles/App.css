@@ -2,6 +2,18 @@
 @import './HardWallet.css';
 @import '../styles/Product.css';
 
+:focus {
+  outline: none !important;
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .notify-container {
   display: flex;
   flex-direction: column;
@@ -556,6 +568,15 @@
   fill: #6B6B6C;
 }
 
+.disabled .circle-icon,.disabled .circle-icon:hover {
+  border-color: #EEF1F9;
+}
+
+.disabled .od-icon_right-arrow,
+.disabled .od-icon_left-arrow {
+  fill: #E5E8EF;
+}
+
 .disabled .cogwheel-icon,
 .disabled .back-icon {
   fill: #CCD2E0
@@ -891,7 +912,20 @@ button {
   font-weight: 400;
   letter-spacing: 1.4px;
 
-  cursor: pointer;
+  cursor: auto
+;
+}
+
+button.light {
+  background-color: white;
+  border: 1px solid #DEE4F4;
+  color: #777778;
+}
+
+button.light:hover {
+  color:  #656566;
+  background: rgba(222,228,244,0.08);
+  border-color: #C7D1EB;
 }
 
 button:hover {

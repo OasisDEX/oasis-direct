@@ -49,7 +49,7 @@ class Wallets extends React.Component {
   }
 
   connectLedger = () => {
-    this.props.network.showHW("ledger");
+    this.props.network.showHW("ledger-live");
   }
 
   connectTrezor = () => {
