@@ -13,7 +13,7 @@ describe("Errors selling", ()=> {
       const minValue = settings.chain.private.tokens["weth"].minValue;
 
       const trade = new Trade()
-        .sell(from)(0.0004)
+        .sell(from)("0.0004")
         .buy(to)();
 
       trade.containsError(ERRORS.MINIMAL_VALUE(minValue, from));
@@ -26,7 +26,7 @@ describe("Errors selling", ()=> {
       const minValue = settings.chain.private.tokens[to.toLowerCase()].minValue;
 
       const trade = new Trade()
-        .sell(from)(0.0005)
+        .sell(from)("0.0005")
         .buy(to)();
 
       trade.containsError(ERRORS.MINIMAL_VALUE(minValue, to));
@@ -35,12 +35,13 @@ describe("Errors selling", ()=> {
     it('without having enough trade volume for receive token', () => {
       const from = "ETH";
       const to = "DAI";
+      const willPay = 100;
 
       const trade = new Trade()
-        .sell(from)(100)
+        .sell(from)(willPay)
         .buy(to)();
 
-      trade.containsError(`No orders available to sell ${100} ${from}`);
+      trade.containsError(`No orders available to sell ${willPay} ${from}`);
     })
   });
 
@@ -51,7 +52,7 @@ describe("Errors selling", ()=> {
       const minValue = settings.chain.private.tokens["dai"].minValue;
 
       const trade = new Trade()
-        .sell(from)(0.0004)
+        .sell(from)("0.0004")
         .buy(to)();
 
       trade.containsError(ERRORS.MINIMAL_VALUE(minValue, from));
@@ -64,7 +65,7 @@ describe("Errors selling", ()=> {
       const minValue = settings.chain.private.tokens["weth"].minValue;
 
       const trade = new Trade()
-        .sell(from)(0.15)
+        .sell(from)("0.15")
         .buy(to)();
 
       trade.containsError(ERRORS.MINIMAL_VALUE(minValue, to));
@@ -73,12 +74,13 @@ describe("Errors selling", ()=> {
     it('without having enough balance for the deposit token', () => {
       const from = "DAI";
       const to = "ETH";
+      const willPay = "1000";
 
       const trade = new Trade()
-        .sell(from)(1000)
+        .sell(from)(willPay)
         .buy(to)();
 
-      trade.containsError(ERRORS.INSUFFICIENT_FUNDS(1000, from));
+      trade.containsError(ERRORS.INSUFFICIENT_FUNDS(willPay, from));
     });
 
     it('on account with proxy and allowance set and having not enough balance for the deposit token',()=>{
@@ -94,22 +96,25 @@ describe("Errors selling", ()=> {
 
       cy.get(tid('new-trade')).click({timeout: Cypress.env('TRADE_TIMEOUT')});
 
+      const payMore = 1000;
+
       const trade = new Trade()
-        .sell(from)(1000)
+        .sell(from)(payMore)
         .buy(to)();
 
-      trade.containsError(ERRORS.INSUFFICIENT_FUNDS(1000, from));
+      trade.containsError(ERRORS.INSUFFICIENT_FUNDS(payMore, from));
     });
 
     it('without having enough trade volume for receive token', () => {
       const from = "DAI";
       const to = "ETH";
+      const willPay = "3000";
 
       const trade = new Trade()
-        .sell(from)(3000)
+        .sell(from)(willPay)
         .buy(to)();
 
-      trade.containsError(`No orders available to sell ${3000} ${from}`);
+      trade.containsError(`No orders available to sell ${willPay} ${from}`);
     })
   });
 });
