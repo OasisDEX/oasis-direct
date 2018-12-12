@@ -53,8 +53,8 @@ export default class TradeSettings extends Component {
   calculateSlippage = () => {
     const {threshold, trade} = this.props.system;
     return this.props.system.trade.operation === "sellAll"
-      ? toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber()
-      : toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber();
+      ? toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber()
+      : toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber();
   };
 
   currencyPair = () => {
@@ -64,8 +64,10 @@ export default class TradeSettings extends Component {
   };
 
   render() {
-    const {trade, priceImpact, ethPriceInUSD} = this.props.system;
+    const {trade, priceImpact, ethPriceInUSD, threshold} = this.props.system;
     const {network} = this.props.network;
+    const {priceList, selected} = this.props.quotes;
+
     return (
       <div className="frame trade-settings">
         <div className="heading">
@@ -138,15 +140,15 @@ export default class TradeSettings extends Component {
             <div className={`row`} style={{alignItems: `flex-end`}}>
               <div className={`parameter column`}>
                 <label className={`parameter-name`}>Transaction Fee</label>
-                <GasPriceDropdown quotes={this.props.quotes.priceList}
-                                  default={this.props.quotes.selected}
+                <GasPriceDropdown quotes={priceList}
+                                  default={selected}
                                   onSelect={quote => this.changeGasPriceLevel(quote)}/>
               </div>
 
               <div className={`parameter column`}>
                 <div className={`parameter-value`}>
                   <input type="number"
-                         placeholder={this.props.quotes.priceList[this.props.quotes.selected.level].price}
+                         placeholder={priceList[selected.level] ? priceList[selected.level].price : ""}
                          onChange={this.updateCustom}
                          value={this.state.gasPrice}/>
                   <span className={`parameter-unit`}>GWEI</span>
@@ -161,7 +163,7 @@ export default class TradeSettings extends Component {
                   <div className={`parameter-value`}>
                     <input type="number"
                            value={this.state.threshold}
-                           placeholder={this.props.system.threshold}
+                           placeholder={threshold}
                            onChange={this.updateThresholdPercentage}
                     />
                     <span className={`parameter-unit`}>%</span>
@@ -170,13 +172,13 @@ export default class TradeSettings extends Component {
               </div>
             </div>
 
-            <div className={`attention info-box`}>
+            <div  className={`attention info-box`}>
               <Attention className="attention-icon"/>
-              <p className="attention-text">
+              <p data-test-id="slippage-warning" className="attention-text">
                 The transaction will fail (and gas will be spent), if the price of 1
                 <strong> {this.currencyPair().base.toUpperCase()}</strong> is
                 {
-                  this.props.system.trade.operation === "sellAll" ? " higher " : " lower "
+                  trade.operation === "sellAll" ? " lower" : " higher"
                 } than ~{this.calculateSlippage()}
                 <strong> {this.currencyPair().quote.toUpperCase()}</strong>
               </p>

@@ -166,7 +166,7 @@ class SetTrade extends React.Component {
                   : <Circle hover={true}><IdentityIcon address={this.props.network.defaultAccount}/></Circle>
               }
             </span>
-            <span className={`advanced-settings-placeholder ${!this.hasDetails() ? "disabled" : ""}`}
+            <span data-test-id="check-trade-details" className={`advanced-settings-placeholder ${!this.hasDetails() ? "disabled" : ""}`}
                   onClick={this.props.showTradeSettings}>
               <Circle hover={true}>
                 <CogWheel/>
