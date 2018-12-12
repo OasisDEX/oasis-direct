@@ -53,8 +53,8 @@
 
 .hard-wallet-addresses .content .pagination {
   display: flex;
-  max-width: 50%;
-  width: 100%;
+  max-width: 100%;
+  min-width: 50%;
   justify-content: flex-end;
 }
 
