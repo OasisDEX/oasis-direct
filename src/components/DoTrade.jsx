@@ -244,9 +244,7 @@ class DoTrade extends React.Component {
               <a href={this.props.transactions.trade.tx ? `${etherscanUrl(this.props.network.network)}/tx/${this.props.transactions.trade.tx}` : "#action"}
                   target="_blank" rel="noopener noreferrer"
                   className="clickable"
-                  style={{textDecoration: "none"}} >{
-                    console.log(this.props.transactions.approval.gasUsed,this.props.transactions.trade.gasUsed)
-              }
+                  style={{textDecoration: "none"}} >
                 <Congratulation
                   hasCreatedProxy={this.props.system.trade.hasToCreateProxyInTrade}
                   isCalculatingGas={

@@ -450,7 +450,7 @@ export default class SystemStore {
       let givenPrice = calculateTradePrice(this.trade.from, amountPay, this.trade.to, amountBuy);
       const balance = await blockchain.getBalanceOf(from, defaultAccount);
 
-      let costs = await this.estimateAllGasCosts(TRADE_OPERATIONS.SELL_ALL, from, to, amountPay, rand);
+      let costs = await this.estimateAllGasCosts(TRADE_OPERATIONS.SELL_ALL, from, to, amountPay, amountBuy, rand);
 
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
@@ -562,7 +562,7 @@ export default class SystemStore {
       // The user doesn't have enough balance to place the trade
       if (!error && balance.lt(toWei(amountPay))) {
         error = {
-          cause: ERRORS.INSUFFICIENT_FUNDS(amountBuy, to),
+          cause: ERRORS.INSUFFICIENT_FUNDS(amountPay, from),
           onTradeSide: `sell`,
         }
       }
@@ -592,7 +592,7 @@ export default class SystemStore {
         };
       }
 
-      let expenses = await this.estimateAllGasCosts(TRADE_OPERATIONS.BUY_ALL, from, to, amountToBuy, rand);
+      let expenses = await this.estimateAllGasCosts(TRADE_OPERATIONS.BUY_ALL, from, to,amountPay, amountToBuy, rand);
       let ethBalance = balance;
 
       if (this.trade.from === "eth") {
@@ -635,7 +635,8 @@ export default class SystemStore {
     }
   };
 
-  estimateAllGasCosts = async (operation, from, to, amount, rand) => {
+  estimateAllGasCosts = async (operation, from, to, amountPay,amountBuy, rand) => {
+    const amount = operation === TRADE_OPERATIONS.SELL_ALL ? amountPay : amountBuy;
     const account = this.rootStore.network.defaultAccount;
     const proxy = this.rootStore.profile.proxy;
     const network = this.rootStore.network.network;
@@ -672,7 +673,7 @@ export default class SystemStore {
 
     const limit = operation === TRADE_OPERATIONS.SELL_ALL ? 0 : toWei(9999999);
     if (proxy || from !== "eth") {
-      if (from !== "eth" && (!proxy || !hasAllowance)) {
+      if (from !== "eth" && (!proxy || !hasAllowance || this.balances[from].lessThan(toWei(amountPay)))) {
         if (operation === TRADE_OPERATIONS.SELL_ALL) {
           operations.push(this.roughTradeCost("SellAll", from, amount, to));
         } else {

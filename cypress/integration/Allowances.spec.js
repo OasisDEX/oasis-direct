@@ -1,4 +1,4 @@
-import { cypressVisitApp, tid } from '../utils';
+import { cypressVisitApp } from '../utils';
 import Proxy from "../pages/Proxy";
 import Session from "../pages/Session";
 import Allowance from "../pages/Allowance";
