@@ -2,6 +2,7 @@ import { cypressVisitApp, tid } from '../utils';
 import Trade from '../pages/Trade';
 import { ERRORS } from "../../src/utils/errors";
 import settings from '../../src/settings';
+import { formatNumber } from "../../src/utils/helpers";
 
 describe("Errors buying", ()=> {
   beforeEach(cypressVisitApp);
@@ -29,7 +30,7 @@ describe("Errors buying", ()=> {
         .sell(from)()
         .buy(to)(willBuy);
 
-      trade.containsError(`No orders available to buy ${willBuy} ${to}`);
+      trade.containsError(`No orders available to buy ${formatNumber(willBuy,5,false)} ${to}`);
     })
   });
 
@@ -68,7 +69,7 @@ describe("Errors buying", ()=> {
         .sell(from)()
         .buy(to)(willBuy);
 
-      trade.containsError(`No orders available to buy ${willBuy} ${to}`);
+      trade.containsError(`No orders available to buy ${formatNumber(willBuy,5,false)} ${to}`);
     });
 
     it('on account with proxy and allowance set and having not enough balance for the deposit token',()=>{

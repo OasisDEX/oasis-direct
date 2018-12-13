@@ -9,7 +9,7 @@ import Pagination from "../components-ui/Pagination";
 import AddressList from "./AddressList";
 
 const style = {
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
   alignItems: 'center',
   margin: 'auto'
 };
@@ -104,7 +104,7 @@ export default class HWalletAddresses extends React.Component {
         <h2>Select <span style={{textTransform: "capitalize"}}>{this.props.wallet}</span> Wallet</h2>
       </div>
 
-      <button className="close" onClick={this.props.network.stopNetwork}/>
+      <button className="close" disabled={this.state.isLoadingAddresses} onClick={this.props.network.stopNetwork}/>
 
       <div className="content">
         <AddressList onSelect={this.onSelectedAddress} addresses={this.state.addresses}/>

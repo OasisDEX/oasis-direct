@@ -2,6 +2,7 @@ import { cypressVisitApp, tid } from '../utils';
 import Trade from '../pages/Trade';
 import { ERRORS } from "../../src/utils/errors";
 import settings from '../../src/settings';
+import {formatNumber} from "../../src/utils/helpers";
 
 describe("Errors selling", ()=> {
   beforeEach(cypressVisitApp);
@@ -41,7 +42,7 @@ describe("Errors selling", ()=> {
         .sell(from)(willPay)
         .buy(to)();
 
-      trade.containsError(`No orders available to sell ${willPay} ${from}`);
+      trade.containsError(`No orders available to sell ${formatNumber(willPay,5,false)} ${from}`);
     })
   });
 
@@ -114,7 +115,7 @@ describe("Errors selling", ()=> {
         .sell(from)(willPay)
         .buy(to)();
 
-      trade.containsError(`No orders available to sell ${willPay} ${from}`);
+      trade.containsError(`No orders available to sell ${formatNumber(willPay,5,false)} ${from}`);
     })
   });
 });
