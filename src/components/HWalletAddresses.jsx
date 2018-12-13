@@ -9,7 +9,7 @@ import Pagination from "../components-ui/Pagination";
 import AddressList from "./AddressList";
 
 const style = {
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
   alignItems: 'center',
   margin: 'auto'
 };

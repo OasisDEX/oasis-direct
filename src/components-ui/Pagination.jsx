@@ -54,7 +54,7 @@ class Pagination extends React.Component {
 
   render = () => (
     <div className="no-select pagination">
-      <span onClick={this.previous}  onDoubleClick={this.crashAndBurn} className={this.page.start === 0 ? "disabled" : ""}>
+      <span onClick={this.previous}   className={this.page.start === 0 ? "disabled" : ""}>
         <Circle hover={true} styles={circularButtonStyle}><ArrowLeft/></Circle>
       </span>
       <span onClick={this.next}  className={this.page.end === this.props.items.length ? "disabled" : ""}>
