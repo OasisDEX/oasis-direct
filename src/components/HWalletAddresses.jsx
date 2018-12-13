@@ -21,6 +21,8 @@ export default class HWalletAddresses extends React.Component {
   constructor() {
     super();
 
+    this.dispose = null;
+
     this.state = {
       key: 1,
       isLegacy: false,
@@ -32,10 +34,16 @@ export default class HWalletAddresses extends React.Component {
 
   componentWillMount() {
     this.firstPage(this.props.network.hw.addresses);
-    reaction(
+    this.dispose = reaction(
       () => this.props.network.hw.addresses,
       addresses => this.firstPage(addresses)
     )
+  }
+
+  componentWillUnmount() {
+    if(this.dispose){
+      this.dispose();
+    }
   }
 
   firstPage = addresses => {
