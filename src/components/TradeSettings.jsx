@@ -53,9 +53,12 @@ export default class TradeSettings extends Component {
   calculateSlippage = () => {
     const {threshold, trade} = this.props.system;
     const quote = quotation(trade.from, trade.to);
-    return  quote.isCounter
-      ? toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber()
-      : toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber();
+    const ratio = toBigNumber(threshold).times(toBigNumber(trade.price).times(toBigNumber(0.01)));
+    const slippagePrice = quote.isCounter
+      ? toBigNumber(trade.price).minus(ratio)
+      : toBigNumber(trade.price).add(ratio);
+
+    return  slippagePrice.toFixed(2, 1);
   };
 
   currencyPair = () => {
