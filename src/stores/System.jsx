@@ -262,7 +262,7 @@ export default class SystemStore {
 
   setUpToken = token => {
     blockchain.loadObject(token === "weth" ? "dsethtoken" : "dstoken", settings.chain[this.rootStore.network.network].tokens[token].address, token);
-    setInterval(() => this.saveBalance(token), 5000);
+    setInterval(() => this.saveBalance(token), 20000);
     this.saveBalance(token);
   }
 
