@@ -1,7 +1,5 @@
 /* eslint-disable */
-//@flow
 import AppEth from "@ledgerhq/hw-app-eth";
-import type Transport from "@ledgerhq/hw-transport";
 import HookedWalletSubprovider from "web3-provider-engine/dist/es5/subproviders/hooked-wallet";
 import stripHexPrefix from "strip-hex-prefix";
 import EthereumTx from "ethereumjs-tx";
@@ -27,21 +25,6 @@ export function obtainPathComponentsFromDerivationPath(derivationPath) {
   }
   return { basePath: matchResult[1], index: parseInt(matchResult[2], 10) };
 }
-
-/**
- */
-type SubproviderOptions = {
-  // refer to https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-  networkId: number,
-  // derivation path
-  path?: string,
-  // should use actively validate on the device
-  askConfirm?: boolean,
-  // number of accounts to derivate
-  accountsLength?: number,
-  // offset index to use to start derivating the accounts
-  accountsOffset?: number
-};
 
 const defaultOptions = {
   networkId: 1, // mainnet
@@ -71,9 +54,9 @@ const defaultOptions = {
  const web3 = new Web3(engine);
  */
 export default function createLedgerSubprovider(
-  getTransport: () => Transport<*>,
-  options?: SubproviderOptions
-): HookedWalletSubprovider {
+  getTransport,
+  options
+) {
   const { networkId, path, askConfirm, accountsLength, accountsOffset } = {
     ...defaultOptions,
     ...options

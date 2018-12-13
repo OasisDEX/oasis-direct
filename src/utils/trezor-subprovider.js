@@ -1,4 +1,3 @@
-//@flow
 import HookedWalletSubprovider from "web3-provider-engine/dist/es5/subproviders/hooked-wallet";
 import EthereumTx from "ethereumjs-tx";
 import AddressGenerator from "./address-generator";
@@ -23,18 +22,6 @@ function obtainPathComponentsFromDerivationPath(derivationPath) {
   return { basePath: matchResult[1], index: parseInt(matchResult[2], 10) };
 }
 
-/**
- */
-type SubproviderOptions = {
-  // refer to https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-  networkId: number,
-  // derivation path
-  path?: string,
-  // number of accounts to derivate
-  accountsLength?: number,
-  // offset index to use to start derivating the accounts
-  accountsOffset?: number
-};
 
 const defaultOptions = {
   networkId: 1, // mainnet
@@ -47,8 +34,8 @@ const defaultOptions = {
  * Create a HookedWalletSubprovider for Trezor devices.
  */
 export default function createTrezorSubprovider(
-  options?: SubproviderOptions
-): HookedWalletSubprovider {
+  options
+) {
   const { networkId, path, accountsLength, accountsOffset } = {
     ...defaultOptions,
     ...options
