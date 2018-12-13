@@ -9,7 +9,7 @@ import Pagination from "../components-ui/Pagination";
 import AddressList from "./AddressList";
 
 const style = {
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
   alignItems: 'center',
   margin: 'auto'
 };
@@ -20,6 +20,8 @@ export default class HWalletAddresses extends React.Component {
 
   constructor() {
     super();
+
+    this.dispose = null;
 
     this.state = {
       key: 1,
@@ -32,10 +34,16 @@ export default class HWalletAddresses extends React.Component {
 
   componentWillMount() {
     this.firstPage(this.props.network.hw.addresses);
-    reaction(
+    this.dispose = reaction(
       () => this.props.network.hw.addresses,
       addresses => this.firstPage(addresses)
     )
+  }
+
+  componentWillUnmount() {
+    if(this.dispose){
+      this.dispose();
+    }
   }
 
   firstPage = addresses => {
