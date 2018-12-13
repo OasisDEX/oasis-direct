@@ -87,7 +87,7 @@ export default function createLedgerSubprovider(
                 g1 + String(parseInt(g2) + accountsOffset + i) + g3
             ) + "/0/0";
           const { address } = await eth.getAddress(newPath, askConfirm, true);
-          addresses[newPath] = address;
+          addresses[newPath] = address.toLowerCase();
           addressToPathMap[address.toLowerCase()] = newPath;
         }
       } else {
