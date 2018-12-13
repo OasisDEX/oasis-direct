@@ -6,7 +6,7 @@ import Spinner from "../components-ui/Spinner";
 import TokenAmount from "../components-ui/TokenAmount";
 import { Attention, BackIcon, Circle } from "../components-ui/Icons";
 
-import { calculateTradePrice, fromWei, toBigNumber, toWei } from "../utils/helpers";
+import { calculateTradePrice, fromWei, quotation, toBigNumber, toWei } from "../utils/helpers";
 
 import GasPriceDropdown from "./GasPriceDropdown";
 import { GAS_PRICE_LEVELS } from "../utils/constants";
@@ -52,7 +52,8 @@ export default class TradeSettings extends Component {
 
   calculateSlippage = () => {
     const {threshold, trade} = this.props.system;
-    return this.props.system.trade.operation === "sellAll"
+    const quote = quotation(trade.from, trade.to);
+    return  quote.isCounter
       ? toBigNumber(trade.price).minus(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber()
       : toBigNumber(trade.price).add(toBigNumber(threshold * trade.price * 0.01)).round(2).toNumber();
   };
@@ -178,7 +179,7 @@ export default class TradeSettings extends Component {
                 The transaction will fail (and gas will be spent), if the price of 1
                 <strong> {this.currencyPair().base.toUpperCase()}</strong> is
                 {
-                  trade.operation === "sellAll" ? " lower" : " higher"
+                 quotation(trade.from, trade.to).isCounter ? " lower" : " higher"
                 } than ~{this.calculateSlippage()}
                 <strong> {this.currencyPair().quote.toUpperCase()}</strong>
               </p>
