@@ -3,7 +3,7 @@ import ReactTooltip from 'react-tooltip';
 import ActiveConnection from './ActiveConnection';
 import TokensSelector from './TokensSelector';
 import {
-  Ether, DAI, SwapArrows, IdentityIcon, Circle, Attention,
+  Ether, MKR, DAI, SwapArrows, IdentityIcon, Circle, Attention,
 } from './Icons';
 import Spinner from './Spinner';
 import TokenAmount from './TokenAmount';
@@ -18,6 +18,11 @@ const tokens = {
     icon: <Ether/>,
     symbol: "ETH",
     name: "Ether",
+  },
+  mkr: {
+    icon: <MKR/>,
+    symbol: "MKR",
+    name: "Maker"
   },
   dai: {
     icon: <DAI/>,
