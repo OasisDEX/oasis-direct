@@ -23,5 +23,18 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh"
+  },
+  "babel": {
+    "plugins": [
+      [
+        "transform-runtime",
+        {
+          "regenerator": true
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0"
   }
 }
