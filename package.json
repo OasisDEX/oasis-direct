@@ -61,6 +61,7 @@
     "build": "rm -rf ./build && REACT_APP_ENV='prod' node scripts/build.js",
     "build:test": "OASIS_GANACHE_COMPATIBILITY=1 REACT_APP_ENV='test' node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
+    "deploy:prod": "./scripts/deploy-prod.sh",
     "deploy:stage": "npm run build && surge ./build/ https://stage-oasis-direct.surge.sh",
     "surge": "npm run build && surge ./build/ https://oasis-direct.surge.sh",
     "cypress:run:ci": "cypress run --record",
