@@ -2,7 +2,7 @@ import React from 'react';
 import { inject, observer } from "mobx-react";
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
-  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon
+  PicInPicIcon, LockOpenIcon
 } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 
