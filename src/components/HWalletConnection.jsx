@@ -2,7 +2,7 @@ import React from 'react';
 import { inject, observer } from "mobx-react";
 import {
   Circle, BackIcon, RetryIcon, USBIcon, SmartphoneIcon, ApplicationSettingsIcon,
-  SmartphoneUpdateIcon, PicInPicIcon, LockOpenIcon
+  PicInPicIcon, LockOpenIcon
 } from "../components-ui/Icons";
 import Spinner from "../components-ui/Spinner";
 
@@ -19,11 +19,7 @@ const steps = {
     },
     {
       "icon": <ApplicationSettingsIcon/>,
-      "text": "Ensure the Browser Support is enabled in Settings"
-    },
-    {
-      "icon": <SmartphoneUpdateIcon/>,
-      "text": "You may need to update the firmware if Browser Support is not available"
+      "text": "Ensure the Browser Support is enabled in Settings. On newer firmware it's always enabled and you don't need to do anything."
     },
   ],
   "trezor": [
@@ -33,7 +29,7 @@ const steps = {
     },
     {
       "icon": <PicInPicIcon/>,
-      "text": "When to popop asks if you want to export the public key, select export"
+      "text": "When the popop asks if you want to export the public key, select export. Note that your browser can prevent popup from appearing.",
     },
     {
       "icon": <LockOpenIcon/>,
