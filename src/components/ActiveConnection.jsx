@@ -1,34 +1,56 @@
-import React from 'react';
-import {
-  IdentityIcon, BackIcon, Circle,
-} from './Icons';
-import TokenAmount from './TokenAmount';
-import * as Blockchain from "../blockchainHandler";
-import { etherscanAddress } from '../helpers';
+// Libraries
+import React from "react";
+import { inject, observer } from "mobx-react";
 
+// UI Components
+import { IdentityIcon, BackIcon, Circle} from "../components-ui/Icons";
+import TokenAmount from "../components-ui/TokenAmount";
+
+// Utils
+import * as blockchain from "../utils/blockchain";
+import { etherscanAddress } from "../utils/helpers";
+import NetworkIndicator from "./NetworkIndicator";
+import ProxyDetails from "./ProxyDetails";
+
+@inject("network")
+@inject("system")
+@observer
 class ActiveConnection extends React.Component {
+
+  disconnect = () => {
+    this.props.system.reset();
+    if(this.props.system.stopPriceTicker) {
+      this.props.system.stopPriceTicker();
+    }
+    this.props.network.stopNetwork();
+  }
+
   render() {
     return (
       <div className="frame">
         <div className="wallet-settings">
-          <button className="back" onClick={this.props.back}>
-            <Circle><BackIcon/></Circle>
+          <button data-test-id="go-back" className="back" onClick={this.props.back}>
+            <Circle hover><BackIcon/></Circle>
           </button>
           <div className="heading">
-            <h2>Active Wallet Connection</h2>
+            <h2>Active Client</h2>
+          </div>
+          <div className="network-indicator-placeholder">
+            <NetworkIndicator network={this.props.network.network}/>
           </div>
           <div className="content">
-            <div className="wallet-details">
+            <section className="wallet-details">
               <div>
-                <IdentityIcon address={this.props.account}/>
-                <span className="label">{Blockchain.getCurrentProviderName()} on {this.props.network}</span>
+                <IdentityIcon address={this.props.network.defaultAccount}/>
+                <span className="label">{blockchain.getCurrentProviderName()}</span>
                 <TokenAmount number={this.props.ethBalance} decimal={5} token={"ETH"}/>
               </div>
-              {etherscanAddress(this.props.network, this.props.account, this.props.account)}
-            </div>
+              {etherscanAddress(this.props.network.network, this.props.network.defaultAccount, this.props.network.defaultAccount)}
+            </section>
+            <ProxyDetails/>
           </div>
         </div>
-        <button type="button" value="Disconnect" className="disconnect" onClick={this.props.onDisconnect}>
+        <button type="button" value="Disconnect" className="disconnect" onClick={this.disconnect}>
           DISCONNECT
         </button>
       </div>

@@ -1,0 +1,27 @@
+.network-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 68px;
+  height: 28px;
+
+  background: #FFFFFF;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+
+  text-transform: capitalize;
+}
+
+.network-indicator.kovan {
+  color: #7E57C2;
+  border: 1px solid #7E57C2;
+}
+
+.network-indicator.main{
+  color: #009688;
+  border: 1px solid #009688;
+}

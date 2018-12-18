@@ -1,0 +1,33 @@
+.product-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 68px;
+
+  border: 1px solid #DEE4F4;
+  border-radius: 4px;
+
+  padding: 12px;
+
+  cursor: pointer;
+}
+
+.product-cover .label {
+  font-family: Montserrat, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+
+  margin-left: 12px;
+
+  width: min-content;
+
+  color: #969697;
+  letter-spacing: 0.94px;
+  text-transform: uppercase;
+}
+
+.product-cover .logo {
+  line-height: 0.5;
+}

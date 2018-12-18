@@ -1,11 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './components/App';
+// Libraries
+import React from "react";
+import ReactDOM from "react-dom";
 
-window.addEventListener('load', () => {
+// Components
+import App from "./components/App";
 
-  ReactDOM.render(<App />, document.getElementById('root'));
+import "./index.css";
 
+window.addEventListener("load", () => {
+  ReactDOM.render((
+      <App />
+  ), document.getElementById("root"));
 });
-

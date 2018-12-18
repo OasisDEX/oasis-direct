@@ -1,0 +1,25 @@
+.disabled {
+  pointer-events: none;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.shown {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}

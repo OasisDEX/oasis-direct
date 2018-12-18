@@ -4,6 +4,10 @@ Oasis.Direct is a convenient and user friendly fully-decentralized way to change
   
 You don’t need to think about wrapping/unwrapping ETH (and other non ERC-20 compliant tokens), you don’t need to worry about the current liquidity on the exchange and you are always guaranteed the best price you can get from Oasis.DEX exchange.
 
+## Deployments
+- [production](https://oasis.direct/)
+- [stage](https://stage-oasis-direct.surge.sh) - auto deploy branch `release/simpson`
+
 ## Sections in Oasis Direct Web App
 
  1. **Exchange** 
@@ -32,7 +36,7 @@ Oasis.Direct is the most convenient, fully-decentralized way to change tokens. Y
 **Are you going to support more trading pairs in the future ?**
 
 
-Yes, more trading pairs will be supported in the future. In the beginning the following pairs are available: DAI/ETH, MKR/DAI and ETH/MKR. 
+Yes, more trading pairs will be supported in the future. In the beginning the following pair is available: DAI/ETH. 
 
 **Why do I sometimes need to confirm two transactions, and sometimes only one ?**
 
@@ -53,7 +57,7 @@ The slippage limits were decided by analyzing the volatility and book depth hist
 
 **Can you list order estimation variations (thresholds) for all assets/tokens ?** 
 
-Right now there is  a fixed threshold of 1% for ETH/MKR and DAI/MKR pairs, and 2% for DAI/ETH pair. 
+Right now there is  a fixed threshold of  2% for DAI/ETH pair. 
 
 **What is the maximum value I can trade through Oasis.Direct ?**
 
@@ -68,7 +72,7 @@ This functionality will be included in the future release of Oasis.Direct
 As the gas cost for a transaction is fixed and doesn’t  depend on the amount you want to trade, the bigger amount, the less (percentage-wise) you pay for gas. Minimum trade sizes were introduced to make sure that the total transaction cost is minimal with respect to the traded amount. Currently the minimum trade sizes are:
  * 30 DAI
  * 0.03 ETH
- * 0.03 MKR
+ 
 Note that both buy and sell amounts of a transaction need to be above the minimum trade size.
 
 
@@ -83,3 +87,37 @@ Yes, even though there are no fees, you still need to cover the gas cost of the 
 Oasis.Direct is powered by fully decentralized, on-chain Smart Contracts. The transaction confirmation time depends on the current state of the Ethereum blockchain. You can increase the speed of confirmation by increasing the gas price for your transaction - please refer to this [guide](https://myetherwallet.github.io/knowledge-base/gas/what-is-gas-ethereum.html) that explains all the mechanics of the gas price and its effect on the speed of transactions. 
 
   
+## Development
+
+### Starting the app
+```
+yarn
+yarn start
+```
+
+### E2E tests
+
+First, make sure you have app and oasis-localnode already running. Then run all cypress tests:
+
+```
+yarn cypress:run
+```
+
+To develop:
+
+```
+yarn cypress:dev
+```
+
+If you're trying to debug test failure on CI visit [Cypress Dashboard](https://dashboard.cypress.io/#/projects/noiqfs/runs)
+
+#### CI
+
+Sometimes, you might want to update localnode version used in tests. There is a `LOCALNODE_SHA` in `.circleci/config.yml`. This SHA should match top of the master branch in localnode repository.
+
+## Env variables
+
+```sh
+OASIS_GANACHE_COMPATIBILITY=1                # optional, if enabled we are gonna adjust gas estimations
+OASIS_HIDE_MKR=1                             # optional
+```

@@ -1,40 +1,81 @@
+// Libraries
+import React from "react";
+import { inject, observer } from "mobx-react";
 
-import React, { Component } from 'react';
-import SetTrade from './SetTrade';
-import DoTrade from './DoTrade';
+// Components
+import ActiveConnection from "./ActiveConnection";
+import DoTrade from "./DoTrade";
+import SetTrade from "./SetTrade";
 
-class TradeWidget extends Component {
+// Utils
+import TradeSettings from "./TradeSettings";
+import { reaction } from "mobx";
+
+@inject("network")
+@inject("system")
+@observer
+class TradeWidget extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      view: null,
+    };
+  }
+
+  componentDidMount() {
+    this.priceTickerInterval = (this.props.system.getETHPriceInUSD(), setInterval(this.props.system.getETHPriceInUSD, 3000000));
+    this.switchToNewTrade();
+
+    reaction(
+      () => this.props.system.trade.step,
+      step => {
+        switch (step) {
+          case 1:
+            this.switchToNewTrade();
+            break;
+          case 2:
+            this.switchToTradeFinalization();
+            break;
+          default:
+            this.switchToNewTrade();
+        }
+      });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.priceTickerInterval);
+  }
+
+  switchToTradeSettings = () => {
+    this.setState({
+      view: <TradeSettings onDismiss={this.switchToNewTrade}/>
+    })
+  };
+
+  switchToActiveConnection = () => {
+    this.setState({
+      view: <ActiveConnection ethBalance={this.props.system.balances.eth} back={this.switchToNewTrade}/>
+    })
+  };
+
+  switchToNewTrade = () => {
+    this.setState({
+      view: <SetTrade showTradeSettings={this.switchToTradeSettings}
+                      showConnectionDetails={this.switchToActiveConnection}/>
+    })
+  };
+
+  switchToTradeFinalization = () => {
+    this.setState({
+      view: <DoTrade />
+    })
+  };
+
+
   render() {
     return (
-      <div style={ {position: 'relative'} }>
-        {
-          this.props.trade.step === 1
-            ?
-            <SetTrade network={this.props.network}
-                      account={this.props.account}
-                      loadingAddress={this.props.loadingAddress}
-                      proxy={this.props.proxy}
-                      setMainState={this.props.setMainState}
-                      fasterGasPrice={this.props.fasterGasPrice}
-                      doTrade={this.props.doTrade}
-                      trade={this.props.trade}
-                      balances={this.props.balances}
-                      calculateBuyAmount={this.props.calculateBuyAmount}
-                      calculatePayAmount={this.props.calculatePayAmount}
-                      cleanInputs={this.props.cleanInputs}
-                      showHW={this.props.showHW}
-                      onDisconnect={this.props.onDisconnect} />
-            :
-            <DoTrade network={this.props.network}
-                      account={this.props.account}
-                      proxy={this.props.proxy}
-                      trade={this.props.trade}
-                      transactions={this.props.transactions}
-                      setMainState={this.props.setMainState}
-                      fasterGasPrice={this.props.fasterGasPrice}
-                      reset={this.props.reset}
-                      showTxMessage={this.props.showTxMessage} />
-        }
+      <div style={{position: "relative"}}>
+        {this.state.view}
       </div>
     )
   }

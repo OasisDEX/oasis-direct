@@ -1,7 +1,15 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:400,600,700|Roboto:500|Raleway:400,500,600  ');
+@import "styles/Common.css";
+@import "styles/Accordion.css";
+@import "styles/Dropdown.css";
 @import 'styles/App.css';
 @import 'styles/LandingPage.css';
 @import 'styles/NoAccount.css';
+@import 'styles/NetworkIndicator.css';
+@import 'styles/ProxyDetails.css';
+@import 'styles/Allowances.css';
+@import "styles/PriceImpactWarning.css";
+@import "styles/TradeSettings.css";
 @import 'styles/Responsive.css';
 
 body {

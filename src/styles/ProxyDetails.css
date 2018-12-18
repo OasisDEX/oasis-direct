@@ -1,0 +1,103 @@
+/*TODO: Introduce CSS Modules so that we don't have this kind of duplication of namespaces*/
+
+.proxy-details {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+
+  display: inline-flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.proxy-details button.gray {
+  border: 1px solid #DEE4F4;
+  opacity: 0.9;
+  font-weight: 500;
+  font-size: 12px;
+  color: #5B5B5C;
+  background-color: white;
+  width: inherit;
+  height: 28px;
+  margin-left: auto;
+  padding: 6px 14px;
+  letter-spacing: 0.3px;
+}
+
+.proxy-details button.gray:hover:not(:disabled) {
+  border-color:#c7d1eb;
+}
+
+.proxy-details button.gray[disabled] {
+  color: #DEE4F4;
+}
+
+.proxy-details .proxy-status {
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid #F7F7F8;
+  padding-bottom: 16px;
+}
+
+.proxy-details .proxy-status .label {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #5B5B5C;
+  letter-spacing: 0.8px;
+  line-height: 16px;
+  padding-left: 16px;
+}
+
+.proxy-details .proxy-status .spinner {
+  margin-left: auto;
+}
+
+.proxy-details .allowances-status {
+  display: inline-flex;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.proxy-details .proxy-status,
+.proxy-details .allowance-status {
+  min-height: 48px;
+}
+
+.proxy-details .allowances-status .attention {
+  display:flex;
+  align-items: center;
+}
+
+.proxy-details .allowances-status .attention:not(:first-child){
+  margin-top: 8px;
+}
+
+.proxy-details .allowances-status .attention-icon {
+  flex-shrink: 0;
+  height: 24px;
+  width: 24px;
+  margin-right: 16px;
+}
+
+.proxy-details .allowances-status .attention-text {
+  width: fit-content;
+  margin: 0;
+  font-size: 13px;
+  text-align: left;
+  color: #969697;
+  letter-spacing: 0.1px;
+}
+
+.proxy-details .allowances-status .label {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.6px
+}
+
+.proxy-details .activated .account-icon {
+  fill: #66BB6A;
+}
