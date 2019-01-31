@@ -102,7 +102,7 @@ footer.Container {
 }
 
 .Content .MainHeading {
-  max-width: 424px;
+  max-width: 100%;
 }
 
 .Content h1, .Content h2 {
