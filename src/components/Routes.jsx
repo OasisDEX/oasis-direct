@@ -3,8 +3,6 @@ import React from "react";
 import {withRouter, Route, Switch} from "react-router-dom";
 
 // Components
-import FAQ from "./FAQ";
-import Main from "./Main";
 import Widget from "./Widget";
 
 @withRouter
@@ -18,9 +16,7 @@ class Routes extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/trade-widget" render={() => <Widget section="trade-widget" />} />
-        <Route exact path="/faq" render={() => <FAQ />} />
-        <Route /*exact path="/"*/ render={() => <Main widget={<Widget section="" />} />} />
+        <Route /*exact path="/"*/ render={() => <Widget section="tax-exporter" />} />
         {/* <Route component={ NotFound } /> */}
       </Switch>
     );
