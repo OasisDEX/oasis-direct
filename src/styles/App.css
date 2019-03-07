@@ -199,6 +199,10 @@
   height: 18px;
 }
 
+.frame {
+  margin: 40px auto 0;
+}
+
 .label {
   font-family: Montserrat, sans-serif;
   font-size: 12px;
@@ -1037,8 +1041,7 @@ button[disabled] {
 
 .frame button.close {
   position: absolute;
-  top: 18px;
-  right: 22px;
+  right: 30px;
 }
 
 .swap-tokens {

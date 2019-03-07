@@ -5,7 +5,7 @@ import {inject, observer} from "mobx-react";
 // Components
 import HardWallet from "./HardWallet";
 import LockedAccount from "./LockedAccount";
-import TradeWidget from "./TradeWidget";
+import TaxWidget from './TaxWidget';
 import Wallets from "./Wallets";
 
 // Utils
@@ -15,6 +15,7 @@ import {isAddress} from "../utils/helpers";
 @observer
 class Widget extends React.Component {
   render() {
+
     return (
       <div className={`Widget ${this.props.section}`}>
         {
@@ -28,7 +29,10 @@ class Widget extends React.Component {
             :
               this.props.network.defaultAccount && isAddress(this.props.network.defaultAccount)
               ?
-                <TradeWidget />
+                <TaxWidget
+                    account={this.props.network.defaultAccount}
+                    network={this.props.network.network}
+                />
               :
                 <LockedAccount />
         }
